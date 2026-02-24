@@ -111,8 +111,8 @@ export default function TrainingLogs() {
                 <th>Staff Member</th>
                 <th>Date Completed</th>
                 <th>Topic</th>
-                <th>Trainer</th>
-                <th>Cert. Expiry</th>
+                <th className="mobile-hide">Trainer</th>
+                <th className="mobile-hide">Cert. Expiry</th>
                 <th>Notes</th>
                 <th>Actions</th>
               </tr>
@@ -123,8 +123,8 @@ export default function TrainingLogs() {
                   <td>{log.staffName}</td>
                   <td>{formatDate(log.dateCompleted)}</td>
                   <td>{log.topic}</td>
-                  <td>{log.trainerName || '—'}</td>
-                  <td>{formatDate(log.certificateExpiry)}</td>
+                  <td className="mobile-hide">{log.trainerName || '—'}</td>
+                  <td className="mobile-hide">{formatDate(log.certificateExpiry)}</td>
                   <td className="cell-notes">{log.notes || '—'}</td>
                   <td>
                     <div className="action-btns">

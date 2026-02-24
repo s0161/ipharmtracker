@@ -1738,6 +1738,11 @@ select.input {
     padding: 0.3rem 0.65rem;
   }
 
+  /* Hide secondary columns on tablet/mobile */
+  .table .mobile-hide {
+    display: none;
+  }
+
   /* Tables — tighter on mobile */
   .table {
     font-size: 0.78rem;
@@ -1785,8 +1790,8 @@ select.input {
     padding: 1rem 1.25rem;
   }
 
-  /* Hide less important table columns on very small screens */
-  .table .cell-notes {
+  .table .cell-notes,
+  .table .mobile-hide {
     display: none;
   }
 

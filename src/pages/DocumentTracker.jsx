@@ -137,8 +137,8 @@ export default function DocumentTracker() {
                 <th>Status</th>
                 <th>Document Name</th>
                 <th>Category</th>
-                <th>Owner</th>
-                <th>Issue Date</th>
+                <th className="mobile-hide">Owner</th>
+                <th className="mobile-hide">Issue Date</th>
                 <th>Expiry / Review</th>
                 <th>Notes</th>
                 <th>Actions</th>
@@ -164,8 +164,8 @@ export default function DocumentTracker() {
                     <td>
                       <span className="badge">{doc.category}</span>
                     </td>
-                    <td>{doc.owner || '—'}</td>
-                    <td>{formatDate(doc.issueDate)}</td>
+                    <td className="mobile-hide">{doc.owner || '—'}</td>
+                    <td className="mobile-hide">{formatDate(doc.issueDate)}</td>
                     <td>{formatDate(doc.expiryDate)}</td>
                     <td className="cell-notes">{doc.notes || '—'}</td>
                     <td>

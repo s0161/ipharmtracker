@@ -314,7 +314,7 @@ export default function StaffTraining() {
                 {SORT_FIELDS.map((field) => (
                   <th
                     key={field}
-                    className="sortable-th"
+                    className={`sortable-th${field === 'role' ? ' mobile-hide' : ''}`}
                     onClick={() => handleSort(field)}
                   >
                     {SORT_LABELS[field]}
@@ -330,7 +330,7 @@ export default function StaffTraining() {
               {sorted.map((entry) => (
                 <tr key={entry.id} className={`training-row training-row--${statusClass(entry.status)}`}>
                   <td className="cell-bold">{entry.staffName}</td>
-                  <td>{entry.role}</td>
+                  <td className="mobile-hide">{entry.role}</td>
                   <td>{entry.trainingItem}</td>
                   <td>{entry.targetDate ? formatDate(entry.targetDate) : 'Ongoing'}</td>
                   <td>

@@ -154,9 +154,9 @@ export default function SafeguardingTraining() {
                 <th>Staff Name</th>
                 <th>Job Title</th>
                 <th>Training Date</th>
-                <th>Delivered By</th>
-                <th>Method</th>
-                <th>Handbook</th>
+                <th className="mobile-hide">Delivered By</th>
+                <th className="mobile-hide">Method</th>
+                <th className="mobile-hide">Handbook</th>
                 <th>Signed Off</th>
                 <th>Next Refresher</th>
                 <th>Status</th>
@@ -172,9 +172,9 @@ export default function SafeguardingTraining() {
                     <td className="cell-bold">{record.staffName}</td>
                     <td>{record.jobTitle}</td>
                     <td>{formatDate(record.trainingDate)}</td>
-                    <td className="cell-notes">{record.deliveredBy}</td>
-                    <td className="cell-notes">{record.trainingMethod}</td>
-                    <td className="cell-notes">{record.handbookVersion}</td>
+                    <td className="cell-notes mobile-hide">{record.deliveredBy}</td>
+                    <td className="cell-notes mobile-hide">{record.trainingMethod}</td>
+                    <td className="cell-notes mobile-hide">{record.handbookVersion}</td>
                     <td>
                       <button
                         className={`signed-badge ${record.signedOff ? 'signed-badge--yes' : 'signed-badge--no'}`}
