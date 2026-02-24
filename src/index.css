@@ -1541,9 +1541,14 @@ select.input {
   }
 
   .main-content {
-    padding: 1.25rem;
+    padding: 1rem;
   }
 
+  .main-header {
+    padding: 0 1rem;
+  }
+
+  /* Dashboard */
   .dash-grid {
     grid-template-columns: 1fr;
   }
@@ -1552,8 +1557,31 @@ select.input {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .dash-section {
+    padding: 1rem;
+  }
+
+  /* Compliance score */
+  .compliance-section {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.25rem;
+  }
+
+  .compliance-ring-wrap {
+    width: 100px;
+    height: 100px;
+  }
+
+  .compliance-row-label {
+    min-width: 80px;
+    font-size: 0.75rem;
+  }
+
+  /* Page headers */
   .page-header {
     flex-direction: column;
+    gap: 0.75rem;
   }
 
   .page-header-actions {
@@ -1561,24 +1589,210 @@ select.input {
     flex-wrap: wrap;
   }
 
+  .page-actions {
+    width: 100%;
+    display: flex;
+  }
+
+  .page-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  /* Training summary cards — stack on mobile */
+  .training-summary {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .training-summary-card {
+    padding: 0.75rem 1rem;
+  }
+
+  /* Progress bars */
+  .progress-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Filters — stack vertically */
+  .training-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .training-filters .input--inline {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  /* Safeguarding banner — stack */
+  .sg-banner {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+
+  .sg-banner-divider {
+    width: 100%;
+    height: 1px;
+  }
+
+  .sg-banner-item {
+    justify-content: flex-start;
+    gap: 0.5rem;
+    padding: 0.25rem 0;
+  }
+
+  /* Safeguarding docs */
+  .sg-docs {
+    padding: 1rem;
+  }
+
+  .sg-docs-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Settings */
+  .settings-add-form {
+    flex-direction: column;
+  }
+
+  .settings-add-form .input {
+    width: 100%;
+  }
+
+  .settings-add-form .input--inline {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .settings-list-item {
+    font-size: 0.82rem;
+  }
+
+  .settings-list-actions {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .settings-list-actions .input--sm {
+    min-width: unset;
+    width: 100%;
+  }
+
+  /* Data management */
+  .data-mgmt-actions {
+    flex-direction: column;
+  }
+
+  .data-mgmt-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Forms */
   .form-row {
     grid-template-columns: 1fr;
   }
 
-  .compliance-section {
-    flex-direction: column;
-    text-align: center;
+  /* Modal — wider on mobile */
+  .modal-overlay {
+    padding: 1rem 0.5rem;
+    align-items: flex-start;
   }
 
-  .compliance-ring-wrap {
-    width: 100px;
-    height: 100px;
+  .modal {
+    max-width: 100%;
+  }
+
+  .modal-body {
+    padding: 1rem;
+  }
+
+  /* Touch targets — minimum 44px height */
+  .btn {
+    min-height: 44px;
+    padding: 0.6rem 1rem;
+  }
+
+  .btn--sm {
+    min-height: 38px;
+    padding: 0.4rem 0.65rem;
+  }
+
+  .status-badge {
+    min-height: 32px;
+    padding: 0.3rem 0.75rem;
+  }
+
+  .signed-badge {
+    min-height: 32px;
+    padding: 0.3rem 0.65rem;
+  }
+
+  /* Tables — tighter on mobile */
+  .table {
+    font-size: 0.78rem;
+  }
+
+  .table thead th {
+    padding: 0.6rem 0.65rem;
+    font-size: 0.65rem;
+  }
+
+  .table tbody td {
+    padding: 0.55rem 0.65rem;
+  }
+
+  .cell-notes {
+    max-width: 100px;
+  }
+
+  /* Today's panel */
+  .todays-panel {
+    padding: 1rem;
+  }
+
+  .todays-panel-header {
+    flex-direction: column;
+    gap: 0.25rem;
+    align-items: flex-start;
+  }
+
+  .todays-tasks {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 480px) {
+  .main-content {
+    padding: 0.75rem;
+  }
+
   .dash-cards {
     grid-template-columns: 1fr;
+  }
+
+  .dash-card {
+    padding: 1rem 1.25rem;
+  }
+
+  /* Hide less important table columns on very small screens */
+  .table .cell-notes {
+    display: none;
+  }
+
+  .page-desc {
+    font-size: 0.82rem;
+  }
+
+  .compliance-row-label {
+    min-width: 60px;
+    font-size: 0.7rem;
   }
 }
 
