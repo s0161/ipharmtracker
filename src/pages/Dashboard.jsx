@@ -11,41 +11,6 @@ import {
   DEFAULT_CLEANING_TASKS,
 } from '../utils/helpers'
 
-const RING_RADIUS = 54
-const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS
-
-const MINI_RADIUS = 36
-const MINI_CIRCUMFERENCE = 2 * Math.PI * MINI_RADIUS
-
-function ComplianceRing({ score, label, color, size = 'large' }) {
-  const r = size === 'large' ? RING_RADIUS : MINI_RADIUS
-  const c = size === 'large' ? RING_CIRCUMFERENCE : MINI_CIRCUMFERENCE
-  const vb = size === 'large' ? 128 : 88
-  const cx = vb / 2
-  const offset = c * (1 - score / 100)
-  const sw = size === 'large' ? 10 : 6
-
-  return (
-    <svg className={`compliance-ring-svg compliance-ring-svg--${size}`} viewBox={`0 0 ${vb} ${vb}`}>
-      <circle cx={cx} cy={cx} r={r} fill="none" stroke="var(--border)" strokeWidth={sw} />
-      <circle
-        cx={cx} cy={cx} r={r}
-        fill="none" stroke={color} strokeWidth={sw}
-        strokeLinecap="round"
-        strokeDasharray={c}
-        strokeDashoffset={offset}
-        style={{ transition: 'stroke-dashoffset 800ms cubic-bezier(0.4,0,0.2,1)' }}
-      />
-      <text x={cx} y={size === 'large' ? cx - 6 : cx - 3} textAnchor="middle" className={`compliance-ring-pct compliance-ring-pct--${size}`}>
-        {score}%
-      </text>
-      <text x={cx} y={size === 'large' ? cx + 12 : cx + 9} textAnchor="middle" className={`compliance-ring-label compliance-ring-label--${size}`}>
-        {label}
-      </text>
-    </svg>
-  )
-}
-
 function scoreColor(pct) {
   if (pct > 80) return 'var(--success)'
   if (pct >= 50) return 'var(--warning)'
@@ -78,34 +43,127 @@ const RP_FORTNIGHTLY = [
   'Staff training records reviewed',
   'SOPs reviewed for currency',
 ]
-const RP_MONTHLY = []
 
-function TaskIcon({ done }) {
-  if (done) {
-    return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-        <polyline points="20 6 9 17 4 12" />
-      </svg>
-    )
-  }
+const RP_GROUPS = [
+  { frequency: 'daily', label: 'Daily', items: RP_DAILY },
+  { frequency: 'weekly', label: 'Weekly', items: RP_WEEKLY },
+  { frequency: 'fortnightly', label: 'Fortnightly', items: RP_FORTNIGHTLY },
+]
+
+function KanbanCard({ card, tickingCardId, setTickingCardId, expandedRpCard, setExpandedRpCard, staffMembers, onTickCleaning, rpChecklist, onToggleRpItem }) {
+  const isCleaning = card.category === 'Cleaning'
+  const isRp = card.category === 'RP Check'
+  const isTickOpen = tickingCardId === card.id
+  const isExpanded = expandedRpCard === card.id
+
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-      <circle cx="12" cy="12" r="10" />
-      <line x1="12" y1="8" x2="12" y2="12" />
-      <line x1="12" y1="16" x2="12.01" y2="16" />
-    </svg>
+    <div className={`kanban-card kanban-card--${card.status}`}>
+      <div className="kanban-card-row">
+        {/* Tick button */}
+        {isCleaning && card.status !== 'done' && (
+          <button
+            className="kanban-tick-btn"
+            onClick={() => setTickingCardId(isTickOpen ? null : card.id)}
+            aria-label={`Mark ${card.name} as done`}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+              <circle cx="12" cy="12" r="10" />
+            </svg>
+          </button>
+        )}
+        {isCleaning && card.status === 'done' && (
+          <span className="kanban-tick-done">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2.5" width="18" height="18">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+          </span>
+        )}
+        {isRp && (
+          <button
+            className="kanban-tick-btn"
+            onClick={() => setExpandedRpCard(isExpanded ? null : card.id)}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke={card.status === 'done' ? 'var(--success)' : 'currentColor'} strokeWidth="2" width="18" height="18">
+              {card.status === 'done' ? (
+                <><path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></>
+              ) : (
+                <circle cx="12" cy="12" r="10" />
+              )}
+            </svg>
+          </button>
+        )}
+
+        <div className="kanban-card-body">
+          <span className="kanban-card-name">{card.name}</span>
+          <div className="kanban-card-meta">
+            <span className="kanban-card-pill kanban-card-pill--cat">{card.category}</span>
+            {card.isSummary
+              ? <span className="kanban-card-time">{card.doneCount}/{card.total} done</span>
+              : card.timestamp && <span className="kanban-card-time">{card.timestamp}</span>}
+          </div>
+        </div>
+      </div>
+
+      {/* Staff picker for cleaning tick-off */}
+      {isCleaning && isTickOpen && (
+        <div className="kanban-staff-picker">
+          <p className="kanban-staff-picker-label">Who completed this?</p>
+          <div className="kanban-staff-picker-list">
+            {staffMembers.map(name => (
+              <button key={name} className="kanban-staff-picker-btn" onClick={() => onTickCleaning(card.name, name)}>
+                {name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* RP expanded checklist */}
+      {isRp && isExpanded && card.rpItems && (
+        <div className="kanban-rp-checklist">
+          {card.rpItems.map(item => (
+            <label key={item} className="kanban-rp-item">
+              <input
+                type="checkbox"
+                checked={!!rpChecklist[item]}
+                onChange={() => onToggleRpItem(item)}
+              />
+              <span>{item}</span>
+            </label>
+          ))}
+        </div>
+      )}
+
+      {/* Progress bar for RP summary */}
+      {card.isSummary && (
+        <div className="kanban-card-progress">
+          <div
+            className="kanban-card-progress-fill"
+            style={{
+              width: `${(card.doneCount / card.total) * 100}%`,
+              background: card.status === 'done' ? 'var(--success)' : card.doneCount === 0 ? 'var(--border)' : 'var(--warning)',
+            }}
+          />
+        </div>
+      )}
+    </div>
   )
 }
 
 export default function Dashboard() {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('today')
+  const [showOutstanding, setShowOutstanding] = useState(false)
+  const [tickingCardId, setTickingCardId] = useState(null)
+  const [expandedRpCard, setExpandedRpCard] = useState(null)
+
   const [documents, , docsLoading] = useSupabase('documents', [])
-  const [cleaningEntries] = useSupabase('cleaning_entries', [])
+  const [cleaningEntries, setCleaningEntries] = useSupabase('cleaning_entries', [])
   const [cleaningTasks] = useSupabase('cleaning_tasks', DEFAULT_CLEANING_TASKS)
   const [staffTraining] = useSupabase('staff_training', [])
   const [safeguarding] = useSupabase('safeguarding_records', [])
-  const [rpLogs] = useSupabase('rp_log', [])
+  const [rpLogs, setRpLogs] = useSupabase('rp_log', [])
+  const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
 
   if (docsLoading) {
     return <div className="loading-container"><div className="spinner" />Loading…</div>
@@ -145,7 +203,7 @@ export default function Dashboard() {
 
   const overallScore = Math.round((docScore + staffScore + cleaningScore + sgScore) / 4)
 
-  // Cleaning task statuses grouped by frequency (deduplicate by name)
+  // Cleaning task statuses (deduplicate by name)
   const seen = new Set()
   const taskStatuses = cleaningTasks.filter(t => {
     if (seen.has(t.name)) return false
@@ -155,13 +213,6 @@ export default function Dashboard() {
     ...task,
     status: getTaskStatus(task.name, task.frequency, cleaningEntries),
   }))
-
-  // RP items grouped by frequency for summary cards
-  const RP_GROUPS = [
-    { frequency: 'daily', label: 'Daily', items: RP_DAILY },
-    { frequency: 'weekly', label: 'Weekly', items: RP_WEEKLY },
-    { frequency: 'fortnightly', label: 'Fortnightly', items: RP_FORTNIGHTLY },
-  ].filter(g => g.items.length > 0)
 
   // RP Log — today's checklist
   const todayStr = new Date().toISOString().slice(0, 10)
@@ -177,16 +228,6 @@ export default function Dashboard() {
     return s === 'due-soon' || s === 'overdue'
   })
   const totalActionItems = expiredDocs.length + dueSoon.length + overdueTraining.length + overdueCleaningTasks.length + sgDueSoon.length
-  const allClear = totalActionItems === 0
-
-  // Upcoming expiries
-  const upcoming = documents
-    .filter((d) => {
-      const status = getTrafficLight(d.expiryDate)
-      return d.expiryDate && (status === 'amber' || status === 'green')
-    })
-    .sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate))
-    .slice(0, 5)
 
   const complianceAreas = [
     { label: 'Documents', score: docScore, nav: '/documents' },
@@ -198,7 +239,6 @@ export default function Dashboard() {
   // Build kanban columns by frequency
   const buildColumn = (freq) => {
     const cards = []
-    // Cleaning cards for this frequency
     taskStatuses.filter(t => t.frequency === freq).forEach(task => {
       if (task.status === 'upcoming') return
       const latestEntry = task.status === 'done'
@@ -216,7 +256,6 @@ export default function Dashboard() {
           : null,
       })
     })
-    // RP summary card for this frequency
     const rpGroup = RP_GROUPS.find(g => g.frequency === freq)
     if (rpGroup) {
       const doneCount = rpGroup.items.filter(name => !!rpChecklist[name]).length
@@ -229,6 +268,7 @@ export default function Dashboard() {
         isSummary: true,
         doneCount,
         total,
+        rpItems: rpGroup.items,
       })
     }
     return cards
@@ -238,290 +278,225 @@ export default function Dashboard() {
   const weeklyCards = buildColumn('weekly')
   const fortnightlyCards = buildColumn('fortnightly')
 
+  // Tick-off handlers
+  const handleTickCleaning = (taskName, staffMember) => {
+    const nowDt = new Date()
+    const newEntry = {
+      id: crypto.randomUUID(),
+      taskName,
+      dateTime: nowDt.toISOString().slice(0, 16),
+      staffMember,
+      result: 'Pass',
+      notes: 'Completed from dashboard',
+      createdAt: nowDt.toISOString(),
+    }
+    setCleaningEntries([...cleaningEntries, newEntry])
+    setTickingCardId(null)
+  }
+
+  const handleToggleRpItem = (itemName) => {
+    const updatedChecklist = { ...rpChecklist, [itemName]: !rpChecklist[itemName] }
+    if (todayRp) {
+      setRpLogs(rpLogs.map(l =>
+        l.id === todayRp.id ? { ...l, checklist: updatedChecklist } : l
+      ))
+    } else {
+      setRpLogs([...rpLogs, {
+        id: crypto.randomUUID(),
+        date: todayStr,
+        rpName: 'Dashboard',
+        checklist: updatedChecklist,
+        notes: '',
+        createdAt: new Date().toISOString(),
+      }])
+    }
+  }
+
   return (
     <div className="dashboard">
-      {/* Greeting */}
-      <div className="dash-greeting">
-        <div>
-          <h1 className="dash-greeting-title">{getGreeting()}</h1>
-          <p className="dash-greeting-sub">
-            iPharmacy Direct —{' '}
+      {/* === TOP BAR === */}
+      <div className="dash-topbar no-print">
+        <div className="dash-topbar-left">
+          <h1 className="dash-topbar-greeting">{getGreeting()}</h1>
+          <p className="dash-topbar-date">
             {new Date().toLocaleDateString('en-GB', {
               weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
             })}
           </p>
         </div>
-        <button className="btn btn--ghost no-print" onClick={() => window.print()}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
-            <polyline points="6 9 6 2 18 2 18 9" />
-            <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" />
-            <rect x="6" y="14" width="12" height="8" />
-          </svg>
-          Print Report
-        </button>
-      </div>
 
-      {/* Action Required / All Clear */}
-      {allClear ? (
-        <div className="action-required-section action-required-section--clear">
-          <div className="action-required-clear">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="28" height="28">
-              <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
-              <polyline points="22 4 12 14.01 9 11.01" />
-            </svg>
-            <div>
-              <h2 className="action-required-title">All Clear</h2>
-              <p className="action-required-sub">No items require attention.</p>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="action-required-section">
-          <h2 className="action-required-heading">Action Required</h2>
-          <div className="action-required-items">
-            {expiredDocs.length > 0 && (
-              <button className="action-item action-item--red" onClick={() => navigate('/documents')}>
-                <span className="action-item-count">{expiredDocs.length}</span>
-                <span className="action-item-text">Expired document{expiredDocs.length !== 1 ? 's' : ''}</span>
-              </button>
-            )}
-            {dueSoon.length > 0 && (
-              <button className="action-item action-item--amber" onClick={() => navigate('/documents')}>
-                <span className="action-item-count">{dueSoon.length}</span>
-                <span className="action-item-text">Due within 7 days</span>
-              </button>
-            )}
-            {overdueTraining.length > 0 && (
-              <button className="action-item action-item--red" onClick={() => navigate('/staff-training')}>
-                <span className="action-item-count">{overdueTraining.length}</span>
-                <span className="action-item-text">Pending training{overdueTraining.length !== 1 ? 's' : ''}</span>
-              </button>
-            )}
-            {overdueCleaningTasks.length > 0 && (
-              <button className="action-item action-item--amber" onClick={() => navigate('/cleaning')}>
-                <span className="action-item-count">{overdueCleaningTasks.length}</span>
-                <span className="action-item-text">Overdue cleaning</span>
-              </button>
-            )}
-            {sgDueSoon.length > 0 && (
-              <button className="action-item action-item--amber" onClick={() => navigate('/safeguarding')}>
-                <span className="action-item-count">{sgDueSoon.length}</span>
-                <span className="action-item-text">Safeguarding due</span>
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Quick-Add Buttons */}
-      <div className="quick-add-row no-print">
-        <button className="btn btn--primary quick-add-btn" onClick={() => navigate('/cleaning?add=true')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
-            <path d="M12 5v14M5 12h14" />
-          </svg>
-          Log Cleaning
-        </button>
-        <button className="btn btn--primary quick-add-btn" onClick={() => navigate('/training?add=true')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
-            <path d="M12 5v14M5 12h14" />
-          </svg>
-          Log Training
-        </button>
-        <button className="btn btn--primary quick-add-btn" onClick={() => navigate('/rp-log')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
-            <path d="M9 14l2 2 4-4" />
-            <rect x="3" y="3" width="18" height="18" rx="3" />
-          </svg>
-          RP Checklist
-        </button>
-      </div>
-
-      {/* Compliance Rings */}
-      <div className="compliance-hero">
-        <div className="compliance-hero-main">
-          <ComplianceRing score={overallScore} label="Overall" color={scoreColor(overallScore)} size="large" />
-        </div>
-        <div className="compliance-hero-areas">
-          {complianceAreas.map((item) => (
-            <button key={item.label} className="compliance-area-card" onClick={() => navigate(item.nav)}>
-              <ComplianceRing score={item.score} label={item.label} color={scoreColor(item.score)} size="mini" />
+        <div className="dash-topbar-center">
+          {totalActionItems > 0 ? (
+            <button
+              className="dash-topbar-badge dash-topbar-badge--action"
+              onClick={() => setShowOutstanding(!showOutstanding)}
+            >
+              <span className="dash-topbar-badge-count">{totalActionItems}</span>
+              <span className="dash-topbar-badge-label">Action{totalActionItems !== 1 ? 's' : ''} needed</span>
             </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Tab Bar */}
-      <div className="dash-tabs no-print">
-        <button
-          className={`dash-tab ${activeTab === 'today' ? 'dash-tab--active' : ''}`}
-          onClick={() => setActiveTab('today')}
-        >
-          Today's Tasks
-        </button>
-        <button
-          className={`dash-tab ${activeTab === 'outstanding' ? 'dash-tab--active' : ''}`}
-          onClick={() => setActiveTab('outstanding')}
-        >
-          Outstanding
-          {totalActionItems > 0 && (
-            <span className="dash-tab-badge">{totalActionItems}</span>
-          )}
-        </button>
-      </div>
-
-      {/* Today Tab — Kanban Board (columns by frequency) */}
-      {activeTab === 'today' && (
-        <div className="kanban-board">
-          {[
-            { key: 'daily', title: 'Today', cards: todayCards },
-            { key: 'weekly', title: 'Weekly', cards: weeklyCards },
-            { key: 'fortnightly', title: 'Fortnightly', cards: fortnightlyCards },
-          ].map(col => (
-            <div key={col.key} className="kanban-column">
-              <div className="kanban-column-header">
-                <span className="kanban-column-title">{col.title}</span>
-                <span className="kanban-column-count">{col.cards.length}</span>
-              </div>
-              <div className="kanban-cards">
-                {col.cards.length === 0 ? (
-                  <p className="kanban-empty">No tasks</p>
-                ) : (
-                  col.cards.map(card => (
-                    <button
-                      key={card.id}
-                      className={`kanban-card kanban-card--${card.status}`}
-                      onClick={() => navigate(card.category === 'RP Check' ? '/rp-log' : '/cleaning?add=true')}
-                    >
-                      <span className="kanban-card-name">{card.name}</span>
-                      <div className="kanban-card-meta">
-                        <span className="kanban-card-pill kanban-card-pill--cat">{card.category}</span>
-                        {card.isSummary
-                          ? <span className="kanban-card-time">{card.doneCount}/{card.total} done</span>
-                          : card.timestamp && <span className="kanban-card-time">{card.timestamp}</span>}
-                      </div>
-                      {card.isSummary && (
-                        <div className="kanban-card-progress">
-                          <div
-                            className="kanban-card-progress-fill"
-                            style={{
-                              width: `${(card.doneCount / card.total) * 100}%`,
-                              background: card.status === 'done' ? 'var(--success)' : card.doneCount === 0 ? 'var(--border)' : 'var(--warning)',
-                            }}
-                          />
-                        </div>
-                      )}
-                    </button>
-                  ))
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Outstanding Tab */}
-      {activeTab === 'outstanding' && (
-        <div className="outstanding-section">
-          {totalActionItems === 0 ? (
-            <div className="outstanding-clear">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="24" height="24">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              <p>Nothing outstanding. All tasks are up to date.</p>
-            </div>
           ) : (
-            <>
-              {/* Overdue Cleaning */}
-              {overdueCleaningTasks.length > 0 && (
-                <div className="outstanding-group">
-                  <h3 className="outstanding-group-title">
-                    <span className="outstanding-dot outstanding-dot--red" />
-                    Overdue Cleaning Tasks
-                  </h3>
-                  {overdueCleaningTasks.map(t => (
-                    <button key={t.name} className="outstanding-item" onClick={() => navigate('/cleaning?add=true')}>
-                      <span className="outstanding-item-name">{t.name}</span>
-                      <span className="outstanding-item-freq">{t.frequency}</span>
-                      <span className="outstanding-item-badge outstanding-item-badge--overdue">Overdue</span>
-                    </button>
-                  ))}
-                </div>
-              )}
+            <span className="dash-topbar-badge dash-topbar-badge--clear">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16">
+                <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+              </svg>
+              All Clear
+            </span>
+          )}
+        </div>
 
-              {/* Expired Documents */}
-              {expiredDocs.length > 0 && (
-                <div className="outstanding-group">
-                  <h3 className="outstanding-group-title">
-                    <span className="outstanding-dot outstanding-dot--red" />
-                    Expired Documents
-                  </h3>
-                  {expiredDocs.map(d => (
-                    <button key={d.id} className="outstanding-item" onClick={() => navigate('/documents')}>
-                      <span className="outstanding-item-name">{d.documentName}</span>
-                      <span className="outstanding-item-freq">{d.category}</span>
-                      <span className="outstanding-item-badge outstanding-item-badge--overdue">
-                        {d.expiryDate ? `Expired ${formatDate(d.expiryDate)}` : 'No date set'}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
+        <div className="dash-topbar-right">
+          <div className="dash-topbar-score">
+            <span className="dash-topbar-score-pct" style={{ color: scoreColor(overallScore) }}>
+              {overallScore}%
+            </span>
+            <span className="dash-topbar-score-label">Compliance</span>
+          </div>
+          <button className="btn btn--ghost btn--sm" onClick={() => window.print()}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+              <polyline points="6 9 6 2 18 2 18 9" />
+              <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" />
+              <rect x="6" y="14" width="12" height="8" />
+            </svg>
+          </button>
+        </div>
+      </div>
 
-              {/* Documents Due Soon */}
-              {dueSoon.length > 0 && (
-                <div className="outstanding-group">
-                  <h3 className="outstanding-group-title">
-                    <span className="outstanding-dot outstanding-dot--amber" />
-                    Documents Due Within 7 Days
-                  </h3>
-                  {dueSoon.map(d => (
-                    <button key={d.id} className="outstanding-item" onClick={() => navigate('/documents')}>
-                      <span className="outstanding-item-name">{d.documentName}</span>
-                      <span className="outstanding-item-freq">{d.category}</span>
-                      <span className="outstanding-item-badge outstanding-item-badge--due">
-                        Expires {formatDate(d.expiryDate)}
-                      </span>
-                    </button>
-                  ))}
-                </div>
+      {/* === KANBAN BOARD === */}
+      <div className="kanban-board no-print">
+        {[
+          { key: 'daily', title: 'Today', cards: todayCards },
+          { key: 'weekly', title: 'Weekly', cards: weeklyCards },
+          { key: 'fortnightly', title: 'Fortnightly', cards: fortnightlyCards },
+        ].map(col => (
+          <div key={col.key} className="kanban-column">
+            <div className="kanban-column-header">
+              <span className="kanban-column-title">{col.title}</span>
+              <span className="kanban-column-count">{col.cards.length}</span>
+            </div>
+            <div className="kanban-cards">
+              {col.cards.length === 0 ? (
+                <p className="kanban-empty">No tasks</p>
+              ) : (
+                col.cards.map(card => (
+                  <KanbanCard
+                    key={card.id}
+                    card={card}
+                    tickingCardId={tickingCardId}
+                    setTickingCardId={setTickingCardId}
+                    expandedRpCard={expandedRpCard}
+                    setExpandedRpCard={setExpandedRpCard}
+                    staffMembers={staffMembers}
+                    onTickCleaning={handleTickCleaning}
+                    rpChecklist={rpChecklist}
+                    onToggleRpItem={handleToggleRpItem}
+                  />
+                ))
               )}
+            </div>
+          </div>
+        ))}
+      </div>
 
-              {/* Pending Training */}
-              {overdueTraining.length > 0 && (
-                <div className="outstanding-group">
-                  <h3 className="outstanding-group-title">
-                    <span className="outstanding-dot outstanding-dot--red" />
-                    Pending Staff Training
-                  </h3>
-                  {overdueTraining.map(e => (
-                    <button key={e.id} className="outstanding-item" onClick={() => navigate('/staff-training')}>
-                      <span className="outstanding-item-name">{e.staffName}</span>
-                      <span className="outstanding-item-freq">{e.trainingItem}</span>
-                      <span className="outstanding-item-badge outstanding-item-badge--overdue">Pending</span>
-                    </button>
-                  ))}
-                </div>
-              )}
+      {/* === COMPLIANCE FOOTER STRIP === */}
+      <div className="compliance-strip no-print">
+        {complianceAreas.map(item => (
+          <button
+            key={item.label}
+            className="compliance-strip-item"
+            onClick={() => navigate(item.nav)}
+          >
+            <span className="compliance-strip-score" style={{ color: scoreColor(item.score) }}>
+              {item.score}%
+            </span>
+            <span className="compliance-strip-label">{item.label}</span>
+          </button>
+        ))}
+      </div>
 
-              {/* Safeguarding Due */}
-              {sgDueSoon.length > 0 && (
-                <div className="outstanding-group">
-                  <h3 className="outstanding-group-title">
-                    <span className="outstanding-dot outstanding-dot--amber" />
-                    Safeguarding Refreshers Due
-                  </h3>
-                  {sgDueSoon.map(r => (
-                    <button key={r.id} className="outstanding-item" onClick={() => navigate('/safeguarding')}>
-                      <span className="outstanding-item-name">{r.staffName}</span>
-                      <span className="outstanding-item-freq">{r.jobTitle}</span>
-                      <span className={`outstanding-item-badge outstanding-item-badge--${getSafeguardingStatus(r.trainingDate) === 'overdue' ? 'overdue' : 'due'}`}>
-                        {getSafeguardingStatus(r.trainingDate) === 'overdue' ? 'Overdue' : 'Due Soon'}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </>
+      {/* === OUTSTANDING SECTION === */}
+      {showOutstanding && totalActionItems > 0 && (
+        <div className="outstanding-section">
+          {overdueCleaningTasks.length > 0 && (
+            <div className="outstanding-group">
+              <h3 className="outstanding-group-title">
+                <span className="outstanding-dot outstanding-dot--red" />
+                Overdue Cleaning Tasks
+              </h3>
+              {overdueCleaningTasks.map(t => (
+                <button key={t.name} className="outstanding-item" onClick={() => navigate('/cleaning?add=true')}>
+                  <span className="outstanding-item-name">{t.name}</span>
+                  <span className="outstanding-item-freq">{t.frequency}</span>
+                  <span className="outstanding-item-badge outstanding-item-badge--overdue">Overdue</span>
+                </button>
+              ))}
+            </div>
+          )}
+          {expiredDocs.length > 0 && (
+            <div className="outstanding-group">
+              <h3 className="outstanding-group-title">
+                <span className="outstanding-dot outstanding-dot--red" />
+                Expired Documents
+              </h3>
+              {expiredDocs.map(d => (
+                <button key={d.id} className="outstanding-item" onClick={() => navigate('/documents')}>
+                  <span className="outstanding-item-name">{d.documentName}</span>
+                  <span className="outstanding-item-freq">{d.category}</span>
+                  <span className="outstanding-item-badge outstanding-item-badge--overdue">
+                    {d.expiryDate ? `Expired ${formatDate(d.expiryDate)}` : 'No date set'}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+          {dueSoon.length > 0 && (
+            <div className="outstanding-group">
+              <h3 className="outstanding-group-title">
+                <span className="outstanding-dot outstanding-dot--amber" />
+                Documents Due Within 7 Days
+              </h3>
+              {dueSoon.map(d => (
+                <button key={d.id} className="outstanding-item" onClick={() => navigate('/documents')}>
+                  <span className="outstanding-item-name">{d.documentName}</span>
+                  <span className="outstanding-item-freq">{d.category}</span>
+                  <span className="outstanding-item-badge outstanding-item-badge--due">
+                    Expires {formatDate(d.expiryDate)}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+          {overdueTraining.length > 0 && (
+            <div className="outstanding-group">
+              <h3 className="outstanding-group-title">
+                <span className="outstanding-dot outstanding-dot--red" />
+                Pending Staff Training
+              </h3>
+              {overdueTraining.map(e => (
+                <button key={e.id} className="outstanding-item" onClick={() => navigate('/staff-training')}>
+                  <span className="outstanding-item-name">{e.staffName}</span>
+                  <span className="outstanding-item-freq">{e.trainingItem}</span>
+                  <span className="outstanding-item-badge outstanding-item-badge--overdue">Pending</span>
+                </button>
+              ))}
+            </div>
+          )}
+          {sgDueSoon.length > 0 && (
+            <div className="outstanding-group">
+              <h3 className="outstanding-group-title">
+                <span className="outstanding-dot outstanding-dot--amber" />
+                Safeguarding Refreshers Due
+              </h3>
+              {sgDueSoon.map(r => (
+                <button key={r.id} className="outstanding-item" onClick={() => navigate('/safeguarding')}>
+                  <span className="outstanding-item-name">{r.staffName}</span>
+                  <span className="outstanding-item-freq">{r.jobTitle}</span>
+                  <span className={`outstanding-item-badge outstanding-item-badge--${getSafeguardingStatus(r.trainingDate) === 'overdue' ? 'overdue' : 'due'}`}>
+                    {getSafeguardingStatus(r.trainingDate) === 'overdue' ? 'Overdue' : 'Due Soon'}
+                  </span>
+                </button>
+              ))}
+            </div>
           )}
         </div>
       )}

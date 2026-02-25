@@ -610,6 +610,95 @@ a:hover {
   font-weight: 500;
 }
 
+/* ── Dashboard Top Bar ─────────────────────── */
+
+.dash-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 0.75rem 1.25rem;
+  box-shadow: var(--shadow);
+}
+
+.dash-topbar-left { flex: 1; min-width: 0; }
+
+.dash-topbar-greeting {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+  margin: 0;
+}
+
+.dash-topbar-date {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.dash-topbar-center { flex-shrink: 0; }
+
+.dash-topbar-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.dash-topbar-badge--action {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.dash-topbar-badge--action:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.dash-topbar-badge--clear {
+  background: var(--success-bg);
+  color: var(--success);
+  cursor: default;
+}
+
+.dash-topbar-badge-count { font-size: 1rem; font-weight: 700; }
+.dash-topbar-badge-label { font-size: 0.68rem; }
+
+.dash-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.dash-topbar-score { text-align: center; }
+
+.dash-topbar-score-pct {
+  display: block;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.dash-topbar-score-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 /* ── Compliance Hero Section ────────────────── */
 
 .compliance-hero {
@@ -1068,6 +1157,140 @@ button.kanban-card {
   height: 100%;
   border-radius: 2px;
   transition: width 400ms ease;
+}
+
+.kanban-card-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+}
+.kanban-card-body { flex: 1; min-width: 0; }
+
+.kanban-tick-btn {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color var(--transition);
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+}
+.kanban-tick-btn:hover { color: var(--primary); }
+
+.kanban-tick-done {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  margin-top: 1px;
+}
+
+.kanban-staff-picker {
+  margin-top: 0.45rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--border);
+}
+.kanban-staff-picker-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0 0 0.3rem;
+}
+.kanban-staff-picker-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  max-height: 120px;
+  overflow-y: auto;
+}
+.kanban-staff-picker-btn {
+  padding: 0.2rem 0.55rem;
+  font-size: 0.68rem;
+  font-weight: 500;
+  font-family: inherit;
+  background: var(--primary-fade);
+  color: var(--primary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.kanban-staff-picker-btn:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.kanban-rp-checklist {
+  margin-top: 0.45rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.kanban-rp-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  color: var(--text);
+  cursor: pointer;
+  padding: 0.15rem 0;
+}
+.kanban-rp-item input[type="checkbox"] {
+  accent-color: var(--primary);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+/* ── Compliance Footer Strip ───────────────── */
+
+.compliance-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.compliance-strip-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.6rem 0.5rem;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: inherit;
+}
+.compliance-strip-item:hover {
+  border-color: var(--primary-light);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.compliance-strip-score {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.compliance-strip-label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-top: 0.1rem;
 }
 
 .kanban-empty {
@@ -2454,6 +2677,21 @@ select.input {
     font-size: 1.3rem;
   }
 
+  /* Top bar mobile */
+  .dash-topbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding: 0.65rem 0.85rem;
+  }
+  .dash-topbar-left { text-align: center; }
+  .dash-topbar-center { text-align: center; }
+  .dash-topbar-right { justify-content: center; }
+
+  .compliance-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   /* Page headers */
   .page-header {
     flex-direction: column;
@@ -3231,7 +3469,10 @@ select.input {
   .dash-cards,
   .dash-section,
   .dash-grid,
-  .dash-greeting {
+  .dash-greeting,
+  .dash-topbar,
+  .compliance-strip,
+  .outstanding-section {
     display: none !important;
   }
 
