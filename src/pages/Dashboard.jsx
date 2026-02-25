@@ -79,6 +79,7 @@ const RP_FORTNIGHTLY = [
   'Staff training records reviewed',
   'SOPs reviewed for currency',
 ]
+const RP_MONTHLY = []
 
 function TaskIcon({ done }) {
   if (done) {
@@ -100,6 +101,7 @@ function TaskIcon({ done }) {
 export default function Dashboard() {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('today')
+  const [checklistFilter, setChecklistFilter] = useState('all')
   const [documents, , docsLoading] = useSupabase('documents', [])
   const [cleaningEntries] = useSupabase('cleaning_entries', [])
   const [cleaningTasks] = useSupabase('cleaning_tasks', DEFAULT_CLEANING_TASKS)
@@ -151,9 +153,13 @@ export default function Dashboard() {
     status: getTaskStatus(task.name, task.frequency, cleaningEntries),
   }))
 
-  const dailyCleaningTasks = taskStatuses.filter(t => t.frequency === 'daily')
-  const weeklyCleaningTasks = taskStatuses.filter(t => t.frequency === 'weekly')
-  const fortnightlyCleaningTasks = taskStatuses.filter(t => t.frequency === 'monthly' || t.frequency === 'annually')
+  // All RP items with their frequency for board cards
+  const allRpItems = [
+    ...RP_DAILY.map(name => ({ name, frequency: 'daily' })),
+    ...RP_WEEKLY.map(name => ({ name, frequency: 'weekly' })),
+    ...RP_FORTNIGHTLY.map(name => ({ name, frequency: 'fortnightly' })),
+    ...RP_MONTHLY.map(name => ({ name, frequency: 'monthly' })),
+  ]
 
   // RP Log — today's checklist
   const todayStr = new Date().toISOString().slice(0, 10)
@@ -187,64 +193,52 @@ export default function Dashboard() {
     { label: 'Safeguarding', score: sgScore, nav: '/safeguarding' },
   ]
 
-  // Helper to render a task checklist group
-  const renderChecklistGroup = (title, frequency, cleaningItems, rpItems) => {
-    const cleaningDone = cleaningItems.filter(t => t.status === 'done' || t.status === 'upcoming').length
-    const rpDone = rpItems.filter(item => rpChecklist[item]).length
-    const totalItems = cleaningItems.length + rpItems.length
-    const totalDone = cleaningDone + rpDone
+  // Build kanban board cards
+  const filteredCleaning = checklistFilter === 'all'
+    ? taskStatuses
+    : taskStatuses.filter(t => t.frequency === checklistFilter)
+  const filteredRp = checklistFilter === 'all'
+    ? allRpItems
+    : allRpItems.filter(r => r.frequency === checklistFilter)
 
-    return (
-      <div className="checklist-panel">
-        <div className="checklist-panel-header">
-          <h3 className="checklist-panel-title">{title}</h3>
-          <span className={`checklist-panel-count ${totalDone === totalItems ? 'checklist-panel-count--done' : ''}`}>
-            {totalDone}/{totalItems}
-          </span>
-        </div>
+  const boardCards = []
 
-        {cleaningItems.length > 0 && (
-          <div className="checklist-group">
-            <span className="checklist-group-label">Cleaning</span>
-            {cleaningItems.map((task) => {
-              const done = task.status === 'done' || task.status === 'upcoming'
-              return (
-                <div key={task.name} className={`checklist-item ${done ? 'checklist-item--done' : 'checklist-item--due'}`}>
-                  <div className="checklist-item-icon"><TaskIcon done={done} /></div>
-                  <span className="checklist-item-name">{task.name}</span>
-                  <span className={`checklist-item-badge checklist-item-badge--${task.status}`}>
-                    {getTaskStatusLabel(task.status)}
-                  </span>
-                </div>
-              )
-            })}
-          </div>
-        )}
+  // Cleaning cards (skip upcoming — not yet due)
+  filteredCleaning.forEach(task => {
+    if (task.status === 'upcoming') return
+    const latestEntry = task.status === 'done'
+      ? cleaningEntries
+          .filter(e => e.taskName === task.name)
+          .sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime))[0]
+      : null
+    boardCards.push({
+      id: `cleaning-${task.name}`,
+      name: task.name,
+      frequency: task.frequency,
+      category: 'Cleaning',
+      column: task.status === 'overdue' ? 'overdue' : task.status === 'due' ? 'due' : 'done',
+      timestamp: latestEntry
+        ? new Date(latestEntry.dateTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+        : null,
+    })
+  })
 
-        {rpItems.length > 0 && (
-          <div className="checklist-group">
-            <span className="checklist-group-label">RP Checks</span>
-            {rpItems.map((item) => {
-              const done = !!rpChecklist[item]
-              return (
-                <div key={item} className={`checklist-item ${done ? 'checklist-item--done' : 'checklist-item--due'}`}>
-                  <div className="checklist-item-icon"><TaskIcon done={done} /></div>
-                  <span className="checklist-item-name">{item}</span>
-                  {done ? (
-                    <span className="checklist-item-badge checklist-item-badge--done">Done</span>
-                  ) : (
-                    <button className="checklist-item-badge checklist-item-badge--pending" onClick={() => navigate('/rp-log')}>
-                      Pending
-                    </button>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        )}
-      </div>
-    )
-  }
+  // RP check cards
+  filteredRp.forEach(rp => {
+    const done = !!rpChecklist[rp.name]
+    boardCards.push({
+      id: `rp-${rp.name}`,
+      name: rp.name,
+      frequency: rp.frequency,
+      category: 'RP Check',
+      column: done ? 'done' : 'due',
+      timestamp: done ? 'Today' : null,
+    })
+  })
+
+  const overdueCards = boardCards.filter(c => c.column === 'overdue')
+  const dueCards = boardCards.filter(c => c.column === 'due')
+  const doneCards = boardCards.filter(c => c.column === 'done')
 
   return (
     <div className="dashboard">
@@ -377,12 +371,97 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* Today Tab — Daily / Weekly / Fortnightly Checklists */}
+      {/* Frequency Filter Pills (Today tab only) */}
       {activeTab === 'today' && (
-        <div className="checklist-grid">
-          {renderChecklistGroup('Daily Tasks', 'daily', dailyCleaningTasks, RP_DAILY)}
-          {renderChecklistGroup('Weekly Tasks', 'weekly', weeklyCleaningTasks, RP_WEEKLY)}
-          {renderChecklistGroup('Fortnightly Tasks', 'fortnightly', fortnightlyCleaningTasks, RP_FORTNIGHTLY)}
+        <div className="checklist-filter no-print">
+          {['all', 'daily', 'weekly', 'fortnightly', 'monthly'].map((f) => (
+            <button
+              key={f}
+              className={`checklist-filter-btn ${checklistFilter === f ? 'checklist-filter-btn--active' : ''}`}
+              onClick={() => setChecklistFilter(f)}
+            >
+              {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Today Tab — Kanban Board */}
+      {activeTab === 'today' && (
+        <div className="kanban-board">
+          {/* Overdue Column */}
+          <div className="kanban-column kanban-column--overdue">
+            <div className="kanban-column-header">
+              <span className="kanban-column-title">Overdue</span>
+              <span className="kanban-column-count kanban-column-count--overdue">{overdueCards.length}</span>
+            </div>
+            <div className="kanban-cards">
+              {overdueCards.length === 0 ? (
+                <p className="kanban-empty">None overdue</p>
+              ) : (
+                overdueCards.map(card => (
+                  <div key={card.id} className="kanban-card kanban-card--overdue">
+                    <span className="kanban-card-name">{card.name}</span>
+                    <div className="kanban-card-meta">
+                      <span className="kanban-card-pill kanban-card-pill--freq">{card.frequency}</span>
+                      <span className="kanban-card-pill kanban-card-pill--cat">{card.category}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Due Today Column */}
+          <div className="kanban-column kanban-column--due">
+            <div className="kanban-column-header">
+              <span className="kanban-column-title">Due Today</span>
+              <span className="kanban-column-count kanban-column-count--due">{dueCards.length}</span>
+            </div>
+            <div className="kanban-cards">
+              {dueCards.length === 0 ? (
+                <p className="kanban-empty">All caught up</p>
+              ) : (
+                dueCards.map(card => (
+                  <button
+                    key={card.id}
+                    className="kanban-card kanban-card--due"
+                    onClick={() => navigate(card.category === 'RP Check' ? '/rp-log' : '/cleaning?add=true')}
+                  >
+                    <span className="kanban-card-name">{card.name}</span>
+                    <div className="kanban-card-meta">
+                      <span className="kanban-card-pill kanban-card-pill--freq">{card.frequency}</span>
+                      <span className="kanban-card-pill kanban-card-pill--cat">{card.category}</span>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Done Today Column */}
+          <div className="kanban-column kanban-column--done">
+            <div className="kanban-column-header">
+              <span className="kanban-column-title">Done Today</span>
+              <span className="kanban-column-count kanban-column-count--done">{doneCards.length}</span>
+            </div>
+            <div className="kanban-cards">
+              {doneCards.length === 0 ? (
+                <p className="kanban-empty">Nothing done yet</p>
+              ) : (
+                doneCards.map(card => (
+                  <div key={card.id} className="kanban-card kanban-card--done">
+                    <span className="kanban-card-name">{card.name}</span>
+                    <div className="kanban-card-meta">
+                      <span className="kanban-card-pill kanban-card-pill--freq">{card.frequency}</span>
+                      <span className="kanban-card-pill kanban-card-pill--cat">{card.category}</span>
+                      {card.timestamp && <span className="kanban-card-time">{card.timestamp}</span>}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
       )}
 
