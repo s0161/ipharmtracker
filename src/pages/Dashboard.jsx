@@ -100,7 +100,6 @@ function TaskIcon({ done }) {
 export default function Dashboard() {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('today')
-  const [checklistFilter, setChecklistFilter] = useState('all')
   const [documents, , docsLoading] = useSupabase('documents', [])
   const [cleaningEntries] = useSupabase('cleaning_entries', [])
   const [cleaningTasks] = useSupabase('cleaning_tasks', DEFAULT_CLEANING_TASKS)
@@ -191,57 +190,48 @@ export default function Dashboard() {
     { label: 'Safeguarding', score: sgScore, nav: '/safeguarding' },
   ]
 
-  // Build kanban board cards
-  const filteredCleaning = checklistFilter === 'all'
-    ? taskStatuses
-    : taskStatuses.filter(t => t.frequency === checklistFilter)
-  const filteredRpGroups = checklistFilter === 'all'
-    ? RP_GROUPS
-    : RP_GROUPS.filter(g => g.frequency === checklistFilter)
-
-  const boardCards = []
-
-  // Cleaning cards (skip upcoming — not yet due)
-  filteredCleaning.forEach(task => {
-    if (task.status === 'upcoming') return
-    const latestEntry = task.status === 'done'
-      ? cleaningEntries
-          .filter(e => e.taskName === task.name)
-          .sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime))[0]
-      : null
-    boardCards.push({
-      id: `cleaning-${task.name}`,
-      name: task.name,
-      frequency: task.frequency,
-      category: 'Cleaning',
-      column: task.status === 'overdue' ? 'overdue' : task.status === 'due' ? 'due' : 'done',
-      timestamp: latestEntry
-        ? new Date(latestEntry.dateTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
-        : null,
+  // Build kanban columns by frequency
+  const buildColumn = (freq) => {
+    const cards = []
+    // Cleaning cards for this frequency
+    taskStatuses.filter(t => t.frequency === freq).forEach(task => {
+      if (task.status === 'upcoming') return
+      const latestEntry = task.status === 'done'
+        ? cleaningEntries
+            .filter(e => e.taskName === task.name)
+            .sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime))[0]
+        : null
+      cards.push({
+        id: `cleaning-${task.name}`,
+        name: task.name,
+        category: 'Cleaning',
+        status: task.status,
+        timestamp: latestEntry
+          ? new Date(latestEntry.dateTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+          : null,
+      })
     })
-  })
+    // RP summary card for this frequency
+    const rpGroup = RP_GROUPS.find(g => g.frequency === freq)
+    if (rpGroup) {
+      const doneCount = rpGroup.items.filter(name => !!rpChecklist[name]).length
+      const total = rpGroup.items.length
+      cards.push({
+        id: `rp-summary-${freq}`,
+        name: `${rpGroup.label} RP Checks`,
+        category: 'RP Check',
+        status: doneCount === total ? 'done' : 'due',
+        isSummary: true,
+        doneCount,
+        total,
+      })
+    }
+    return cards
+  }
 
-  // RP summary cards (one per frequency group)
-  filteredRpGroups.forEach(group => {
-    const doneCount = group.items.filter(name => !!rpChecklist[name]).length
-    const total = group.items.length
-    const allDone = doneCount === total
-    boardCards.push({
-      id: `rp-summary-${group.frequency}`,
-      name: `${group.label} RP Checks`,
-      frequency: group.frequency,
-      category: 'RP Check',
-      column: allDone ? 'done' : 'due',
-      timestamp: allDone ? 'Today' : null,
-      isSummary: true,
-      doneCount,
-      total,
-    })
-  })
-
-  const overdueCards = boardCards.filter(c => c.column === 'overdue')
-  const dueCards = boardCards.filter(c => c.column === 'due')
-  const doneCards = boardCards.filter(c => c.column === 'done')
+  const todayCards = buildColumn('daily')
+  const weeklyCards = buildColumn('weekly')
+  const fortnightlyCards = buildColumn('fortnightly')
 
   return (
     <div className="dashboard">
@@ -374,119 +364,53 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* Frequency Filter Pills (Today tab only) */}
-      {activeTab === 'today' && (
-        <div className="checklist-filter no-print">
-          {['all', 'daily', 'weekly', 'fortnightly', 'monthly'].map((f) => (
-            <button
-              key={f}
-              className={`checklist-filter-btn ${checklistFilter === f ? 'checklist-filter-btn--active' : ''}`}
-              onClick={() => setChecklistFilter(f)}
-            >
-              {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Today Tab — Kanban Board */}
+      {/* Today Tab — Kanban Board (columns by frequency) */}
       {activeTab === 'today' && (
         <div className="kanban-board">
-          {/* Overdue Column */}
-          <div className="kanban-column kanban-column--overdue">
-            <div className="kanban-column-header">
-              <span className="kanban-column-title">Overdue</span>
-              <span className="kanban-column-count kanban-column-count--overdue">{overdueCards.length}</span>
-            </div>
-            <div className="kanban-cards">
-              {overdueCards.length === 0 ? (
-                <p className="kanban-empty">None overdue</p>
-              ) : (
-                overdueCards.map(card => (
-                  <div key={card.id} className="kanban-card kanban-card--overdue">
-                    <span className="kanban-card-name">{card.name}</span>
-                    <div className="kanban-card-meta">
-                      <span className="kanban-card-pill kanban-card-pill--freq">{card.frequency}</span>
-                      <span className="kanban-card-pill kanban-card-pill--cat">{card.category}</span>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          {/* Due Today Column */}
-          <div className="kanban-column kanban-column--due">
-            <div className="kanban-column-header">
-              <span className="kanban-column-title">Due Today</span>
-              <span className="kanban-column-count kanban-column-count--due">{dueCards.length}</span>
-            </div>
-            <div className="kanban-cards">
-              {dueCards.length === 0 ? (
-                <p className="kanban-empty">All caught up</p>
-              ) : (
-                dueCards.map(card => (
-                  <button
-                    key={card.id}
-                    className="kanban-card kanban-card--due"
-                    onClick={() => navigate(card.category === 'RP Check' ? '/rp-log' : '/cleaning?add=true')}
-                  >
-                    <span className="kanban-card-name">{card.name}</span>
-                    <div className="kanban-card-meta">
-                      <span className="kanban-card-pill kanban-card-pill--freq">{card.frequency}</span>
-                      <span className="kanban-card-pill kanban-card-pill--cat">{card.category}</span>
-                      {card.isSummary && <span className="kanban-card-time">{card.doneCount}/{card.total} done</span>}
-                    </div>
-                    {card.isSummary && (
-                      <div className="kanban-card-progress">
-                        <div
-                          className="kanban-card-progress-fill"
-                          style={{
-                            width: `${(card.doneCount / card.total) * 100}%`,
-                            background: card.doneCount === 0 ? 'var(--border)' : 'var(--warning)',
-                          }}
-                        />
+          {[
+            { key: 'daily', title: 'Today', cards: todayCards },
+            { key: 'weekly', title: 'Weekly', cards: weeklyCards },
+            { key: 'fortnightly', title: 'Fortnightly', cards: fortnightlyCards },
+          ].map(col => (
+            <div key={col.key} className="kanban-column">
+              <div className="kanban-column-header">
+                <span className="kanban-column-title">{col.title}</span>
+                <span className="kanban-column-count">{col.cards.length}</span>
+              </div>
+              <div className="kanban-cards">
+                {col.cards.length === 0 ? (
+                  <p className="kanban-empty">No tasks</p>
+                ) : (
+                  col.cards.map(card => (
+                    <button
+                      key={card.id}
+                      className={`kanban-card kanban-card--${card.status}`}
+                      onClick={() => navigate(card.category === 'RP Check' ? '/rp-log' : '/cleaning?add=true')}
+                    >
+                      <span className="kanban-card-name">{card.name}</span>
+                      <div className="kanban-card-meta">
+                        <span className="kanban-card-pill kanban-card-pill--cat">{card.category}</span>
+                        {card.isSummary
+                          ? <span className="kanban-card-time">{card.doneCount}/{card.total} done</span>
+                          : card.timestamp && <span className="kanban-card-time">{card.timestamp}</span>}
                       </div>
-                    )}
-                  </button>
-                ))
-              )}
+                      {card.isSummary && (
+                        <div className="kanban-card-progress">
+                          <div
+                            className="kanban-card-progress-fill"
+                            style={{
+                              width: `${(card.doneCount / card.total) * 100}%`,
+                              background: card.status === 'done' ? 'var(--success)' : card.doneCount === 0 ? 'var(--border)' : 'var(--warning)',
+                            }}
+                          />
+                        </div>
+                      )}
+                    </button>
+                  ))
+                )}
+              </div>
             </div>
-          </div>
-
-          {/* Done Today Column */}
-          <div className="kanban-column kanban-column--done">
-            <div className="kanban-column-header">
-              <span className="kanban-column-title">Done Today</span>
-              <span className="kanban-column-count kanban-column-count--done">{doneCards.length}</span>
-            </div>
-            <div className="kanban-cards">
-              {doneCards.length === 0 ? (
-                <p className="kanban-empty">Nothing done yet</p>
-              ) : (
-                doneCards.map(card => (
-                  <div key={card.id} className="kanban-card kanban-card--done">
-                    <span className="kanban-card-name">{card.name}</span>
-                    <div className="kanban-card-meta">
-                      <span className="kanban-card-pill kanban-card-pill--freq">{card.frequency}</span>
-                      <span className="kanban-card-pill kanban-card-pill--cat">{card.category}</span>
-                      {card.isSummary
-                        ? <span className="kanban-card-time">{card.doneCount}/{card.total} done</span>
-                        : card.timestamp && <span className="kanban-card-time">{card.timestamp}</span>}
-                    </div>
-                    {card.isSummary && (
-                      <div className="kanban-card-progress">
-                        <div
-                          className="kanban-card-progress-fill"
-                          style={{ width: '100%', background: 'var(--success)' }}
-                        />
-                      </div>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
+          ))}
         </div>
       )}
 

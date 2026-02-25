@@ -969,21 +969,14 @@ a:hover {
   letter-spacing: 0.03em;
 }
 
-.kanban-column--overdue .kanban-column-title { color: var(--danger); }
-.kanban-column--due .kanban-column-title { color: var(--warning); }
-.kanban-column--done .kanban-column-title { color: var(--success); }
-
 .kanban-column-count {
   font-size: 0.72rem;
   font-weight: 700;
   padding: 0.12rem 0.5rem;
   border-radius: 10px;
   color: #fff;
+  background: var(--text-muted);
 }
-
-.kanban-column-count--overdue { background: var(--danger); }
-.kanban-column-count--due { background: var(--warning); }
-.kanban-column-count--done { background: var(--success); }
 
 .kanban-cards {
   display: flex;
