@@ -3,6 +3,7 @@ import { useSupabase } from '../hooks/useSupabase'
 import { supabase } from '../lib/supabase'
 import { DEFAULT_CLEANING_TASKS, FREQUENCIES } from '../utils/helpers'
 import { exportData, importData, clearAllData } from '../utils/dataManager'
+import { logout } from './Login'
 
 function ListManager({ title, description, items, onUpdate }) {
   const [value, setValue] = useState('')
@@ -295,6 +296,17 @@ export default function Settings() {
             {importMsg.text}
           </p>
         )}
+
+        <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid var(--border-light)' }}>
+          <button className="btn btn--ghost" onClick={() => { logout(); window.location.reload() }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            Log Out
+          </button>
+        </div>
       </div>
     </div>
   )
