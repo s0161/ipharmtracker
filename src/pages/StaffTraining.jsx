@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { useLocalStorage } from '../hooks/useLocalStorage'
+import { useSupabase } from '../hooks/useSupabase'
 import { formatDate, generateId } from '../utils/helpers'
 import { downloadCsv } from '../utils/exportCsv'
 import Modal from '../components/Modal'
@@ -25,8 +25,8 @@ const emptyForm = {
 }
 
 export default function StaffTraining() {
-  const [entries, setEntries] = useLocalStorage('ipd_staff_training', [])
-  const [staffMembers] = useLocalStorage('ipd_staff', [])
+  const [entries, setEntries] = useSupabase('staff_training', [])
+  const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const [filterStaff, setFilterStaff] = useState('')
   const [filterRole, setFilterRole] = useState('')
   const [filterStatus, setFilterStatus] = useState('')

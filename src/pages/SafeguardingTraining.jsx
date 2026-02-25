@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useLocalStorage } from '../hooks/useLocalStorage'
+import { useSupabase } from '../hooks/useSupabase'
 import { formatDate, generateId, getSafeguardingStatus, getRefresherDate } from '../utils/helpers'
 import { downloadCsv } from '../utils/exportCsv'
 import Modal from '../components/Modal'
@@ -29,8 +29,8 @@ const emptyForm = {
 }
 
 export default function SafeguardingTraining() {
-  const [records, setRecords] = useLocalStorage('ipd_safeguarding', [])
-  const [staffMembers] = useLocalStorage('ipd_staff', [])
+  const [records, setRecords] = useSupabase('safeguarding_records', [])
+  const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)

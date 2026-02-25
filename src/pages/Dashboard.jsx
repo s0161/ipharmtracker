@@ -1,4 +1,4 @@
-import { useLocalStorage } from '../hooks/useLocalStorage'
+import { useSupabase } from '../hooks/useSupabase'
 import {
   getTrafficLight,
   formatDate,
@@ -44,12 +44,12 @@ function scoreColor(pct) {
 }
 
 export default function Dashboard() {
-  const [documents] = useLocalStorage('ipd_documents', [])
-  const [trainingLogs] = useLocalStorage('ipd_training', [])
-  const [cleaningEntries] = useLocalStorage('ipd_cleaning', [])
-  const [cleaningTasks] = useLocalStorage('ipd_tasks', DEFAULT_CLEANING_TASKS)
-  const [staffTraining] = useLocalStorage('ipd_staff_training', [])
-  const [safeguarding] = useLocalStorage('ipd_safeguarding', [])
+  const [documents] = useSupabase('documents', [])
+  const [trainingLogs] = useSupabase('training_logs', [])
+  const [cleaningEntries] = useSupabase('cleaning_entries', [])
+  const [cleaningTasks] = useSupabase('cleaning_tasks', DEFAULT_CLEANING_TASKS)
+  const [staffTraining] = useSupabase('staff_training', [])
+  const [safeguarding] = useSupabase('safeguarding_records', [])
 
   // Document alert counts
   const docStatuses = documents.map((d) => getTrafficLight(d.expiryDate))

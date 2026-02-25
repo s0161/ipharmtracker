@@ -1,18 +1,23 @@
-const KEY_PREFIX = 'ipd_'
+import { supabase } from '../lib/supabase'
 
-function getAllKeys() {
-  return Object.keys(localStorage).filter((k) => k.startsWith(KEY_PREFIX))
-}
+const TABLES = [
+  'documents',
+  'training_logs',
+  'cleaning_entries',
+  'cleaning_tasks',
+  'staff_members',
+  'training_topics',
+  'safeguarding_records',
+  'staff_training',
+]
 
-export function exportData() {
+export async function exportData() {
   const data = {}
-  getAllKeys().forEach((key) => {
-    try {
-      data[key] = JSON.parse(localStorage.getItem(key))
-    } catch {
-      data[key] = localStorage.getItem(key)
-    }
-  })
+
+  for (const table of TABLES) {
+    const { data: rows } = await supabase.from(table).select('*')
+    data[table] = rows || []
+  }
 
   const blob = new Blob(
     [JSON.stringify({ _exportedAt: new Date().toISOString(), ...data })],
@@ -26,24 +31,30 @@ export function exportData() {
   URL.revokeObjectURL(url)
 }
 
-export function importData(file) {
+export async function importData(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const parsed = JSON.parse(e.target.result)
         if (typeof parsed !== 'object' || parsed === null) {
           return reject(new Error('Invalid backup file format.'))
         }
 
-        const keys = Object.keys(parsed).filter((k) => k.startsWith(KEY_PREFIX))
+        const keys = Object.keys(parsed).filter((k) => TABLES.includes(k))
         if (keys.length === 0) {
           return reject(new Error('No valid data found in backup file.'))
         }
 
-        keys.forEach((key) => {
-          localStorage.setItem(key, JSON.stringify(parsed[key]))
-        })
+        for (const table of keys) {
+          const rows = parsed[table]
+          if (!Array.isArray(rows) || rows.length === 0) continue
+          // Clear existing data
+          await supabase.from(table).delete().not('id', 'is', null)
+          // Insert backup data
+          await supabase.from(table).insert(rows)
+        }
+
         resolve(keys.length)
       } catch {
         reject(new Error('Could not parse backup file. Ensure it is valid JSON.'))
@@ -54,8 +65,11 @@ export function importData(file) {
   })
 }
 
-export function clearAllData() {
-  const keys = getAllKeys()
-  keys.forEach((key) => localStorage.removeItem(key))
-  return keys.length
+export async function clearAllData() {
+  let count = 0
+  for (const table of TABLES) {
+    await supabase.from(table).delete().not('id', 'is', null)
+    count++
+  }
+  return count
 }

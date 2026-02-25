@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useLocalStorage } from '../hooks/useLocalStorage'
+import { useSupabase } from '../hooks/useSupabase'
 import { generateId, formatDateTime, DEFAULT_CLEANING_TASKS } from '../utils/helpers'
 import { downloadCsv } from '../utils/exportCsv'
 import Modal from '../components/Modal'
@@ -15,9 +15,9 @@ const emptyForm = {
 }
 
 export default function CleaningRota() {
-  const [entries, setEntries] = useLocalStorage('ipd_cleaning', [])
-  const [staffMembers] = useLocalStorage('ipd_staff', [])
-  const [cleaningTasks] = useLocalStorage('ipd_tasks', DEFAULT_CLEANING_TASKS)
+  const [entries, setEntries] = useSupabase('cleaning_entries', [])
+  const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
+  const [cleaningTasks] = useSupabase('cleaning_tasks', DEFAULT_CLEANING_TASKS)
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)

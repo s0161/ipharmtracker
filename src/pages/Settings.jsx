@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { useLocalStorage } from '../hooks/useLocalStorage'
+import { useSupabase } from '../hooks/useSupabase'
 import { DEFAULT_CLEANING_TASKS, FREQUENCIES } from '../utils/helpers'
 import { exportData, importData, clearAllData } from '../utils/dataManager'
 
@@ -163,17 +163,17 @@ function TaskManager({ tasks, onUpdate }) {
 }
 
 export default function Settings() {
-  const [staffMembers, setStaffMembers] = useLocalStorage('ipd_staff', [])
-  const [trainingTopics, setTrainingTopics] = useLocalStorage('ipd_topics', [])
-  const [cleaningTasks, setCleaningTasks] = useLocalStorage(
-    'ipd_tasks',
+  const [staffMembers, setStaffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
+  const [trainingTopics, setTrainingTopics] = useSupabase('training_topics', [], { valueField: 'name' })
+  const [cleaningTasks, setCleaningTasks] = useSupabase(
+    'cleaning_tasks',
     DEFAULT_CLEANING_TASKS
   )
   const [importMsg, setImportMsg] = useState(null)
   const fileRef = useRef(null)
 
-  const handleExport = () => {
-    exportData()
+  const handleExport = async () => {
+    await exportData()
   }
 
   const handleImport = async (e) => {
@@ -189,10 +189,10 @@ export default function Settings() {
     if (fileRef.current) fileRef.current.value = ''
   }
 
-  const handleClear = () => {
+  const handleClear = async () => {
     if (!window.confirm('Are you sure you want to delete ALL data? This cannot be undone.')) return
     if (!window.confirm('This is your final warning. All compliance data will be permanently deleted. Continue?')) return
-    clearAllData()
+    await clearAllData()
     window.location.reload()
   }
 

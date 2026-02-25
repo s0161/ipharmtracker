@@ -1,43 +1,55 @@
 import { useState, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
 import { getTrafficLight, getSafeguardingStatus } from '../utils/helpers'
 
-function readJson(key) {
-  try {
-    return JSON.parse(localStorage.getItem(key)) || []
-  } catch {
-    return []
+function emptyCounts() {
+  return {
+    '/documents': { red: 0, amber: 0 },
+    '/staff-training': { red: 0, amber: 0 },
+    '/safeguarding': { red: 0, amber: 0 },
   }
 }
 
-function computeCounts() {
-  // Documents: red = expired/no date, amber = within 30 days
-  const docs = readJson('ipd_documents')
-  const docStatuses = docs.map((d) => getTrafficLight(d.expiryDate))
-  const docsRed = docStatuses.filter((s) => s === 'red').length
-  const docsAmber = docStatuses.filter((s) => s === 'amber').length
+async function fetchCounts() {
+  const counts = emptyCounts()
 
-  // Staff Training: red = pending count
-  const staffTraining = readJson('ipd_staff_training')
-  const staffPending = staffTraining.filter((e) => e.status === 'Pending').length
+  const [docsRes, staffRes, sgRes] = await Promise.all([
+    supabase.from('documents').select('expiry_date'),
+    supabase.from('staff_training').select('status'),
+    supabase.from('safeguarding_records').select('training_date'),
+  ])
 
-  // Safeguarding: red = overdue, amber = due soon
-  const safeguarding = readJson('ipd_safeguarding')
-  const sgStatuses = safeguarding.map((r) => getSafeguardingStatus(r.trainingDate))
-  const sgOverdue = sgStatuses.filter((s) => s === 'overdue').length
-  const sgDueSoon = sgStatuses.filter((s) => s === 'due-soon').length
-
-  return {
-    '/documents': { red: docsRed, amber: docsAmber },
-    '/staff-training': { red: staffPending, amber: 0 },
-    '/safeguarding': { red: sgOverdue, amber: sgDueSoon },
+  if (docsRes.data) {
+    docsRes.data.forEach((d) => {
+      const status = getTrafficLight(d.expiry_date)
+      if (status === 'red') counts['/documents'].red++
+      if (status === 'amber') counts['/documents'].amber++
+    })
   }
+
+  if (staffRes.data) {
+    counts['/staff-training'].red = staffRes.data.filter(
+      (e) => e.status === 'Pending'
+    ).length
+  }
+
+  if (sgRes.data) {
+    sgRes.data.forEach((r) => {
+      const status = getSafeguardingStatus(r.training_date)
+      if (status === 'overdue') counts['/safeguarding'].red++
+      if (status === 'due-soon') counts['/safeguarding'].amber++
+    })
+  }
+
+  return counts
 }
 
 export function useSidebarCounts() {
-  const [counts, setCounts] = useState(computeCounts)
+  const [counts, setCounts] = useState(emptyCounts)
 
   useEffect(() => {
-    const id = setInterval(() => setCounts(computeCounts()), 5000)
+    fetchCounts().then(setCounts)
+    const id = setInterval(() => fetchCounts().then(setCounts), 30000)
     return () => clearInterval(id)
   }, [])
 

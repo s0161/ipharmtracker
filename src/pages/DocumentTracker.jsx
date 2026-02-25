@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useLocalStorage } from '../hooks/useLocalStorage'
+import { useSupabase } from '../hooks/useSupabase'
 import {
   generateId,
   formatDate,
@@ -21,8 +21,8 @@ const emptyForm = {
 }
 
 export default function DocumentTracker() {
-  const [documents, setDocuments] = useLocalStorage('ipd_documents', [])
-  const [staffMembers] = useLocalStorage('ipd_staff', [])
+  const [documents, setDocuments] = useSupabase('documents', [])
+  const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
