@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
 import { generateId, formatDate } from '../utils/helpers'
 import { downloadCsv } from '../utils/exportCsv'
+import { useToast } from '../components/Toast'
 import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
 
@@ -18,6 +19,7 @@ export default function TrainingLogs() {
   const [logs, setLogs, loading] = useSupabase('training_logs', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const [topics] = useSupabase('training_topics', [], { valueField: 'name' })
+  const showToast = useToast()
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
@@ -59,11 +61,13 @@ export default function TrainingLogs() {
           l.id === editingId ? { ...l, ...form } : l
         )
       )
+      showToast('Training log updated')
     } else {
       setLogs([
         ...logs,
         { id: generateId(), ...form, createdAt: new Date().toISOString() },
       ])
+      showToast('Training log added')
     }
     setModalOpen(false)
   }
@@ -71,6 +75,7 @@ export default function TrainingLogs() {
   const handleDelete = (id) => {
     if (window.confirm('Are you sure you want to delete this entry?')) {
       setLogs(logs.filter((l) => l.id !== id))
+      showToast('Entry deleted', 'info')
     }
   }
 

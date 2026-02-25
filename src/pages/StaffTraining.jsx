@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
 import { formatDate, generateId } from '../utils/helpers'
 import { downloadCsv } from '../utils/exportCsv'
+import { useToast } from '../components/Toast'
 import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
 
@@ -27,6 +28,7 @@ const emptyForm = {
 export default function StaffTraining() {
   const [entries, setEntries, loading] = useSupabase('staff_training', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
+  const showToast = useToast()
   const [filterStaff, setFilterStaff] = useState('')
   const [filterRole, setFilterRole] = useState('')
   const [filterStatus, setFilterStatus] = useState('')
@@ -118,8 +120,10 @@ export default function StaffTraining() {
 
     if (editingId) {
       setEntries(entries.map((e) => (e.id === editingId ? { ...e, ...form } : e)))
+      showToast('Training item updated')
     } else {
       setEntries([...entries, { id: generateId(), ...form }])
+      showToast('Training item added')
     }
     setModalOpen(false)
   }
@@ -127,6 +131,7 @@ export default function StaffTraining() {
   const handleDelete = (id) => {
     if (window.confirm('Delete this training item?')) {
       setEntries(entries.filter((e) => e.id !== id))
+      showToast('Training item deleted', 'info')
     }
   }
 

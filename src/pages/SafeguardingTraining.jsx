@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
 import { formatDate, generateId, getSafeguardingStatus, getRefresherDate } from '../utils/helpers'
 import { downloadCsv } from '../utils/exportCsv'
+import { useToast } from '../components/Toast'
 import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
 
@@ -31,6 +32,7 @@ const emptyForm = {
 export default function SafeguardingTraining() {
   const [records, setRecords, loading] = useSupabase('safeguarding_records', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
+  const showToast = useToast()
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
@@ -77,8 +79,10 @@ export default function SafeguardingTraining() {
 
     if (editingId) {
       setRecords(records.map((r) => (r.id === editingId ? { ...r, ...form } : r)))
+      showToast('Safeguarding record updated')
     } else {
       setRecords([...records, { id: generateId(), ...form }])
+      showToast('Safeguarding record added')
     }
     setModalOpen(false)
   }
@@ -86,6 +90,7 @@ export default function SafeguardingTraining() {
   const handleDelete = (id) => {
     if (window.confirm('Delete this safeguarding record?')) {
       setRecords(records.filter((r) => r.id !== id))
+      showToast('Record deleted', 'info')
     }
   }
 

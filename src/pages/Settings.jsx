@@ -3,6 +3,7 @@ import { useSupabase } from '../hooks/useSupabase'
 import { supabase } from '../lib/supabase'
 import { DEFAULT_CLEANING_TASKS, FREQUENCIES } from '../utils/helpers'
 import { exportData, importData, clearAllData } from '../utils/dataManager'
+import { useToast } from '../components/Toast'
 import { logout } from './Login'
 
 function ListManager({ title, description, items, onUpdate }) {
@@ -171,6 +172,7 @@ export default function Settings() {
     'cleaning_tasks',
     DEFAULT_CLEANING_TASKS
   )
+  const showToast = useToast()
   const [importMsg, setImportMsg] = useState(null)
   const fileRef = useRef(null)
   const [backendStatus, setBackendStatus] = useState({ checking: true })
@@ -190,6 +192,7 @@ export default function Settings() {
 
   const handleExport = async () => {
     await exportData()
+    showToast('Backup exported')
   }
 
   const handleImport = async (e) => {
@@ -197,9 +200,11 @@ export default function Settings() {
     if (!file) return
     try {
       const count = await importData(file)
+      showToast(`Restored ${count} data set${count !== 1 ? 's' : ''}`)
       setImportMsg({ type: 'success', text: `Restored ${count} data set${count !== 1 ? 's' : ''}. Reloading...` })
       setTimeout(() => window.location.reload(), 1200)
     } catch (err) {
+      showToast(err.message, 'error')
       setImportMsg({ type: 'error', text: err.message })
     }
     if (fileRef.current) fileRef.current.value = ''
@@ -209,6 +214,7 @@ export default function Settings() {
     if (!window.confirm('Are you sure you want to delete ALL data? This cannot be undone.')) return
     if (!window.confirm('This is your final warning. All compliance data will be permanently deleted. Continue?')) return
     await clearAllData()
+    showToast('All data cleared', 'info')
     window.location.reload()
   }
 

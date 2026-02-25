@@ -8,6 +8,7 @@ import {
   CATEGORIES,
 } from '../utils/helpers'
 import { downloadCsv } from '../utils/exportCsv'
+import { useToast } from '../components/Toast'
 import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
 
@@ -23,6 +24,7 @@ const emptyForm = {
 export default function DocumentTracker() {
   const [documents, setDocuments, loading] = useSupabase('documents', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
+  const showToast = useToast()
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
@@ -67,11 +69,13 @@ export default function DocumentTracker() {
       setDocuments(
         documents.map((d) => (d.id === editingId ? { ...d, ...form } : d))
       )
+      showToast('Document updated')
     } else {
       setDocuments([
         ...documents,
         { id: generateId(), ...form, createdAt: new Date().toISOString() },
       ])
+      showToast('Document added')
     }
     setModalOpen(false)
   }
@@ -79,6 +83,7 @@ export default function DocumentTracker() {
   const handleDelete = (id) => {
     if (window.confirm('Are you sure you want to delete this document?')) {
       setDocuments(documents.filter((d) => d.id !== id))
+      showToast('Document deleted', 'info')
     }
   }
 

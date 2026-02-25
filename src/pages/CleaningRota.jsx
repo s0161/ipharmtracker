@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
 import { generateId, formatDateTime, DEFAULT_CLEANING_TASKS } from '../utils/helpers'
 import { downloadCsv } from '../utils/exportCsv'
+import { useToast } from '../components/Toast'
 import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
 
@@ -18,6 +19,7 @@ export default function CleaningRota() {
   const [entries, setEntries, loading] = useSupabase('cleaning_entries', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const [cleaningTasks] = useSupabase('cleaning_tasks', DEFAULT_CLEANING_TASKS)
+  const showToast = useToast()
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
@@ -71,11 +73,13 @@ export default function CleaningRota() {
 
     if (editingId) {
       setEntries(entries.map((e) => (e.id === editingId ? { ...e, ...data } : e)))
+      showToast('Cleaning entry updated')
     } else {
       setEntries([
         ...entries,
         { id: generateId(), ...data, createdAt: new Date().toISOString() },
       ])
+      showToast('Cleaning entry added')
     }
     setModalOpen(false)
   }
@@ -83,6 +87,7 @@ export default function CleaningRota() {
   const handleDelete = (id) => {
     if (window.confirm('Are you sure you want to delete this entry?')) {
       setEntries(entries.filter((e) => e.id !== id))
+      showToast('Entry deleted', 'info')
     }
   }
 
