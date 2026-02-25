@@ -5,6 +5,7 @@ import { downloadCsv } from '../utils/exportCsv'
 import { useToast } from '../components/Toast'
 import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
+import SwipeRow from '../components/SwipeRow'
 
 const STATUS_LABELS = {
   current: 'Current',
@@ -169,7 +170,7 @@ export default function SafeguardingTraining() {
                 <th>Signed Off</th>
                 <th>Next Refresher</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th className="mobile-hide">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -177,7 +178,7 @@ export default function SafeguardingTraining() {
                 const status = getSafeguardingStatus(record.trainingDate)
                 const refresher = getRefresherDate(record.trainingDate)
                 return (
-                  <tr key={record.id} className={`training-row training-row--${status === 'current' ? 'complete' : status === 'due-soon' ? 'inprogress' : 'pending'}`}>
+                  <SwipeRow key={record.id} className={`training-row training-row--${status === 'current' ? 'complete' : status === 'due-soon' ? 'inprogress' : 'pending'}`} onEdit={() => openEdit(record)} onDelete={() => handleDelete(record.id)}>
                     <td className="cell-bold">{record.staffName}</td>
                     <td>{record.jobTitle}</td>
                     <td>{formatDate(record.trainingDate)}</td>
@@ -200,7 +201,7 @@ export default function SafeguardingTraining() {
                         {STATUS_LABELS[status]}
                       </span>
                     </td>
-                    <td>
+                    <td className="mobile-hide">
                       <div className="action-btns">
                         <button className="btn btn--ghost btn--sm" onClick={() => openEdit(record)}>
                           Edit
@@ -210,7 +211,7 @@ export default function SafeguardingTraining() {
                         </button>
                       </div>
                     </td>
-                  </tr>
+                  </SwipeRow>
                 )
               })}
             </tbody>

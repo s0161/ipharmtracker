@@ -6,6 +6,7 @@ import { downloadCsv } from '../utils/exportCsv'
 import { useToast } from '../components/Toast'
 import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
+import SwipeRow from '../components/SwipeRow'
 
 const emptyForm = {
   staffName: '',
@@ -134,19 +135,19 @@ export default function TrainingLogs() {
                 <th className="mobile-hide">Trainer</th>
                 <th className="mobile-hide">Cert. Expiry</th>
                 <th>Notes</th>
-                <th>Actions</th>
+                <th className="mobile-hide">Actions</th>
               </tr>
             </thead>
             <tbody>
               {sorted.map((log) => (
-                <tr key={log.id}>
+                <SwipeRow key={log.id} onEdit={() => openEdit(log)} onDelete={() => handleDelete(log.id)}>
                   <td>{log.staffName}</td>
                   <td>{formatDate(log.dateCompleted)}</td>
                   <td>{log.topic}</td>
                   <td className="mobile-hide">{log.trainerName || '—'}</td>
                   <td className="mobile-hide">{formatDate(log.certificateExpiry)}</td>
                   <td className="cell-notes">{log.notes || '—'}</td>
-                  <td>
+                  <td className="mobile-hide">
                     <div className="action-btns">
                       <button
                         className="btn btn--ghost btn--sm"
@@ -162,7 +163,7 @@ export default function TrainingLogs() {
                       </button>
                     </div>
                   </td>
-                </tr>
+                </SwipeRow>
               ))}
             </tbody>
           </table>

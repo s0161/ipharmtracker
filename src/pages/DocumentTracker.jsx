@@ -11,6 +11,7 @@ import { downloadCsv } from '../utils/exportCsv'
 import { useToast } from '../components/Toast'
 import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
+import SwipeRow from '../components/SwipeRow'
 
 const emptyForm = {
   documentName: '',
@@ -150,14 +151,14 @@ export default function DocumentTracker() {
                 <th className="mobile-hide">Issue Date</th>
                 <th>Expiry / Review</th>
                 <th>Notes</th>
-                <th>Actions</th>
+                <th className="mobile-hide">Actions</th>
               </tr>
             </thead>
             <tbody>
               {sorted.map((doc) => {
                 const status = getTrafficLight(doc.expiryDate)
                 return (
-                  <tr key={doc.id}>
+                  <SwipeRow key={doc.id} onEdit={() => openEdit(doc)} onDelete={() => handleDelete(doc.id)}>
                     <td>
                       <span
                         className={`traffic-light traffic-light--${status}`}
@@ -177,7 +178,7 @@ export default function DocumentTracker() {
                     <td className="mobile-hide">{formatDate(doc.issueDate)}</td>
                     <td>{formatDate(doc.expiryDate)}</td>
                     <td className="cell-notes">{doc.notes || '—'}</td>
-                    <td>
+                    <td className="mobile-hide">
                       <div className="action-btns">
                         <button
                           className="btn btn--ghost btn--sm"
@@ -193,7 +194,7 @@ export default function DocumentTracker() {
                         </button>
                       </div>
                     </td>
-                  </tr>
+                  </SwipeRow>
                 )
               })}
             </tbody>

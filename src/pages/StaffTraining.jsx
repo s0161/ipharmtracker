@@ -5,6 +5,7 @@ import { downloadCsv } from '../utils/exportCsv'
 import { useToast } from '../components/Toast'
 import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
+import SwipeRow from '../components/SwipeRow'
 
 const STATUS_CYCLE = ['Pending', 'In Progress', 'Complete']
 
@@ -332,12 +333,12 @@ export default function StaffTraining() {
                     </span>
                   </th>
                 ))}
-                <th>Actions</th>
+                <th className="mobile-hide">Actions</th>
               </tr>
             </thead>
             <tbody>
               {sorted.map((entry) => (
-                <tr key={entry.id} className={`training-row training-row--${statusClass(entry.status)}`}>
+                <SwipeRow key={entry.id} className={`training-row training-row--${statusClass(entry.status)}`} onEdit={() => openEdit(entry)} onDelete={() => handleDelete(entry.id)}>
                   <td className="cell-bold">{entry.staffName}</td>
                   <td className="mobile-hide">{entry.role}</td>
                   <td>{entry.trainingItem}</td>
@@ -351,7 +352,7 @@ export default function StaffTraining() {
                       {entry.status}
                     </button>
                   </td>
-                  <td>
+                  <td className="mobile-hide">
                     <div className="action-btns">
                       <button
                         className="btn btn--ghost btn--sm"
@@ -367,7 +368,7 @@ export default function StaffTraining() {
                       </button>
                     </div>
                   </td>
-                </tr>
+                </SwipeRow>
               ))}
             </tbody>
           </table>

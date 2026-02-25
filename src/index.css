@@ -2177,6 +2177,53 @@ select.input {
   }
 }
 
+/* ── Swipe Row (Mobile) ────────────────────── */
+
+.swipe-row {
+  position: relative;
+}
+
+.swipe-action {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  z-index: 5;
+  padding: 0;
+}
+
+.swipe-action--left {
+  left: 0;
+}
+
+.swipe-action--right {
+  right: 0;
+}
+
+.swipe-btn {
+  height: 100%;
+  padding: 0 1rem;
+  border: none;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.swipe-btn--edit {
+  background: var(--primary);
+  color: #fff;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.swipe-btn--delete {
+  background: var(--danger);
+  color: #fff;
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+
 /* ── Onboarding ────────────────────────────── */
 
 .onboarding-overlay {

@@ -6,6 +6,7 @@ import { downloadCsv } from '../utils/exportCsv'
 import { useToast } from '../components/Toast'
 import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
+import SwipeRow from '../components/SwipeRow'
 
 const emptyForm = {
   taskName: '',
@@ -146,12 +147,12 @@ export default function CleaningRota() {
                 <th>Staff Member</th>
                 <th>Result</th>
                 <th>Notes</th>
-                <th>Actions</th>
+                <th className="mobile-hide">Actions</th>
               </tr>
             </thead>
             <tbody>
               {sorted.map((entry) => (
-                <tr key={entry.id}>
+                <SwipeRow key={entry.id} onEdit={() => openEdit(entry)} onDelete={() => handleDelete(entry.id)}>
                   <td>{entry.taskName}</td>
                   <td>{formatDateTime(entry.dateTime)}</td>
                   <td>{entry.staffMember}</td>
@@ -163,7 +164,7 @@ export default function CleaningRota() {
                     </span>
                   </td>
                   <td className="cell-notes">{entry.notes || '—'}</td>
-                  <td>
+                  <td className="mobile-hide">
                     <div className="action-btns">
                       <button
                         className="btn btn--ghost btn--sm"
@@ -179,7 +180,7 @@ export default function CleaningRota() {
                       </button>
                     </div>
                   </td>
-                </tr>
+                </SwipeRow>
               ))}
             </tbody>
           </table>
