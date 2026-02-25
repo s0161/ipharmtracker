@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import GlobalSearch from './GlobalSearch'
+import Onboarding from './Onboarding'
 
 const titles = {
   '/': 'Dashboard',
@@ -40,6 +41,7 @@ export default function Layout({ children }) {
         </header>
         <div className="main-content">{children}</div>
       </main>
+      <Onboarding />
     </div>
   )
 }
