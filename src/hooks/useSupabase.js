@@ -38,7 +38,25 @@ export function useSupabase(table, initialValue = [], options = {}) {
   // For valueField tables: name → id mapping
   const idMapRef = useRef({})
 
-  // Fetch on mount
+  // Apply fetched rows to local state
+  const applyRows = useCallback((rows) => {
+    const camelRows = (rows || []).map(toCamel)
+    dbRef.current = camelRows
+    if (camelRows.length > 0) {
+      if (valueField) {
+        idMapRef.current = Object.fromEntries(
+          camelRows.map((r) => [r[valueField], r.id])
+        )
+        setLocalData(camelRows.map((r) => r[valueField]))
+      } else {
+        setLocalData(camelRows)
+      }
+    } else {
+      setLocalData(initialValue)
+    }
+  }, [valueField])
+
+  // Fetch on mount + subscribe to realtime changes
   useEffect(() => {
     let cancelled = false
 
@@ -55,29 +73,25 @@ export function useSupabase(table, initialValue = [], options = {}) {
           setLoading(false)
           return
         }
-
-        const camelRows = (rows || []).map(toCamel)
-
-        if (camelRows.length > 0) {
-          dbRef.current = camelRows
-          if (valueField) {
-            idMapRef.current = Object.fromEntries(
-              camelRows.map((r) => [r[valueField], r.id])
-            )
-            setLocalData(camelRows.map((r) => r[valueField]))
-          } else {
-            setLocalData(camelRows)
-          }
-        } else {
-          // Table empty — use initialValue but don't persist yet
-          dbRef.current = []
-          setLocalData(initialValue)
-        }
+        applyRows(rows)
         setLoading(false)
       })
 
-    return () => { cancelled = true }
-  }, [table])
+    // Realtime subscription — re-fetch on any change
+    const channel = supabase
+      .channel(`${table}-changes`)
+      .on('postgres_changes', { event: '*', schema: 'public', table }, () => {
+        supabase.from(table).select('*').then(({ data: rows, error }) => {
+          if (!error && rows) applyRows(rows)
+        })
+      })
+      .subscribe()
+
+    return () => {
+      cancelled = true
+      supabase.removeChannel(channel)
+    }
+  }, [table, applyRows])
 
   const setData = useCallback(
     (newValue) => {
