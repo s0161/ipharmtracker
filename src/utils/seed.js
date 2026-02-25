@@ -3,6 +3,18 @@ import { generateId } from './helpers'
 
 const SEED_KEY = 'ipd_seeded_v10'
 
+const ORPHANED_KEYS = [
+  'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
+  'ipd_documents', 'ipd_staff_training', 'ipd_safeguarding',
+  'ipd_seeded', 'ipd_seeded_v2', 'ipd_seeded_v3',
+  'ipd_seeded_v4', 'ipd_seeded_v5', 'ipd_seeded_v6',
+  'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
+]
+
+export function cleanupOldLocalStorage() {
+  ORPHANED_KEYS.forEach((k) => localStorage.removeItem(k))
+}
+
 export async function seedIfNeeded() {
   if (localStorage.getItem(SEED_KEY)) return
 
