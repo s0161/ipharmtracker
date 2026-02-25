@@ -29,11 +29,15 @@ const emptyForm = {
 }
 
 export default function SafeguardingTraining() {
-  const [records, setRecords] = useSupabase('safeguarding_records', [])
+  const [records, setRecords, loading] = useSupabase('safeguarding_records', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
+
+  if (loading) {
+    return <div className="loading-container"><div className="spinner" />Loading…</div>
+  }
 
   const sorted = [...records].sort((a, b) => a.staffName.localeCompare(b.staffName))
 

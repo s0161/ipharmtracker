@@ -44,12 +44,16 @@ function scoreColor(pct) {
 }
 
 export default function Dashboard() {
-  const [documents] = useSupabase('documents', [])
+  const [documents, , docsLoading] = useSupabase('documents', [])
   const [trainingLogs] = useSupabase('training_logs', [])
   const [cleaningEntries] = useSupabase('cleaning_entries', [])
   const [cleaningTasks] = useSupabase('cleaning_tasks', DEFAULT_CLEANING_TASKS)
   const [staffTraining] = useSupabase('staff_training', [])
   const [safeguarding] = useSupabase('safeguarding_records', [])
+
+  if (docsLoading) {
+    return <div className="loading-container"><div className="spinner" />Loading…</div>
+  }
 
   // Document alert counts
   const docStatuses = documents.map((d) => getTrafficLight(d.expiryDate))

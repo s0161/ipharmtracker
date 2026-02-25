@@ -21,12 +21,16 @@ const emptyForm = {
 }
 
 export default function DocumentTracker() {
-  const [documents, setDocuments] = useSupabase('documents', [])
+  const [documents, setDocuments, loading] = useSupabase('documents', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
   const [filterCategory, setFilterCategory] = useState('')
+
+  if (loading) {
+    return <div className="loading-container"><div className="spinner" />Loading…</div>
+  }
 
   const filtered = filterCategory
     ? documents.filter((d) => d.category === filterCategory)

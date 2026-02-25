@@ -25,7 +25,7 @@ const emptyForm = {
 }
 
 export default function StaffTraining() {
-  const [entries, setEntries] = useSupabase('staff_training', [])
+  const [entries, setEntries, loading] = useSupabase('staff_training', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const [filterStaff, setFilterStaff] = useState('')
   const [filterRole, setFilterRole] = useState('')
@@ -36,6 +36,10 @@ export default function StaffTraining() {
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
+
+  if (loading) {
+    return <div className="loading-container"><div className="spinner" />Loading…</div>
+  }
 
   // Derive unique staff names and roles for filter dropdowns
   const staffNames = [...new Set(entries.map((e) => e.staffName))].sort()

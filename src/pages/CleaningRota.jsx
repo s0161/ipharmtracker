@@ -15,12 +15,16 @@ const emptyForm = {
 }
 
 export default function CleaningRota() {
-  const [entries, setEntries] = useSupabase('cleaning_entries', [])
+  const [entries, setEntries, loading] = useSupabase('cleaning_entries', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const [cleaningTasks] = useSupabase('cleaning_tasks', DEFAULT_CLEANING_TASKS)
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
+
+  if (loading) {
+    return <div className="loading-container"><div className="spinner" />Loading…</div>
+  }
 
   const taskNames = cleaningTasks.map((t) => t.name)
 

@@ -15,12 +15,16 @@ const emptyForm = {
 }
 
 export default function TrainingLogs() {
-  const [logs, setLogs] = useSupabase('training_logs', [])
+  const [logs, setLogs, loading] = useSupabase('training_logs', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const [topics] = useSupabase('training_topics', [], { valueField: 'name' })
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
+
+  if (loading) {
+    return <div className="loading-container"><div className="spinner" />Loading…</div>
+  }
 
   const sorted = [...logs].sort(
     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
