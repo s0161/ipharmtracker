@@ -65,7 +65,6 @@ const RP_DAILY = [
   'Controlled drugs checked',
   'Pharmacy opened correctly',
   'Pharmacy closed correctly',
-  'Fridge temperature recorded',
 ]
 const RP_WEEKLY = [
   'Pharmacy record up to date',
@@ -153,13 +152,12 @@ export default function Dashboard() {
     status: getTaskStatus(task.name, task.frequency, cleaningEntries),
   }))
 
-  // All RP items with their frequency for board cards
-  const allRpItems = [
-    ...RP_DAILY.map(name => ({ name, frequency: 'daily' })),
-    ...RP_WEEKLY.map(name => ({ name, frequency: 'weekly' })),
-    ...RP_FORTNIGHTLY.map(name => ({ name, frequency: 'fortnightly' })),
-    ...RP_MONTHLY.map(name => ({ name, frequency: 'monthly' })),
-  ]
+  // RP items grouped by frequency for summary cards
+  const RP_GROUPS = [
+    { frequency: 'daily', label: 'Daily', items: RP_DAILY },
+    { frequency: 'weekly', label: 'Weekly', items: RP_WEEKLY },
+    { frequency: 'fortnightly', label: 'Fortnightly', items: RP_FORTNIGHTLY },
+  ].filter(g => g.items.length > 0)
 
   // RP Log — today's checklist
   const todayStr = new Date().toISOString().slice(0, 10)
@@ -197,9 +195,9 @@ export default function Dashboard() {
   const filteredCleaning = checklistFilter === 'all'
     ? taskStatuses
     : taskStatuses.filter(t => t.frequency === checklistFilter)
-  const filteredRp = checklistFilter === 'all'
-    ? allRpItems
-    : allRpItems.filter(r => r.frequency === checklistFilter)
+  const filteredRpGroups = checklistFilter === 'all'
+    ? RP_GROUPS
+    : RP_GROUPS.filter(g => g.frequency === checklistFilter)
 
   const boardCards = []
 
@@ -223,16 +221,21 @@ export default function Dashboard() {
     })
   })
 
-  // RP check cards
-  filteredRp.forEach(rp => {
-    const done = !!rpChecklist[rp.name]
+  // RP summary cards (one per frequency group)
+  filteredRpGroups.forEach(group => {
+    const doneCount = group.items.filter(name => !!rpChecklist[name]).length
+    const total = group.items.length
+    const allDone = doneCount === total
     boardCards.push({
-      id: `rp-${rp.name}`,
-      name: rp.name,
-      frequency: rp.frequency,
+      id: `rp-summary-${group.frequency}`,
+      name: `${group.label} RP Checks`,
+      frequency: group.frequency,
       category: 'RP Check',
-      column: done ? 'done' : 'due',
-      timestamp: done ? 'Today' : null,
+      column: allDone ? 'done' : 'due',
+      timestamp: allDone ? 'Today' : null,
+      isSummary: true,
+      doneCount,
+      total,
     })
   })
 
@@ -432,7 +435,19 @@ export default function Dashboard() {
                     <div className="kanban-card-meta">
                       <span className="kanban-card-pill kanban-card-pill--freq">{card.frequency}</span>
                       <span className="kanban-card-pill kanban-card-pill--cat">{card.category}</span>
+                      {card.isSummary && <span className="kanban-card-time">{card.doneCount}/{card.total} done</span>}
                     </div>
+                    {card.isSummary && (
+                      <div className="kanban-card-progress">
+                        <div
+                          className="kanban-card-progress-fill"
+                          style={{
+                            width: `${(card.doneCount / card.total) * 100}%`,
+                            background: card.doneCount === 0 ? 'var(--border)' : 'var(--warning)',
+                          }}
+                        />
+                      </div>
+                    )}
                   </button>
                 ))
               )}
@@ -455,8 +470,18 @@ export default function Dashboard() {
                     <div className="kanban-card-meta">
                       <span className="kanban-card-pill kanban-card-pill--freq">{card.frequency}</span>
                       <span className="kanban-card-pill kanban-card-pill--cat">{card.category}</span>
-                      {card.timestamp && <span className="kanban-card-time">{card.timestamp}</span>}
+                      {card.isSummary
+                        ? <span className="kanban-card-time">{card.doneCount}/{card.total} done</span>
+                        : card.timestamp && <span className="kanban-card-time">{card.timestamp}</span>}
                     </div>
+                    {card.isSummary && (
+                      <div className="kanban-card-progress">
+                        <div
+                          className="kanban-card-progress-fill"
+                          style={{ width: '100%', background: 'var(--success)' }}
+                        />
+                      </div>
+                    )}
                   </div>
                 ))
               )}

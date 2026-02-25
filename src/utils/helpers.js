@@ -68,13 +68,30 @@ export const CATEGORIES = [
 ]
 
 export const DEFAULT_CLEANING_TASKS = [
-  { name: 'Fridge Cleaning', frequency: 'monthly' },
-  { name: 'Date Check', frequency: 'monthly' },
-  { name: 'Temperature Log', frequency: 'daily' },
+  // Daily
   { name: 'Dispensary Clean', frequency: 'daily' },
+  { name: 'Temperature Log', frequency: 'daily' },
+  { name: 'Counter & Surfaces Wipe', frequency: 'daily' },
+  // Weekly
+  { name: 'Kitchen Clean', frequency: 'weekly' },
+  { name: 'Bathroom Clean', frequency: 'weekly' },
+  { name: 'Floor Clean', frequency: 'weekly' },
+  { name: 'Tidy Cream Shelves', frequency: 'weekly' },
+  { name: 'Tidy Liquid Shelf', frequency: 'weekly' },
+  { name: 'Empty Waste', frequency: 'weekly' },
+  { name: 'Empty Confidential Waste', frequency: 'weekly' },
+  { name: 'Put Splits Away', frequency: 'weekly' },
+  { name: 'Extra Stock Away in Robot', frequency: 'weekly' },
+  { name: 'Robot Maintenance', frequency: 'weekly' },
+  { name: 'Consultation Room Clean', frequency: 'weekly' },
+  // Fortnightly
+  { name: 'Fridge Quick Clean', frequency: 'fortnightly' },
+  { name: 'Straighten Up Stock', frequency: 'fortnightly' },
+  // Monthly
+  { name: 'Deep Fridge Clean', frequency: 'monthly' },
 ]
 
-export const FREQUENCIES = ['daily', 'weekly', 'monthly', 'annually']
+export const FREQUENCIES = ['daily', 'weekly', 'fortnightly', 'monthly', 'annually']
 
 export function getTaskStatus(taskName, frequency, cleaningEntries) {
   const entries = cleaningEntries.filter((e) => e.taskName === taskName)
@@ -94,6 +111,8 @@ export function getTaskStatus(taskName, frequency, cleaningEntries) {
       return 'due'
     case 'weekly':
       return diffDays >= 7 ? 'overdue' : diffDays >= 6 ? 'due' : 'upcoming'
+    case 'fortnightly':
+      return diffDays >= 14 ? 'overdue' : diffDays >= 12 ? 'due' : 'upcoming'
     case 'monthly':
       return diffDays >= 30 ? 'overdue' : diffDays >= 25 ? 'due' : 'upcoming'
     case 'annually':

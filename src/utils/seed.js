@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { generateId } from './helpers'
 
-const SEED_KEY = 'ipd_seeded_v10'
+const SEED_KEY = 'ipd_seeded_v11'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -9,6 +9,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded', 'ipd_seeded_v2', 'ipd_seeded_v3',
   'ipd_seeded_v4', 'ipd_seeded_v5', 'ipd_seeded_v6',
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
+  'ipd_seeded_v10',
 ]
 
 export function cleanupOldLocalStorage() {
@@ -38,21 +39,34 @@ export async function seedIfNeeded() {
 
   // Cleaning tasks
   const tasks = [
-    { name: 'Fridge Cleaning', frequency: 'monthly' },
-    { name: 'Date Check', frequency: 'monthly' },
-    { name: 'Temperature Log', frequency: 'daily' },
+    // Daily
     { name: 'Dispensary Clean', frequency: 'daily' },
-    { name: 'Robot Maintenance', frequency: 'weekly' },
+    { name: 'Temperature Log', frequency: 'daily' },
+    { name: 'Counter & Surfaces Wipe', frequency: 'daily' },
+    // Weekly
+    { name: 'Kitchen Clean', frequency: 'weekly' },
     { name: 'Bathroom Clean', frequency: 'weekly' },
     { name: 'Floor Clean', frequency: 'weekly' },
-    { name: 'Kitchen Clean', frequency: 'weekly' },
+    { name: 'Tidy Cream Shelves', frequency: 'weekly' },
+    { name: 'Tidy Liquid Shelf', frequency: 'weekly' },
+    { name: 'Empty Waste', frequency: 'weekly' },
+    { name: 'Empty Confidential Waste', frequency: 'weekly' },
+    { name: 'Put Splits Away', frequency: 'weekly' },
+    { name: 'Extra Stock Away in Robot', frequency: 'weekly' },
+    { name: 'Robot Maintenance', frequency: 'weekly' },
+    { name: 'Consultation Room Clean', frequency: 'weekly' },
+    // Fortnightly
+    { name: 'Fridge Quick Clean', frequency: 'fortnightly' },
+    { name: 'Straighten Up Stock', frequency: 'fortnightly' },
+    // Monthly
+    { name: 'Deep Fridge Clean', frequency: 'monthly' },
   ]
 
   // Cleaning log entries (snake_case for DB)
   const cleaning = [
     {
       id: generateId(),
-      task_name: 'Fridge Cleaning',
+      task_name: 'Deep Fridge Clean',
       date_time: '2026-02-23T10:00',
       staff_member: 'Salma Shakoor',
       result: 'Pass',
@@ -61,12 +75,12 @@ export async function seedIfNeeded() {
     },
     {
       id: generateId(),
-      task_name: 'Date Check',
-      date_time: '2026-01-15T09:00',
+      task_name: 'Fridge Quick Clean',
+      date_time: '2026-02-15T09:00',
       staff_member: 'Salma Shakoor',
       result: 'Pass',
-      notes: 'Due again March 2026',
-      created_at: '2026-01-15T09:00:00.000Z',
+      notes: 'Fortnightly — next due early March 2026',
+      created_at: '2026-02-15T09:00:00.000Z',
     },
     {
       id: generateId(),
