@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
+import GlobalSearch from './GlobalSearch'
 
 const titles = {
   '/': 'Dashboard',
@@ -35,6 +36,7 @@ export default function Layout({ children }) {
             </svg>
           </button>
           <h1 className="main-title">{title}</h1>
+          <GlobalSearch />
         </header>
         <div className="main-content">{children}</div>
       </main>
