@@ -1,5 +1,6 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
+import { supabase } from '../lib/supabase'
 import { DEFAULT_CLEANING_TASKS, FREQUENCIES } from '../utils/helpers'
 import { exportData, importData, clearAllData } from '../utils/dataManager'
 
@@ -171,6 +172,20 @@ export default function Settings() {
   )
   const [importMsg, setImportMsg] = useState(null)
   const fileRef = useRef(null)
+  const [backendStatus, setBackendStatus] = useState({ checking: true })
+
+  useEffect(() => {
+    supabase
+      .from('documents')
+      .select('id', { count: 'exact', head: true })
+      .then(({ error }) => {
+        if (error) {
+          setBackendStatus({ ok: false, error: error.message })
+        } else {
+          setBackendStatus({ ok: true })
+        }
+      })
+  }, [])
 
   const handleExport = async () => {
     await exportData()
@@ -218,6 +233,29 @@ export default function Settings() {
         <p className="settings-section-desc">
           Export a backup of all your data, restore from a previous backup, or clear everything.
         </p>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+          <span
+            style={{
+              display: 'inline-block',
+              width: 10,
+              height: 10,
+              borderRadius: '50%',
+              backgroundColor: backendStatus.checking
+                ? '#aaa'
+                : backendStatus.ok
+                  ? '#22c55e'
+                  : '#ef4444',
+            }}
+          />
+          <span style={{ fontSize: 14 }}>
+            {backendStatus.checking
+              ? 'Checking backend…'
+              : backendStatus.ok
+                ? 'Backend connected'
+                : `Backend not connected — ${backendStatus.error}`}
+          </span>
+        </div>
 
         <div className="data-mgmt-actions">
           <button className="btn btn--primary" onClick={handleExport}>

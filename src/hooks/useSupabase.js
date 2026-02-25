@@ -46,7 +46,12 @@ export function useSupabase(table, initialValue = [], options = {}) {
       .from(table)
       .select('*')
       .then(({ data: rows, error }) => {
-        if (cancelled || error) {
+        if (cancelled) {
+          setLoading(false)
+          return
+        }
+        if (error) {
+          console.error(`[useSupabase] Failed to fetch from "${table}":`, error.message)
           setLoading(false)
           return
         }
@@ -99,12 +104,14 @@ async function syncValueField(table, field, newNames, dbRef, idMapRef) {
   const removed = dbRef.current.filter((r) => !nextNames.has(r[field]))
 
   if (added.length > 0) {
-    const { data: inserted } = await supabase
+    const { data: inserted, error: insertErr } = await supabase
       .from(table)
       .insert(added.map((n) => ({ [field]: n })))
       .select()
 
-    if (inserted) {
+    if (insertErr) {
+      console.error(`[useSupabase] Insert into "${table}" failed:`, insertErr.message)
+    } else if (inserted) {
       inserted.forEach((r) => {
         const camel = toCamel(r)
         idMapRef.current[camel[field]] = camel.id
@@ -115,7 +122,10 @@ async function syncValueField(table, field, newNames, dbRef, idMapRef) {
 
   if (removed.length > 0) {
     const ids = removed.map((r) => r.id)
-    await supabase.from(table).delete().in('id', ids)
+    const { error: deleteErr } = await supabase.from(table).delete().in('id', ids)
+    if (deleteErr) {
+      console.error(`[useSupabase] Delete from "${table}" failed:`, deleteErr.message)
+    }
     const removedIds = new Set(ids)
     dbRef.current = dbRef.current.filter((r) => !removedIds.has(r.id))
     removed.forEach((r) => delete idMapRef.current[r[field]])
@@ -153,18 +163,21 @@ async function syncObjects(table, newData, dbRef) {
   const toDelete = prev.filter((r) => !nextMap.has(r.id))
 
   if (toInsert.length > 0) {
-    await supabase.from(table).insert(toInsert.map(toSnake))
+    const { error: insertErr } = await supabase.from(table).insert(toInsert.map(toSnake))
+    if (insertErr) console.error(`[useSupabase] Insert into "${table}" failed:`, insertErr.message)
   }
 
   if (toUpsert.length > 0) {
-    await supabase.from(table).upsert(toUpsert.map(toSnake))
+    const { error: upsertErr } = await supabase.from(table).upsert(toUpsert.map(toSnake))
+    if (upsertErr) console.error(`[useSupabase] Upsert into "${table}" failed:`, upsertErr.message)
   }
 
   if (toDelete.length > 0) {
-    await supabase
+    const { error: deleteErr } = await supabase
       .from(table)
       .delete()
       .in('id', toDelete.map((r) => r.id))
+    if (deleteErr) console.error(`[useSupabase] Delete from "${table}" failed:`, deleteErr.message)
   }
 
   dbRef.current = [...newData]
