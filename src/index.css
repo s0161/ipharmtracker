@@ -2472,6 +2472,10 @@ select.input {
 
 /* ── Print ─────────────────────────────────── */
 
+.print-only {
+  display: none;
+}
+
 @media print {
   .sidebar,
   .sidebar-overlay,
@@ -2489,8 +2493,21 @@ select.input {
   .sg-banner,
   .sg-docs,
   .results-count,
-  .search-box {
+  .search-box,
+  .toast-container,
+  .global-search,
+  .quick-add-row,
+  .action-required-section,
+  .compliance-section,
+  .todays-panel,
+  .dash-cards,
+  .dash-section,
+  .dash-grid {
     display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
   }
 
   .main {
@@ -2500,6 +2517,67 @@ select.input {
   .main-content {
     padding: 0.5rem !important;
     max-width: 100% !important;
+  }
+
+  body {
+    font-size: 11px;
+    color: #000;
+    background: #fff;
+  }
+
+  .print-header {
+    text-align: center;
+    border-bottom: 2px solid #000;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .print-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .print-meta {
+    font-size: 11px;
+    color: #666;
+  }
+
+  .print-section {
+    margin-bottom: 1rem;
+    page-break-inside: avoid;
+  }
+
+  .print-section h2 {
+    font-size: 13px;
+    font-weight: 700;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .print-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+  }
+
+  .print-table th,
+  .print-table td {
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+
+  .print-table th {
+    background: #eee;
+    font-weight: 600;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .print-table tbody tr {
+    page-break-inside: avoid;
   }
 
   .table-wrap {
@@ -2516,9 +2594,5 @@ select.input {
 
   .table tbody tr {
     page-break-inside: avoid;
-  }
-
-  body {
-    font-size: 11px;
   }
 }

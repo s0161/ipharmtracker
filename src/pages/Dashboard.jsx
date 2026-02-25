@@ -199,7 +199,7 @@ export default function Dashboard() {
       </div>
 
       {/* Quick-Add Buttons */}
-      <div className="quick-add-row">
+      <div className="quick-add-row no-print">
         <button className="btn btn--primary quick-add-btn" onClick={() => navigate('/cleaning?add=true')}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
             <path d="M12 5v14M5 12h14" />
@@ -422,6 +422,119 @@ export default function Dashboard() {
               </table>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Print Compliance Report Button */}
+      <div className="no-print" style={{ display: 'flex', justifyContent: 'center', paddingTop: '0.5rem' }}>
+        <button className="btn btn--ghost" onClick={() => window.print()}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+            <polyline points="6 9 6 2 18 2 18 9" />
+            <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" />
+            <rect x="6" y="14" width="12" height="8" />
+          </svg>
+          Print Compliance Report
+        </button>
+      </div>
+
+      {/* Print-Only Section */}
+      <div className="print-only">
+        <div className="print-header">
+          <h1 className="print-title">iPharmacy Direct — Compliance Report</h1>
+          <p className="print-meta">
+            Generated: {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            {' at '}
+            {new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+          </p>
+        </div>
+
+        <div className="print-section">
+          <h2>Compliance Scores</h2>
+          <table className="print-table">
+            <thead>
+              <tr><th>Area</th><th>Score</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Documents</td><td>{docScore}%</td></tr>
+              <tr><td>Staff Training</td><td>{staffScore}%</td></tr>
+              <tr><td>Cleaning Tasks</td><td>{cleaningScore}%</td></tr>
+              <tr><td>Safeguarding</td><td>{sgScore}%</td></tr>
+              <tr style={{ fontWeight: 700 }}><td>Overall</td><td>{overallScore}%</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="print-section">
+          <h2>Document Status</h2>
+          <table className="print-table">
+            <thead>
+              <tr><th>Status</th><th>Document</th><th>Category</th><th>Expiry</th></tr>
+            </thead>
+            <tbody>
+              {documents.map(doc => (
+                <tr key={doc.id}>
+                  <td>{getTrafficLightLabel(getTrafficLight(doc.expiryDate))}</td>
+                  <td>{doc.documentName}</td>
+                  <td>{doc.category}</td>
+                  <td>{formatDate(doc.expiryDate)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="print-section">
+          <h2>Cleaning Task Summary</h2>
+          <table className="print-table">
+            <thead>
+              <tr><th>Task</th><th>Frequency</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              {taskStatuses.map(t => (
+                <tr key={t.name}>
+                  <td>{t.name}</td>
+                  <td>{t.frequency}</td>
+                  <td>{getTaskStatusLabel(t.status)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="print-section">
+          <h2>Staff Training Completion</h2>
+          <table className="print-table">
+            <thead>
+              <tr><th>Staff</th><th>Training Item</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              {staffTraining.map(st => (
+                <tr key={st.id}>
+                  <td>{st.staffName}</td>
+                  <td>{st.trainingItem}</td>
+                  <td>{st.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="print-section">
+          <h2>Safeguarding Status</h2>
+          <table className="print-table">
+            <thead>
+              <tr><th>Staff</th><th>Training Date</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              {safeguarding.map(r => (
+                <tr key={r.id}>
+                  <td>{r.staffName}</td>
+                  <td>{formatDate(r.trainingDate)}</td>
+                  <td>{getSafeguardingStatus(r.trainingDate)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
