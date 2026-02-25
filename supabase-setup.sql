@@ -69,6 +69,15 @@ create table staff_training (
   status text default 'Pending'
 );
 
+create table rp_log (
+  id uuid primary key default gen_random_uuid(),
+  date text not null,
+  rp_name text not null,
+  checklist jsonb default '{}',
+  notes text default '',
+  created_at timestamptz default now()
+);
+
 -- Disable RLS on all tables (no auth)
 alter table documents enable row level security;
 create policy "Allow all" on documents for all using (true) with check (true);
@@ -93,3 +102,6 @@ create policy "Allow all" on safeguarding_records for all using (true) with chec
 
 alter table staff_training enable row level security;
 create policy "Allow all" on staff_training for all using (true) with check (true);
+
+alter table rp_log enable row level security;
+create policy "Allow all" on rp_log for all using (true) with check (true);

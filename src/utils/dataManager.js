@@ -9,6 +9,7 @@ const TABLES = [
   'training_topics',
   'safeguarding_records',
   'staff_training',
+  'rp_log',
 ]
 
 export async function exportData() {

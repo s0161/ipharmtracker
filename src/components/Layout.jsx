@@ -4,6 +4,7 @@ import Sidebar from './Sidebar'
 
 const titles = {
   '/': 'Dashboard',
+  '/rp-log': 'RP Log',
   '/training': 'Training Logs',
   '/cleaning': 'Cleaning Rota',
   '/documents': 'Document & Renewal Tracker',

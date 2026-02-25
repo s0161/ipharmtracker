@@ -7,6 +7,7 @@ import CleaningRota from './pages/CleaningRota'
 import DocumentTracker from './pages/DocumentTracker'
 import StaffTraining from './pages/StaffTraining'
 import SafeguardingTraining from './pages/SafeguardingTraining'
+import RPLog from './pages/RPLog'
 import Settings from './pages/Settings'
 import Login, { isAuthenticated } from './pages/Login'
 
@@ -21,6 +22,7 @@ export default function App() {
     <Layout>
       <Routes>
         <Route path="/" element={<Dashboard />} />
+        <Route path="/rp-log" element={<RPLog />} />
         <Route path="/training" element={<TrainingLogs />} />
         <Route path="/cleaning" element={<CleaningRota />} />
         <Route path="/documents" element={<DocumentTracker />} />

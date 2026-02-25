@@ -2084,6 +2084,137 @@ select.input {
   }
 }
 
+/* ── RP Log ────────────────────────────────── */
+
+.rp-form-section {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1.5rem;
+}
+
+.rp-form-header {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.rp-completion-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+}
+
+.rp-completion-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.rp-checklist-group {
+  margin-bottom: 1rem;
+}
+
+.rp-checklist-group-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rp-checklist-group-count {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--bg);
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+}
+
+.rp-checklist-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rp-checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition);
+  font-size: 0.875rem;
+}
+
+.rp-checklist-item:hover {
+  background: var(--primary-fade);
+}
+
+.rp-checklist-item--checked {
+  background: var(--success-bg);
+}
+
+.rp-checklist-item--checked:hover {
+  background: var(--success-bg);
+}
+
+.rp-checklist-item input[type="checkbox"] {
+  display: none;
+}
+
+.rp-check-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.rp-check-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.rp-checklist-item--checked .rp-check-icon {
+  color: var(--success);
+}
+
+.rp-check-label {
+  color: var(--text);
+}
+
+.rp-checklist-item--checked .rp-check-label {
+  color: var(--success);
+}
+
+.rp-history-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .rp-form-header {
+    flex-direction: column;
+  }
+}
+
 /* ── Print ─────────────────────────────────── */
 
 @media print {
