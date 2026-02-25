@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import { useSupabase } from '../hooks/useSupabase'
 import {
   getTrafficLight,
@@ -44,6 +45,7 @@ function scoreColor(pct) {
 }
 
 export default function Dashboard() {
+  const navigate = useNavigate()
   const [documents, , docsLoading] = useSupabase('documents', [])
   const [trainingLogs] = useSupabase('training_logs', [])
   const [cleaningEntries] = useSupabase('cleaning_entries', [])
@@ -60,6 +62,15 @@ export default function Dashboard() {
   const redCount = docStatuses.filter((s) => s === 'red').length
   const amberCount = docStatuses.filter((s) => s === 'amber').length
   const greenCount = docStatuses.filter((s) => s === 'green').length
+
+  // Documents due within 7 days
+  const now = new Date()
+  const sevenDays = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+  const dueSoon = documents.filter(d => {
+    if (!d.expiryDate) return false
+    const exp = new Date(d.expiryDate)
+    return exp > now && exp <= sevenDays
+  })
 
   // Compliance sub-scores
   const docScore = documents.length > 0
@@ -89,7 +100,7 @@ export default function Dashboard() {
 
   const overallScore = Math.round((docScore + staffScore + cleaningScore + sgScore) / 4)
 
-  // Upcoming expiries — next 5 documents nearest to expiry (that have a date and aren't expired)
+  // Upcoming expiries — next 5 documents nearest to expiry
   const upcoming = documents
     .filter((d) => {
       const status = getTrafficLight(d.expiryDate)
@@ -121,8 +132,95 @@ export default function Dashboard() {
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, 5)
 
+  // === Action Required Items ===
+  const expiredDocs = documents.filter(d => getTrafficLight(d.expiryDate) === 'red')
+  const overdueTraining = staffTraining.filter(e => e.status === 'Pending')
+  const overdueCleaningTasks = taskStatuses.filter(t => t.status === 'overdue')
+  const sgDueSoon = safeguarding.filter(r => {
+    const s = getSafeguardingStatus(r.trainingDate)
+    return s === 'due-soon' || s === 'overdue'
+  })
+
+  const totalActionItems = expiredDocs.length + dueSoon.length + overdueTraining.length + overdueCleaningTasks.length + sgDueSoon.length
+  const allClear = totalActionItems === 0
+
   return (
     <div className="dashboard">
+      {/* Action Required / All Clear */}
+      <div className={`action-required-section ${allClear ? 'action-required-section--clear' : ''}`}>
+        {allClear ? (
+          <div className="action-required-clear">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="28" height="28">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+            <div>
+              <h2 className="action-required-title">All Clear</h2>
+              <p className="action-required-sub">No items require attention. All compliance checks are up to date.</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <h2 className="action-required-heading">Action Required</h2>
+            <div className="action-required-items">
+              {expiredDocs.length > 0 && (
+                <button className="action-item action-item--red" onClick={() => navigate('/documents')}>
+                  <span className="action-item-count">{expiredDocs.length}</span>
+                  <span className="action-item-text">Expired document{expiredDocs.length !== 1 ? 's' : ''}</span>
+                </button>
+              )}
+              {dueSoon.length > 0 && (
+                <button className="action-item action-item--amber" onClick={() => navigate('/documents')}>
+                  <span className="action-item-count">{dueSoon.length}</span>
+                  <span className="action-item-text">Due within 7 days</span>
+                </button>
+              )}
+              {overdueTraining.length > 0 && (
+                <button className="action-item action-item--red" onClick={() => navigate('/staff-training')}>
+                  <span className="action-item-count">{overdueTraining.length}</span>
+                  <span className="action-item-text">Pending training item{overdueTraining.length !== 1 ? 's' : ''}</span>
+                </button>
+              )}
+              {overdueCleaningTasks.length > 0 && (
+                <button className="action-item action-item--amber" onClick={() => navigate('/cleaning')}>
+                  <span className="action-item-count">{overdueCleaningTasks.length}</span>
+                  <span className="action-item-text">Overdue cleaning task{overdueCleaningTasks.length !== 1 ? 's' : ''}</span>
+                </button>
+              )}
+              {sgDueSoon.length > 0 && (
+                <button className="action-item action-item--amber" onClick={() => navigate('/safeguarding')}>
+                  <span className="action-item-count">{sgDueSoon.length}</span>
+                  <span className="action-item-text">Safeguarding refresher{sgDueSoon.length !== 1 ? 's' : ''} due</span>
+                </button>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Quick-Add Buttons */}
+      <div className="quick-add-row">
+        <button className="btn btn--primary quick-add-btn" onClick={() => navigate('/cleaning?add=true')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          Log Cleaning
+        </button>
+        <button className="btn btn--primary quick-add-btn" onClick={() => navigate('/training?add=true')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          Log Training
+        </button>
+        <button className="btn btn--primary quick-add-btn" onClick={() => navigate('/rp-log')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+            <path d="M9 14l2 2 4-4" />
+            <rect x="3" y="3" width="18" height="18" rx="3" />
+          </svg>
+          RP Checklist
+        </button>
+      </div>
+
       {/* Compliance Score */}
       <div className="compliance-section">
         <div className="compliance-ring-wrap">

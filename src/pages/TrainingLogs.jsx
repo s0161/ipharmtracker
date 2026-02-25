@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useSupabase } from '../hooks/useSupabase'
 import { generateId, formatDate } from '../utils/helpers'
 import { downloadCsv } from '../utils/exportCsv'
@@ -20,9 +21,19 @@ export default function TrainingLogs() {
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const [topics] = useSupabase('training_topics', [], { valueField: 'name' })
   const showToast = useToast()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
+
+  useEffect(() => {
+    if (searchParams.get('add') === 'true' && !loading) {
+      setForm(emptyForm)
+      setEditingId(null)
+      setModalOpen(true)
+      setSearchParams({}, { replace: true })
+    }
+  }, [loading, searchParams, setSearchParams])
 
   if (loading) {
     return <div className="loading-container"><div className="spinner" />Loading…</div>

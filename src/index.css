@@ -404,7 +404,100 @@ a:hover {
 .dashboard {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.75rem;
+}
+
+/* Action Required Section */
+.action-required-section {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--danger);
+}
+
+.action-required-section--clear {
+  border-left-color: var(--success);
+}
+
+.action-required-heading {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--danger);
+  margin-bottom: 0.75rem;
+}
+
+.action-required-clear {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--success);
+}
+
+.action-required-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.15rem;
+}
+
+.action-required-sub {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.action-required-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.action-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: all var(--transition);
+}
+
+.action-item:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.action-item--red {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.action-item--amber {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+
+.action-item-count {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* Quick-Add Row */
+.quick-add-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.quick-add-btn {
+  flex: 1;
+  min-width: 140px;
+  justify-content: center;
 }
 
 .dash-cards {
