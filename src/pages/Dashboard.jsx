@@ -145,8 +145,13 @@ export default function Dashboard() {
 
   const overallScore = Math.round((docScore + staffScore + cleaningScore + sgScore) / 4)
 
-  // Cleaning task statuses grouped by frequency
-  const taskStatuses = cleaningTasks.map((task) => ({
+  // Cleaning task statuses grouped by frequency (deduplicate by name)
+  const seen = new Set()
+  const taskStatuses = cleaningTasks.filter(t => {
+    if (seen.has(t.name)) return false
+    seen.add(t.name)
+    return true
+  }).map((task) => ({
     ...task,
     status: getTaskStatus(task.name, task.frequency, cleaningEntries),
   }))

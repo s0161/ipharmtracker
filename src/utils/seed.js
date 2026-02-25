@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { generateId } from './helpers'
 
-const SEED_KEY = 'ipd_seeded_v11'
+const SEED_KEY = 'ipd_seeded_v12'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -9,7 +9,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded', 'ipd_seeded_v2', 'ipd_seeded_v3',
   'ipd_seeded_v4', 'ipd_seeded_v5', 'ipd_seeded_v6',
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
-  'ipd_seeded_v10',
+  'ipd_seeded_v10', 'ipd_seeded_v11',
 ]
 
 export function cleanupOldLocalStorage() {
@@ -202,6 +202,12 @@ export async function seedIfNeeded() {
     { id: generateId(), staff_name: 'Seema Khatoon', job_title: 'Dispenser', training_date: '2026-01-10', ...sgDefaults },
     { id: generateId(), staff_name: 'Jamila Adwan', job_title: 'Pharmacy Technician', training_date: '2026-01-10', ...sgDefaults },
   ]
+
+  // Clear old seed data before re-inserting
+  await Promise.allSettled([
+    supabase.from('cleaning_tasks').delete().neq('id', ''),
+    supabase.from('cleaning_entries').delete().neq('id', ''),
+  ])
 
   // Insert into Supabase tables
   const inserts = [
