@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { generateId } from './helpers'
 
-const SEED_KEY = 'ipd_seeded_v18'
+const SEED_KEY = 'ipd_seeded_v19'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -10,7 +10,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded_v4', 'ipd_seeded_v5', 'ipd_seeded_v6',
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
   'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13', 'ipd_seeded_v14', 'ipd_seeded_v15', 'ipd_seeded_v16',
-  'ipd_seeded_v17',
+  'ipd_seeded_v17', 'ipd_seeded_v18',
 ]
 
 export function cleanupOldLocalStorage() {
@@ -209,6 +209,164 @@ export async function seedIfNeeded() {
     'Manual Handling',
   ]
 
+  // Training Logs (completed training records)
+  const trainingLogs = [
+    {
+      id: generateId(),
+      staff_name: 'Salma Shakoor',
+      date_completed: '2026-01-10',
+      topic: 'Safeguarding Awareness',
+      trainer_name: 'Amjid Shakoor',
+      delivery_method: 'Classroom',
+      duration: '2 hours',
+      outcome: 'Pass',
+      certificate_expiry: '2028-01-10',
+      renewal_date: '2027-12-10',
+      notes: 'Level 1 awareness training completed',
+      created_at: '2026-01-10T10:00:00.000Z',
+    },
+    {
+      id: generateId(),
+      staff_name: 'Umama Khan',
+      date_completed: '2026-01-10',
+      topic: 'Safeguarding Awareness',
+      trainer_name: 'Amjid Shakoor',
+      delivery_method: 'Classroom',
+      duration: '2 hours',
+      outcome: 'Pass',
+      certificate_expiry: '2028-01-10',
+      renewal_date: '2027-12-10',
+      notes: '',
+      created_at: '2026-01-10T10:00:00.000Z',
+    },
+    {
+      id: generateId(),
+      staff_name: 'Urooj Khan',
+      date_completed: '2026-01-10',
+      topic: 'Safeguarding Awareness',
+      trainer_name: 'Amjid Shakoor',
+      delivery_method: 'Classroom',
+      duration: '2 hours',
+      outcome: 'Pass',
+      certificate_expiry: '2028-01-10',
+      renewal_date: '2027-12-10',
+      notes: '',
+      created_at: '2026-01-10T10:00:00.000Z',
+    },
+    {
+      id: generateId(),
+      staff_name: 'Salma Shakoor',
+      date_completed: '2026-01-15',
+      topic: 'GDPR Training',
+      trainer_name: 'Amjid Shakoor',
+      delivery_method: 'Online',
+      duration: '1 hour',
+      outcome: 'Pass',
+      certificate_expiry: '2027-01-15',
+      renewal_date: '2026-12-15',
+      notes: 'Annual GDPR refresher',
+      created_at: '2026-01-15T09:00:00.000Z',
+    },
+    {
+      id: generateId(),
+      staff_name: 'Moniba Jamil',
+      date_completed: '2026-01-15',
+      topic: 'GDPR Training',
+      trainer_name: 'Amjid Shakoor',
+      delivery_method: 'Online',
+      duration: '1 hour',
+      outcome: 'Pass',
+      certificate_expiry: '2027-01-15',
+      renewal_date: '2026-12-15',
+      notes: '',
+      created_at: '2026-01-15T09:00:00.000Z',
+    },
+    {
+      id: generateId(),
+      staff_name: 'Shain Nawaz',
+      date_completed: '2026-02-01',
+      topic: 'Health & Safety',
+      trainer_name: 'Amjid Shakoor',
+      delivery_method: 'Classroom',
+      duration: '3 hours',
+      outcome: 'Pass',
+      certificate_expiry: '2027-02-01',
+      renewal_date: '2027-01-01',
+      notes: 'Covers fire safety, manual handling, COSHH',
+      created_at: '2026-02-01T10:00:00.000Z',
+    },
+    {
+      id: generateId(),
+      staff_name: 'Jamila Adwan',
+      date_completed: '2026-02-01',
+      topic: 'Health & Safety',
+      trainer_name: 'Amjid Shakoor',
+      delivery_method: 'Classroom',
+      duration: '3 hours',
+      outcome: 'Pass',
+      certificate_expiry: '2027-02-01',
+      renewal_date: '2027-01-01',
+      notes: '',
+      created_at: '2026-02-01T10:00:00.000Z',
+    },
+    {
+      id: generateId(),
+      staff_name: 'Marian Hadaway',
+      date_completed: '2026-02-10',
+      topic: 'Fire Safety Awareness',
+      trainer_name: 'Amjid Shakoor',
+      delivery_method: 'On-the-job',
+      duration: '1 hour',
+      outcome: 'Attended',
+      certificate_expiry: '',
+      renewal_date: '2027-02-10',
+      notes: 'Practical fire extinguisher training',
+      created_at: '2026-02-10T14:00:00.000Z',
+    },
+    {
+      id: generateId(),
+      staff_name: 'M Imran',
+      date_completed: '2026-02-15',
+      topic: 'Internal Delivery Refresher',
+      trainer_name: 'Salma Shakoor',
+      delivery_method: 'On-the-job',
+      duration: '30 minutes',
+      outcome: 'Pass',
+      certificate_expiry: '',
+      renewal_date: '2026-08-15',
+      notes: 'Route safety and patient data handling',
+      created_at: '2026-02-15T11:00:00.000Z',
+    },
+    {
+      id: generateId(),
+      staff_name: 'Sadaf Subhani',
+      date_completed: '2026-02-20',
+      topic: 'Dispensing Training',
+      trainer_name: 'Jamila Adwan',
+      delivery_method: 'On-the-job',
+      duration: '4 hours',
+      outcome: 'Attended',
+      certificate_expiry: '',
+      renewal_date: '',
+      notes: 'Ongoing dispensing course — module 3 complete',
+      created_at: '2026-02-20T09:00:00.000Z',
+    },
+    {
+      id: generateId(),
+      staff_name: 'Amjid Shakoor',
+      date_completed: '2026-02-22',
+      topic: 'CPD GPhC Revalidation',
+      trainer_name: '',
+      delivery_method: 'Self-study',
+      duration: '6 hours',
+      outcome: 'Certificate Issued',
+      certificate_expiry: '2027-02-22',
+      renewal_date: '2027-01-22',
+      notes: 'Annual CPD cycle — 9 entries submitted to GPhC',
+      created_at: '2026-02-22T16:00:00.000Z',
+    },
+  ]
+
   // Safeguarding Records
   const sgDefaults = {
     delivered_by: 'Amjid Shakoor — Superintendent Pharmacist',
@@ -237,6 +395,7 @@ export async function seedIfNeeded() {
     supabase.from('safeguarding_records').delete().neq('id', ''),
     supabase.from('rp_log').delete().neq('id', ''),
     supabase.from('training_topics').delete().neq('name', ''),
+    supabase.from('training_logs').delete().neq('id', ''),
   ])
 
   // Insert into Supabase tables
@@ -248,6 +407,7 @@ export async function seedIfNeeded() {
     supabase.from('staff_training').insert(staffTraining),
     supabase.from('safeguarding_records').insert(safeguarding),
     supabase.from('training_topics').insert(trainingTopics.map((name) => ({ name }))),
+    supabase.from('training_logs').insert(trainingLogs),
   ]
 
   const results = await Promise.allSettled(inserts)
