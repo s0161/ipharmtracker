@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { generateId } from './helpers'
 
-const SEED_KEY = 'ipd_seeded_v17'
+const SEED_KEY = 'ipd_seeded_v18'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -10,6 +10,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded_v4', 'ipd_seeded_v5', 'ipd_seeded_v6',
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
   'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13', 'ipd_seeded_v14', 'ipd_seeded_v15', 'ipd_seeded_v16',
+  'ipd_seeded_v17',
 ]
 
 export function cleanupOldLocalStorage() {
@@ -190,6 +191,24 @@ export async function seedIfNeeded() {
     ]),
   ]
 
+  // Training topics (valueField table — each row is { name })
+  const trainingTopics = [
+    'Safeguarding Awareness',
+    'GDPR Training',
+    'Health & Safety',
+    'General Dispensing Refresher',
+    'Internal Delivery Refresher',
+    'Dispensing Training',
+    'Dispensing Course',
+    'ACA Course',
+    'CPD GPhC Revalidation',
+    'Distance Pharmacy Regulatory Update',
+    'Safeguarding Level 3 Review',
+    'Information Governance & GDPR Refresher',
+    'Fire Safety Awareness',
+    'Manual Handling',
+  ]
+
   // Safeguarding Records
   const sgDefaults = {
     delivered_by: 'Amjid Shakoor — Superintendent Pharmacist',
@@ -217,6 +236,7 @@ export async function seedIfNeeded() {
     supabase.from('staff_training').delete().neq('id', ''),
     supabase.from('safeguarding_records').delete().neq('id', ''),
     supabase.from('rp_log').delete().neq('id', ''),
+    supabase.from('training_topics').delete().neq('name', ''),
   ])
 
   // Insert into Supabase tables
@@ -227,6 +247,7 @@ export async function seedIfNeeded() {
     supabase.from('documents').insert(documents),
     supabase.from('staff_training').insert(staffTraining),
     supabase.from('safeguarding_records').insert(safeguarding),
+    supabase.from('training_topics').insert(trainingTopics.map((name) => ({ name }))),
   ]
 
   const results = await Promise.allSettled(inserts)

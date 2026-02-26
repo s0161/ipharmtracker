@@ -212,11 +212,10 @@ export default function Sidebar({ open, onClose }) {
                     </span>
                     <span className="sidebar-link-label">{item.label}</span>
                     {item.shortcut && <span className="sidebar-shortcut">{item.shortcut}</span>}
-                    {badge && badge.red > 0 && (
-                      <span className="sidebar-badge sidebar-badge--red">{badge.red}</span>
-                    )}
-                    {badge && badge.amber > 0 && (
-                      <span className="sidebar-badge sidebar-badge--amber">{badge.amber}</span>
+                    {badge && (badge.red + badge.amber) > 0 && (
+                      <span className={`sidebar-badge sidebar-badge--${badge.red > 0 ? 'red' : 'amber'}`}>
+                        {badge.red + badge.amber}
+                      </span>
                     )}
                   </NavLink>
                 )

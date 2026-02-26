@@ -65,6 +65,10 @@ export const CATEGORIES = [
   'SOP',
   'Contract',
   'Training',
+  'Policy',
+  'Certificate',
+  'Risk Assessment',
+  'Other',
 ]
 
 export const DEFAULT_CLEANING_TASKS = [

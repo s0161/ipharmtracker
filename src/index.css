@@ -2082,6 +2082,63 @@ select.input {
   min-width: 100px;
 }
 
+/* Pharmacy details grid */
+.settings-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.settings-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.settings-detail-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+
+.settings-detail-value {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* Notification toggle list */
+.settings-notif-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.settings-notif-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  background: var(--bg);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.settings-notif-toggle:hover {
+  background: var(--primary-fade);
+}
+
+.settings-notif-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
 /* ── Today's Tasks Panel ────────────────────── */
 
 .todays-panel {

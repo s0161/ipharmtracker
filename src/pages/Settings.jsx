@@ -166,6 +166,23 @@ function TaskManager({ tasks, onUpdate }) {
   )
 }
 
+const PHARMACY_DETAILS = {
+  name: 'iPharmacy Direct',
+  address: 'Manchester, UK',
+  phone: '',
+  gphcNumber: '',
+  superintendent: 'Amjid Shakoor',
+  responsiblePharmacist: 'Amjid Shakoor',
+}
+
+const DEFAULT_NOTIFICATION_PREFS = {
+  documentExpiry: true,
+  trainingOverdue: true,
+  cleaningOverdue: true,
+  safeguardingDue: true,
+  temperatureMissing: true,
+}
+
 export default function Settings() {
   const [staffMembers, setStaffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const [trainingTopics, setTrainingTopics] = useSupabase('training_topics', [], { valueField: 'name' })
@@ -184,6 +201,11 @@ export default function Settings() {
   const [showAudit, setShowAudit] = useState(false)
   const fileRef = useRef(null)
   const [backendStatus, setBackendStatus] = useState({ checking: true })
+  const [notifPrefs, setNotifPrefs] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('ipd_notification_prefs')) || DEFAULT_NOTIFICATION_PREFS
+    } catch { return DEFAULT_NOTIFICATION_PREFS }
+  })
 
   useEffect(() => {
     supabase
@@ -242,6 +264,58 @@ export default function Settings() {
       />
       <TaskManager tasks={cleaningTasks} onUpdate={setCleaningTasks} />
 
+      {/* Pharmacy Details */}
+      <div className="settings-section">
+        <h2 className="settings-section-title">Pharmacy Details</h2>
+        <p className="settings-section-desc">
+          Core pharmacy information. Contact your administrator to update these details.
+        </p>
+        <div className="settings-details-grid">
+          {Object.entries({
+            'Pharmacy Name': PHARMACY_DETAILS.name,
+            'Superintendent': PHARMACY_DETAILS.superintendent,
+            'Responsible Pharmacist': PHARMACY_DETAILS.responsiblePharmacist,
+            'Address': PHARMACY_DETAILS.address,
+          }).map(([label, value]) => (
+            <div key={label} className="settings-detail-item">
+              <span className="settings-detail-label">{label}</span>
+              <span className="settings-detail-value">{value || '—'}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Notification Preferences */}
+      <div className="settings-section">
+        <h2 className="settings-section-title">Notification Preferences</h2>
+        <p className="settings-section-desc">
+          Control which alerts appear in the sidebar and dashboard.
+        </p>
+        <div className="settings-notif-list">
+          {[
+            { key: 'documentExpiry', label: 'Document expiry alerts' },
+            { key: 'trainingOverdue', label: 'Training overdue alerts' },
+            { key: 'cleaningOverdue', label: 'Cleaning overdue alerts' },
+            { key: 'safeguardingDue', label: 'Safeguarding due alerts' },
+            { key: 'temperatureMissing', label: 'Temperature log reminders' },
+          ].map(({ key, label }) => (
+            <label key={key} className="settings-notif-toggle">
+              <input
+                type="checkbox"
+                checked={!!notifPrefs[key]}
+                onChange={() => {
+                  const updated = { ...notifPrefs, [key]: !notifPrefs[key] }
+                  setNotifPrefs(updated)
+                  localStorage.setItem('ipd_notification_prefs', JSON.stringify(updated))
+                  showToast('Preference saved')
+                }}
+              />
+              <span>{label}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
       {/* Data Management */}
       <div className="settings-section">
         <h2 className="settings-section-title">Data Management</h2>
@@ -272,6 +346,59 @@ export default function Settings() {
           </span>
         </div>
 
+        <div className="data-mgmt-actions" style={{ flexWrap: 'wrap' }}>
+          <button className="btn btn--ghost" onClick={() => {
+            // Deduplicate cleaning entries
+            const cleanMap = new Map()
+            cleaningEntries.forEach(e => {
+              const key = `${e.taskName}|${e.dateTime}`
+              const existing = cleanMap.get(key)
+              if (!existing || new Date(e.createdAt) > new Date(existing.createdAt)) {
+                cleanMap.set(key, e)
+              }
+            })
+            const uniqueClean = [...cleanMap.values()]
+
+            // Deduplicate staff training
+            const trainMap = new Map()
+            staffTraining.forEach(e => {
+              const key = `${e.staffName}|${e.trainingItem}`
+              const existing = trainMap.get(key)
+              if (!existing || (e.id > existing.id)) {
+                trainMap.set(key, e)
+              }
+            })
+            const uniqueTrain = [...trainMap.values()]
+
+            // Deduplicate documents
+            const docMap = new Map()
+            documents.forEach(d => {
+              const existing = docMap.get(d.documentName)
+              if (!existing || new Date(d.createdAt) > new Date(existing.createdAt)) {
+                docMap.set(d.documentName, d)
+              }
+            })
+            const uniqueDocs = [...docMap.values()]
+
+            const cleanRemoved = cleaningEntries.length - uniqueClean.length
+            const trainRemoved = staffTraining.length - uniqueTrain.length
+            const docRemoved = documents.length - uniqueDocs.length
+            const totalRemoved = cleanRemoved + trainRemoved + docRemoved
+
+            if (totalRemoved === 0) {
+              showToast('No duplicates found')
+            } else {
+              showToast(`Removed ${totalRemoved} duplicate${totalRemoved !== 1 ? 's' : ''}`)
+              window.location.reload()
+            }
+          }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+              <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
+              <rect x="8" y="2" width="8" height="4" rx="1" /><path d="M9 14l2 2 4-4" />
+            </svg>
+            Delete Duplicates
+          </button>
+        </div>
         <div className="data-mgmt-actions">
           <button className="btn btn--primary" onClick={handleExport}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">

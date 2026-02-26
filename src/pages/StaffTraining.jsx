@@ -44,14 +44,27 @@ export default function StaffTraining() {
     return <div className="loading-container"><div className="spinner" />Loading…</div>
   }
 
+  // Deduplicate: one row per staff per training item (keep most recent by id)
+  const uniqueEntries = (() => {
+    const map = new Map()
+    entries.forEach(e => {
+      const key = `${e.staffName}|${e.trainingItem}`
+      const existing = map.get(key)
+      if (!existing || (e.id > existing.id)) {
+        map.set(key, e)
+      }
+    })
+    return [...map.values()]
+  })()
+
   // Derive unique staff names and roles for filter dropdowns
-  const staffNames = [...new Set(entries.map((e) => e.staffName))].sort()
-  const roles = [...new Set(entries.map((e) => e.role))].sort()
+  const staffNames = [...new Set(uniqueEntries.map((e) => e.staffName))].sort()
+  const roles = [...new Set(uniqueEntries.map((e) => e.role))].sort()
 
   // Filter and search
   const filtered = useMemo(() => {
     const q = search.toLowerCase()
-    return entries.filter((e) => {
+    return uniqueEntries.filter((e) => {
       if (filterStaff && e.staffName !== filterStaff) return false
       if (filterRole && e.role !== filterRole) return false
       if (filterStatus && e.status !== filterStatus) return false
@@ -64,7 +77,7 @@ export default function StaffTraining() {
         return false
       return true
     })
-  }, [entries, filterStaff, filterRole, filterStatus, search])
+  }, [uniqueEntries, filterStaff, filterRole, filterStatus, search])
 
   // Sort
   const sorted = useMemo(() => {
@@ -139,9 +152,9 @@ export default function StaffTraining() {
   const update = (field) => (e) => setForm({ ...form, [field]: e.target.value })
 
   // Summary counts
-  const pendingCount = entries.filter((e) => e.status === 'Pending').length
-  const inProgressCount = entries.filter((e) => e.status === 'In Progress').length
-  const completeCount = entries.filter((e) => e.status === 'Complete').length
+  const pendingCount = uniqueEntries.filter((e) => e.status === 'Pending').length
+  const inProgressCount = uniqueEntries.filter((e) => e.status === 'In Progress').length
+  const completeCount = uniqueEntries.filter((e) => e.status === 'Complete').length
 
   const statusClass = (status) => {
     switch (status) {
@@ -155,7 +168,7 @@ export default function StaffTraining() {
   // Progress per staff member (for the progress bar section)
   const staffProgress = useMemo(() => {
     const map = {}
-    entries.forEach((e) => {
+    uniqueEntries.forEach((e) => {
       if (!map[e.staffName]) map[e.staffName] = { total: 0, complete: 0, inProgress: 0, role: e.role }
       map[e.staffName].total++
       if (e.status === 'Complete') map[e.staffName].complete++
@@ -164,7 +177,7 @@ export default function StaffTraining() {
     return Object.entries(map)
       .map(([name, data]) => ({ name, ...data }))
       .sort((a, b) => a.name.localeCompare(b.name))
-  }, [entries])
+  }, [uniqueEntries])
 
   const handleCsvDownload = () => {
     const headers = ['Staff Name', 'Role', 'Training Item', 'Target Date', 'Status']
@@ -308,7 +321,7 @@ export default function StaffTraining() {
 
       {/* Results count */}
       <p className="results-count">
-        Showing {sorted.length} of {entries.length} items
+        Showing {sorted.length} of {uniqueEntries.length} items
       </p>
 
       {/* Table */}

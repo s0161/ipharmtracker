@@ -35,9 +35,21 @@ export default function DocumentTracker() {
     return <div className="loading-container"><div className="spinner" />Loading…</div>
   }
 
+  // Deduplicate by document name (keep most recent by createdAt)
+  const uniqueDocs = (() => {
+    const map = new Map()
+    documents.forEach(d => {
+      const existing = map.get(d.documentName)
+      if (!existing || new Date(d.createdAt) > new Date(existing.createdAt)) {
+        map.set(d.documentName, d)
+      }
+    })
+    return [...map.values()]
+  })()
+
   const filtered = filterCategory
-    ? documents.filter((d) => d.category === filterCategory)
-    : documents
+    ? uniqueDocs.filter((d) => d.category === filterCategory)
+    : uniqueDocs
 
   const sorted = [...filtered].sort(
     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
@@ -105,7 +117,7 @@ export default function DocumentTracker() {
   }
 
   // Expiry alert: documents expiring within 30 days or already expired
-  const alertDocs = documents.filter(d => {
+  const alertDocs = uniqueDocs.filter(d => {
     const tl = getTrafficLight(d.expiryDate)
     return tl === 'red' || tl === 'amber'
   }).map(d => {

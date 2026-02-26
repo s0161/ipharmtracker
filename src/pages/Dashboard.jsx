@@ -425,7 +425,7 @@ export default function Dashboard() {
 
   // Action required
   const expiredDocs = documents.filter(d => getTrafficLight(d.expiryDate) === 'red')
-  const overdueTraining = staffTraining.filter(e => e.status === 'Pending')
+  const overdueTraining = staffTraining.filter(e => e.status === 'Pending' && e.targetDate && e.targetDate < todayStr)
   const overdueCleaningTasks = taskStatuses.filter(t => t.status === 'overdue')
   const sgDueSoon = safeguarding.filter(r => {
     const s = getSafeguardingStatus(r.trainingDate)

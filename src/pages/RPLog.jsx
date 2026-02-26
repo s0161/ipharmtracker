@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
 import { generateId, formatDate } from '../utils/helpers'
 import { downloadCsv } from '../utils/exportCsv'
@@ -31,12 +31,11 @@ const ALL_ITEMS = [...DAILY_ITEMS, ...WEEKLY_ITEMS, ...FORTNIGHTLY_ITEMS]
 
 export default function RPLog() {
   const [logs, setLogs, loading] = useSupabase('rp_log', [])
-  const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const showToast = useToast()
 
   const today = new Date().toISOString().slice(0, 10)
   const [selectedDate, setSelectedDate] = useState(today)
-  const [rpName, setRpName] = useState('')
+  const [rpName, setRpName] = useState('Amjid Shakoor')
   const [checklist, setChecklist] = useState({})
   const [notes, setNotes] = useState('')
   const [editingId, setEditingId] = useState(null)
@@ -47,14 +46,14 @@ export default function RPLog() {
   }, [logs, selectedDate])
 
   // When we find an existing entry, load its data
-  useState(() => {
+  useEffect(() => {
     if (existingEntry) {
-      setRpName(existingEntry.rpName || '')
+      setRpName(existingEntry.rpName || 'Amjid Shakoor')
       setChecklist(existingEntry.checklist || {})
       setNotes(existingEntry.notes || '')
       setEditingId(existingEntry.id)
     }
-  })
+  }, [existingEntry])
 
   const loadEntry = (date) => {
     setSelectedDate(date)
@@ -65,7 +64,7 @@ export default function RPLog() {
       setNotes(entry.notes || '')
       setEditingId(entry.id)
     } else {
-      setRpName('')
+      setRpName('Amjid Shakoor')
       setChecklist({})
       setNotes('')
       setEditingId(null)
@@ -204,22 +203,13 @@ export default function RPLog() {
           </div>
           <div className="form-group" style={{ flex: 1 }}>
             <label className="label">Responsible Pharmacist</label>
-            {staffMembers.length > 0 ? (
-              <select className="input" value={rpName} onChange={(e) => setRpName(e.target.value)}>
-                <option value="">Select RP...</option>
-                {staffMembers.map(s => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-            ) : (
-              <input
-                type="text"
-                className="input"
-                placeholder="Enter RP name..."
-                value={rpName}
-                onChange={(e) => setRpName(e.target.value)}
-              />
-            )}
+            <input
+              type="text"
+              className="input"
+              value={rpName}
+              readOnly
+              style={{ background: 'var(--bg-secondary)', cursor: 'default' }}
+            />
           </div>
         </div>
 

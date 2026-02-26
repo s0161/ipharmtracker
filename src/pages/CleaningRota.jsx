@@ -42,7 +42,20 @@ export default function CleaningRota() {
 
   const taskNames = cleaningTasks.map((t) => t.name)
 
-  const sorted = [...entries].sort(
+  // Deduplicate by task+dateTime (keep most recent by createdAt)
+  const deduped = (() => {
+    const map = new Map()
+    entries.forEach(e => {
+      const key = `${e.taskName}|${e.dateTime}`
+      const existing = map.get(key)
+      if (!existing || new Date(e.createdAt) > new Date(existing.createdAt)) {
+        map.set(key, e)
+      }
+    })
+    return [...map.values()]
+  })()
+
+  const sorted = [...deduped].sort(
     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
   )
 
