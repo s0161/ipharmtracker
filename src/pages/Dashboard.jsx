@@ -505,6 +505,7 @@ export default function Dashboard() {
   const todayCards = buildColumn('daily')
   const weeklyCards = buildColumn('weekly')
   const fortnightlyCards = buildColumn('fortnightly')
+  const monthlyCards = buildColumn('monthly')
 
   // Filter by search
   const filterCards = (cards) => {
@@ -516,6 +517,7 @@ export default function Dashboard() {
   const filteredToday = filterCards(todayCards)
   const filteredWeekly = filterCards(weeklyCards)
   const filteredFortnightly = filterCards(fortnightlyCards)
+  const filteredMonthly = filterCards(monthlyCards)
 
   // Split cards into active and completed for accordion
   const splitCards = (cards) => {
@@ -546,6 +548,7 @@ export default function Dashboard() {
     { key: 'daily', title: 'Today', cards: filteredToday, allCards: todayCards },
     { key: 'weekly', title: 'Weekly', cards: filteredWeekly, allCards: weeklyCards },
     { key: 'fortnightly', title: 'Fortnightly', cards: filteredFortnightly, allCards: fortnightlyCards },
+    { key: 'monthly', title: 'Monthly', cards: filteredMonthly, allCards: monthlyCards },
   ]
 
   columns.forEach(col => {
@@ -1026,7 +1029,7 @@ export default function Dashboard() {
           <table className="print-table">
             <thead><tr><th></th><th>Task</th><th>Frequency</th><th>Status</th></tr></thead>
             <tbody>
-              {[...todayCards, ...weeklyCards, ...fortnightlyCards].map(c => (
+              {[...todayCards, ...weeklyCards, ...fortnightlyCards, ...monthlyCards].map(c => (
                 <tr key={c.id}>
                   <td>{c.status === 'done' ? '\u2611' : '\u2610'}</td>
                   <td>{c.name}</td>

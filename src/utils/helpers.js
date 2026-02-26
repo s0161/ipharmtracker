@@ -89,6 +89,8 @@ export const DEFAULT_CLEANING_TASKS = [
   { name: 'Straighten Up Fridge Stock', frequency: 'fortnightly' },
   // Monthly
   { name: 'Deep Fridge Clean', frequency: 'monthly' },
+  { name: 'Monthly To Do List', frequency: 'monthly' },
+  { name: 'Replace Near Miss Record', frequency: 'monthly' },
 ]
 
 export const FREQUENCIES = ['daily', 'weekly', 'fortnightly', 'monthly', 'annually']
