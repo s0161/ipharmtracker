@@ -25,7 +25,7 @@
   --text-muted: #94A3B8;
   --border: #E2E8F0;
   --border-light: #F1F5F9;
-  --sidebar-w: 264px;
+  --sidebar-w: 220px;
   --radius: 10px;
   --radius-sm: 6px;
   --shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
@@ -254,35 +254,35 @@ a:hover {
 }
 
 .sidebar-brand {
-  padding: 1.5rem 1.25rem;
+  padding: 0.85rem 0.75rem;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .sidebar-logo {
-  width: 42px;
-  height: 42px;
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
 }
 
 .sidebar-brand-text {
   display: flex;
   flex-direction: column;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
 .sidebar-brand-name {
   font-family: 'DM Sans', sans-serif;
-  font-size: 1.05rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: #FFFFFF;
   letter-spacing: -0.02em;
 }
 
 .sidebar-brand-sub {
-  font-size: 0.75rem;
+  font-size: 0.62rem;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.5);
   text-transform: uppercase;
@@ -291,20 +291,20 @@ a:hover {
 
 .sidebar-nav {
   flex: 1;
-  padding: 1rem 0.75rem;
+  padding: 0.5rem 0.5rem;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 .sidebar-link {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.65rem 0.75rem;
-  border-radius: 8px;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
   color: rgba(255, 255, 255, 0.6);
-  font-size: 0.9rem;
+  font-size: 0.81rem;
   font-weight: 500;
   text-decoration: none;
   transition: all var(--transition);
@@ -323,8 +323,8 @@ a:hover {
 }
 
 .sidebar-link-icon {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -332,20 +332,21 @@ a:hover {
 }
 
 .sidebar-link-icon svg {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
 }
 
 .sidebar-link-label {
   flex: 1;
+  font-size: 0.81rem;
 }
 
 .sidebar-badge {
-  min-width: 20px;
-  height: 20px;
-  padding: 0 5px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
   border-radius: 999px;
-  font-size: 0.65rem;
+  font-size: 0.625rem;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
@@ -365,7 +366,7 @@ a:hover {
 }
 
 .sidebar-theme-toggle {
-  padding: 0.5rem 0.75rem;
+  padding: 0.35rem 0.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   margin-top: auto;
 }
@@ -3846,7 +3847,7 @@ select.input {
   border: none;
   color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
-  padding: 0.3rem;
+  padding: 0.2rem;
   margin-left: auto;
   display: flex;
   align-items: center;
@@ -3865,10 +3866,10 @@ select.input {
 
 .sidebar-notifications {
   background: rgba(0, 0, 0, 0.3);
-  margin: 0 0.75rem;
+  margin: 0 0.5rem;
   border-radius: var(--radius-sm);
-  padding: 0.6rem;
-  max-height: 200px;
+  padding: 0.5rem;
+  max-height: 180px;
   overflow-y: auto;
 }
 
@@ -4080,12 +4081,12 @@ select.input {
 /* ── Sidebar Sections ────────────────────── */
 
 .sidebar-section {
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.1rem;
 }
 
 .sidebar-section-label {
   display: block;
-  padding: 0.65rem 1rem 0.25rem;
+  padding: 0.75rem 0.75rem 0.2rem;
   font-size: 0.6rem;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.35);
@@ -4093,13 +4094,17 @@ select.input {
   letter-spacing: 0.1em;
 }
 
+.sidebar-section:first-child .sidebar-section-label {
+  padding-top: 0.35rem;
+}
+
 .sidebar-shortcut {
   margin-left: auto;
-  font-size: 0.6rem;
+  font-size: 0.56rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.25);
   background: rgba(255, 255, 255, 0.08);
-  padding: 1px 5px;
+  padding: 1px 4px;
   border-radius: 3px;
   font-family: monospace;
 }
@@ -4107,21 +4112,22 @@ select.input {
 .sidebar-synced {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   color: rgba(255, 255, 255, 0.35);
-  margin-top: 2px;
+  margin-top: 1px;
+  font-size: 0.58rem;
 }
 
 .sidebar-footer {
-  padding: 1rem 1.25rem;
+  padding: 0.5rem 0.75rem;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 .sidebar-footer small {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   color: rgba(255, 255, 255, 0.3);
 }
 
