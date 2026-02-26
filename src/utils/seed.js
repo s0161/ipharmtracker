@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { generateId } from './helpers'
 
-const SEED_KEY = 'ipd_seeded_v13'
+const SEED_KEY = 'ipd_seeded_v14'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -9,7 +9,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded', 'ipd_seeded_v2', 'ipd_seeded_v3',
   'ipd_seeded_v4', 'ipd_seeded_v5', 'ipd_seeded_v6',
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
-  'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12',
+  'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13',
 ]
 
 export function cleanupOldLocalStorage() {
@@ -33,7 +33,6 @@ export async function seedIfNeeded() {
     'Shahzadul Hassan',
     'Manzoor Ahmed',
     'Moniba Jamil',
-    'Seema Khatoon',
     'Sarmad Khalid',
   ]
 
@@ -166,7 +165,6 @@ export async function seedIfNeeded() {
   const staffTraining = [
     ...t('Moniba Jamil', 'Dispenser', commonDispenser),
     ...t('Sadaf Subhani', 'Dispenser (In Training)', [['Dispensing Training', '2026-03-31']]),
-    ...t('Seema Khatoon', 'Dispenser', commonDispenser),
     ...t('Umama Khan', 'Dispenser', [['Dispensing Course', '2026-03-01'], ...commonDispenser]),
     ...t('Urooj Khan', 'Dispenser', commonDispenser),
     ...t('Salma Shakoor', 'Admin/Dispenser', [['ACA Course', '2026-03-01'], ...commonDispenser]),
@@ -199,7 +197,6 @@ export async function seedIfNeeded() {
     { id: generateId(), staff_name: 'Urooj Khan', job_title: 'Dispenser', training_date: '2026-01-10', ...sgDefaults },
     { id: generateId(), staff_name: 'Shain Nawaz', job_title: 'Dispenser', training_date: '2026-01-10', ...sgDefaults },
     { id: generateId(), staff_name: 'Moniba Jamil', job_title: 'Dispenser', training_date: '2026-01-10', ...sgDefaults },
-    { id: generateId(), staff_name: 'Seema Khatoon', job_title: 'Dispenser', training_date: '2026-01-10', ...sgDefaults },
     { id: generateId(), staff_name: 'Jamila Adwan', job_title: 'Pharmacy Technician', training_date: '2026-01-10', ...sgDefaults },
   ]
 

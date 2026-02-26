@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import confetti from 'canvas-confetti'
 import { useSupabase } from '../hooks/useSupabase'
 import {
   getTrafficLight,
@@ -15,6 +16,12 @@ function scoreColor(pct) {
   if (pct > 80) return 'var(--success)'
   if (pct >= 50) return 'var(--warning)'
   return 'var(--danger)'
+}
+
+function scoreClass(pct) {
+  if (pct > 80) return 'green'
+  if (pct >= 50) return 'amber'
+  return 'red'
 }
 
 function getGreeting() {
@@ -50,17 +57,103 @@ const RP_GROUPS = [
   { frequency: 'fortnightly', label: 'Fortnightly', items: RP_FORTNIGHTLY },
 ]
 
+// SVG Progress Ring component
+function ProgressRing({ pct, size = 56, strokeWidth = 5 }) {
+  const radius = (size - strokeWidth) / 2
+  const circumference = 2 * Math.PI * radius
+  const [offset, setOffset] = useState(circumference)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setOffset(circumference - (pct / 100) * circumference)
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [pct, circumference])
+
+  return (
+    <svg className="progress-ring" width={size} height={size}>
+      <circle
+        className="progress-ring-bg"
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        strokeWidth={strokeWidth}
+        fill="none"
+        stroke="var(--border)"
+      />
+      <circle
+        className="progress-ring-fill"
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        strokeWidth={strokeWidth}
+        fill="none"
+        stroke={scoreColor(pct)}
+        strokeDasharray={circumference}
+        strokeDashoffset={offset}
+        strokeLinecap="round"
+        transform={`rotate(-90 ${size / 2} ${size / 2})`}
+      />
+      <text
+        x={size / 2}
+        y={size / 2}
+        textAnchor="middle"
+        dominantBaseline="central"
+        className="progress-ring-text"
+        fill={scoreColor(pct)}
+      >
+        {pct}%
+      </text>
+    </svg>
+  )
+}
+
+// Animated bar component for compliance footer
+function AnimatedBar({ pct, label, onClick }) {
+  const [width, setWidth] = useState(0)
+  useEffect(() => {
+    const timer = setTimeout(() => setWidth(pct), 200)
+    return () => clearTimeout(timer)
+  }, [pct])
+
+  const cls = scoreClass(pct)
+
+  return (
+    <button className="compliance-strip-item" onClick={onClick}>
+      <div className="compliance-strip-top">
+        <span className="compliance-strip-label">{label}</span>
+        <span className={`compliance-strip-score compliance-strip-score--${cls}`}>{pct}%</span>
+      </div>
+      <div className="compliance-strip-bar">
+        <div
+          className={`compliance-strip-bar-fill compliance-strip-bar-fill--${cls}`}
+          style={{ width: `${width}%` }}
+        />
+      </div>
+    </button>
+  )
+}
+
 function KanbanCard({ card, tickingCardId, setTickingCardId, expandedRpCard, setExpandedRpCard, staffMembers, onTickCleaning, rpChecklist, onToggleRpItem }) {
   const isCleaning = card.category === 'Cleaning'
   const isRp = card.category === 'RP Check'
   const isTickOpen = tickingCardId === card.id
   const isExpanded = expandedRpCard === card.id
+  const isDone = card.status === 'done'
+
+  const borderClass = isDone
+    ? 'kanban-card--done'
+    : card.status === 'overdue'
+      ? 'kanban-card--overdue'
+      : isRp
+        ? 'kanban-card--rp'
+        : 'kanban-card--due'
 
   return (
-    <div className={`kanban-card kanban-card--${card.status}`}>
+    <div className={`kanban-card ${borderClass} ${isDone ? 'kanban-card--completed' : ''}`}>
       <div className="kanban-card-row">
         {/* Tick button */}
-        {isCleaning && card.status !== 'done' && (
+        {isCleaning && !isDone && (
           <button
             className="kanban-tick-btn"
             onClick={() => setTickingCardId(isTickOpen ? null : card.id)}
@@ -71,7 +164,7 @@ function KanbanCard({ card, tickingCardId, setTickingCardId, expandedRpCard, set
             </svg>
           </button>
         )}
-        {isCleaning && card.status === 'done' && (
+        {isCleaning && isDone && (
           <span className="kanban-tick-done">
             <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2.5" width="18" height="18">
               <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
@@ -84,8 +177,8 @@ function KanbanCard({ card, tickingCardId, setTickingCardId, expandedRpCard, set
             className="kanban-tick-btn"
             onClick={() => setExpandedRpCard(isExpanded ? null : card.id)}
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke={card.status === 'done' ? 'var(--success)' : 'currentColor'} strokeWidth="2" width="18" height="18">
-              {card.status === 'done' ? (
+            <svg viewBox="0 0 24 24" fill="none" stroke={isDone ? 'var(--success)' : 'currentColor'} strokeWidth="2" width="18" height="18">
+              {isDone ? (
                 <><path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></>
               ) : (
                 <circle cx="12" cy="12" r="10" />
@@ -97,10 +190,10 @@ function KanbanCard({ card, tickingCardId, setTickingCardId, expandedRpCard, set
         <div className="kanban-card-body">
           <span className="kanban-card-name">{card.name}</span>
           <div className="kanban-card-meta">
-            <span className="kanban-card-pill kanban-card-pill--cat">{card.category}</span>
+            <span className={`kanban-card-pill kanban-card-pill--cat ${isRp ? 'kanban-card-pill--rp' : ''}`}>{card.category}</span>
             {card.isSummary
               ? <span className="kanban-card-time">{card.doneCount}/{card.total} done</span>
-              : card.timestamp && <span className="kanban-card-time">{card.timestamp}</span>}
+              : card.timestamp && <span className="kanban-card-time">Completed {card.timestamp}</span>}
           </div>
         </div>
       </div>
@@ -142,7 +235,7 @@ function KanbanCard({ card, tickingCardId, setTickingCardId, expandedRpCard, set
             className="kanban-card-progress-fill"
             style={{
               width: `${(card.doneCount / card.total) * 100}%`,
-              background: card.status === 'done' ? 'var(--success)' : card.doneCount === 0 ? 'var(--border)' : 'var(--warning)',
+              background: isDone ? 'var(--success)' : card.doneCount === 0 ? 'var(--border)' : 'var(--warning)',
             }}
           />
         </div>
@@ -156,6 +249,9 @@ export default function Dashboard() {
   const [showOutstanding, setShowOutstanding] = useState(false)
   const [tickingCardId, setTickingCardId] = useState(null)
   const [expandedRpCard, setExpandedRpCard] = useState(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [clock, setClock] = useState(new Date())
+  const prevAllDoneRef = useRef({})
 
   const [documents, , docsLoading] = useSupabase('documents', [])
   const [cleaningEntries, setCleaningEntries] = useSupabase('cleaning_entries', [])
@@ -165,8 +261,22 @@ export default function Dashboard() {
   const [rpLogs, setRpLogs] = useSupabase('rp_log', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
 
+  // Live clock
+  useEffect(() => {
+    const id = setInterval(() => setClock(new Date()), 1000)
+    return () => clearInterval(id)
+  }, [])
+
   if (docsLoading) {
-    return <div className="loading-container"><div className="spinner" />Loading…</div>
+    return (
+      <div className="dashboard">
+        <div className="skeleton-topbar" />
+        <div className="skeleton-board">
+          <div className="skeleton-col" /><div className="skeleton-col" /><div className="skeleton-col" />
+        </div>
+        <div className="skeleton-strip" />
+      </div>
+    )
   }
 
   // Document counts
@@ -236,6 +346,25 @@ export default function Dashboard() {
     { label: 'Safeguarding', score: sgScore, nav: '/safeguarding' },
   ]
 
+  // Trend arrows — compare with last week's stored score
+  const storedScores = JSON.parse(localStorage.getItem('ipd_weekly_scores') || '{}')
+  const trends = {}
+  complianceAreas.forEach(a => {
+    const prev = storedScores[a.label]
+    if (prev !== undefined && prev !== a.score) {
+      trends[a.label] = a.score > prev ? 'up' : 'down'
+    }
+  })
+
+  // Store current scores weekly (once per week)
+  const weekKey = `${new Date().getFullYear()}-W${Math.ceil((new Date().getTime() - new Date(new Date().getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000))}`
+  if (localStorage.getItem('ipd_score_week') !== weekKey) {
+    const scores = {}
+    complianceAreas.forEach(a => { scores[a.label] = a.score })
+    localStorage.setItem('ipd_weekly_scores', JSON.stringify(scores))
+    localStorage.setItem('ipd_score_week', weekKey)
+  }
+
   // Build kanban columns by frequency
   const buildColumn = (freq) => {
     const cards = []
@@ -271,12 +400,61 @@ export default function Dashboard() {
         rpItems: rpGroup.items,
       })
     }
+    // Sort: done cards go to bottom
+    cards.sort((a, b) => {
+      if (a.status === 'done' && b.status !== 'done') return 1
+      if (a.status !== 'done' && b.status === 'done') return -1
+      return 0
+    })
     return cards
   }
 
   const todayCards = buildColumn('daily')
   const weeklyCards = buildColumn('weekly')
   const fortnightlyCards = buildColumn('fortnightly')
+
+  // Filter by search
+  const filterCards = (cards) => {
+    if (!searchTerm.trim()) return cards
+    const term = searchTerm.toLowerCase()
+    return cards.filter(c => c.name.toLowerCase().includes(term) || c.category.toLowerCase().includes(term))
+  }
+
+  const filteredToday = filterCards(todayCards)
+  const filteredWeekly = filterCards(weeklyCards)
+  const filteredFortnightly = filterCards(fortnightlyCards)
+
+  // Column progress
+  const colProgress = (cards) => {
+    const done = cards.filter(c => c.status === 'done').length
+    return { done, total: cards.length }
+  }
+
+  // Confetti trigger
+  const triggerConfetti = (colKey) => {
+    if (prevAllDoneRef.current[colKey]) return // already celebrated
+    prevAllDoneRef.current[colKey] = true
+    confetti({
+      particleCount: 80,
+      spread: 60,
+      origin: { y: 0.7 },
+      colors: ['#166534', '#22C55E', '#4ADE80', '#86EFAC'],
+    })
+  }
+
+  // Check if all done in each column
+  const columns = [
+    { key: 'daily', title: 'Today', cards: filteredToday, allCards: todayCards },
+    { key: 'weekly', title: 'Weekly', cards: filteredWeekly, allCards: weeklyCards },
+    { key: 'fortnightly', title: 'Fortnightly', cards: filteredFortnightly, allCards: fortnightlyCards },
+  ]
+
+  columns.forEach(col => {
+    const prog = colProgress(col.allCards)
+    if (prog.total > 0 && prog.done === prog.total) {
+      triggerConfetti(col.key)
+    }
+  })
 
   // Tick-off handlers
   const handleTickCleaning = (taskName, staffMember) => {
@@ -312,6 +490,55 @@ export default function Dashboard() {
     }
   }
 
+  // Mark all done in a column
+  const handleMarkAllDone = (cards) => {
+    const nowDt = new Date()
+    const newEntries = []
+    cards.forEach(card => {
+      if (card.category === 'Cleaning' && card.status !== 'done') {
+        newEntries.push({
+          id: crypto.randomUUID(),
+          taskName: card.name,
+          dateTime: nowDt.toISOString().slice(0, 16),
+          staffMember: staffMembers[0] || 'Staff',
+          result: 'Pass',
+          notes: 'Bulk completed from dashboard',
+          createdAt: nowDt.toISOString(),
+        })
+      }
+      if (card.category === 'RP Check' && card.rpItems) {
+        card.rpItems.forEach(item => {
+          if (!rpChecklist[item]) {
+            rpChecklist[item] = true
+          }
+        })
+      }
+    })
+    if (newEntries.length > 0) {
+      setCleaningEntries([...cleaningEntries, ...newEntries])
+    }
+    // Update RP checklist
+    const rpCards = cards.filter(c => c.category === 'RP Check' && c.rpItems)
+    if (rpCards.length > 0) {
+      const updatedChecklist = { ...rpChecklist }
+      rpCards.forEach(c => c.rpItems.forEach(item => { updatedChecklist[item] = true }))
+      if (todayRp) {
+        setRpLogs(rpLogs.map(l =>
+          l.id === todayRp.id ? { ...l, checklist: updatedChecklist } : l
+        ))
+      } else {
+        setRpLogs([...rpLogs, {
+          id: crypto.randomUUID(),
+          date: todayStr,
+          rpName: 'Dashboard',
+          checklist: updatedChecklist,
+          notes: '',
+          createdAt: new Date().toISOString(),
+        }])
+      }
+    }
+  }
+
   return (
     <div className="dashboard">
       {/* === TOP BAR === */}
@@ -319,16 +546,19 @@ export default function Dashboard() {
         <div className="dash-topbar-left">
           <h1 className="dash-topbar-greeting">{getGreeting()}</h1>
           <p className="dash-topbar-date">
-            {new Date().toLocaleDateString('en-GB', {
+            {clock.toLocaleDateString('en-GB', {
               weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
             })}
+            <span className="dash-topbar-clock">
+              {clock.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            </span>
           </p>
         </div>
 
         <div className="dash-topbar-center">
           {totalActionItems > 0 ? (
             <button
-              className="dash-topbar-badge dash-topbar-badge--action"
+              className="dash-topbar-badge dash-topbar-badge--action dash-pulse"
               onClick={() => setShowOutstanding(!showOutstanding)}
             >
               <span className="dash-topbar-badge-count">{totalActionItems}</span>
@@ -346,13 +576,8 @@ export default function Dashboard() {
         </div>
 
         <div className="dash-topbar-right">
-          <div className="dash-topbar-score">
-            <span className="dash-topbar-score-pct" style={{ color: scoreColor(overallScore) }}>
-              {overallScore}%
-            </span>
-            <span className="dash-topbar-score-label">Compliance</span>
-          </div>
-          <button className="btn btn--ghost btn--sm" onClick={() => window.print()}>
+          <ProgressRing pct={overallScore} />
+          <button className="btn btn--ghost btn--sm" onClick={() => window.print()} title="Print compliance report">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
               <polyline points="6 9 6 2 18 2 18 9" />
               <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" />
@@ -362,55 +587,101 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* === SEARCH BAR === */}
+      <div className="dash-search no-print">
+        <svg className="dash-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input
+          type="text"
+          className="dash-search-input"
+          placeholder="Filter tasks..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        {searchTerm && (
+          <button className="dash-search-clear" onClick={() => setSearchTerm('')}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        )}
+      </div>
+
       {/* === KANBAN BOARD === */}
       <div className="kanban-board no-print">
-        {[
-          { key: 'daily', title: 'Today', cards: todayCards },
-          { key: 'weekly', title: 'Weekly', cards: weeklyCards },
-          { key: 'fortnightly', title: 'Fortnightly', cards: fortnightlyCards },
-        ].map(col => (
-          <div key={col.key} className="kanban-column">
-            <div className="kanban-column-header">
-              <span className="kanban-column-title">{col.title}</span>
-              <span className="kanban-column-count">{col.cards.length}</span>
+        {columns.map(col => {
+          const prog = colProgress(col.allCards)
+          const allDone = prog.total > 0 && prog.done === prog.total
+          return (
+            <div key={col.key} className="kanban-column">
+              <div className="kanban-column-header">
+                <span className="kanban-column-title">{col.title}</span>
+                <span className="kanban-column-count">{col.cards.length}</span>
+                {!allDone && prog.total > 0 && (
+                  <button
+                    className="kanban-markall-btn"
+                    onClick={() => handleMarkAllDone(col.allCards)}
+                    title="Mark all done"
+                  >
+                    ✓ All
+                  </button>
+                )}
+              </div>
+              {/* Column progress bar */}
+              <div className="kanban-col-progress">
+                <div
+                  className="kanban-col-progress-fill"
+                  style={{
+                    width: prog.total > 0 ? `${(prog.done / prog.total) * 100}%` : '0%',
+                    background: allDone ? 'var(--success)' : prog.done > 0 ? 'var(--warning)' : 'var(--border)',
+                  }}
+                />
+              </div>
+              <div className="kanban-cards">
+                {col.cards.length === 0 ? (
+                  <p className="kanban-empty">{searchTerm ? 'No matches' : 'No tasks'}</p>
+                ) : (
+                  col.cards.map(card => (
+                    <KanbanCard
+                      key={card.id}
+                      card={card}
+                      tickingCardId={tickingCardId}
+                      setTickingCardId={setTickingCardId}
+                      expandedRpCard={expandedRpCard}
+                      setExpandedRpCard={setExpandedRpCard}
+                      staffMembers={staffMembers}
+                      onTickCleaning={handleTickCleaning}
+                      rpChecklist={rpChecklist}
+                      onToggleRpItem={handleToggleRpItem}
+                    />
+                  ))
+                )}
+              </div>
             </div>
-            <div className="kanban-cards">
-              {col.cards.length === 0 ? (
-                <p className="kanban-empty">No tasks</p>
-              ) : (
-                col.cards.map(card => (
-                  <KanbanCard
-                    key={card.id}
-                    card={card}
-                    tickingCardId={tickingCardId}
-                    setTickingCardId={setTickingCardId}
-                    expandedRpCard={expandedRpCard}
-                    setExpandedRpCard={setExpandedRpCard}
-                    staffMembers={staffMembers}
-                    onTickCleaning={handleTickCleaning}
-                    rpChecklist={rpChecklist}
-                    onToggleRpItem={handleToggleRpItem}
-                  />
-                ))
-              )}
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       {/* === COMPLIANCE FOOTER STRIP === */}
       <div className="compliance-strip no-print">
         {complianceAreas.map(item => (
-          <button
+          <AnimatedBar
             key={item.label}
-            className="compliance-strip-item"
+            pct={item.score}
+            label={
+              <>
+                {item.label}
+                {trends[item.label] && (
+                  <span className={`trend-arrow trend-arrow--${trends[item.label]}`}>
+                    {trends[item.label] === 'up' ? '↑' : '↓'}
+                  </span>
+                )}
+              </>
+            }
             onClick={() => navigate(item.nav)}
-          >
-            <span className="compliance-strip-score" style={{ color: scoreColor(item.score) }}>
-              {item.score}%
-            </span>
-            <span className="compliance-strip-label">{item.label}</span>
-          </button>
+          />
         ))}
       </div>
 
@@ -522,6 +793,23 @@ export default function Dashboard() {
               <tr><td>Cleaning Tasks</td><td>{cleaningScore}%</td></tr>
               <tr><td>Safeguarding</td><td>{sgScore}%</td></tr>
               <tr style={{ fontWeight: 700 }}><td>Overall</td><td>{overallScore}%</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="print-section">
+          <h2>Today&apos;s Tasks Checklist</h2>
+          <table className="print-table">
+            <thead><tr><th></th><th>Task</th><th>Frequency</th><th>Status</th></tr></thead>
+            <tbody>
+              {[...todayCards, ...weeklyCards, ...fortnightlyCards].map(c => (
+                <tr key={c.id}>
+                  <td>{c.status === 'done' ? '☑' : '☐'}</td>
+                  <td>{c.name}</td>
+                  <td>{c.category}</td>
+                  <td>{c.status === 'done' ? 'Done' : c.status === 'overdue' ? 'Overdue' : 'Due'}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

@@ -1,22 +1,27 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { getTrafficLight, getSafeguardingStatus } from '../utils/helpers'
+import { getTrafficLight, getSafeguardingStatus, getTaskStatus } from '../utils/helpers'
 
 function emptyCounts() {
   return {
     '/documents': { red: 0, amber: 0 },
     '/staff-training': { red: 0, amber: 0 },
     '/safeguarding': { red: 0, amber: 0 },
+    '/cleaning': { red: 0, amber: 0 },
+    '/temperature': { red: 0, amber: 0 },
   }
 }
 
 async function fetchCounts() {
   const counts = emptyCounts()
 
-  const [docsRes, staffRes, sgRes] = await Promise.all([
+  const [docsRes, staffRes, sgRes, tasksRes, entriesRes, tempRes] = await Promise.all([
     supabase.from('documents').select('expiry_date'),
     supabase.from('staff_training').select('status'),
     supabase.from('safeguarding_records').select('training_date'),
+    supabase.from('cleaning_tasks').select('name, frequency'),
+    supabase.from('cleaning_entries').select('task_name, date_time'),
+    supabase.from('temperature_logs').select('date'),
   ])
 
   if (docsRes.data) {
@@ -39,6 +44,33 @@ async function fetchCounts() {
       if (status === 'overdue') counts['/safeguarding'].red++
       if (status === 'due-soon') counts['/safeguarding'].amber++
     })
+  }
+
+  // Cleaning overdue count
+  if (tasksRes.data && entriesRes.data) {
+    const entries = (entriesRes.data || []).map(e => ({
+      taskName: e.task_name,
+      dateTime: e.date_time,
+    }))
+    const seen = new Set()
+    tasksRes.data.forEach(t => {
+      if (seen.has(t.name)) return
+      seen.add(t.name)
+      const status = getTaskStatus(t.name, t.frequency, entries)
+      if (status === 'overdue') counts['/cleaning'].red++
+      if (status === 'due') counts['/cleaning'].amber++
+    })
+  }
+
+  // Temperature: check if logged today
+  if (tempRes.data) {
+    const todayStr = new Date().toISOString().slice(0, 10)
+    const todayLogs = tempRes.data.filter(l => l.date === todayStr)
+    if (todayLogs.length === 0) {
+      counts['/temperature'].amber = 1
+    }
+  } else {
+    counts['/temperature'].amber = 1
   }
 
   return counts

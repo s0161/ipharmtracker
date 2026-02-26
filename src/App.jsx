@@ -9,6 +9,7 @@ import StaffTraining from './pages/StaffTraining'
 import SafeguardingTraining from './pages/SafeguardingTraining'
 import RPLog from './pages/RPLog'
 import Settings from './pages/Settings'
+import TemperatureLog from './pages/TemperatureLog'
 import Login, { isAuthenticated } from './pages/Login'
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
         <Route path="/documents" element={<DocumentTracker />} />
         <Route path="/staff-training" element={<StaffTraining />} />
         <Route path="/safeguarding" element={<SafeguardingTraining />} />
+        <Route path="/temperature" element={<TemperatureLog />} />
         <Route path="/settings" element={<Settings />} />
       </Routes>
     </Layout>

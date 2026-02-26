@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import GlobalSearch from './GlobalSearch'
 import Onboarding from './Onboarding'
+import IncidentQuickAdd from './IncidentQuickAdd'
 
 const titles = {
   '/': 'Dashboard',
@@ -12,6 +13,7 @@ const titles = {
   '/documents': 'Document & Renewal Tracker',
   '/staff-training': 'Staff Training Tracker',
   '/safeguarding': 'Safeguarding Training',
+  '/temperature': 'Temperature Log',
   '/settings': 'Settings',
 }
 
@@ -39,8 +41,9 @@ export default function Layout({ children }) {
           <h1 className="main-title">{title}</h1>
           <GlobalSearch />
         </header>
-        <div className="main-content">{children}</div>
+        <div className="main-content page-transition">{children}</div>
       </main>
+      <IncidentQuickAdd />
       <Onboarding />
     </div>
   )

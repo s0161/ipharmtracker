@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
 import { supabase } from '../lib/supabase'
-import { DEFAULT_CLEANING_TASKS, FREQUENCIES } from '../utils/helpers'
+import { DEFAULT_CLEANING_TASKS, FREQUENCIES, getTrafficLight, getSafeguardingStatus, getTaskStatus } from '../utils/helpers'
 import { exportData, importData, clearAllData } from '../utils/dataManager'
+import { downloadCsv } from '../utils/exportCsv'
 import { useToast } from '../components/Toast'
 import { logout } from './Login'
 
@@ -172,8 +173,15 @@ export default function Settings() {
     'cleaning_tasks',
     DEFAULT_CLEANING_TASKS
   )
+  const [documents] = useSupabase('documents', [])
+  const [staffTraining] = useSupabase('staff_training', [])
+  const [safeguarding] = useSupabase('safeguarding_records', [])
+  const [cleaningEntries] = useSupabase('cleaning_entries', [])
+  const [auditLogs] = useSupabase('audit_log', [])
+  const [incidents] = useSupabase('incidents', [])
   const showToast = useToast()
   const [importMsg, setImportMsg] = useState(null)
+  const [showAudit, setShowAudit] = useState(false)
   const fileRef = useRef(null)
   const [backendStatus, setBackendStatus] = useState({ checking: true })
 
@@ -313,6 +321,98 @@ export default function Settings() {
             Log Out
           </button>
         </div>
+      </div>
+
+      {/* Weekly Compliance Report */}
+      <div className="settings-section">
+        <h2 className="settings-section-title">Weekly Compliance Report</h2>
+        <p className="settings-section-desc">
+          Generate a CSV summary of this week&apos;s compliance scores, incidents, expiring documents, and overdue training.
+        </p>
+        <button className="btn btn--primary" onClick={() => {
+          const docGreen = documents.filter(d => getTrafficLight(d.expiryDate) === 'green').length
+          const docPct = documents.length > 0 ? Math.round((docGreen / documents.length) * 100) : 100
+          const trainPct = staffTraining.length > 0 ? Math.round((staffTraining.filter(e => e.status === 'Complete').length / staffTraining.length) * 100) : 100
+
+          const seen = new Set()
+          const uniqueTasks = cleaningTasks.filter(t => { if (seen.has(t.name)) return false; seen.add(t.name); return true })
+          const cleanUpToDate = uniqueTasks.filter(t => { const s = getTaskStatus(t.name, t.frequency, cleaningEntries); return s === 'done' || s === 'upcoming' }).length
+          const cleanPct = uniqueTasks.length > 0 ? Math.round((cleanUpToDate / uniqueTasks.length) * 100) : 100
+
+          const sgCurrent = safeguarding.filter(r => getSafeguardingStatus(r.trainingDate) === 'current').length
+          const sgPct = safeguarding.length > 0 ? Math.round((sgCurrent / safeguarding.length) * 100) : 100
+
+          const weekIncidents = incidents.filter(i => {
+            const d = new Date(i.createdAt)
+            const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+            return d >= weekAgo
+          }).length
+
+          const expiringDocs = documents.filter(d => getTrafficLight(d.expiryDate) !== 'green')
+          const overdueTraining = staffTraining.filter(e => e.status === 'Pending').length
+
+          const headers = ['Metric', 'Value']
+          const rows = [
+            ['Documents Compliance %', docPct],
+            ['Training Compliance %', trainPct],
+            ['Cleaning Compliance %', cleanPct],
+            ['Safeguarding Compliance %', sgPct],
+            ['Overall Compliance %', Math.round((docPct + trainPct + cleanPct + sgPct) / 4)],
+            ['Incidents This Week', weekIncidents],
+            ['Documents Expiring/Expired', expiringDocs.length],
+            ['Training Overdue Count', overdueTraining],
+          ]
+          downloadCsv('weekly-compliance-report', headers, rows)
+          showToast('Weekly report downloaded')
+        }}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          Generate Weekly Report
+        </button>
+      </div>
+
+      {/* Audit Trail */}
+      <div className="settings-section">
+        <h2 className="settings-section-title">Audit Trail</h2>
+        <p className="settings-section-desc">
+          View a log of all actions performed in the system.
+        </p>
+        <button className="btn btn--ghost" onClick={() => setShowAudit(!showAudit)}>
+          {showAudit ? 'Hide Audit Trail' : 'Show Audit Trail'}
+        </button>
+        {showAudit && (
+          <div className="table-wrap" style={{ marginTop: '1rem' }}>
+            {auditLogs.length === 0 ? (
+              <p className="empty-state">No audit entries yet.</p>
+            ) : (
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Timestamp</th>
+                    <th>Action</th>
+                    <th>Item</th>
+                    <th className="mobile-hide">User</th>
+                    <th className="mobile-hide">Page</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...auditLogs].sort((a, b) => new Date(b.timestamp || b.createdAt) - new Date(a.timestamp || a.createdAt)).map(log => (
+                    <tr key={log.id}>
+                      <td>{new Date(log.timestamp || log.createdAt).toLocaleString('en-GB')}</td>
+                      <td>{log.action}</td>
+                      <td>{log.itemName}</td>
+                      <td className="mobile-hide">{log.userName || '—'}</td>
+                      <td className="mobile-hide">{log.page || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

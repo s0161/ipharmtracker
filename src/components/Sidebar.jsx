@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useSidebarCounts } from '../hooks/useSidebarCounts'
 import { useTheme } from '../hooks/useTheme'
@@ -82,6 +83,15 @@ const nav = [
     ),
   },
   {
+    to: '/temperature',
+    label: 'Temp Log',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z" />
+      </svg>
+    ),
+  },
+  {
     to: '/settings',
     label: 'Settings',
     icon: (
@@ -96,6 +106,16 @@ const nav = [
 export default function Sidebar({ open, onClose }) {
   const counts = useSidebarCounts()
   const { theme, toggle: toggleTheme } = useTheme()
+  const [bellOpen, setBellOpen] = useState(false)
+
+  // Gather all alerts for notification bell
+  const alerts = []
+  Object.entries(counts).forEach(([path, c]) => {
+    const label = nav.find(n => n.to === path)?.label || path
+    if (c.red > 0) alerts.push({ label, count: c.red, type: 'red' })
+    if (c.amber > 0) alerts.push({ label, count: c.amber, type: 'amber' })
+  })
+  const totalAlerts = alerts.reduce((s, a) => s + a.count, 0)
 
   return (
     <>
@@ -126,11 +146,41 @@ export default function Sidebar({ open, onClose }) {
             <span className="sidebar-brand-name">iPharmacy</span>
             <span className="sidebar-brand-sub">Direct</span>
           </div>
+          {/* Notification bell */}
+          <button
+            className="sidebar-bell"
+            onClick={() => setBellOpen(!bellOpen)}
+            aria-label="Notifications"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 01-3.46 0" />
+            </svg>
+            {totalAlerts > 0 && <span className="sidebar-bell-dot" />}
+          </button>
         </div>
+
+        {/* Notification dropdown */}
+        {bellOpen && (
+          <div className="sidebar-notifications">
+            <h4 className="sidebar-notifications-title">Alerts</h4>
+            {alerts.length === 0 ? (
+              <p className="sidebar-notifications-empty">No alerts</p>
+            ) : (
+              alerts.map((a, i) => (
+                <div key={i} className={`sidebar-notification sidebar-notification--${a.type}`}>
+                  <span className={`sidebar-notification-dot sidebar-notification-dot--${a.type}`} />
+                  <span>{a.label}: {a.count} {a.type === 'red' ? 'overdue' : 'due soon'}</span>
+                </div>
+              ))
+            )}
+          </div>
+        )}
 
         <nav className="sidebar-nav">
           {nav.map((item) => {
             const badge = counts[item.to]
+            const hasAction = badge && (badge.red > 0 || badge.amber > 0)
             return (
               <NavLink
                 key={item.to}
@@ -141,7 +191,10 @@ export default function Sidebar({ open, onClose }) {
                 }
                 onClick={onClose}
               >
-                <span className="sidebar-link-icon">{item.icon}</span>
+                <span className="sidebar-link-icon">
+                  {item.icon}
+                  {hasAction && <span className="sidebar-red-dot" />}
+                </span>
                 <span className="sidebar-link-label">{item.label}</span>
                 {badge && badge.red > 0 && (
                   <span className="sidebar-badge sidebar-badge--red">{badge.red}</span>

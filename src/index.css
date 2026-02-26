@@ -1257,13 +1257,13 @@ button.kanban-card {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 0.5rem;
+  margin-top: 0.75rem;
 }
 
 .compliance-strip-item {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 0.6rem 0.5rem;
+  padding: 0.7rem 0.75rem;
   background: var(--bg-card);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow);
@@ -1275,23 +1275,59 @@ button.kanban-card {
 .compliance-strip-item:hover {
   border-color: var(--primary-light);
   box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+}
+
+.compliance-strip-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
 }
 
 .compliance-strip-score {
   font-family: 'DM Sans', sans-serif;
-  font-size: 1.15rem;
+  font-size: 0.95rem;
   font-weight: 700;
   line-height: 1;
 }
+.compliance-strip-score--green { color: var(--success); }
+.compliance-strip-score--amber { color: var(--warning); }
+.compliance-strip-score--red { color: var(--danger); }
+
 .compliance-strip-label {
-  font-size: 0.62rem;
+  font-size: 0.65rem;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  margin-top: 0.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
 }
+
+.compliance-strip-bar {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.compliance-strip-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s ease-out;
+}
+.compliance-strip-bar-fill--green { background: var(--success); }
+.compliance-strip-bar-fill--amber { background: var(--warning); }
+.compliance-strip-bar-fill--red { background: var(--danger); }
+
+.trend-arrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.trend-arrow--up { color: var(--success); }
+.trend-arrow--down { color: var(--danger); }
 
 .kanban-empty {
   font-size: 0.78rem;
@@ -2692,6 +2728,23 @@ select.input {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .skeleton-board {
+    grid-template-columns: 1fr;
+  }
+
+  .rp-sticky-date {
+    flex-direction: column;
+    gap: 0.3rem;
+    text-align: center;
+  }
+
+  .fab-incident {
+    bottom: 16px;
+    right: 16px;
+    width: 48px;
+    height: 48px;
+  }
+
   /* Page headers */
   .page-header {
     flex-direction: column;
@@ -3432,6 +3485,467 @@ select.input {
   }
 }
 
+/* ── Dashboard Live Clock ──────────────────── */
+
+.dash-topbar-clock {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-family: 'DM Sans', monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--border-light);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+/* ── Pulsing Badge Animation ─────────────── */
+
+@keyframes pulse-badge {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.dash-pulse {
+  animation: pulse-badge 2s ease-in-out infinite;
+}
+
+/* ── Progress Ring ────────────────────────── */
+
+.progress-ring {
+  display: block;
+}
+
+.progress-ring-fill {
+  transition: stroke-dashoffset 1.2s ease-out;
+}
+
+.progress-ring-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* ── Dashboard Search ─────────────────────── */
+
+.dash-search {
+  position: relative;
+  margin: 0.5rem 0;
+}
+
+.dash-search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.dash-search-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem 0.5rem 2.2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.82rem;
+  outline: none;
+  transition: border-color var(--transition);
+}
+.dash-search-input:focus {
+  border-color: var(--primary-light);
+}
+.dash-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.dash-search-clear {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.2rem;
+  display: flex;
+}
+.dash-search-clear:hover {
+  color: var(--text);
+}
+
+/* ── Column Progress Bar ──────────────────── */
+
+.kanban-col-progress {
+  height: 4px;
+  background: var(--border-light);
+  border-radius: 2px;
+  margin: 0 0.5rem 0.5rem;
+  overflow: hidden;
+}
+
+.kanban-col-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.5s ease-out;
+}
+
+/* ── Mark All Done Button ─────────────────── */
+
+.kanban-markall-btn {
+  margin-left: auto;
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--primary-light);
+  background: none;
+  border: 1px solid var(--primary-light);
+  border-radius: 4px;
+  padding: 0.15rem 0.4rem;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: inherit;
+}
+.kanban-markall-btn:hover {
+  background: var(--primary-light);
+  color: white;
+}
+
+/* ── Card Animations ──────────────────────── */
+
+.kanban-card {
+  transition: all 0.4s ease, opacity 0.4s ease, border-color 0.3s ease;
+}
+
+.kanban-card--completed {
+  opacity: 0.6;
+}
+
+.kanban-card--completed .kanban-card-name {
+  text-decoration: line-through;
+}
+
+.kanban-card--rp {
+  border-left-color: #f59e0b;
+}
+
+.kanban-card-pill--rp {
+  background: rgba(245, 158, 11, 0.15);
+  color: #d97706;
+}
+
+/* ── Loading Skeleton ─────────────────────── */
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-topbar,
+.skeleton-col,
+.skeleton-strip {
+  background: linear-gradient(90deg, var(--border-light) 25%, var(--bg-card) 50%, var(--border-light) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius);
+}
+
+.skeleton-topbar {
+  height: 56px;
+  margin-bottom: 0.75rem;
+}
+
+.skeleton-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.skeleton-col {
+  height: 300px;
+}
+
+.skeleton-strip {
+  height: 60px;
+}
+
+/* ── Page Transitions ─────────────────────── */
+
+.page-transition {
+  animation: fadeSlideIn 0.3s ease-out;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Card Hover (Polished) ────────────────── */
+
+.kanban-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* ── Sidebar Red Dot ──────────────────────── */
+
+.sidebar-link-icon {
+  position: relative;
+}
+
+.sidebar-red-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 7px;
+  height: 7px;
+  background: #EF4444;
+  border-radius: 50%;
+  border: 1.5px solid var(--primary-dark);
+}
+
+/* ── Sidebar Notification Bell ────────────── */
+
+.sidebar-bell {
+  position: relative;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  padding: 0.3rem;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+.sidebar-bell:hover { color: white; }
+
+.sidebar-bell-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 7px;
+  height: 7px;
+  background: #EF4444;
+  border-radius: 50%;
+}
+
+.sidebar-notifications {
+  background: rgba(0, 0, 0, 0.3);
+  margin: 0 0.75rem;
+  border-radius: var(--radius-sm);
+  padding: 0.6rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.sidebar-notifications-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.4rem;
+}
+
+.sidebar-notifications-empty {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.sidebar-notification {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.sidebar-notification-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.sidebar-notification-dot--red { background: #EF4444; }
+.sidebar-notification-dot--amber { background: #EAB308; }
+
+/* ── Floating Incident Button ─────────────── */
+
+.fab-incident {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(22, 101, 52, 0.3);
+  z-index: 40;
+  transition: all var(--transition);
+}
+.fab-incident:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 24px rgba(22, 101, 52, 0.4);
+}
+
+/* ── Temperature Log ──────────────────────── */
+
+.temp-form {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1rem;
+}
+
+.temp-row--danger {
+  background: var(--danger-bg) !important;
+}
+
+.temp-reading {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.temp-reading--ok { color: var(--success); }
+.temp-reading--danger { color: var(--danger); }
+
+/* ── Alert Banner ─────────────────────────── */
+
+.alert-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.alert-banner--warning {
+  background: var(--warning-bg);
+  color: var(--warning);
+  border: 1px solid rgba(202, 138, 4, 0.3);
+}
+
+/* ── Document Expiry Alert Banner ─────────── */
+
+.doc-alert-banner {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.doc-alert-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--warning);
+  margin-bottom: 0.5rem;
+}
+
+.doc-alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.doc-alert-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  padding: 0.3rem 0;
+}
+.doc-alert-item--red { color: var(--danger); }
+.doc-alert-item--amber { color: var(--warning); }
+
+.doc-alert-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.doc-alert-dot--red { background: var(--danger); }
+.doc-alert-dot--amber { background: var(--warning); }
+
+.doc-alert-name {
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+}
+
+.doc-alert-days {
+  font-size: 0.72rem;
+  flex-shrink: 0;
+}
+
+/* ── RP Sticky Date Banner ────────────────── */
+
+.rp-sticky-date {
+  position: sticky;
+  top: 64px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.rp-sticky-date--warning {
+  background: var(--warning-bg);
+  border: 1px solid rgba(202, 138, 4, 0.3);
+}
+
+.rp-sticky-date--ok {
+  background: var(--success-bg);
+  border: 1px solid rgba(21, 128, 61, 0.3);
+}
+
+.rp-sticky-date-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.rp-sticky-date-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--warning);
+}
+
+.rp-sticky-date-ok {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--success);
+}
+
 /* ── Print ─────────────────────────────────── */
 
 .print-only {
@@ -3471,8 +3985,10 @@ select.input {
   .dash-grid,
   .dash-greeting,
   .dash-topbar,
+  .dash-search,
   .compliance-strip,
-  .outstanding-section {
+  .outstanding-section,
+  .fab-incident {
     display: none !important;
   }
 

@@ -104,8 +104,48 @@ export default function DocumentTracker() {
     downloadCsv('documents', headers, rows)
   }
 
+  // Expiry alert: documents expiring within 30 days or already expired
+  const alertDocs = documents.filter(d => {
+    const tl = getTrafficLight(d.expiryDate)
+    return tl === 'red' || tl === 'amber'
+  }).map(d => {
+    const tl = getTrafficLight(d.expiryDate)
+    const exp = d.expiryDate ? new Date(d.expiryDate + 'T00:00:00') : null
+    const today = new Date()
+    today.setHours(0,0,0,0)
+    const daysLeft = exp ? Math.ceil((exp - today) / (1000 * 60 * 60 * 24)) : null
+    return { ...d, trafficLight: tl, daysLeft }
+  })
+
   return (
     <div>
+      {/* Document Expiry Alerts */}
+      {alertDocs.length > 0 && (
+        <div className="doc-alert-banner">
+          <h3 className="doc-alert-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            Document Expiry Alerts
+          </h3>
+          <div className="doc-alert-list">
+            {alertDocs.map(d => (
+              <div key={d.id} className={`doc-alert-item doc-alert-item--${d.trafficLight}`}>
+                <span className={`doc-alert-dot doc-alert-dot--${d.trafficLight}`} />
+                <span className="doc-alert-name">{d.documentName}</span>
+                <span className="doc-alert-days">
+                  {d.daysLeft !== null
+                    ? d.daysLeft < 0 ? `Expired ${Math.abs(d.daysLeft)} days ago` : `${d.daysLeft} days remaining`
+                    : 'No date set'}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="page-header">
         <p className="page-desc">
           Track documents, registrations, and renewals. Status updates
