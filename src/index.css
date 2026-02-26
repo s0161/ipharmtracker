@@ -1172,14 +1172,21 @@ a:hover {
   align-items: center;
   gap: 0.4rem;
   margin-bottom: 0.75rem;
-  padding-bottom: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
   user-select: none;
+  transition: background 150ms ease;
+}
+
+.kanban-column-header:hover {
+  background: var(--bg-hover, rgba(0,0,0,0.04));
 }
 
 .kanban-collapse-chevron {
   transition: transform 200ms ease;
   flex-shrink: 0;
-  opacity: 0.5;
+  opacity: 0.8;
+  color: var(--text-secondary);
 }
 
 .kanban-collapse-chevron--closed {
