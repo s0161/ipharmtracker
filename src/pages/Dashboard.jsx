@@ -12,7 +12,7 @@ import {
   DEFAULT_CLEANING_TASKS,
   generateId,
 } from '../utils/helpers'
-import { getTodaysCleaningStaff, getTodaysRP, getStaffInitials } from '../utils/rotationManager'
+import { getTaskAssignee, getRPAssignee, getStaffInitials } from '../utils/rotationManager'
 import Modal from '../components/Modal'
 import { useToast } from '../components/Toast'
 
@@ -332,8 +332,7 @@ export default function Dashboard() {
   }, [])
 
   // Today's rotation
-  const todaysCleaningStaff = getTodaysCleaningStaff()
-  const todaysRP = getTodaysRP()
+  const rpAssignee = getRPAssignee()
 
   if (docsLoading) {
     return (
@@ -453,7 +452,8 @@ export default function Dashboard() {
   // Build kanban columns by frequency
   const buildColumn = (freq) => {
     const cards = []
-    taskStatuses.filter(t => t.frequency === freq).forEach(task => {
+    const freqTasks = taskStatuses.filter(t => t.frequency === freq)
+    freqTasks.forEach((task, taskIndex) => {
       if (task.status === 'upcoming') return
       const latestEntry = task.status === 'done'
         ? cleaningEntries
@@ -466,7 +466,7 @@ export default function Dashboard() {
         name: task.name,
         category: 'Cleaning',
         status: task.status,
-        assignedTo: freq === 'daily' ? todaysCleaningStaff : null,
+        assignedTo: getTaskAssignee(task.name, freq, taskIndex),
         timestamp: latestEntry
           ? new Date(latestEntry.dateTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
           : null,
@@ -488,7 +488,7 @@ export default function Dashboard() {
         doneCount,
         total,
         rpItems: rpGroup.items,
-        assignedTo: freq === 'daily' ? todaysRP : null,
+        assignedTo: rpAssignee,
         dueTime: rpDueTime,
         dueTimeOverdue: rpDueTime && doneCount < total && isTimePast(rpDueTime),
       })
@@ -559,7 +559,7 @@ export default function Dashboard() {
   const handleOpenCompletion = (card) => {
     setCompletionModal({
       taskName: card.name,
-      assignedTo: card.assignedTo || todaysCleaningStaff,
+      assignedTo: card.assignedTo || '',
     })
   }
 
@@ -589,7 +589,7 @@ export default function Dashboard() {
       setRpLogs([...rpLogs, {
         id: generateId(),
         date: todayStr,
-        rpName: todaysRP || 'Dashboard',
+        rpName: rpAssignee || 'Dashboard',
         checklist: updatedChecklist,
         notes: '',
         createdAt: new Date().toISOString(),
@@ -607,7 +607,7 @@ export default function Dashboard() {
           id: generateId(),
           taskName: card.name,
           dateTime: nowDt.toISOString().slice(0, 16),
-          staffMember: todaysCleaningStaff || staffMembers[0] || 'Staff',
+          staffMember: card.assignedTo || staffMembers[0] || 'Staff',
           result: 'Pass',
           notes: 'Bulk completed from dashboard',
           createdAt: nowDt.toISOString(),
@@ -636,7 +636,7 @@ export default function Dashboard() {
         setRpLogs([...rpLogs, {
           id: generateId(),
           date: todayStr,
-          rpName: todaysRP || 'Dashboard',
+          rpName: rpAssignee || 'Dashboard',
           checklist: updatedChecklist,
           notes: '',
           createdAt: new Date().toISOString(),

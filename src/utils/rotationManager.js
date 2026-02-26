@@ -1,20 +1,11 @@
 /*
-  Task rotation manager — deterministic daily assignment.
+  Task rotation manager — deterministic assignment per task.
 
-  Supabase table (optional, for manual overrides):
-
-  CREATE TABLE task_assignments (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    date DATE NOT NULL DEFAULT CURRENT_DATE,
-    task_type TEXT NOT NULL,       -- 'cleaning' | 'rp'
-    assigned_to TEXT NOT NULL,
-    completed_by TEXT,
-    completed_at TIMESTAMPTZ,
-    notes TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-  );
-  ALTER TABLE task_assignments ENABLE ROW LEVEL SECURITY;
-  CREATE POLICY "anon full access" ON task_assignments FOR ALL USING (true) WITH CHECK (true);
+  - Each cleaning task rotates independently across the staff list
+  - Daily tasks rotate by day-of-year, weekly by week number, fortnightly by fortnight
+  - Robot Maintenance is always Salma Shakoor
+  - RP checks are always Amjid Shakoor (only pharmacist)
+  - Jamila Adwan is excluded from cleaning rotation
 */
 
 const CLEANING_ROTATION = [
@@ -27,10 +18,12 @@ const CLEANING_ROTATION = [
   'Marian Hadaway',
 ]
 
-const RP_ROTATION = [
-  'Amjid Shakoor',
-  'Jamila Adwan',
-]
+// Fixed assignments (not rotated)
+const FIXED_ASSIGNMENTS = {
+  'Robot Maintenance': 'Salma Shakoor',
+}
+
+const RP_PHARMACIST = 'Amjid Shakoor'
 
 function getDayOfYear() {
   const now = new Date()
@@ -38,12 +31,57 @@ function getDayOfYear() {
   return Math.floor((now - start) / (1000 * 60 * 60 * 24))
 }
 
-export function getTodaysCleaningStaff() {
-  return CLEANING_ROTATION[getDayOfYear() % CLEANING_ROTATION.length]
+function getWeekNumber() {
+  const now = new Date()
+  const start = new Date(now.getFullYear(), 0, 1)
+  return Math.ceil((now - start) / (7 * 24 * 60 * 60 * 1000))
 }
 
-export function getTodaysRP() {
-  return RP_ROTATION[getDayOfYear() % RP_ROTATION.length]
+function getFortnightNumber() {
+  return Math.floor(getWeekNumber() / 2)
+}
+
+/**
+ * Get the assigned staff member for a specific task.
+ * Each task gets a unique offset so different tasks go to different people.
+ *
+ * @param {string} taskName - the cleaning task name
+ * @param {string} frequency - 'daily' | 'weekly' | 'fortnightly' | 'monthly'
+ * @param {number} taskIndex - position of this task within its frequency group
+ */
+export function getTaskAssignee(taskName, frequency, taskIndex = 0) {
+  // Fixed assignments override rotation
+  if (FIXED_ASSIGNMENTS[taskName]) {
+    return FIXED_ASSIGNMENTS[taskName]
+  }
+
+  // Pick the period counter based on frequency
+  let period
+  switch (frequency) {
+    case 'daily':
+      period = getDayOfYear()
+      break
+    case 'weekly':
+      period = getWeekNumber()
+      break
+    case 'fortnightly':
+      period = getFortnightNumber()
+      break
+    case 'monthly':
+      // Rotate monthly by month number
+      period = new Date().getMonth()
+      break
+    default:
+      period = getDayOfYear()
+  }
+
+  // Offset by taskIndex so each task in the same frequency gets a different person
+  const idx = (period + taskIndex) % CLEANING_ROTATION.length
+  return CLEANING_ROTATION[idx]
+}
+
+export function getRPAssignee() {
+  return RP_PHARMACIST
 }
 
 export function getStaffInitials(name) {
@@ -56,6 +94,6 @@ export function getStaffInitials(name) {
     .slice(0, 2)
 }
 
-export function getRotationList(type) {
-  return type === 'rp' ? RP_ROTATION : CLEANING_ROTATION
+export function getRotationList() {
+  return CLEANING_ROTATION
 }
