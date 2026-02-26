@@ -260,6 +260,7 @@ export default function Dashboard() {
   const [safeguarding] = useSupabase('safeguarding_records', [])
   const [rpLogs, setRpLogs] = useSupabase('rp_log', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
+  const [tempLogs] = useSupabase('temperature_logs', [])
 
   // Live clock
   useEffect(() => {
@@ -586,6 +587,43 @@ export default function Dashboard() {
           </button>
         </div>
       </div>
+
+      {/* === QUICK-NAV TILE GRID === */}
+      {(() => {
+        const dailyDueCount = taskStatuses.filter(t => t.frequency === 'daily' && (t.status === 'due' || t.status === 'overdue')).length
+        const docsExpiring = documents.filter(d => { const tl = getTrafficLight(d.expiryDate); return tl === 'red' || tl === 'amber' }).length
+        const trainingOverdue = overdueTraining.length
+        const tempLoggedToday = tempLogs.some(l => l.date === todayStr)
+        const allRpItems = [...RP_DAILY, ...RP_WEEKLY, ...RP_FORTNIGHTLY]
+        const rpDoneCount = allRpItems.filter(item => !!rpChecklist[item]).length
+        const rpComplete = rpDoneCount === allRpItems.length
+
+        const tiles = [
+          { icon: '🧹', title: 'Cleaning Rota', stat: `${dailyDueCount} due today`, nav: '/cleaning', cls: 'tile--green' },
+          { icon: '📄', title: 'Documents', stat: `${docsExpiring} expiring`, nav: '/documents', cls: 'tile--blue' },
+          { icon: '👥', title: 'Staff Training', stat: `${trainingOverdue} overdue`, nav: '/staff-training', cls: 'tile--purple' },
+          { icon: '🛡️', title: 'Safeguarding', stat: `${sgScore}% compliant`, nav: '/safeguarding', cls: 'tile--teal' },
+          { icon: '🌡️', title: 'Temp Log', stat: tempLoggedToday ? 'YES' : 'NOT YET', statOk: tempLoggedToday, nav: '/temperature', cls: 'tile--orange' },
+          { icon: '📋', title: 'RP Log', stat: rpComplete ? 'YES' : 'NOT YET', statOk: rpComplete, nav: '/rp-log', cls: 'tile--rose' },
+        ]
+
+        return (
+          <div className="dash-tiles no-print">
+            {tiles.map(t => (
+              <button key={t.title} className={`dash-tile ${t.cls}`} onClick={() => navigate(t.nav)}>
+                <span className="dash-tile-icon">{t.icon}</span>
+                <div className="dash-tile-content">
+                  <span className="dash-tile-title">{t.title}</span>
+                  <span className={`dash-tile-stat ${t.statOk === true ? 'dash-tile-stat--ok' : ''} ${t.statOk === false ? 'dash-tile-stat--warn' : ''}`}>
+                    {t.stat}
+                  </span>
+                </div>
+                <span className="dash-tile-arrow">&rarr;</span>
+              </button>
+            ))}
+          </div>
+        )
+      })()}
 
       {/* === SEARCH BAR === */}
       <div className="dash-search no-print">
