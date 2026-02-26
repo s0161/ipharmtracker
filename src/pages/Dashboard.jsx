@@ -136,12 +136,27 @@ function ProgressRing({ pct, size = 56, strokeWidth = 5 }) {
   )
 }
 
-// Animated bar for compliance footer
+// Animated bar for compliance footer with counting number
 function AnimatedBar({ pct, label, onClick }) {
   const [width, setWidth] = useState(0)
+  const [displayPct, setDisplayPct] = useState(0)
+
   useEffect(() => {
     const timer = setTimeout(() => setWidth(pct), 200)
     return () => clearTimeout(timer)
+  }, [pct])
+
+  useEffect(() => {
+    if (pct === 0) { setDisplayPct(0); return }
+    let start = 0
+    const duration = 800
+    const step = Math.ceil(pct / (duration / 16))
+    const id = setInterval(() => {
+      start += step
+      if (start >= pct) { setDisplayPct(pct); clearInterval(id) }
+      else setDisplayPct(start)
+    }, 16)
+    return () => clearInterval(id)
   }, [pct])
 
   const cls = scoreClass(pct)
@@ -149,7 +164,7 @@ function AnimatedBar({ pct, label, onClick }) {
     <button className="compliance-strip-item" onClick={onClick}>
       <div className="compliance-strip-top">
         <span className="compliance-strip-label">{label}</span>
-        <span className={`compliance-strip-score compliance-strip-score--${cls} compliance-strip-score--lg`}>{pct}%</span>
+        <span className={`compliance-strip-score compliance-strip-score--${cls} compliance-strip-score--lg`}>{displayPct}%</span>
       </div>
       <div className="compliance-strip-bar">
         <div className={`compliance-strip-bar-fill compliance-strip-bar-fill--${cls}`} style={{ width: `${width}%` }} />
@@ -158,8 +173,13 @@ function AnimatedBar({ pct, label, onClick }) {
   )
 }
 
+const ALL_STAFF = [
+  'Moniba Jamil', 'Umama Khan', 'Sadaf Subhani', 'Salma Shakoor',
+  'Urooj Khan', 'Shain Nawaz', 'Marian Hadaway', 'Jamila Adwan', 'Amjid Shakoor',
+]
+
 // Completion modal for ticking off tasks
-function CompletionModal({ open, taskName, assignedTo, staffMembers, onSubmit, onClose }) {
+function CompletionModal({ open, taskName, assignedTo, onSubmit, onClose }) {
   const [completedBy, setCompletedBy] = useState(assignedTo || '')
   const [notes, setNotes] = useState('')
 
@@ -187,7 +207,7 @@ function CompletionModal({ open, taskName, assignedTo, staffMembers, onSubmit, o
           <label className="label">Completed by *</label>
           <select className="input" value={completedBy} onChange={(e) => setCompletedBy(e.target.value)} required>
             <option value="">Select staff...</option>
-            {staffMembers.map(s => <option key={s} value={s}>{s}</option>)}
+            {ALL_STAFF.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
         <div className="form-group">
@@ -200,7 +220,7 @@ function CompletionModal({ open, taskName, assignedTo, staffMembers, onSubmit, o
         </div>
         <div className="form-actions">
           <button type="button" className="btn btn--ghost" onClick={onClose}>Cancel</button>
-          <button type="submit" className="btn btn--primary">Mark Complete</button>
+          <button type="submit" className="btn btn--primary btn--complete">Mark Complete</button>
         </div>
       </form>
     </Modal>
@@ -315,6 +335,7 @@ export default function Dashboard() {
   const [dismissedPriorities, setDismissedPriorities] = useState([])
   const [completedAccordion, setCompletedAccordion] = useState({})
   const prevAllDoneRef = useRef({})
+  const touchStartX = useRef(null)
 
   const [documents, , docsLoading] = useSupabase('documents', [])
   const [cleaningEntries, setCleaningEntries] = useSupabase('cleaning_entries', [])
@@ -395,6 +416,12 @@ export default function Dashboard() {
   const todayRp = rpLogs.find(l => l.date === todayStr)
   const rpChecklist = todayRp?.checklist || {}
 
+  // Temp & RP status (needed for both tiles and action count)
+  const tempLoggedToday = tempLogs.some(l => l.date === todayStr)
+  const allRpItems = [...RP_DAILY, ...RP_WEEKLY, ...RP_FORTNIGHTLY]
+  const rpDoneCount = allRpItems.filter(item => !!rpChecklist[item]).length
+  const rpComplete = rpDoneCount === allRpItems.length
+
   // Action required
   const expiredDocs = documents.filter(d => getTrafficLight(d.expiryDate) === 'red')
   const overdueTraining = staffTraining.filter(e => e.status === 'Pending')
@@ -403,16 +430,20 @@ export default function Dashboard() {
     const s = getSafeguardingStatus(r.trainingDate)
     return s === 'due-soon' || s === 'overdue'
   })
-  const totalActionItems = expiredDocs.length + dueSoon.length + overdueTraining.length + overdueCleaningTasks.length + sgDueSoon.length
+  const tempMissing = !tempLoggedToday ? 1 : 0
+  const rpMissing = rpComplete ? 0 : 1
+  const totalActionItems = expiredDocs.length + dueSoon.length + overdueTraining.length + overdueCleaningTasks.length + sgDueSoon.length + tempMissing + rpMissing
 
   // Action badge tooltip breakdown
   const actionBreakdown = []
-  if (expiredDocs.length > 0) actionBreakdown.push(`${expiredDocs.length} expired doc${expiredDocs.length !== 1 ? 's' : ''}`)
-  if (dueSoon.length > 0) actionBreakdown.push(`${dueSoon.length} expiring soon`)
-  if (overdueCleaningTasks.length > 0) actionBreakdown.push(`${overdueCleaningTasks.length} overdue cleaning`)
-  if (overdueTraining.length > 0) actionBreakdown.push(`${overdueTraining.length} pending training`)
-  if (sgDueSoon.length > 0) actionBreakdown.push(`${sgDueSoon.length} safeguarding due`)
-  const tooltipText = actionBreakdown.join(', ')
+  if (overdueCleaningTasks.length > 0) actionBreakdown.push(`Cleaning tasks overdue: ${overdueCleaningTasks.length}`)
+  if (overdueTraining.length > 0) actionBreakdown.push(`Training records overdue: ${overdueTraining.length}`)
+  if (expiredDocs.length > 0) actionBreakdown.push(`Documents expired: ${expiredDocs.length}`)
+  if (dueSoon.length > 0) actionBreakdown.push(`Documents expiring soon: ${dueSoon.length}`)
+  if (tempMissing > 0) actionBreakdown.push(`Temperature log missing: ${tempMissing}`)
+  if (rpMissing > 0) actionBreakdown.push(`RP log missing: ${rpMissing}`)
+  if (sgDueSoon.length > 0) actionBreakdown.push(`Safeguarding due: ${sgDueSoon.length}`)
+  const tooltipText = actionBreakdown.join('\n')
 
   const complianceAreas = [
     { label: 'Documents', score: docScore, nav: '/documents' },
@@ -551,12 +582,26 @@ export default function Dashboard() {
     { key: 'monthly', title: 'Monthly', cards: filteredMonthly, allCards: monthlyCards },
   ]
 
+  const tabOrder = columns.map(c => c.key)
+
   columns.forEach(col => {
     const prog = colProgress(col.allCards)
     if (prog.total > 0 && prog.done === prog.total) {
       triggerConfetti(col.key)
     }
   })
+
+  // Mobile swipe between kanban tabs
+  const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX }
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return
+    const diff = e.changedTouches[0].clientX - touchStartX.current
+    touchStartX.current = null
+    if (Math.abs(diff) < 50) return
+    const currentIdx = tabOrder.indexOf(mobileTab)
+    if (diff < 0 && currentIdx < tabOrder.length - 1) setMobileTab(tabOrder[currentIdx + 1])
+    if (diff > 0 && currentIdx > 0) setMobileTab(tabOrder[currentIdx - 1])
+  }
 
   // Tick-off via completion modal
   const handleOpenCompletion = (card) => {
@@ -656,18 +701,14 @@ export default function Dashboard() {
   const dailyDueCount = taskStatuses.filter(t => t.frequency === 'daily' && (t.status === 'due' || t.status === 'overdue')).length
   const docsExpiring = documents.filter(d => { const tl = getTrafficLight(d.expiryDate); return tl === 'red' || tl === 'amber' }).length
   const trainingOverdue = overdueTraining.length
-  const tempLoggedToday = tempLogs.some(l => l.date === todayStr)
-  const allRpItems = [...RP_DAILY, ...RP_WEEKLY, ...RP_FORTNIGHTLY]
-  const rpDoneCount = allRpItems.filter(item => !!rpChecklist[item]).length
-  const rpComplete = rpDoneCount === allRpItems.length
 
   const tiles = [
     { key: 'cleaning', icon: TILE_ICONS.cleaning, title: 'Cleaning Rota', stat: `${dailyDueCount} due today`, nav: '/cleaning', cls: 'tile--green', pct: cleaningScore, warn: dailyDueCount > 0 },
     { key: 'documents', icon: TILE_ICONS.documents, title: 'Documents', stat: `${docsExpiring} expiring`, nav: '/documents', cls: 'tile--blue', pct: docScore, warn: docsExpiring > 0 },
     { key: 'training', icon: TILE_ICONS.training, title: 'Staff Training', stat: `${trainingOverdue} overdue`, nav: '/staff-training', cls: 'tile--purple', pct: staffScore, warn: trainingOverdue > 0 },
     { key: 'safeguarding', icon: TILE_ICONS.safeguarding, title: 'Safeguarding', stat: `${sgScore}% compliant`, nav: '/safeguarding', cls: 'tile--teal', pct: sgScore, warn: sgScore < 100 },
-    { key: 'temperature', icon: TILE_ICONS.temperature, title: 'Temp Log', stat: tempLoggedToday ? 'LOGGED' : 'NOT YET', statOk: tempLoggedToday, nav: '/temperature', cls: 'tile--orange', pct: tempLoggedToday ? 100 : 0, warn: !tempLoggedToday },
-    { key: 'rplog', icon: TILE_ICONS.rplog, title: 'RP Log', stat: rpComplete ? 'COMPLETE' : 'NOT YET', statOk: rpComplete, nav: '/rp-log', cls: 'tile--rose', pct: allRpItems.length > 0 ? Math.round((rpDoneCount / allRpItems.length) * 100) : 100, warn: !rpComplete },
+    { key: 'temperature', icon: TILE_ICONS.temperature, title: 'Temp Log', stat: tempLoggedToday ? '\u2713 Logged' : 'NOT YET', statOk: tempLoggedToday, nav: '/temperature', cls: 'tile--orange', pct: tempLoggedToday ? 100 : 0, warn: !tempLoggedToday },
+    { key: 'rplog', icon: TILE_ICONS.rplog, title: 'RP Log', stat: rpComplete ? '\u2713 Complete' : 'NOT YET', statOk: rpComplete, nav: '/rp-log', cls: 'tile--rose', pct: allRpItems.length > 0 ? Math.round((rpDoneCount / allRpItems.length) * 100) : 100, warn: !rpComplete },
   ]
 
   return (
@@ -803,7 +844,7 @@ export default function Dashboard() {
       </div>
 
       {/* === KANBAN BOARD === */}
-      <div className="kanban-board no-print">
+      <div className="kanban-board no-print" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         {columns.map(col => {
           const prog = colProgress(col.allCards)
           const allDone = prog.total > 0 && prog.done === prog.total
@@ -1112,7 +1153,6 @@ export default function Dashboard() {
         open={!!completionModal}
         taskName={completionModal?.taskName || ''}
         assignedTo={completionModal?.assignedTo || ''}
-        staffMembers={staffMembers}
         onSubmit={handleCompleteTask}
         onClose={() => setCompletionModal(null)}
       />

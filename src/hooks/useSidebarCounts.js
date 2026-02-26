@@ -32,16 +32,12 @@ async function fetchCounts() {
     })
   }
 
-  // Staff training: only count overdue Pending items (past target date) as red
+  // Staff training: only count genuinely overdue Pending items (past target date)
   if (staffRes.data) {
     const todayStr = new Date().toISOString().slice(0, 10)
     staffRes.data.forEach((e) => {
-      if (e.status === 'Pending') {
-        if (e.target_date && e.target_date < todayStr) {
-          counts['/staff-training'].red++
-        } else if (e.status === 'Pending') {
-          counts['/staff-training'].amber++
-        }
+      if (e.status === 'Pending' && e.target_date && e.target_date < todayStr) {
+        counts['/staff-training'].red++
       }
     })
   }
