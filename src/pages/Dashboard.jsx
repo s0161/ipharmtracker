@@ -334,6 +334,7 @@ export default function Dashboard() {
   const [mobileTab, setMobileTab] = useState('daily')
   const [dismissedPriorities, setDismissedPriorities] = useState([])
   const [completedAccordion, setCompletedAccordion] = useState({})
+  const [collapsedCols, setCollapsedCols] = useState({})
   const prevAllDoneRef = useRef({})
   const touchStartX = useRef(null)
 
@@ -850,13 +851,17 @@ export default function Dashboard() {
           const allDone = prog.total > 0 && prog.done === prog.total
           const { active, completed } = splitCards(col.cards)
           const accordionOpen = !!completedAccordion[col.key]
+          const isCollapsed = !!collapsedCols[col.key]
           return (
-            <div key={col.key} className={`kanban-column ${mobileTab === col.key ? 'kanban-column--mobile-active' : ''}`}>
-              <div className="kanban-column-header kanban-column-header--sticky">
+            <div key={col.key} className={`kanban-column ${mobileTab === col.key ? 'kanban-column--mobile-active' : ''} ${isCollapsed ? 'kanban-column--collapsed' : ''}`}>
+              <div className="kanban-column-header kanban-column-header--sticky" onClick={() => setCollapsedCols(prev => ({ ...prev, [col.key]: !prev[col.key] }))} style={{ cursor: 'pointer' }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14" className={`kanban-collapse-chevron ${isCollapsed ? 'kanban-collapse-chevron--closed' : ''}`}>
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
                 <span className="kanban-column-title">{col.title}</span>
-                <span className="kanban-column-count">{col.cards.length}</span>
-                {!allDone && prog.total > 0 && (
-                  <button className="kanban-markall-btn" onClick={() => handleMarkAllDone(col.allCards)} title="Mark all done">
+                <span className="kanban-column-count">{prog.done}/{prog.total}</span>
+                {!allDone && prog.total > 0 && !isCollapsed && (
+                  <button className="kanban-markall-btn" onClick={(e) => { e.stopPropagation(); handleMarkAllDone(col.allCards) }} title="Mark all done">
                     &#10003; All
                   </button>
                 )}
@@ -868,7 +873,7 @@ export default function Dashboard() {
                   background: allDone ? 'var(--success)' : prog.done > 0 ? 'var(--warning)' : 'var(--border)',
                 }} />
               </div>
-              <div className="kanban-cards">
+              {!isCollapsed && <div className="kanban-cards">
                 {allDone ? (
                   <div className="kanban-all-done">
                     <svg className="kanban-all-done-icon" viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2.5" width="32" height="32">
@@ -921,7 +926,7 @@ export default function Dashboard() {
                     ))}
                   </div>
                 )}
-              </div>
+              </div>}
             </div>
           )
         })}

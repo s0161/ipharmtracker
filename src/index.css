@@ -1170,9 +1170,33 @@ a:hover {
 .kanban-column-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 0.4rem;
   margin-bottom: 0.75rem;
   padding-bottom: 0.5rem;
+  user-select: none;
+}
+
+.kanban-collapse-chevron {
+  transition: transform 200ms ease;
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+.kanban-collapse-chevron--closed {
+  transform: rotate(-90deg);
+}
+
+.kanban-column--collapsed {
+  min-height: 0;
+}
+
+.kanban-column--collapsed .kanban-column-header {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.kanban-column--collapsed .kanban-col-progress {
+  display: none;
 }
 
 .kanban-column-title {
@@ -1184,6 +1208,7 @@ a:hover {
 }
 
 .kanban-column-count {
+  margin-left: auto;
   font-size: 0.72rem;
   font-weight: 700;
   padding: 0.12rem 0.5rem;
