@@ -17,7 +17,7 @@ async function fetchCounts() {
 
   const [docsRes, staffRes, sgRes, tasksRes, entriesRes, tempRes] = await Promise.all([
     supabase.from('documents').select('expiry_date'),
-    supabase.from('staff_training').select('status'),
+    supabase.from('staff_training').select('status, target_date'),
     supabase.from('safeguarding_records').select('training_date'),
     supabase.from('cleaning_tasks').select('name, frequency'),
     supabase.from('cleaning_entries').select('task_name, date_time'),
@@ -32,10 +32,18 @@ async function fetchCounts() {
     })
   }
 
+  // Staff training: only count overdue Pending items (past target date) as red
   if (staffRes.data) {
-    counts['/staff-training'].red = staffRes.data.filter(
-      (e) => e.status === 'Pending'
-    ).length
+    const todayStr = new Date().toISOString().slice(0, 10)
+    staffRes.data.forEach((e) => {
+      if (e.status === 'Pending') {
+        if (e.target_date && e.target_date < todayStr) {
+          counts['/staff-training'].red++
+        } else if (e.status === 'Pending') {
+          counts['/staff-training'].amber++
+        }
+      }
+    })
   }
 
   if (sgRes.data) {

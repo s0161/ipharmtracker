@@ -10,7 +10,11 @@ import {
   getTaskStatusLabel,
   getSafeguardingStatus,
   DEFAULT_CLEANING_TASKS,
+  generateId,
 } from '../utils/helpers'
+import { getTodaysCleaningStaff, getTodaysRP, getStaffInitials } from '../utils/rotationManager'
+import Modal from '../components/Modal'
+import { useToast } from '../components/Toast'
 
 function scoreColor(pct) {
   if (pct > 80) return 'var(--success)'
@@ -37,6 +41,7 @@ const RP_DAILY = [
   'Controlled drugs checked',
   'Pharmacy opened correctly',
   'Pharmacy closed correctly',
+  'Fridge temperature recorded',
 ]
 const RP_WEEKLY = [
   'Pharmacy record up to date',
@@ -57,7 +62,59 @@ const RP_GROUPS = [
   { frequency: 'fortnightly', label: 'Fortnightly', items: RP_FORTNIGHTLY },
 ]
 
-// SVG Progress Ring component
+// Due times for critical daily tasks
+const TASK_DUE_TIMES = {
+  'Temperature Log': '09:00',
+}
+const RP_DAILY_DUE_TIME = '10:00'
+
+function isTimePast(timeStr) {
+  const [h, m] = timeStr.split(':').map(Number)
+  const now = new Date()
+  return now.getHours() > h || (now.getHours() === h && now.getMinutes() >= m)
+}
+
+// SVG tile icons (replacing emojis)
+const TILE_ICONS = {
+  cleaning: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="28" height="28">
+      <path d="M12 2L12 6" /><path d="M8 4L8 6" /><path d="M16 4L16 6" />
+      <path d="M6 6h12v3a8 8 0 01-5.5 7.6L12 22l-.5-5.4A8 8 0 016 9V6z" />
+    </svg>
+  ),
+  documents: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="28" height="28">
+      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" />
+    </svg>
+  ),
+  training: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="28" height="28">
+      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+      <circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" />
+    </svg>
+  ),
+  safeguarding: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="28" height="28">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      <path d="M9 12l2 2 4-4" />
+    </svg>
+  ),
+  temperature: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="28" height="28">
+      <path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z" />
+    </svg>
+  ),
+  rplog: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="28" height="28">
+      <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
+      <rect x="8" y="2" width="8" height="4" rx="1" /><path d="M9 14l2 2 4-4" />
+    </svg>
+  ),
+}
+
+// SVG Progress Ring
 function ProgressRing({ pct, size = 56, strokeWidth = 5 }) {
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
@@ -72,43 +129,14 @@ function ProgressRing({ pct, size = 56, strokeWidth = 5 }) {
 
   return (
     <svg className="progress-ring" width={size} height={size}>
-      <circle
-        className="progress-ring-bg"
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        strokeWidth={strokeWidth}
-        fill="none"
-        stroke="var(--border)"
-      />
-      <circle
-        className="progress-ring-fill"
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        strokeWidth={strokeWidth}
-        fill="none"
-        stroke={scoreColor(pct)}
-        strokeDasharray={circumference}
-        strokeDashoffset={offset}
-        strokeLinecap="round"
-        transform={`rotate(-90 ${size / 2} ${size / 2})`}
-      />
-      <text
-        x={size / 2}
-        y={size / 2}
-        textAnchor="middle"
-        dominantBaseline="central"
-        className="progress-ring-text"
-        fill={scoreColor(pct)}
-      >
-        {pct}%
-      </text>
+      <circle className="progress-ring-bg" cx={size / 2} cy={size / 2} r={radius} strokeWidth={strokeWidth} fill="none" stroke="var(--border)" />
+      <circle className="progress-ring-fill" cx={size / 2} cy={size / 2} r={radius} strokeWidth={strokeWidth} fill="none" stroke={scoreColor(pct)} strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" transform={`rotate(-90 ${size / 2} ${size / 2})`} />
+      <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="central" className="progress-ring-text" fill={scoreColor(pct)}>{pct}%</text>
     </svg>
   )
 }
 
-// Animated bar component for compliance footer
+// Animated bar for compliance footer
 function AnimatedBar({ pct, label, onClick }) {
   const [width, setWidth] = useState(0)
   useEffect(() => {
@@ -117,27 +145,72 @@ function AnimatedBar({ pct, label, onClick }) {
   }, [pct])
 
   const cls = scoreClass(pct)
-
   return (
     <button className="compliance-strip-item" onClick={onClick}>
       <div className="compliance-strip-top">
         <span className="compliance-strip-label">{label}</span>
-        <span className={`compliance-strip-score compliance-strip-score--${cls}`}>{pct}%</span>
+        <span className={`compliance-strip-score compliance-strip-score--${cls} compliance-strip-score--lg`}>{pct}%</span>
       </div>
       <div className="compliance-strip-bar">
-        <div
-          className={`compliance-strip-bar-fill compliance-strip-bar-fill--${cls}`}
-          style={{ width: `${width}%` }}
-        />
+        <div className={`compliance-strip-bar-fill compliance-strip-bar-fill--${cls}`} style={{ width: `${width}%` }} />
       </div>
     </button>
   )
 }
 
-function KanbanCard({ card, tickingCardId, setTickingCardId, expandedRpCard, setExpandedRpCard, staffMembers, onTickCleaning, rpChecklist, onToggleRpItem }) {
+// Completion modal for ticking off tasks
+function CompletionModal({ open, taskName, assignedTo, staffMembers, onSubmit, onClose }) {
+  const [completedBy, setCompletedBy] = useState(assignedTo || '')
+  const [notes, setNotes] = useState('')
+
+  useEffect(() => {
+    if (open) {
+      setCompletedBy(assignedTo || '')
+      setNotes('')
+    }
+  }, [open, assignedTo])
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (!completedBy) return
+    onSubmit(taskName, completedBy, notes)
+  }
+
+  return (
+    <Modal open={open} onClose={onClose} title="Complete Task">
+      <form className="form" onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label className="label">Task</label>
+          <input type="text" className="input" value={taskName || ''} readOnly />
+        </div>
+        <div className="form-group">
+          <label className="label">Completed by *</label>
+          <select className="input" value={completedBy} onChange={(e) => setCompletedBy(e.target.value)} required>
+            <option value="">Select staff...</option>
+            {staffMembers.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
+        <div className="form-group">
+          <label className="label">Notes</label>
+          <textarea className="input input--textarea" placeholder="Optional notes..." value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
+        </div>
+        <div className="form-group">
+          <label className="label">Timestamp</label>
+          <input type="text" className="input" value={new Date().toLocaleString('en-GB')} readOnly />
+        </div>
+        <div className="form-actions">
+          <button type="button" className="btn btn--ghost" onClick={onClose}>Cancel</button>
+          <button type="submit" className="btn btn--primary">Mark Complete</button>
+        </div>
+      </form>
+    </Modal>
+  )
+}
+
+function KanbanCard({ card, onOpenCompletion, expandedRpCard, setExpandedRpCard, rpChecklist, onToggleRpItem }) {
   const isCleaning = card.category === 'Cleaning'
   const isRp = card.category === 'RP Check'
-  const isTickOpen = tickingCardId === card.id
+  const isTemp = card.category === 'Temperature'
   const isExpanded = expandedRpCard === card.id
   const isDone = card.status === 'done'
 
@@ -149,34 +222,26 @@ function KanbanCard({ card, tickingCardId, setTickingCardId, expandedRpCard, set
         ? 'kanban-card--rp'
         : 'kanban-card--due'
 
+  const categoryClass = isRp ? 'kanban-card-pill--rp' : isTemp ? 'kanban-card-pill--temp' : 'kanban-card-pill--clean'
+
   return (
     <div className={`kanban-card ${borderClass} ${isDone ? 'kanban-card--completed' : ''}`}>
       <div className="kanban-card-row">
-        {/* Tick button */}
-        {isCleaning && !isDone && (
-          <button
-            className="kanban-tick-btn"
-            onClick={() => setTickingCardId(isTickOpen ? null : card.id)}
-            aria-label={`Mark ${card.name} as done`}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-              <circle cx="12" cy="12" r="10" />
-            </svg>
+        {/* Tick button or done icon */}
+        {(isCleaning || isTemp) && !isDone && (
+          <button className="kanban-tick-btn" onClick={() => onOpenCompletion(card)} aria-label={`Mark ${card.name} as done`}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18"><circle cx="12" cy="12" r="10" /></svg>
           </button>
         )}
-        {isCleaning && isDone && (
+        {(isCleaning || isTemp) && isDone && (
           <span className="kanban-tick-done">
             <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2.5" width="18" height="18">
-              <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
-              <polyline points="22 4 12 14.01 9 11.01" />
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
             </svg>
           </span>
         )}
         {isRp && (
-          <button
-            className="kanban-tick-btn"
-            onClick={() => setExpandedRpCard(isExpanded ? null : card.id)}
-          >
+          <button className="kanban-tick-btn" onClick={() => setExpandedRpCard(isExpanded ? null : card.id)}>
             <svg viewBox="0 0 24 24" fill="none" stroke={isDone ? 'var(--success)' : 'currentColor'} strokeWidth="2" width="18" height="18">
               {isDone ? (
                 <><path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></>
@@ -187,10 +252,25 @@ function KanbanCard({ card, tickingCardId, setTickingCardId, expandedRpCard, set
           </button>
         )}
 
+        {/* Staff avatar */}
+        {card.assignedTo && (
+          <span className="kanban-avatar" title={card.assignedTo}>{getStaffInitials(card.assignedTo)}</span>
+        )}
+
         <div className="kanban-card-body">
           <span className="kanban-card-name">{card.name}</span>
           <div className="kanban-card-meta">
-            <span className={`kanban-card-pill kanban-card-pill--cat ${isRp ? 'kanban-card-pill--rp' : ''}`}>{card.category}</span>
+            <span className={`kanban-card-pill kanban-card-pill--cat ${categoryClass}`}>{card.category}</span>
+            {card.dueTime && !isDone && (
+              <span className={`kanban-card-due-time ${card.dueTimeOverdue ? 'kanban-card-due-time--overdue' : ''}`}>
+                {card.dueTimeOverdue && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12">
+                    <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+                  </svg>
+                )}
+                by {card.dueTime}
+              </span>
+            )}
             {card.isSummary
               ? <span className="kanban-card-time">{card.doneCount}/{card.total} done</span>
               : card.timestamp && <span className="kanban-card-time">Completed {card.timestamp}</span>}
@@ -198,30 +278,12 @@ function KanbanCard({ card, tickingCardId, setTickingCardId, expandedRpCard, set
         </div>
       </div>
 
-      {/* Staff picker for cleaning tick-off */}
-      {isCleaning && isTickOpen && (
-        <div className="kanban-staff-picker">
-          <p className="kanban-staff-picker-label">Who completed this?</p>
-          <div className="kanban-staff-picker-list">
-            {staffMembers.map(name => (
-              <button key={name} className="kanban-staff-picker-btn" onClick={() => onTickCleaning(card.name, name)}>
-                {name}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* RP expanded checklist */}
       {isRp && isExpanded && card.rpItems && (
         <div className="kanban-rp-checklist">
           {card.rpItems.map(item => (
             <label key={item} className="kanban-rp-item">
-              <input
-                type="checkbox"
-                checked={!!rpChecklist[item]}
-                onChange={() => onToggleRpItem(item)}
-              />
+              <input type="checkbox" checked={!!rpChecklist[item]} onChange={() => onToggleRpItem(item)} />
               <span>{item}</span>
             </label>
           ))}
@@ -231,13 +293,10 @@ function KanbanCard({ card, tickingCardId, setTickingCardId, expandedRpCard, set
       {/* Progress bar for RP summary */}
       {card.isSummary && (
         <div className="kanban-card-progress">
-          <div
-            className="kanban-card-progress-fill"
-            style={{
-              width: `${(card.doneCount / card.total) * 100}%`,
-              background: isDone ? 'var(--success)' : card.doneCount === 0 ? 'var(--border)' : 'var(--warning)',
-            }}
-          />
+          <div className="kanban-card-progress-fill" style={{
+            width: `${(card.doneCount / card.total) * 100}%`,
+            background: isDone ? 'var(--success)' : card.doneCount === 0 ? 'var(--border)' : 'var(--warning)',
+          }} />
         </div>
       )}
     </div>
@@ -246,11 +305,15 @@ function KanbanCard({ card, tickingCardId, setTickingCardId, expandedRpCard, set
 
 export default function Dashboard() {
   const navigate = useNavigate()
+  const showToast = useToast()
   const [showOutstanding, setShowOutstanding] = useState(false)
-  const [tickingCardId, setTickingCardId] = useState(null)
   const [expandedRpCard, setExpandedRpCard] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [clock, setClock] = useState(new Date())
+  const [completionModal, setCompletionModal] = useState(null)
+  const [mobileTab, setMobileTab] = useState('daily')
+  const [dismissedPriorities, setDismissedPriorities] = useState([])
+  const [completedAccordion, setCompletedAccordion] = useState({})
   const prevAllDoneRef = useRef({})
 
   const [documents, , docsLoading] = useSupabase('documents', [])
@@ -268,13 +331,16 @@ export default function Dashboard() {
     return () => clearInterval(id)
   }, [])
 
+  // Today's rotation
+  const todaysCleaningStaff = getTodaysCleaningStaff()
+  const todaysRP = getTodaysRP()
+
   if (docsLoading) {
     return (
       <div className="dashboard">
         <div className="skeleton-topbar" />
-        <div className="skeleton-board">
-          <div className="skeleton-col" /><div className="skeleton-col" /><div className="skeleton-col" />
-        </div>
+        <div className="skeleton-tiles"><div className="skeleton-tile" /><div className="skeleton-tile" /><div className="skeleton-tile" /><div className="skeleton-tile" /><div className="skeleton-tile" /><div className="skeleton-tile" /></div>
+        <div className="skeleton-board"><div className="skeleton-col" /><div className="skeleton-col" /><div className="skeleton-col" /></div>
         <div className="skeleton-strip" />
       </div>
     )
@@ -340,6 +406,15 @@ export default function Dashboard() {
   })
   const totalActionItems = expiredDocs.length + dueSoon.length + overdueTraining.length + overdueCleaningTasks.length + sgDueSoon.length
 
+  // Action badge tooltip breakdown
+  const actionBreakdown = []
+  if (expiredDocs.length > 0) actionBreakdown.push(`${expiredDocs.length} expired doc${expiredDocs.length !== 1 ? 's' : ''}`)
+  if (dueSoon.length > 0) actionBreakdown.push(`${dueSoon.length} expiring soon`)
+  if (overdueCleaningTasks.length > 0) actionBreakdown.push(`${overdueCleaningTasks.length} overdue cleaning`)
+  if (overdueTraining.length > 0) actionBreakdown.push(`${overdueTraining.length} pending training`)
+  if (sgDueSoon.length > 0) actionBreakdown.push(`${sgDueSoon.length} safeguarding due`)
+  const tooltipText = actionBreakdown.join(', ')
+
   const complianceAreas = [
     { label: 'Documents', score: docScore, nav: '/documents' },
     { label: 'Training', score: staffScore, nav: '/staff-training' },
@@ -347,7 +422,7 @@ export default function Dashboard() {
     { label: 'Safeguarding', score: sgScore, nav: '/safeguarding' },
   ]
 
-  // Trend arrows — compare with last week's stored score
+  // Trend arrows
   const storedScores = JSON.parse(localStorage.getItem('ipd_weekly_scores') || '{}')
   const trends = {}
   complianceAreas.forEach(a => {
@@ -357,7 +432,6 @@ export default function Dashboard() {
     }
   })
 
-  // Store current scores weekly (once per week)
   const weekKey = `${new Date().getFullYear()}-W${Math.ceil((new Date().getTime() - new Date(new Date().getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000))}`
   if (localStorage.getItem('ipd_score_week') !== weekKey) {
     const scores = {}
@@ -365,6 +439,16 @@ export default function Dashboard() {
     localStorage.setItem('ipd_weekly_scores', JSON.stringify(scores))
     localStorage.setItem('ipd_score_week', weekKey)
   }
+
+  // Today's priorities — top 3 most urgent items
+  const priorities = []
+  overdueCleaningTasks.slice(0, 2).forEach(t => {
+    priorities.push({ id: `clean-${t.name}`, label: t.name, type: 'overdue', nav: '/cleaning?add=true' })
+  })
+  expiredDocs.slice(0, 1).forEach(d => {
+    priorities.push({ id: `doc-${d.id}`, label: d.documentName, type: 'expired', nav: '/documents' })
+  })
+  const activePriorities = priorities.filter(p => !dismissedPriorities.includes(p.id)).slice(0, 3)
 
   // Build kanban columns by frequency
   const buildColumn = (freq) => {
@@ -376,20 +460,25 @@ export default function Dashboard() {
             .filter(e => e.taskName === task.name)
             .sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime))[0]
         : null
+      const dueTime = TASK_DUE_TIMES[task.name] || null
       cards.push({
         id: `cleaning-${task.name}`,
         name: task.name,
         category: 'Cleaning',
         status: task.status,
+        assignedTo: freq === 'daily' ? todaysCleaningStaff : null,
         timestamp: latestEntry
           ? new Date(latestEntry.dateTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
           : null,
+        dueTime: freq === 'daily' ? dueTime : null,
+        dueTimeOverdue: dueTime && task.status !== 'done' && isTimePast(dueTime),
       })
     })
     const rpGroup = RP_GROUPS.find(g => g.frequency === freq)
     if (rpGroup) {
       const doneCount = rpGroup.items.filter(name => !!rpChecklist[name]).length
       const total = rpGroup.items.length
+      const rpDueTime = freq === 'daily' ? RP_DAILY_DUE_TIME : null
       cards.push({
         id: `rp-summary-${freq}`,
         name: `${rpGroup.label} RP Checks`,
@@ -399,6 +488,9 @@ export default function Dashboard() {
         doneCount,
         total,
         rpItems: rpGroup.items,
+        assignedTo: freq === 'daily' ? todaysRP : null,
+        dueTime: rpDueTime,
+        dueTimeOverdue: rpDueTime && doneCount < total && isTimePast(rpDueTime),
       })
     }
     // Sort: done cards go to bottom
@@ -425,6 +517,13 @@ export default function Dashboard() {
   const filteredWeekly = filterCards(weeklyCards)
   const filteredFortnightly = filterCards(fortnightlyCards)
 
+  // Split cards into active and completed for accordion
+  const splitCards = (cards) => {
+    const active = cards.filter(c => c.status !== 'done')
+    const completed = cards.filter(c => c.status === 'done')
+    return { active, completed }
+  }
+
   // Column progress
   const colProgress = (cards) => {
     const done = cards.filter(c => c.status === 'done').length
@@ -433,7 +532,7 @@ export default function Dashboard() {
 
   // Confetti trigger
   const triggerConfetti = (colKey) => {
-    if (prevAllDoneRef.current[colKey]) return // already celebrated
+    if (prevAllDoneRef.current[colKey]) return
     prevAllDoneRef.current[colKey] = true
     confetti({
       particleCount: 80,
@@ -443,7 +542,6 @@ export default function Dashboard() {
     })
   }
 
-  // Check if all done in each column
   const columns = [
     { key: 'daily', title: 'Today', cards: filteredToday, allCards: todayCards },
     { key: 'weekly', title: 'Weekly', cards: filteredWeekly, allCards: weeklyCards },
@@ -457,20 +555,28 @@ export default function Dashboard() {
     }
   })
 
-  // Tick-off handlers
-  const handleTickCleaning = (taskName, staffMember) => {
+  // Tick-off via completion modal
+  const handleOpenCompletion = (card) => {
+    setCompletionModal({
+      taskName: card.name,
+      assignedTo: card.assignedTo || todaysCleaningStaff,
+    })
+  }
+
+  const handleCompleteTask = (taskName, staffMember, notes) => {
     const nowDt = new Date()
     const newEntry = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       taskName,
       dateTime: nowDt.toISOString().slice(0, 16),
       staffMember,
       result: 'Pass',
-      notes: 'Completed from dashboard',
+      notes: notes || 'Completed from dashboard',
       createdAt: nowDt.toISOString(),
     }
     setCleaningEntries([...cleaningEntries, newEntry])
-    setTickingCardId(null)
+    setCompletionModal(null)
+    showToast(`${taskName} marked complete`)
   }
 
   const handleToggleRpItem = (itemName) => {
@@ -481,9 +587,9 @@ export default function Dashboard() {
       ))
     } else {
       setRpLogs([...rpLogs, {
-        id: crypto.randomUUID(),
+        id: generateId(),
         date: todayStr,
-        rpName: 'Dashboard',
+        rpName: todaysRP || 'Dashboard',
         checklist: updatedChecklist,
         notes: '',
         createdAt: new Date().toISOString(),
@@ -498,10 +604,10 @@ export default function Dashboard() {
     cards.forEach(card => {
       if (card.category === 'Cleaning' && card.status !== 'done') {
         newEntries.push({
-          id: crypto.randomUUID(),
+          id: generateId(),
           taskName: card.name,
           dateTime: nowDt.toISOString().slice(0, 16),
-          staffMember: staffMembers[0] || 'Staff',
+          staffMember: todaysCleaningStaff || staffMembers[0] || 'Staff',
           result: 'Pass',
           notes: 'Bulk completed from dashboard',
           createdAt: nowDt.toISOString(),
@@ -518,7 +624,6 @@ export default function Dashboard() {
     if (newEntries.length > 0) {
       setCleaningEntries([...cleaningEntries, ...newEntries])
     }
-    // Update RP checklist
     const rpCards = cards.filter(c => c.category === 'RP Check' && c.rpItems)
     if (rpCards.length > 0) {
       const updatedChecklist = { ...rpChecklist }
@@ -529,23 +634,45 @@ export default function Dashboard() {
         ))
       } else {
         setRpLogs([...rpLogs, {
-          id: crypto.randomUUID(),
+          id: generateId(),
           date: todayStr,
-          rpName: 'Dashboard',
+          rpName: todaysRP || 'Dashboard',
           checklist: updatedChecklist,
           notes: '',
           createdAt: new Date().toISOString(),
         }])
       }
     }
+    showToast('All tasks marked complete')
   }
+
+  // Last updated timestamp
+  const lastUpdated = clock.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+
+  // Tile data
+  const dailyDueCount = taskStatuses.filter(t => t.frequency === 'daily' && (t.status === 'due' || t.status === 'overdue')).length
+  const docsExpiring = documents.filter(d => { const tl = getTrafficLight(d.expiryDate); return tl === 'red' || tl === 'amber' }).length
+  const trainingOverdue = overdueTraining.length
+  const tempLoggedToday = tempLogs.some(l => l.date === todayStr)
+  const allRpItems = [...RP_DAILY, ...RP_WEEKLY, ...RP_FORTNIGHTLY]
+  const rpDoneCount = allRpItems.filter(item => !!rpChecklist[item]).length
+  const rpComplete = rpDoneCount === allRpItems.length
+
+  const tiles = [
+    { key: 'cleaning', icon: TILE_ICONS.cleaning, title: 'Cleaning Rota', stat: `${dailyDueCount} due today`, nav: '/cleaning', cls: 'tile--green', pct: cleaningScore, warn: dailyDueCount > 0 },
+    { key: 'documents', icon: TILE_ICONS.documents, title: 'Documents', stat: `${docsExpiring} expiring`, nav: '/documents', cls: 'tile--blue', pct: docScore, warn: docsExpiring > 0 },
+    { key: 'training', icon: TILE_ICONS.training, title: 'Staff Training', stat: `${trainingOverdue} overdue`, nav: '/staff-training', cls: 'tile--purple', pct: staffScore, warn: trainingOverdue > 0 },
+    { key: 'safeguarding', icon: TILE_ICONS.safeguarding, title: 'Safeguarding', stat: `${sgScore}% compliant`, nav: '/safeguarding', cls: 'tile--teal', pct: sgScore, warn: sgScore < 100 },
+    { key: 'temperature', icon: TILE_ICONS.temperature, title: 'Temp Log', stat: tempLoggedToday ? 'LOGGED' : 'NOT YET', statOk: tempLoggedToday, nav: '/temperature', cls: 'tile--orange', pct: tempLoggedToday ? 100 : 0, warn: !tempLoggedToday },
+    { key: 'rplog', icon: TILE_ICONS.rplog, title: 'RP Log', stat: rpComplete ? 'COMPLETE' : 'NOT YET', statOk: rpComplete, nav: '/rp-log', cls: 'tile--rose', pct: allRpItems.length > 0 ? Math.round((rpDoneCount / allRpItems.length) * 100) : 100, warn: !rpComplete },
+  ]
 
   return (
     <div className="dashboard">
       {/* === TOP BAR === */}
       <div className="dash-topbar no-print">
         <div className="dash-topbar-left">
-          <h1 className="dash-topbar-greeting">{getGreeting()}</h1>
+          <h1 className="dash-topbar-greeting">{getGreeting()}, Salma</h1>
           <p className="dash-topbar-date">
             {clock.toLocaleDateString('en-GB', {
               weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
@@ -561,6 +688,7 @@ export default function Dashboard() {
             <button
               className="dash-topbar-badge dash-topbar-badge--action dash-pulse"
               onClick={() => setShowOutstanding(!showOutstanding)}
+              title={tooltipText}
             >
               <span className="dash-topbar-badge-count">{totalActionItems}</span>
               <span className="dash-topbar-badge-label">Action{totalActionItems !== 1 ? 's' : ''} needed</span>
@@ -568,8 +696,7 @@ export default function Dashboard() {
           ) : (
             <span className="dash-topbar-badge dash-topbar-badge--clear">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16">
-                <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
-                <polyline points="22 4 12 14.01 9 11.01" />
+                <path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
               </svg>
               All Clear
             </span>
@@ -577,6 +704,7 @@ export default function Dashboard() {
         </div>
 
         <div className="dash-topbar-right">
+          <span className="dash-topbar-synced">Updated {lastUpdated}</span>
           <ProgressRing pct={overallScore} />
           <button className="btn btn--ghost btn--sm" onClick={() => window.print()} title="Print compliance report">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
@@ -588,48 +716,58 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* === TODAY'S PRIORITIES STRIP === */}
+      {activePriorities.length > 0 && (
+        <div className="dash-priorities no-print">
+          <span className="dash-priorities-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            Priorities
+          </span>
+          {activePriorities.map(p => (
+            <button key={p.id} className={`dash-priority-chip dash-priority-chip--${p.type}`} onClick={() => navigate(p.nav)}>
+              {p.label}
+              <span className="dash-priority-dismiss" onClick={(e) => { e.stopPropagation(); setDismissedPriorities(prev => [...prev, p.id]) }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12">
+                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* === QUICK-NAV TILE GRID === */}
-      {(() => {
-        const dailyDueCount = taskStatuses.filter(t => t.frequency === 'daily' && (t.status === 'due' || t.status === 'overdue')).length
-        const docsExpiring = documents.filter(d => { const tl = getTrafficLight(d.expiryDate); return tl === 'red' || tl === 'amber' }).length
-        const trainingOverdue = overdueTraining.length
-        const tempLoggedToday = tempLogs.some(l => l.date === todayStr)
-        const allRpItems = [...RP_DAILY, ...RP_WEEKLY, ...RP_FORTNIGHTLY]
-        const rpDoneCount = allRpItems.filter(item => !!rpChecklist[item]).length
-        const rpComplete = rpDoneCount === allRpItems.length
-
-        const tiles = [
-          { icon: '🧹', title: 'Cleaning Rota', stat: `${dailyDueCount} due today`, nav: '/cleaning', cls: 'tile--green' },
-          { icon: '📄', title: 'Documents', stat: `${docsExpiring} expiring`, nav: '/documents', cls: 'tile--blue' },
-          { icon: '👥', title: 'Staff Training', stat: `${trainingOverdue} overdue`, nav: '/staff-training', cls: 'tile--purple' },
-          { icon: '🛡️', title: 'Safeguarding', stat: `${sgScore}% compliant`, nav: '/safeguarding', cls: 'tile--teal' },
-          { icon: '🌡️', title: 'Temp Log', stat: tempLoggedToday ? 'YES' : 'NOT YET', statOk: tempLoggedToday, nav: '/temperature', cls: 'tile--orange' },
-          { icon: '📋', title: 'RP Log', stat: rpComplete ? 'YES' : 'NOT YET', statOk: rpComplete, nav: '/rp-log', cls: 'tile--rose' },
-        ]
-
-        return (
-          <div className="dash-tiles no-print">
-            {tiles.map(t => (
-              <button key={t.title} className={`dash-tile ${t.cls}`} onClick={() => navigate(t.nav)}>
-                <span className="dash-tile-icon">{t.icon}</span>
-                <div className="dash-tile-content">
-                  <span className="dash-tile-title">{t.title}</span>
-                  <span className={`dash-tile-stat ${t.statOk === true ? 'dash-tile-stat--ok' : ''} ${t.statOk === false ? 'dash-tile-stat--warn' : ''}`}>
-                    {t.stat}
-                  </span>
-                </div>
-                <span className="dash-tile-arrow">&rarr;</span>
-              </button>
-            ))}
-          </div>
-        )
-      })()}
+      <div className="dash-tiles no-print">
+        {tiles.map((t, i) => (
+          <button
+            key={t.key}
+            className={`dash-tile ${t.cls} ${t.warn && !t.statOk ? 'dash-tile--shimmer' : ''}`}
+            onClick={() => navigate(t.nav)}
+            style={{ animationDelay: `${i * 100}ms` }}
+          >
+            <span className="dash-tile-icon">{t.icon}</span>
+            <div className="dash-tile-content">
+              <span className="dash-tile-title">{t.title}</span>
+              <span className={`dash-tile-stat ${t.statOk === true ? 'dash-tile-stat--ok' : ''} ${t.statOk === false ? 'dash-tile-stat--warn' : ''}`}>
+                {t.stat}
+              </span>
+            </div>
+            <span className="dash-tile-arrow">&rarr;</span>
+            {/* Progress bar along bottom */}
+            <div className="dash-tile-progress">
+              <div className="dash-tile-progress-fill" style={{ width: `${t.pct}%` }} />
+            </div>
+          </button>
+        ))}
+      </div>
 
       {/* === SEARCH BAR === */}
       <div className="dash-search no-print">
         <svg className="dash-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
-          <circle cx="11" cy="11" r="8" />
-          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
         <input
           type="text"
@@ -647,54 +785,97 @@ export default function Dashboard() {
         )}
       </div>
 
+      {/* === MOBILE TAB BAR === */}
+      <div className="kanban-tabs no-print">
+        {columns.map(col => (
+          <button
+            key={col.key}
+            className={`kanban-tab ${mobileTab === col.key ? 'kanban-tab--active' : ''}`}
+            onClick={() => setMobileTab(col.key)}
+          >
+            {col.title}
+            <span className="kanban-tab-count">{col.cards.length}</span>
+          </button>
+        ))}
+      </div>
+
       {/* === KANBAN BOARD === */}
       <div className="kanban-board no-print">
         {columns.map(col => {
           const prog = colProgress(col.allCards)
           const allDone = prog.total > 0 && prog.done === prog.total
+          const { active, completed } = splitCards(col.cards)
+          const accordionOpen = !!completedAccordion[col.key]
           return (
-            <div key={col.key} className="kanban-column">
-              <div className="kanban-column-header">
+            <div key={col.key} className={`kanban-column ${mobileTab === col.key ? 'kanban-column--mobile-active' : ''}`}>
+              <div className="kanban-column-header kanban-column-header--sticky">
                 <span className="kanban-column-title">{col.title}</span>
                 <span className="kanban-column-count">{col.cards.length}</span>
                 {!allDone && prog.total > 0 && (
-                  <button
-                    className="kanban-markall-btn"
-                    onClick={() => handleMarkAllDone(col.allCards)}
-                    title="Mark all done"
-                  >
-                    ✓ All
+                  <button className="kanban-markall-btn" onClick={() => handleMarkAllDone(col.allCards)} title="Mark all done">
+                    &#10003; All
                   </button>
                 )}
               </div>
               {/* Column progress bar */}
               <div className="kanban-col-progress">
-                <div
-                  className="kanban-col-progress-fill"
-                  style={{
-                    width: prog.total > 0 ? `${(prog.done / prog.total) * 100}%` : '0%',
-                    background: allDone ? 'var(--success)' : prog.done > 0 ? 'var(--warning)' : 'var(--border)',
-                  }}
-                />
+                <div className="kanban-col-progress-fill" style={{
+                  width: prog.total > 0 ? `${(prog.done / prog.total) * 100}%` : '0%',
+                  background: allDone ? 'var(--success)' : prog.done > 0 ? 'var(--warning)' : 'var(--border)',
+                }} />
               </div>
               <div className="kanban-cards">
-                {col.cards.length === 0 ? (
+                {allDone ? (
+                  <div className="kanban-all-done">
+                    <svg className="kanban-all-done-icon" viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2.5" width="32" height="32">
+                      <path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                    <span className="kanban-all-done-text">All done!</span>
+                  </div>
+                ) : active.length === 0 && completed.length === 0 ? (
                   <p className="kanban-empty">{searchTerm ? 'No matches' : 'No tasks'}</p>
                 ) : (
-                  col.cards.map(card => (
-                    <KanbanCard
-                      key={card.id}
-                      card={card}
-                      tickingCardId={tickingCardId}
-                      setTickingCardId={setTickingCardId}
-                      expandedRpCard={expandedRpCard}
-                      setExpandedRpCard={setExpandedRpCard}
-                      staffMembers={staffMembers}
-                      onTickCleaning={handleTickCleaning}
-                      rpChecklist={rpChecklist}
-                      onToggleRpItem={handleToggleRpItem}
-                    />
-                  ))
+                  <>
+                    {active.map(card => (
+                      <KanbanCard
+                        key={card.id}
+                        card={card}
+                        onOpenCompletion={handleOpenCompletion}
+                        expandedRpCard={expandedRpCard}
+                        setExpandedRpCard={setExpandedRpCard}
+                        rpChecklist={rpChecklist}
+                        onToggleRpItem={handleToggleRpItem}
+                      />
+                    ))}
+                  </>
+                )}
+                {/* Completed accordion */}
+                {completed.length > 0 && !allDone && (
+                  <div className="kanban-completed-accordion">
+                    <button
+                      className="kanban-completed-toggle"
+                      onClick={() => setCompletedAccordion(prev => ({ ...prev, [col.key]: !prev[col.key] }))}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2.5" width="14" height="14">
+                        <path d="M20 6L9 17l-5-5" />
+                      </svg>
+                      Completed ({completed.length})
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14" className={`kanban-accordion-chevron ${accordionOpen ? 'kanban-accordion-chevron--open' : ''}`}>
+                        <polyline points="6 9 12 15 18 9" />
+                      </svg>
+                    </button>
+                    {accordionOpen && completed.map(card => (
+                      <KanbanCard
+                        key={card.id}
+                        card={card}
+                        onOpenCompletion={handleOpenCompletion}
+                        expandedRpCard={expandedRpCard}
+                        setExpandedRpCard={setExpandedRpCard}
+                        rpChecklist={rpChecklist}
+                        onToggleRpItem={handleToggleRpItem}
+                      />
+                    ))}
+                  </div>
                 )}
               </div>
             </div>
@@ -713,7 +894,7 @@ export default function Dashboard() {
                 {item.label}
                 {trends[item.label] && (
                   <span className={`trend-arrow trend-arrow--${trends[item.label]}`}>
-                    {trends[item.label] === 'up' ? '↑' : '↓'}
+                    {trends[item.label] === 'up' ? '\u2191' : '\u2193'}
                   </span>
                 )}
               </>
@@ -781,13 +962,18 @@ export default function Dashboard() {
                 <span className="outstanding-dot outstanding-dot--red" />
                 Pending Staff Training
               </h3>
-              {overdueTraining.map(e => (
+              {overdueTraining.slice(0, 10).map(e => (
                 <button key={e.id} className="outstanding-item" onClick={() => navigate('/staff-training')}>
                   <span className="outstanding-item-name">{e.staffName}</span>
                   <span className="outstanding-item-freq">{e.trainingItem}</span>
                   <span className="outstanding-item-badge outstanding-item-badge--overdue">Pending</span>
                 </button>
               ))}
+              {overdueTraining.length > 10 && (
+                <button className="outstanding-item" onClick={() => navigate('/staff-training')}>
+                  <span className="outstanding-item-name">+ {overdueTraining.length - 10} more</span>
+                </button>
+              )}
             </div>
           )}
           {sgDueSoon.length > 0 && (
@@ -842,7 +1028,7 @@ export default function Dashboard() {
             <tbody>
               {[...todayCards, ...weeklyCards, ...fortnightlyCards].map(c => (
                 <tr key={c.id}>
-                  <td>{c.status === 'done' ? '☑' : '☐'}</td>
+                  <td>{c.status === 'done' ? '\u2611' : '\u2610'}</td>
                   <td>{c.name}</td>
                   <td>{c.category}</td>
                   <td>{c.status === 'done' ? 'Done' : c.status === 'overdue' ? 'Overdue' : 'Due'}</td>
@@ -917,6 +1103,16 @@ export default function Dashboard() {
           </table>
         </div>
       </div>
+
+      {/* Completion Modal */}
+      <CompletionModal
+        open={!!completionModal}
+        taskName={completionModal?.taskName || ''}
+        assignedTo={completionModal?.assignedTo || ''}
+        staffMembers={staffMembers}
+        onSubmit={handleCompleteTask}
+        onClose={() => setCompletionModal(null)}
+      />
     </div>
   )
 }
