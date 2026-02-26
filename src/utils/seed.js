@@ -16,6 +16,11 @@ export function cleanupOldLocalStorage() {
   ORPHANED_KEYS.forEach((k) => localStorage.removeItem(k))
 }
 
+// Remove renamed/stale tasks that may linger from broken earlier seeds
+export async function cleanupStaleData() {
+  await supabase.from('cleaning_tasks').delete().eq('name', 'Straighten Up Stock')
+}
+
 export async function seedIfNeeded() {
   if (localStorage.getItem(SEED_KEY)) return
 
