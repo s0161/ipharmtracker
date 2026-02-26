@@ -86,7 +86,7 @@ export const DEFAULT_CLEANING_TASKS = [
   { name: 'Consultation Room Clean', frequency: 'weekly' },
   // Fortnightly
   { name: 'Fridge Quick Clean', frequency: 'fortnightly' },
-  { name: 'Straighten Up Stock', frequency: 'fortnightly' },
+  { name: 'Straighten Up Fridge Stock', frequency: 'fortnightly' },
   // Monthly
   { name: 'Deep Fridge Clean', frequency: 'monthly' },
 ]
