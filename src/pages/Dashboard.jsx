@@ -875,7 +875,8 @@ export default function Dashboard() {
           )}
         </div>
         <form className="dash-actions-add" onSubmit={addAction}>
-          <input type="text" className="input" placeholder="+ Add action..." value={actionInput} onChange={(e) => setActionInput(e.target.value)} />
+          <span className="dash-actions-add-icon">+</span>
+          <input type="text" className="input" placeholder="Add new action..." value={actionInput} onChange={(e) => setActionInput(e.target.value)} />
           <input type="date" className="input dash-actions-date" value={actionDueDate} onChange={(e) => setActionDueDate(e.target.value)} />
           <button type="submit" className="btn btn--primary btn--sm">Add</button>
         </form>
