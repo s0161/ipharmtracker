@@ -1486,121 +1486,88 @@ button.kanban-card {
 .trend-arrow--up { color: var(--success); }
 .trend-arrow--down { color: var(--danger); }
 
-/* ── Important Actions Section ────────────────── */
+/* ── Important Actions ────────────────────────── */
 .dash-actions-section {
   background: var(--bg-card);
   border: 1px solid var(--border-light);
-  border-left: 3px solid var(--primary);
   border-radius: var(--radius);
-  padding: 0.6rem 0.85rem;
-  margin-top: 0.75rem;
+  padding: 0.45rem 0.7rem;
+  margin-top: 0.6rem;
+}
+
+.dash-actions-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.2rem;
 }
 
 .dash-actions-title {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.3rem;
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 600;
-  margin-bottom: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  color: var(--primary);
+  margin: 0;
 }
 
-.dash-actions-title svg {
-  width: 14px;
-  height: 14px;
-}
+.dash-actions-title svg { width: 12px; height: 12px; }
 
 .dash-actions-count {
   background: var(--primary);
   color: #fff;
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 700;
-  padding: 0.05rem 0.4rem;
-  border-radius: 10px;
-  min-width: 16px;
+  padding: 0 0.35rem;
+  border-radius: 8px;
+  min-width: 14px;
   text-align: center;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
-.dash-actions-add {
-  display: flex;
-  gap: 0.35rem;
-  margin-bottom: 0.35rem;
-}
-
-.dash-actions-add .input {
-  padding: 0.3rem 0.5rem;
-  font-size: 0.78rem;
-  height: auto;
-}
-
-.dash-actions-add .input:first-child {
-  flex: 1;
-}
-
-.dash-actions-add .btn {
-  padding: 0.3rem 0.65rem;
-  font-size: 0.75rem;
-}
-
-.dash-actions-date {
-  width: 120px;
-  font-size: 0.78rem;
-}
-
-.dash-actions-empty {
-  font-size: 0.78rem;
+.dash-actions-done-count {
+  font-size: 0.65rem;
   color: var(--text-secondary);
-  text-align: center;
-  padding: 0.3rem 0;
+}
+
+.dash-actions-list {
+  display: flex;
+  flex-direction: column;
 }
 
 .dash-action-item {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.28rem 0;
-  border-bottom: 1px solid var(--border-light);
+  gap: 0.3rem;
+  padding: 0.2rem 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-light) 50%, transparent);
 }
 
-.dash-action-item:last-child {
-  border-bottom: none;
-}
+.dash-action-item:last-child { border-bottom: none; }
 
 .dash-action-check {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 1px;
-  color: var(--text-secondary);
+  padding: 0;
+  color: var(--border);
   flex-shrink: 0;
   transition: color 0.15s;
-}
-
-.dash-action-check svg {
-  width: 14px;
-  height: 14px;
-}
-
-.dash-action-check:hover {
-  color: var(--success);
-}
-
-.dash-action-body {
-  flex: 1;
   display: flex;
-  align-items: baseline;
-  gap: 0.4rem;
-  min-width: 0;
 }
+
+.dash-action-check svg { width: 13px; height: 13px; }
+.dash-action-check:hover { color: var(--success); }
 
 .dash-action-title {
-  font-size: 0.8rem;
+  flex: 1;
+  font-size: 0.76rem;
   font-weight: 500;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1609,66 +1576,82 @@ button.kanban-card {
 .dash-action-title--done {
   text-decoration: line-through;
   color: var(--text-secondary);
-  font-size: 0.78rem;
+  font-weight: 400;
 }
 
 .dash-action-due {
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   color: var(--text-secondary);
   white-space: nowrap;
   flex-shrink: 0;
+  background: var(--bg-secondary);
+  padding: 0.05rem 0.3rem;
+  border-radius: 4px;
 }
 
 .dash-action-due--overdue {
   color: var(--danger);
   font-weight: 600;
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
 }
 
 .dash-action-delete {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 2px;
+  padding: 0;
   color: var(--text-secondary);
   opacity: 0;
   flex-shrink: 0;
   transition: opacity 0.15s, color 0.15s;
+  display: flex;
 }
 
-.dash-action-item:hover .dash-action-delete {
-  opacity: 0.5;
-}
+.dash-action-delete svg { width: 11px; height: 11px; }
+.dash-action-item:hover .dash-action-delete { opacity: 0.5; }
+.dash-action-delete:hover { opacity: 1 !important; color: var(--danger); }
 
-.dash-action-delete:hover {
-  opacity: 1 !important;
-  color: var(--danger);
-}
+.dash-action-item--done { opacity: 0.5; }
 
-.dash-action-item--done {
-  opacity: 0.6;
-}
-
-.dash-actions-done {
-  margin-top: 0.25rem;
-}
-
-.dash-actions-done summary {
+.dash-actions-empty {
   font-size: 0.72rem;
   color: var(--text-secondary);
-  cursor: pointer;
-  padding: 0.15rem 0;
+  text-align: center;
+  padding: 0.2rem 0;
+  margin: 0;
+}
+
+.dash-actions-add {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 0.3rem;
+  padding-top: 0.3rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.dash-actions-add .input {
+  padding: 0.22rem 0.4rem;
+  font-size: 0.72rem;
+  height: auto;
+  border-color: var(--border-light);
+}
+
+.dash-actions-add .input:first-child { flex: 1; }
+
+.dash-actions-add .btn {
+  padding: 0.22rem 0.5rem;
+  font-size: 0.68rem;
+}
+
+.dash-actions-date {
+  width: 105px;
+  font-size: 0.72rem;
 }
 
 @media (max-width: 600px) {
-  .dash-actions-add {
-    flex-wrap: wrap;
-  }
-  .dash-actions-date {
-    width: 100%;
-  }
-  .dash-action-delete {
-    opacity: 0.4;
-  }
+  .dash-actions-add { flex-wrap: wrap; }
+  .dash-actions-date { width: 100%; }
+  .dash-action-delete { opacity: 0.4; }
 }
 
 .kanban-empty {
