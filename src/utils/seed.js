@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { generateId } from './helpers'
 
-const SEED_KEY = 'ipd_seeded_v20'
+const SEED_KEY = 'ipd_seeded_v22'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -10,7 +10,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded_v4', 'ipd_seeded_v5', 'ipd_seeded_v6',
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
   'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13', 'ipd_seeded_v14', 'ipd_seeded_v15', 'ipd_seeded_v16',
-  'ipd_seeded_v17', 'ipd_seeded_v18', 'ipd_seeded_v19',
+  'ipd_seeded_v17', 'ipd_seeded_v18', 'ipd_seeded_v19', 'ipd_seeded_v20', 'ipd_seeded_v21',
 ]
 
 export function cleanupOldLocalStorage() {
@@ -161,6 +161,16 @@ export async function seedIfNeeded() {
       issue_date: '2025-10-01',
       expiry_date: '2026-10-01',
       notes: 'Annual renewal — due October 2026. GPhC premises registration and membership fee.',
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: generateId(),
+      document_name: 'Full Pharmacy Audit',
+      category: 'SOP',
+      owner: 'Amjid Shakoor',
+      issue_date: '2025-12-01',
+      expiry_date: '2026-06-01',
+      notes: 'Six-monthly full pharmacy audit — next due June 2026. Covers dispensing, CDs, fridge, premises, SOPs, staff training records.',
       created_at: new Date().toISOString(),
     },
   ]
@@ -405,8 +415,32 @@ export async function seedIfNeeded() {
     { id: generateId(), staff_name: 'Jamila Adwan', job_title: 'Pharmacy Technician', training_date: '2026-01-10', ...sgDefaults },
   ]
 
+  // Action items (dashboard to-do list)
+  const actionItems = [
+    {
+      id: generateId(),
+      title: 'Chase up patient feedback',
+      due_date: '2026-03-06',
+      completed: false,
+      created_at: '2026-02-27T09:00:00.000Z',
+    },
+    {
+      id: generateId(),
+      title: 'Chase up website',
+      due_date: '2026-03-06',
+      completed: false,
+      created_at: '2026-02-27T09:00:00.000Z',
+    },
+    {
+      id: generateId(),
+      title: 'Parking bay council request',
+      due_date: '2026-03-06',
+      completed: false,
+      created_at: '2026-02-27T09:00:00.000Z',
+    },
+  ]
+
   // Clear old seed data before re-inserting
-  // Clear all seeded tables before re-inserting
   await Promise.allSettled([
     supabase.from('cleaning_tasks').delete().neq('name', ''),
     supabase.from('cleaning_entries').delete().neq('id', ''),
@@ -417,6 +451,7 @@ export async function seedIfNeeded() {
     supabase.from('rp_log').delete().neq('id', ''),
     supabase.from('training_topics').delete().neq('name', ''),
     supabase.from('training_logs').delete().neq('id', ''),
+    supabase.from('action_items').delete().neq('id', ''),
   ])
 
   // Insert into Supabase tables
@@ -429,6 +464,7 @@ export async function seedIfNeeded() {
     supabase.from('safeguarding_records').insert(safeguarding),
     supabase.from('training_topics').insert(trainingTopics.map((name) => ({ name }))),
     supabase.from('training_logs').insert(trainingLogs),
+    supabase.from('action_items').insert(actionItems),
   ]
 
   const results = await Promise.allSettled(inserts)

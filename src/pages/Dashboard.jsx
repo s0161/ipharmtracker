@@ -336,6 +336,8 @@ export default function Dashboard() {
   const [dismissedPriorities, setDismissedPriorities] = useState([])
   const [completedAccordion, setCompletedAccordion] = useState({})
   const [collapsedCols, setCollapsedCols] = useState({})
+  const [actionInput, setActionInput] = useState('')
+  const [actionDueDate, setActionDueDate] = useState('')
   const prevAllDoneRef = useRef({})
   const touchStartX = useRef(null)
 
@@ -347,6 +349,7 @@ export default function Dashboard() {
   const [rpLogs, setRpLogs] = useSupabase('rp_log', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const [tempLogs] = useSupabase('temperature_logs', [])
+  const [actionItems, setActionItems] = useSupabase('action_items', [])
 
   // Live clock
   useEffect(() => {
@@ -696,6 +699,41 @@ export default function Dashboard() {
     showToast('All tasks marked complete')
   }
 
+  // Action items helpers
+  const addAction = (e) => {
+    e.preventDefault()
+    const title = actionInput.trim()
+    if (!title) return
+    setActionItems([...actionItems, {
+      id: generateId(),
+      title,
+      dueDate: actionDueDate || '',
+      completed: false,
+      createdAt: new Date().toISOString(),
+    }])
+    setActionInput('')
+    setActionDueDate('')
+    showToast('Action added')
+  }
+
+  const toggleAction = (id) => {
+    setActionItems(actionItems.map(a =>
+      a.id === id ? { ...a, completed: !a.completed } : a
+    ))
+  }
+
+  const deleteAction = (id) => {
+    setActionItems(actionItems.filter(a => a.id !== id))
+  }
+
+  const pendingActions = actionItems.filter(a => !a.completed).sort((a, b) => {
+    if (a.dueDate && b.dueDate) return a.dueDate.localeCompare(b.dueDate)
+    if (a.dueDate) return -1
+    if (b.dueDate) return 1
+    return 0
+  })
+  const doneActions = actionItems.filter(a => a.completed)
+
   // Last updated timestamp
   const lastUpdated = clock.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
 
@@ -952,6 +990,78 @@ export default function Dashboard() {
             onClick={() => navigate(item.nav)}
           />
         ))}
+      </div>
+
+      {/* === IMPORTANT ACTIONS === */}
+      <div className="dash-actions-section no-print">
+        <h3 className="dash-actions-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+            <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
+          </svg>
+          Important Actions
+          {pendingActions.length > 0 && <span className="dash-actions-count">{pendingActions.length}</span>}
+        </h3>
+        <form className="dash-actions-add" onSubmit={addAction}>
+          <input
+            type="text"
+            className="input"
+            placeholder="Add an action item..."
+            value={actionInput}
+            onChange={(e) => setActionInput(e.target.value)}
+          />
+          <input
+            type="date"
+            className="input dash-actions-date"
+            value={actionDueDate}
+            onChange={(e) => setActionDueDate(e.target.value)}
+          />
+          <button type="submit" className="btn btn--primary btn--sm">Add</button>
+        </form>
+        {pendingActions.length === 0 && doneActions.length === 0 && (
+          <p className="dash-actions-empty">No action items yet.</p>
+        )}
+        {pendingActions.map(a => (
+          <div key={a.id} className="dash-action-item">
+            <button className="dash-action-check" onClick={() => toggleAction(a.id)} aria-label="Mark done">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+                <circle cx="12" cy="12" r="10" />
+              </svg>
+            </button>
+            <div className="dash-action-body">
+              <span className="dash-action-title">{a.title}</span>
+              {a.dueDate && (
+                <span className={`dash-action-due ${a.dueDate < todayStr ? 'dash-action-due--overdue' : ''}`}>
+                  {a.dueDate < todayStr ? 'Overdue' : 'Due'} {formatDate(a.dueDate)}
+                </span>
+              )}
+            </div>
+            <button className="dash-action-delete" onClick={() => deleteAction(a.id)} aria-label="Delete">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+        ))}
+        {doneActions.length > 0 && (
+          <details className="dash-actions-done">
+            <summary>Completed ({doneActions.length})</summary>
+            {doneActions.map(a => (
+              <div key={a.id} className="dash-action-item dash-action-item--done">
+                <button className="dash-action-check dash-action-check--done" onClick={() => toggleAction(a.id)} aria-label="Undo">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2.5" width="16" height="16">
+                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+                  </svg>
+                </button>
+                <span className="dash-action-title dash-action-title--done">{a.title}</span>
+                <button className="dash-action-delete" onClick={() => deleteAction(a.id)} aria-label="Delete">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+                    <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
+            ))}
+          </details>
+        )}
       </div>
 
       {/* === OUTSTANDING SECTION === */}
