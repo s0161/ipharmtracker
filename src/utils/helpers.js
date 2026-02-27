@@ -88,6 +88,7 @@ export const DEFAULT_CLEANING_TASKS = [
   { name: 'Extra Stock Away in Robot', frequency: 'weekly' },
   { name: 'Robot Maintenance', frequency: 'weekly' },
   { name: 'Consultation Room Clean', frequency: 'weekly' },
+  { name: 'CD Balance Check', frequency: 'weekly' },
   // Fortnightly
   { name: 'Fridge Quick Clean', frequency: 'fortnightly' },
   { name: 'Straighten Up Fridge Stock', frequency: 'fortnightly' },

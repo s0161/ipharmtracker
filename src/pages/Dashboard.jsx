@@ -48,6 +48,7 @@ const RP_WEEKLY = [
   'RP absent period recorded (if applicable)',
   'Near-miss log reviewed',
   'Dispensing area clean and tidy',
+  'CD balance checked',
 ]
 const RP_FORTNIGHTLY = [
   'Date checking completed',

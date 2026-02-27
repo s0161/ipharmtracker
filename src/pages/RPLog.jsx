@@ -18,6 +18,7 @@ const WEEKLY_ITEMS = [
   'RP absent period recorded (if applicable)',
   'Near-miss log reviewed',
   'Dispensing area clean and tidy',
+  'CD balance checked',
 ]
 
 const FORTNIGHTLY_ITEMS = [

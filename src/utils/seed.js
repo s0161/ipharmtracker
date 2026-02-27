@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { generateId } from './helpers'
 
-const SEED_KEY = 'ipd_seeded_v19'
+const SEED_KEY = 'ipd_seeded_v20'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -10,7 +10,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded_v4', 'ipd_seeded_v5', 'ipd_seeded_v6',
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
   'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13', 'ipd_seeded_v14', 'ipd_seeded_v15', 'ipd_seeded_v16',
-  'ipd_seeded_v17', 'ipd_seeded_v18',
+  'ipd_seeded_v17', 'ipd_seeded_v18', 'ipd_seeded_v19',
 ]
 
 export function cleanupOldLocalStorage() {
@@ -60,6 +60,7 @@ export async function seedIfNeeded() {
     { name: 'Extra Stock Away in Robot', frequency: 'weekly' },
     { name: 'Robot Maintenance', frequency: 'weekly' },
     { name: 'Consultation Room Clean', frequency: 'weekly' },
+    { name: 'CD Balance Check', frequency: 'weekly' },
     // Fortnightly
     { name: 'Fridge Quick Clean', frequency: 'fortnightly' },
     { name: 'Straighten Up Fridge Stock', frequency: 'fortnightly' },
@@ -140,6 +141,26 @@ export async function seedIfNeeded() {
       issue_date: '2025-09-05',
       expiry_date: '2026-09-05',
       notes: 'Contractor: Heytor Fire Protection, 109 Hyde Road, Denton, Manchester, M34 3BB. Contact: Chris Holt (Owner) — 07745717420. Certificate #2025-296. Standard: BS 5306/3. Both extinguishers commissioned — working codes confirmed.',
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: generateId(),
+      document_name: 'Pharmacist Registration Renewal',
+      category: 'Registration',
+      owner: 'Amjid Shakoor',
+      issue_date: '2025-10-01',
+      expiry_date: '2026-10-01',
+      notes: 'Annual renewal — due October 2026. GPhC pharmacist registration for Amjid Shakoor.',
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: generateId(),
+      document_name: 'GPhC Membership Renewal',
+      category: 'Registration',
+      owner: 'Amjid Shakoor',
+      issue_date: '2025-10-01',
+      expiry_date: '2026-10-01',
+      notes: 'Annual renewal — due October 2026. GPhC premises registration and membership fee.',
       created_at: new Date().toISOString(),
     },
   ]
