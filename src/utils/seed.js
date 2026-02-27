@@ -438,6 +438,13 @@ export async function seedIfNeeded() {
       completed: false,
       created_at: '2026-02-27T09:00:00.000Z',
     },
+    {
+      id: generateId(),
+      title: 'Chase up medicinal waste documents',
+      due_date: '2026-03-06',
+      completed: false,
+      created_at: '2026-02-27T09:00:00.000Z',
+    },
   ]
 
   // Clear old seed data before re-inserting

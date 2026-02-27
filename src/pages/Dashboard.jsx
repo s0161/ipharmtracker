@@ -353,6 +353,7 @@ export default function Dashboard() {
     { id: 'default-1', title: 'Chase up patient feedback', dueDate: '2026-03-06', completed: false, createdAt: '2026-02-27T09:00:00.000Z' },
     { id: 'default-2', title: 'Chase up website', dueDate: '2026-03-06', completed: false, createdAt: '2026-02-27T09:00:00.000Z' },
     { id: 'default-3', title: 'Parking bay council request', dueDate: '2026-03-06', completed: false, createdAt: '2026-02-27T09:00:00.000Z' },
+    { id: 'default-4', title: 'Chase up medicinal waste documents', dueDate: '2026-03-06', completed: false, createdAt: '2026-02-27T09:00:00.000Z' },
   ])
 
   // Live clock
