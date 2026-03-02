@@ -1,4 +1,8 @@
 // Extracted components — more will be added as the refactor continues
+export { default as ActionCounter } from './ActionCounter'
+export { default as AlertBanner } from './AlertBanner'
 export { default as CompletionModal } from './CompletionModal'
+export { default as ComplianceCards } from './ComplianceCards'
 export { default as KanbanCard } from './KanbanCard'
 export { default as ProgressRing } from './ProgressRing'
+export { default as QuickLinks } from './QuickLinks'
