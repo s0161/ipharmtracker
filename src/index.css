@@ -1228,6 +1228,8 @@ a:hover {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  max-height: 480px;
+  overflow-y: auto;
 }
 
 .kanban-card {
@@ -1247,6 +1249,25 @@ a:hover {
 .kanban-card--overdue { border-left-color: var(--danger); }
 .kanban-card--due { border-left-color: var(--warning); }
 .kanban-card--done { border-left-color: var(--success); }
+
+/* Urgency highlighting on kanban cards */
+.kanban-card--urgent-overdue {
+  border-left: 3px solid var(--danger) !important;
+}
+
+.kanban-card--urgent-overdue .kanban-card-due-time {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.kanban-card--urgent-soon {
+  border-left: 3px solid var(--warning) !important;
+}
+
+.kanban-card--urgent-soon .kanban-card-due-time {
+  color: var(--warning);
+  font-weight: 700;
+}
 
 button.kanban-card {
   width: 100%;

@@ -1,5 +1,17 @@
 import { getStaffInitials } from '../../utils/rotationManager'
 
+function getUrgencyClass(card) {
+  if (card.status === 'done') return ''
+  if (!card.dueTime) return ''
+  const [h, m] = card.dueTime.split(':').map(Number)
+  const now = new Date()
+  const dueMinutes = h * 60 + m
+  const nowMinutes = now.getHours() * 60 + now.getMinutes()
+  if (nowMinutes >= dueMinutes) return 'kanban-card--urgent-overdue'
+  if (dueMinutes - nowMinutes <= 60) return 'kanban-card--urgent-soon'
+  return ''
+}
+
 export default function KanbanCard({ card, onOpenCompletion, expandedRpCard, setExpandedRpCard, rpChecklist, onToggleRpItem }) {
   const isCleaning = card.category === 'Cleaning'
   const isRp = card.category === 'RP Check'
@@ -15,10 +27,12 @@ export default function KanbanCard({ card, onOpenCompletion, expandedRpCard, set
         ? 'kanban-card--rp'
         : 'kanban-card--due'
 
+  const urgencyClass = getUrgencyClass(card)
+
   const categoryClass = isRp ? 'kanban-card-pill--rp' : isTemp ? 'kanban-card-pill--temp' : 'kanban-card-pill--clean'
 
   return (
-    <div className={`kanban-card ${borderClass} ${isDone ? 'kanban-card--completed' : ''}`}>
+    <div className={`kanban-card ${borderClass} ${urgencyClass} ${isDone ? 'kanban-card--completed' : ''}`}>
       <div className="kanban-card-row">
         {/* Tick button or done icon */}
         {(isCleaning || isTemp) && !isDone && (
