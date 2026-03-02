@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import confetti from 'canvas-confetti'
 import { useSupabase } from '../hooks/useSupabase'
@@ -12,7 +12,7 @@ import {
   DEFAULT_CLEANING_TASKS,
   generateId,
 } from '../utils/helpers'
-import { getTaskAssignee, getRPAssignee, getStaffInitials } from '../utils/rotationManager'
+import { getTaskAssignee, getRPAssignee, getStaffInitials, getTasksForStaff } from '../utils/rotationManager'
 import { useUser } from '../contexts/UserContext'
 import Modal from '../components/Modal'
 import { useToast } from '../components/Toast'
@@ -357,6 +357,7 @@ export default function Dashboard() {
     { id: 'default-3', title: 'Parking bay council request', dueDate: '2026-03-06', completed: false, createdAt: '2026-02-27T09:00:00.000Z' },
     { id: 'default-4', title: 'Chase up medicinal waste documents', dueDate: '2026-03-06', completed: false, createdAt: '2026-02-27T09:00:00.000Z' },
   ])
+  const [assignedTasks, setAssignedTasks] = useSupabase('assigned_tasks', [])
 
   // Live clock
   useEffect(() => {
@@ -366,6 +367,64 @@ export default function Dashboard() {
 
   // Today's rotation
   const rpAssignee = getRPAssignee()
+  const todayISO = new Date().toISOString().slice(0, 10)
+
+  // --- My Tasks on Dashboard ---
+  const myRotationTasks = useMemo(
+    () => (user ? getTasksForStaff(user.name, cleaningTasks) : []),
+    [user, cleaningTasks]
+  )
+  const myAssigned = useMemo(
+    () => assignedTasks.filter((t) => t.staffName === user?.name && t.date === todayISO),
+    [assignedTasks, user, todayISO]
+  )
+
+  function isDashRotationDone(taskName) {
+    return cleaningEntries.some(
+      (e) => e.taskName === taskName && e.dateTime?.startsWith(todayISO)
+    )
+  }
+
+  function dashCompleteRotation(taskName) {
+    const entry = {
+      id: generateId(),
+      taskName,
+      dateTime: new Date().toISOString().slice(0, 16),
+      staffMember: user.name,
+      result: 'Pass',
+      notes: '',
+      createdAt: new Date().toISOString(),
+    }
+    setCleaningEntries((prev) => [...prev, entry])
+    showToast(`${taskName} marked done`)
+  }
+
+  function dashToggleAssigned(task) {
+    const updated = assignedTasks.map((t) =>
+      t.id === task.id
+        ? { ...t, completed: !t.completed, completedBy: !t.completed ? user.name : null, completedAt: !t.completed ? new Date().toISOString() : null }
+        : t
+    )
+    setAssignedTasks(updated)
+    showToast(task.completed ? 'Task reopened' : 'Task done')
+  }
+
+  const myDoneCount = myRotationTasks.filter((t) => isDashRotationDone(t.name)).length + myAssigned.filter((t) => t.completed).length
+  const myTotalCount = myRotationTasks.length + myAssigned.length
+
+  // --- Team strip (managers) ---
+  const teamProgress = useMemo(() => {
+    if (!user?.isManager) return []
+    return staffMembers.map((name) => {
+      const tasks = getTasksForStaff(name, cleaningTasks)
+      const assigned = assignedTasks.filter((t) => t.staffName === name && t.date === todayISO)
+      const rotDone = tasks.filter((t) => cleaningEntries.some((e) => e.taskName === t.name && e.dateTime?.startsWith(todayISO))).length
+      const asgDone = assigned.filter((t) => t.completed).length
+      const total = tasks.length + assigned.length
+      const done = rotDone + asgDone
+      return { name, total, done, allDone: total > 0 && done === total }
+    })
+  }, [user, staffMembers, cleaningTasks, assignedTasks, cleaningEntries, todayISO])
 
   if (docsLoading) {
     return (
@@ -883,6 +942,82 @@ export default function Dashboard() {
           <button type="submit" className="btn btn--primary btn--sm">Add</button>
         </form>
       </div>
+
+      {/* === MY TASKS TODAY === */}
+      {user && myTotalCount > 0 && (
+        <div className="dash-my-tasks no-print">
+          <div className="dash-my-tasks-header">
+            <h3 className="dash-my-tasks-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+                <path d="M9 11l3 3L22 4" />
+                <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+              </svg>
+              My Tasks
+              <span className="dash-my-tasks-count">{myDoneCount}/{myTotalCount}</span>
+            </h3>
+            {myDoneCount === myTotalCount && (
+              <span className="dash-my-tasks-alldone">All done!</span>
+            )}
+          </div>
+          <ul className="dash-my-tasks-list">
+            {myRotationTasks.map((task) => {
+              const done = isDashRotationDone(task.name)
+              return (
+                <li key={task.name} className={`dash-my-task ${done ? 'dash-my-task--done' : ''}`}>
+                  <button
+                    className={`dash-my-task-check ${done ? 'dash-my-task-check--done' : ''}`}
+                    onClick={() => !done && dashCompleteRotation(task.name)}
+                    disabled={done}
+                  >
+                    {done ? (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="13" height="13"><polyline points="20 6 9 17 4 12" /></svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13"><circle cx="12" cy="12" r="10" /></svg>
+                    )}
+                  </button>
+                  <span className="dash-my-task-name">{task.name}</span>
+                  <span className={`dash-my-task-freq dash-my-task-freq--${task.frequency}`}>
+                    {task.isRP ? 'RP' : task.frequency}
+                  </span>
+                </li>
+              )
+            })}
+            {myAssigned.map((task) => (
+              <li key={task.id} className={`dash-my-task ${task.completed ? 'dash-my-task--done' : ''}`}>
+                <button
+                  className={`dash-my-task-check ${task.completed ? 'dash-my-task-check--done' : ''}`}
+                  onClick={() => dashToggleAssigned(task)}
+                >
+                  {task.completed ? (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="13" height="13"><polyline points="20 6 9 17 4 12" /></svg>
+                  ) : (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13"><circle cx="12" cy="12" r="10" /></svg>
+                  )}
+                </button>
+                <span className="dash-my-task-name">{task.title}</span>
+                <span className="dash-my-task-freq dash-my-task-freq--assigned">assigned</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* === TEAM STRIP (managers) === */}
+      {user?.isManager && teamProgress.length > 0 && (
+        <div className="dash-team-strip no-print">
+          <span className="dash-team-strip-label">Team</span>
+          <div className="dash-team-strip-row">
+            {teamProgress.map((p) => (
+              <div key={p.name} className={`dash-team-chip ${p.allDone ? 'dash-team-chip--done' : ''} ${p.total === 0 ? 'dash-team-chip--none' : ''}`} title={`${p.name}: ${p.done}/${p.total}`}>
+                <span className="dash-team-avatar">{getStaffInitials(p.name)}</span>
+                {p.total > 0 && (
+                  <span className="dash-team-count">{p.done}/{p.total}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* === QUICK-NAV TILE GRID === */}
       <div className="dash-tiles no-print">

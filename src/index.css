@@ -1680,6 +1680,203 @@ button.kanban-card {
   .dash-action-delete { opacity: 0.4; }
 }
 
+/* === Dashboard: My Tasks Today === */
+.dash-my-tasks {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 0.45rem 0.7rem;
+  margin-top: 0.6rem;
+}
+
+.dash-my-tasks-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.2rem;
+}
+
+.dash-my-tasks-title {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--primary);
+  margin: 0;
+}
+
+.dash-my-tasks-title svg { width: 12px; height: 12px; }
+
+.dash-my-tasks-count {
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 0 0.35rem;
+  border-radius: 8px;
+  min-width: 14px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.dash-my-tasks-alldone {
+  font-size: 0.65rem;
+  color: var(--success);
+  font-weight: 600;
+}
+
+.dash-my-tasks-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dash-my-task {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.22rem 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-light) 50%, transparent);
+}
+
+.dash-my-task:last-child { border-bottom: none; }
+
+.dash-my-task--done { opacity: 0.5; }
+
+.dash-my-task-check {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: var(--border);
+  flex-shrink: 0;
+  display: flex;
+  transition: color 0.15s;
+}
+
+.dash-my-task-check:hover:not(:disabled) { color: var(--success); }
+
+.dash-my-task-check--done {
+  color: var(--success);
+  cursor: default;
+}
+
+.dash-my-task-name {
+  flex: 1;
+  font-size: 0.76rem;
+  font-weight: 500;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dash-my-task--done .dash-my-task-name {
+  text-decoration: line-through;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.dash-my-task-freq {
+  font-size: 0.58rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.08rem 0.32rem;
+  border-radius: 4px;
+  flex-shrink: 0;
+  background: var(--primary-fade);
+  color: var(--primary);
+}
+
+.dash-my-task-freq--weekly { background: color-mix(in srgb, var(--info) 10%, transparent); color: var(--info); }
+.dash-my-task-freq--fortnightly { background: color-mix(in srgb, var(--warning) 10%, transparent); color: var(--warning); }
+.dash-my-task-freq--monthly { background: color-mix(in srgb, var(--text-secondary) 10%, transparent); color: var(--text-secondary); }
+.dash-my-task-freq--assigned { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); }
+
+/* === Dashboard: Team Strip (managers) === */
+.dash-team-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.35rem 0.7rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  overflow-x: auto;
+}
+
+.dash-team-strip-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.dash-team-strip-row {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.dash-team-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  flex-shrink: 0;
+}
+
+.dash-team-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--primary-fade);
+  color: var(--primary);
+  font-size: 0.58rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--border);
+  transition: border-color 0.2s;
+}
+
+.dash-team-chip--done .dash-team-avatar {
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success) 12%, transparent);
+}
+
+.dash-team-chip--none .dash-team-avatar {
+  opacity: 0.4;
+}
+
+.dash-team-count {
+  font-size: 0.55rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  line-height: 1;
+}
+
+.dash-team-chip--done .dash-team-count {
+  color: var(--success);
+}
+
+@media (max-width: 600px) {
+  .dash-my-task-freq { display: none; }
+  .dash-team-avatar { width: 26px; height: 26px; font-size: 0.52rem; }
+}
+
 .kanban-empty {
   font-size: 0.78rem;
   color: var(--text-muted);
