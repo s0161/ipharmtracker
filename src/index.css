@@ -1684,9 +1684,19 @@ button.kanban-card {
 .dash-my-tasks {
   background: var(--bg-card);
   border: 1px solid var(--border-light);
+  border-left: 3px solid var(--primary);
   border-radius: var(--radius);
-  padding: 0.45rem 0.7rem;
+  padding: 0.55rem 0.8rem;
   margin-top: 0.6rem;
+  box-shadow: var(--shadow);
+  animation: fadeIn 300ms ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.dash-my-tasks--alldone {
+  border-left-color: var(--success);
+  background: color-mix(in srgb, var(--success) 4%, var(--bg-card));
 }
 
 .dash-my-tasks-header {
@@ -1739,9 +1749,13 @@ button.kanban-card {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.22rem 0;
+  padding: 0.22rem 0.25rem;
   border-bottom: 1px solid color-mix(in srgb, var(--border-light) 50%, transparent);
+  border-radius: 4px;
+  transition: background 0.15s;
 }
+
+.dash-my-task:hover { background: var(--primary-fade); }
 
 .dash-my-task:last-child { border-bottom: none; }
 
@@ -1755,14 +1769,23 @@ button.kanban-card {
   color: var(--border);
   flex-shrink: 0;
   display: flex;
-  transition: color 0.15s;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  transition: color 0.15s, transform 0.15s;
 }
 
-.dash-my-task-check:hover:not(:disabled) { color: var(--success); }
+.dash-my-task-check:hover:not(:disabled) {
+  color: var(--success);
+  transform: scale(1.15);
+}
 
 .dash-my-task-check--done {
-  color: var(--success);
+  color: #fff;
   cursor: default;
+  background: var(--success);
+  border-radius: 50%;
 }
 
 .dash-my-task-name {
@@ -1787,16 +1810,37 @@ button.kanban-card {
   text-transform: uppercase;
   letter-spacing: 0.03em;
   padding: 0.08rem 0.32rem;
-  border-radius: 4px;
+  border-radius: 6px;
   flex-shrink: 0;
   background: var(--primary-fade);
   color: var(--primary);
 }
 
-.dash-my-task-freq--weekly { background: color-mix(in srgb, var(--info) 10%, transparent); color: var(--info); }
-.dash-my-task-freq--fortnightly { background: color-mix(in srgb, var(--warning) 10%, transparent); color: var(--warning); }
-.dash-my-task-freq--monthly { background: color-mix(in srgb, var(--text-secondary) 10%, transparent); color: var(--text-secondary); }
-.dash-my-task-freq--assigned { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); }
+.dash-my-task-freq--weekly { background: color-mix(in srgb, var(--info) 14%, transparent); color: var(--info); }
+.dash-my-task-freq--fortnightly { background: color-mix(in srgb, var(--warning) 14%, transparent); color: var(--warning); }
+.dash-my-task-freq--monthly { background: color-mix(in srgb, var(--text-secondary) 14%, transparent); color: var(--text-secondary); }
+.dash-my-task-freq--assigned { background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent); }
+
+/* Progress bar at bottom of My Tasks card */
+.dash-my-tasks-progress {
+  height: 4px;
+  background: color-mix(in srgb, var(--border-light) 60%, transparent);
+  border-radius: 2px;
+  margin-top: 0.4rem;
+  overflow: hidden;
+}
+
+.dash-my-tasks-progress-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 2px;
+  animation: tileProgressGrow 800ms ease-out forwards;
+  transform-origin: left;
+}
+
+.dash-my-tasks--alldone .dash-my-tasks-progress-fill {
+  background: var(--success);
+}
 
 /* === Dashboard: Team Strip (managers) === */
 .dash-team-strip {
@@ -1809,6 +1853,8 @@ button.kanban-card {
   border: 1px solid var(--border-light);
   border-radius: var(--radius);
   overflow-x: auto;
+  box-shadow: var(--shadow);
+  animation: fadeIn 300ms ease 100ms both;
 }
 
 .dash-team-strip-label {
@@ -1835,26 +1881,33 @@ button.kanban-card {
   align-items: center;
   gap: 0.15rem;
   flex-shrink: 0;
+  animation: fadeIn 200ms ease both;
 }
 
 .dash-team-avatar {
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  background: var(--primary-fade);
+  background: linear-gradient(135deg, var(--primary-fade), color-mix(in srgb, var(--primary) 15%, transparent));
   color: var(--primary);
-  font-size: 0.58rem;
+  font-size: 0.6rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 2px solid var(--border);
-  transition: border-color 0.2s;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.dash-team-avatar:hover {
+  transform: scale(1.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .dash-team-chip--done .dash-team-avatar {
   border-color: var(--success);
-  background: color-mix(in srgb, var(--success) 12%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--success) 10%, transparent), color-mix(in srgb, var(--success) 20%, transparent));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--success) 20%, transparent);
 }
 
 .dash-team-chip--none .dash-team-avatar {
@@ -1862,7 +1915,7 @@ button.kanban-card {
 }
 
 .dash-team-count {
-  font-size: 0.55rem;
+  font-size: 0.6rem;
   font-weight: 600;
   color: var(--text-secondary);
   line-height: 1;
@@ -1870,11 +1923,12 @@ button.kanban-card {
 
 .dash-team-chip--done .dash-team-count {
   color: var(--success);
+  font-weight: 700;
 }
 
 @media (max-width: 600px) {
   .dash-my-task-freq { display: none; }
-  .dash-team-avatar { width: 26px; height: 26px; font-size: 0.52rem; }
+  .dash-team-avatar { width: 30px; height: 30px; font-size: 0.54rem; }
 }
 
 .kanban-empty {

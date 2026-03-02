@@ -945,7 +945,7 @@ export default function Dashboard() {
 
       {/* === MY TASKS TODAY === */}
       {user && myTotalCount > 0 && (
-        <div className="dash-my-tasks no-print">
+        <div className={`dash-my-tasks no-print ${myDoneCount === myTotalCount ? 'dash-my-tasks--alldone' : ''}`}>
           <div className="dash-my-tasks-header">
             <h3 className="dash-my-tasks-title">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
@@ -970,9 +970,9 @@ export default function Dashboard() {
                     disabled={done}
                   >
                     {done ? (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="13" height="13"><polyline points="20 6 9 17 4 12" /></svg>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="14" height="14"><polyline points="20 6 9 17 4 12" /></svg>
                     ) : (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13"><circle cx="12" cy="12" r="10" /></svg>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><circle cx="12" cy="12" r="10" /></svg>
                     )}
                   </button>
                   <span className="dash-my-task-name">{task.name}</span>
@@ -989,9 +989,9 @@ export default function Dashboard() {
                   onClick={() => dashToggleAssigned(task)}
                 >
                   {task.completed ? (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="13" height="13"><polyline points="20 6 9 17 4 12" /></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="14" height="14"><polyline points="20 6 9 17 4 12" /></svg>
                   ) : (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13"><circle cx="12" cy="12" r="10" /></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><circle cx="12" cy="12" r="10" /></svg>
                   )}
                 </button>
                 <span className="dash-my-task-name">{task.title}</span>
@@ -999,6 +999,9 @@ export default function Dashboard() {
               </li>
             ))}
           </ul>
+          <div className="dash-my-tasks-progress">
+            <div className="dash-my-tasks-progress-fill" style={{ width: `${myTotalCount > 0 ? Math.round((myDoneCount / myTotalCount) * 100) : 0}%` }} />
+          </div>
         </div>
       )}
 
@@ -1007,8 +1010,8 @@ export default function Dashboard() {
         <div className="dash-team-strip no-print">
           <span className="dash-team-strip-label">Team</span>
           <div className="dash-team-strip-row">
-            {teamProgress.map((p) => (
-              <div key={p.name} className={`dash-team-chip ${p.allDone ? 'dash-team-chip--done' : ''} ${p.total === 0 ? 'dash-team-chip--none' : ''}`} title={`${p.name}: ${p.done}/${p.total}`}>
+            {teamProgress.map((p, i) => (
+              <div key={p.name} className={`dash-team-chip ${p.allDone ? 'dash-team-chip--done' : ''} ${p.total === 0 ? 'dash-team-chip--none' : ''}`} title={`${p.name}: ${p.done}/${p.total}`} style={{ animationDelay: `${i * 50}ms` }}>
                 <span className="dash-team-avatar">{getStaffInitials(p.name)}</span>
                 {p.total > 0 && (
                   <span className="dash-team-count">{p.done}/{p.total}</span>
