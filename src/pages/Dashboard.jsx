@@ -753,7 +753,10 @@ export default function Dashboard() {
 
       <aside className={`dash-panel no-print ${panelOpen ? 'dash-panel--open' : ''}`}>
         <div className="dash-panel-header">
-          <span className="dash-panel-title">My Day</span>
+          <div>
+            <span className="dash-panel-title">My Day</span>
+            {user && <span className="dash-panel-subtitle">{user.name}</span>}
+          </div>
           <button className="dash-panel-close" onClick={() => setPanelOpen(false)} aria-label="Close panel">&times;</button>
         </div>
         <div className="dash-panel-body">
@@ -926,17 +929,18 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* --- Team Strip (managers) --- */}
+          {/* --- Team Grid (managers) --- */}
           {user?.isManager && teamProgress.length > 0 && (
             <div className="dash-panel-section">
-              <div className="dash-team-strip">
-                <span className="dash-team-strip-label">Team</span>
-                <div className="dash-team-strip-row">
-                  {teamProgress.map((p, i) => (
-                    <div key={p.name} className={`dash-team-chip ${p.allDone ? 'dash-team-chip--done' : ''} ${p.total === 0 ? 'dash-team-chip--none' : ''}`} title={`${p.name}: ${p.done}/${p.total}`} style={{ animationDelay: `${i * 50}ms` }}>
-                      <span className="dash-team-avatar">{getStaffInitials(p.name)}</span>
+              <div className="dash-team-grid">
+                <span className="dash-team-grid-label">Team Progress</span>
+                <div className="dash-team-grid-items">
+                  {teamProgress.map((p) => (
+                    <div key={p.name} className={`dash-team-member ${p.allDone ? 'dash-team-member--done' : ''}`}>
+                      <span className="dash-team-member-avatar">{getStaffInitials(p.name)}</span>
+                      <span className="dash-team-member-name">{p.name.split(' ')[0]}</span>
                       {p.total > 0 && (
-                        <span className="dash-team-count">{p.done}/{p.total}</span>
+                        <span className="dash-team-member-count">{p.done}/{p.total}</span>
                       )}
                     </div>
                   ))}
