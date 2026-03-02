@@ -13,6 +13,7 @@ import {
   generateId,
 } from '../utils/helpers'
 import { getTaskAssignee, getRPAssignee, getStaffInitials } from '../utils/rotationManager'
+import { useUser } from '../contexts/UserContext'
 import Modal from '../components/Modal'
 import { useToast } from '../components/Toast'
 
@@ -327,6 +328,7 @@ function KanbanCard({ card, onOpenCompletion, expandedRpCard, setExpandedRpCard,
 export default function Dashboard() {
   const navigate = useNavigate()
   const showToast = useToast()
+  const { user } = useUser()
   const [showOutstanding, setShowOutstanding] = useState(false)
   const [expandedRpCard, setExpandedRpCard] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -761,7 +763,7 @@ export default function Dashboard() {
       {/* === TOP BAR === */}
       <div className="dash-topbar no-print">
         <div className="dash-topbar-left">
-          <h1 className="dash-topbar-greeting">{getGreeting()}, Salma</h1>
+          <h1 className="dash-topbar-greeting">{getGreeting()}, {user?.name?.split(' ')[0] || 'Team'}</h1>
           <p className="dash-topbar-date">
             {clock.toLocaleDateString('en-GB', {
               weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',

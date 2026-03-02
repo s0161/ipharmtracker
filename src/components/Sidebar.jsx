@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useSidebarCounts } from '../hooks/useSidebarCounts'
 import { useTheme } from '../hooks/useTheme'
+import { useUser } from '../contexts/UserContext'
+import { getStaffInitials } from '../utils/rotationManager'
 
 const sections = [
   {
@@ -17,6 +19,17 @@ const sections = [
           </svg>
         ),
         shortcut: 'D',
+      },
+      {
+        to: '/my-tasks',
+        label: 'My Tasks',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M9 11l3 3L22 4" />
+            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+          </svg>
+        ),
+        shortcut: 'M',
       },
       {
         to: '/rp-log',
@@ -124,6 +137,7 @@ const allNavItems = sections.flatMap(s => s.items)
 export default function Sidebar({ open, onClose }) {
   const counts = useSidebarCounts()
   const { theme, toggle: toggleTheme } = useTheme()
+  const { user, logout: logoutUser } = useUser()
   const [bellOpen, setBellOpen] = useState(false)
   const [lastSynced, setLastSynced] = useState(new Date())
 
@@ -243,6 +257,21 @@ export default function Sidebar({ open, onClose }) {
             <span className="sidebar-link-label">{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
           </button>
         </div>
+
+        {/* User identity pill */}
+        {user && (
+          <div className="sidebar-user-pill">
+            <span className="sidebar-user-avatar">{getStaffInitials(user.name)}</span>
+            <span className="sidebar-user-name">{user.name}</span>
+            <button className="sidebar-user-switch" onClick={logoutUser} title="Switch user">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+            </button>
+          </div>
+        )}
 
         <div className="sidebar-footer">
           <small>Compliance Tracker v3.0</small>

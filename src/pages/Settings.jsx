@@ -5,6 +5,7 @@ import { DEFAULT_CLEANING_TASKS, FREQUENCIES, getTrafficLight, getSafeguardingSt
 import { exportData, importData, clearAllData } from '../utils/dataManager'
 import { downloadCsv } from '../utils/exportCsv'
 import { useToast } from '../components/Toast'
+import { useUser } from '../contexts/UserContext'
 import { logout } from './Login'
 
 function ListManager({ title, description, items, onUpdate }) {
@@ -58,6 +59,127 @@ function ListManager({ title, description, items, onUpdate }) {
                   width="16"
                   height="16"
                 >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
+function StaffManager({ staff, onUpdate, showToast }) {
+  const [name, setName] = useState('')
+  const [editPin, setEditPin] = useState(null) // { id, pin }
+
+  const handleAdd = (e) => {
+    e.preventDefault()
+    const trimmed = name.trim()
+    if (!trimmed || staff.some((s) => s.name === trimmed)) return
+    onUpdate([...staff, { name: trimmed, pin: '', isManager: false }])
+    setName('')
+  }
+
+  const handleRemove = (id) => {
+    onUpdate(staff.filter((s) => s.id !== id))
+  }
+
+  const toggleManager = (id) => {
+    onUpdate(
+      staff.map((s) => (s.id === id ? { ...s, isManager: !s.isManager } : s))
+    )
+  }
+
+  const savePin = (id) => {
+    if (!editPin) return
+    onUpdate(
+      staff.map((s) => (s.id === id ? { ...s, pin: editPin.pin } : s))
+    )
+    showToast('PIN updated')
+    setEditPin(null)
+  }
+
+  return (
+    <div className="settings-section">
+      <h2 className="settings-section-title">Staff Members</h2>
+      <p className="settings-section-desc">
+        Manage staff, set PINs, and assign manager roles.
+      </p>
+      <form className="settings-add-form" onSubmit={handleAdd}>
+        <input
+          type="text"
+          className="input"
+          placeholder="Add new staff member..."
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <button type="submit" className="btn btn--primary">Add</button>
+      </form>
+      {staff.length === 0 ? (
+        <p className="empty-state">No staff added yet.</p>
+      ) : (
+        <ul className="settings-list">
+          {staff.map((s) => (
+            <li key={s.id} className="settings-list-item settings-staff-row">
+              <div className="settings-staff-info">
+                <span className="settings-staff-name">{s.name}</span>
+                <div className="settings-staff-controls">
+                  <label className="settings-manager-toggle">
+                    <input
+                      type="checkbox"
+                      checked={!!s.isManager}
+                      onChange={() => toggleManager(s.id)}
+                    />
+                    <span>Manager</span>
+                  </label>
+                  {editPin?.id === s.id ? (
+                    <div className="settings-pin-edit">
+                      <input
+                        type="text"
+                        className="input input--sm"
+                        maxLength={4}
+                        pattern="[0-9]*"
+                        inputMode="numeric"
+                        placeholder="4 digits"
+                        value={editPin.pin}
+                        onChange={(e) =>
+                          setEditPin({ ...editPin, pin: e.target.value.replace(/\D/g, '').slice(0, 4) })
+                        }
+                        autoFocus
+                      />
+                      <button
+                        className="btn btn--primary btn--sm"
+                        onClick={() => savePin(s.id)}
+                        disabled={editPin.pin.length !== 4}
+                      >
+                        Save
+                      </button>
+                      <button
+                        className="btn btn--ghost btn--sm"
+                        onClick={() => setEditPin(null)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      className="btn btn--ghost btn--sm"
+                      onClick={() => setEditPin({ id: s.id, pin: s.pin || '' })}
+                    >
+                      {s.pin ? 'Change PIN' : 'Set PIN'}
+                    </button>
+                  )}
+                </div>
+              </div>
+              <button
+                className="btn btn--ghost btn--sm"
+                onClick={() => handleRemove(s.id)}
+                aria-label={`Remove ${s.name}`}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
@@ -184,7 +306,8 @@ const DEFAULT_NOTIFICATION_PREFS = {
 }
 
 export default function Settings() {
-  const [staffMembers, setStaffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
+  const [staffMembers, setStaffMembers] = useSupabase('staff_members', [])
+  const { logout: logoutUser } = useUser()
   const [trainingTopics, setTrainingTopics] = useSupabase('training_topics', [], { valueField: 'name' })
   const [cleaningTasks, setCleaningTasks] = useSupabase(
     'cleaning_tasks',
@@ -250,11 +373,10 @@ export default function Settings() {
 
   return (
     <div className="settings">
-      <ListManager
-        title="Staff Members"
-        description="Manage the list of staff members available in dropdown menus across the app."
-        items={staffMembers}
+      <StaffManager
+        staff={staffMembers}
         onUpdate={setStaffMembers}
+        showToast={showToast}
       />
       <ListManager
         title="Training Topics"
@@ -439,7 +561,7 @@ export default function Settings() {
         )}
 
         <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid var(--border-light)' }}>
-          <button className="btn btn--ghost" onClick={() => { logout(); window.location.reload() }}>
+          <button className="btn btn--ghost" onClick={() => { logoutUser(); logout(); window.location.reload() }}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
               <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
               <polyline points="16 17 21 12 16 7" />

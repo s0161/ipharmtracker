@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { generateId } from './helpers'
 
-const SEED_KEY = 'ipd_seeded_v22'
+const SEED_KEY = 'ipd_seeded_v23'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -10,7 +10,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded_v4', 'ipd_seeded_v5', 'ipd_seeded_v6',
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
   'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13', 'ipd_seeded_v14', 'ipd_seeded_v15', 'ipd_seeded_v16',
-  'ipd_seeded_v17', 'ipd_seeded_v18', 'ipd_seeded_v19', 'ipd_seeded_v20', 'ipd_seeded_v21',
+  'ipd_seeded_v17', 'ipd_seeded_v18', 'ipd_seeded_v19', 'ipd_seeded_v20', 'ipd_seeded_v21', 'ipd_seeded_v22',
 ]
 
 export function cleanupOldLocalStorage() {
@@ -25,21 +25,21 @@ export async function cleanupStaleData() {
 export async function seedIfNeeded() {
   if (localStorage.getItem(SEED_KEY)) return
 
-  // Staff members (valueField table — each row is { name })
+  // Staff members — full objects with pin and manager flag
   const staff = [
-    'Umama Khan',
-    'Urooj Khan',
-    'Sadaf Subhani',
-    'Salma Shakoor',
-    'Marian Hadaway',
-    'Jamila Adwan',
-    'Shain Nawaz',
-    'Amjid Shakoor',
-    'M Imran',
-    'Shahzadul Hassan',
-    'Manzoor Ahmed',
-    'Moniba Jamil',
-    'Sarmad Khalid',
+    { name: 'Amjid Shakoor', pin: '0001', is_manager: true },
+    { name: 'Salma Shakoor', pin: '0002', is_manager: true },
+    { name: 'Moniba Jamil', pin: '0003', is_manager: false },
+    { name: 'Umama Khan', pin: '0004', is_manager: false },
+    { name: 'Sadaf Subhani', pin: '0005', is_manager: false },
+    { name: 'Urooj Khan', pin: '0006', is_manager: false },
+    { name: 'Shain Nawaz', pin: '0007', is_manager: false },
+    { name: 'Marian Hadaway', pin: '0008', is_manager: false },
+    { name: 'Jamila Adwan', pin: '0009', is_manager: false },
+    { name: 'M Imran', pin: '0010', is_manager: false },
+    { name: 'Shahzadul Hassan', pin: '0011', is_manager: false },
+    { name: 'Manzoor Ahmed', pin: '0012', is_manager: false },
+    { name: 'Sarmad Khalid', pin: '0013', is_manager: false },
   ]
 
   // Cleaning tasks
@@ -459,11 +459,12 @@ export async function seedIfNeeded() {
     supabase.from('training_topics').delete().neq('name', ''),
     supabase.from('training_logs').delete().neq('id', ''),
     supabase.from('action_items').delete().neq('id', ''),
+    supabase.from('assigned_tasks').delete().neq('id', ''),
   ])
 
   // Insert into Supabase tables
   const inserts = [
-    supabase.from('staff_members').insert(staff.map((name) => ({ name }))),
+    supabase.from('staff_members').insert(staff),
     supabase.from('cleaning_tasks').insert(tasks),
     supabase.from('cleaning_entries').insert(cleaning),
     supabase.from('documents').insert(documents),

@@ -10,19 +10,23 @@ import SafeguardingTraining from './pages/SafeguardingTraining'
 import RPLog from './pages/RPLog'
 import Settings from './pages/Settings'
 import TemperatureLog from './pages/TemperatureLog'
+import MyTasks from './pages/MyTasks'
 import Login, { isAuthenticated } from './pages/Login'
+import PinSelect from './pages/PinSelect'
+import { UserProvider, useUser } from './contexts/UserContext'
 
-export default function App() {
-  const [authed, setAuthed] = useState(isAuthenticated())
+function AuthedApp() {
+  const { user } = useUser()
 
-  if (!authed) {
-    return <Login onLogin={() => setAuthed(true)} />
+  if (!user) {
+    return <PinSelect />
   }
 
   return (
     <Layout>
       <Routes>
         <Route path="/" element={<Dashboard />} />
+        <Route path="/my-tasks" element={<MyTasks />} />
         <Route path="/rp-log" element={<RPLog />} />
         <Route path="/training" element={<TrainingLogs />} />
         <Route path="/cleaning" element={<CleaningRota />} />
@@ -33,5 +37,19 @@ export default function App() {
         <Route path="/settings" element={<Settings />} />
       </Routes>
     </Layout>
+  )
+}
+
+export default function App() {
+  const [authed, setAuthed] = useState(isAuthenticated())
+
+  if (!authed) {
+    return <Login onLogin={() => setAuthed(true)} />
+  }
+
+  return (
+    <UserProvider>
+      <AuthedApp />
+    </UserProvider>
   )
 }

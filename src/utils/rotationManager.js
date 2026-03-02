@@ -97,3 +97,37 @@ export function getStaffInitials(name) {
 export function getRotationList() {
   return CLEANING_ROTATION
 }
+
+/**
+ * Get all cleaning tasks assigned to a specific staff member today.
+ * Returns array of { name, frequency, taskIndex } for tasks where
+ * getTaskAssignee() === staffName.
+ */
+export function getTasksForStaff(staffName, allTasks) {
+  if (!staffName || !allTasks?.length) return []
+
+  // Group tasks by frequency to get correct taskIndex
+  const byFreq = {}
+  allTasks.forEach((t) => {
+    const f = t.frequency || 'daily'
+    if (!byFreq[f]) byFreq[f] = []
+    byFreq[f].push(t)
+  })
+
+  const result = []
+  Object.entries(byFreq).forEach(([freq, tasks]) => {
+    tasks.forEach((task, idx) => {
+      const assignee = getTaskAssignee(task.name, freq, idx)
+      if (assignee === staffName) {
+        result.push({ name: task.name, frequency: freq, taskIndex: idx })
+      }
+    })
+  })
+
+  // Also check if this person is the RP
+  if (staffName === RP_PHARMACIST) {
+    result.push({ name: 'RP Check', frequency: 'daily', taskIndex: -1, isRP: true })
+  }
+
+  return result
+}
