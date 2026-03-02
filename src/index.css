@@ -1931,6 +1931,198 @@ button.kanban-card {
   .dash-team-avatar { width: 30px; height: 30px; font-size: 0.54rem; }
 }
 
+/* === Dashboard: My Day Panel Layout === */
+
+.dash-body {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.dash-main-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.dash-panel {
+  width: 280px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 80px;
+  max-height: calc(100vh - 96px);
+  overflow-y: auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: none;
+  animation: fadeIn 200ms ease;
+}
+
+.dash-panel--open {
+  display: block;
+}
+
+.dash-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border-light);
+  position: sticky;
+  top: 0;
+  background: var(--bg-card);
+  z-index: 2;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.dash-panel-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--primary);
+}
+
+.dash-panel-close {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  line-height: 1;
+  transition: background 0.15s, color 0.15s;
+}
+
+.dash-panel-close:hover {
+  background: var(--primary-fade);
+  color: var(--primary);
+}
+
+.dash-panel-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.dash-panel-section {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.dash-panel-section:last-child {
+  border-bottom: none;
+}
+
+/* Strip card chrome when inside panel */
+.dash-panel .dash-my-tasks,
+.dash-panel .dash-actions-section,
+.dash-panel .dash-team-strip {
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  margin-top: 0;
+  padding: 0;
+}
+
+.dash-panel .dash-my-tasks {
+  border-left: none;
+}
+
+/* Panel overlay (mobile) */
+.dash-panel-overlay {
+  display: none;
+}
+
+/* Panel toggle FAB */
+.dash-panel-toggle {
+  position: fixed;
+  right: 1rem;
+  bottom: 1.5rem;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  transition: transform 0.15s, box-shadow 0.15s;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  animation: fadeIn 200ms ease;
+}
+
+.dash-panel-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+}
+
+.dash-panel-toggle svg {
+  flex-shrink: 0;
+}
+
+.dash-panel-toggle-badge {
+  background: #fff;
+  color: var(--primary);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0 0.32rem;
+  border-radius: 8px;
+  min-width: 14px;
+  text-align: center;
+  line-height: 1.55;
+}
+
+/* Mobile: panel becomes slide-in drawer */
+@media (max-width: 768px) {
+  .dash-body {
+    flex-direction: column;
+  }
+
+  .dash-panel {
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 300px;
+    max-height: none;
+    z-index: 60;
+    border-radius: var(--radius) 0 0 var(--radius);
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    display: block;
+  }
+
+  .dash-panel--open {
+    transform: translateX(0);
+  }
+
+  .dash-panel-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 55;
+    animation: fadeIn 200ms ease;
+  }
+
+  .dash-panel-toggle {
+    display: flex;
+    bottom: 5rem;
+  }
+}
+
 .kanban-empty {
   font-size: 0.78rem;
   color: var(--text-muted);
