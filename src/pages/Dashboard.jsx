@@ -14,8 +14,8 @@ import {
 } from '../utils/helpers'
 import { getTaskAssignee, getRPAssignee, getStaffInitials, getTasksForStaff } from '../utils/rotationManager'
 import { useUser } from '../contexts/UserContext'
-import Modal from '../components/Modal'
 import { useToast } from '../components/Toast'
+import { ProgressRing, CompletionModal, KanbanCard } from '../components/dashboard'
 
 function scoreColor(pct) {
   if (pct > 80) return 'var(--success)'
@@ -116,28 +116,6 @@ const TILE_ICONS = {
   ),
 }
 
-// SVG Progress Ring
-function ProgressRing({ pct, size = 56, strokeWidth = 5 }) {
-  const radius = (size - strokeWidth) / 2
-  const circumference = 2 * Math.PI * radius
-  const [offset, setOffset] = useState(circumference)
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setOffset(circumference - (pct / 100) * circumference)
-    }, 100)
-    return () => clearTimeout(timer)
-  }, [pct, circumference])
-
-  return (
-    <svg className="progress-ring" width={size} height={size}>
-      <circle className="progress-ring-bg" cx={size / 2} cy={size / 2} r={radius} strokeWidth={strokeWidth} fill="none" stroke="var(--border)" />
-      <circle className="progress-ring-fill" cx={size / 2} cy={size / 2} r={radius} strokeWidth={strokeWidth} fill="none" stroke={scoreColor(pct)} strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" transform={`rotate(-90 ${size / 2} ${size / 2})`} />
-      <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="central" className="progress-ring-text" fill={scoreColor(pct)}>{pct}%</text>
-    </svg>
-  )
-}
-
 // Animated bar for compliance footer with counting number
 function AnimatedBar({ pct, label, onClick }) {
   const [width, setWidth] = useState(0)
@@ -172,156 +150,6 @@ function AnimatedBar({ pct, label, onClick }) {
         <div className={`compliance-strip-bar-fill compliance-strip-bar-fill--${cls}`} style={{ width: `${width}%` }} />
       </div>
     </button>
-  )
-}
-
-const ALL_STAFF = [
-  'Moniba Jamil', 'Umama Khan', 'Sadaf Subhani', 'Salma Shakoor',
-  'Urooj Khan', 'Shain Nawaz', 'Marian Hadaway', 'Jamila Adwan', 'Amjid Shakoor',
-]
-
-// Completion modal for ticking off tasks
-function CompletionModal({ open, taskName, assignedTo, onSubmit, onClose }) {
-  const [completedBy, setCompletedBy] = useState(assignedTo || '')
-  const [notes, setNotes] = useState('')
-
-  useEffect(() => {
-    if (open) {
-      setCompletedBy(assignedTo || '')
-      setNotes('')
-    }
-  }, [open, assignedTo])
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (!completedBy) return
-    onSubmit(taskName, completedBy, notes)
-  }
-
-  return (
-    <Modal open={open} onClose={onClose} title="Complete Task">
-      <form className="form" onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label className="label">Task</label>
-          <input type="text" className="input" value={taskName || ''} readOnly />
-        </div>
-        <div className="form-group">
-          <label className="label">Completed by *</label>
-          <select className="input" value={completedBy} onChange={(e) => setCompletedBy(e.target.value)} required>
-            <option value="">Select staff...</option>
-            {ALL_STAFF.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
-        </div>
-        <div className="form-group">
-          <label className="label">Notes</label>
-          <textarea className="input input--textarea" placeholder="Optional notes..." value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
-        </div>
-        <div className="form-group">
-          <label className="label">Timestamp</label>
-          <input type="text" className="input" value={new Date().toLocaleString('en-GB')} readOnly />
-        </div>
-        <div className="form-actions">
-          <button type="button" className="btn btn--ghost" onClick={onClose}>Cancel</button>
-          <button type="submit" className="btn btn--primary btn--complete">Mark Complete</button>
-        </div>
-      </form>
-    </Modal>
-  )
-}
-
-function KanbanCard({ card, onOpenCompletion, expandedRpCard, setExpandedRpCard, rpChecklist, onToggleRpItem }) {
-  const isCleaning = card.category === 'Cleaning'
-  const isRp = card.category === 'RP Check'
-  const isTemp = card.category === 'Temperature'
-  const isExpanded = expandedRpCard === card.id
-  const isDone = card.status === 'done'
-
-  const borderClass = isDone
-    ? 'kanban-card--done'
-    : card.status === 'overdue'
-      ? 'kanban-card--overdue'
-      : isRp
-        ? 'kanban-card--rp'
-        : 'kanban-card--due'
-
-  const categoryClass = isRp ? 'kanban-card-pill--rp' : isTemp ? 'kanban-card-pill--temp' : 'kanban-card-pill--clean'
-
-  return (
-    <div className={`kanban-card ${borderClass} ${isDone ? 'kanban-card--completed' : ''}`}>
-      <div className="kanban-card-row">
-        {/* Tick button or done icon */}
-        {(isCleaning || isTemp) && !isDone && (
-          <button className="kanban-tick-btn" onClick={() => onOpenCompletion(card)} aria-label={`Mark ${card.name} as done`}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18"><circle cx="12" cy="12" r="10" /></svg>
-          </button>
-        )}
-        {(isCleaning || isTemp) && isDone && (
-          <span className="kanban-tick-done">
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2.5" width="18" height="18">
-              <path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
-            </svg>
-          </span>
-        )}
-        {isRp && (
-          <button className="kanban-tick-btn" onClick={() => setExpandedRpCard(isExpanded ? null : card.id)}>
-            <svg viewBox="0 0 24 24" fill="none" stroke={isDone ? 'var(--success)' : 'currentColor'} strokeWidth="2" width="18" height="18">
-              {isDone ? (
-                <><path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></>
-              ) : (
-                <circle cx="12" cy="12" r="10" />
-              )}
-            </svg>
-          </button>
-        )}
-
-        {/* Staff avatar */}
-        {card.assignedTo && (
-          <span className="kanban-avatar" title={card.assignedTo}>{getStaffInitials(card.assignedTo)}</span>
-        )}
-
-        <div className="kanban-card-body">
-          <span className="kanban-card-name">{card.name}</span>
-          <div className="kanban-card-meta">
-            <span className={`kanban-card-pill kanban-card-pill--cat ${categoryClass}`}>{card.category}</span>
-            {card.dueTime && !isDone && (
-              <span className={`kanban-card-due-time ${card.dueTimeOverdue ? 'kanban-card-due-time--overdue' : ''}`}>
-                {card.dueTimeOverdue && (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12">
-                    <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
-                  </svg>
-                )}
-                by {card.dueTime}
-              </span>
-            )}
-            {card.isSummary
-              ? <span className="kanban-card-time">{card.doneCount}/{card.total} done</span>
-              : card.timestamp && <span className="kanban-card-time">Completed {card.timestamp}</span>}
-          </div>
-        </div>
-      </div>
-
-      {/* RP expanded checklist */}
-      {isRp && isExpanded && card.rpItems && (
-        <div className="kanban-rp-checklist">
-          {card.rpItems.map(item => (
-            <label key={item} className="kanban-rp-item">
-              <input type="checkbox" checked={!!rpChecklist[item]} onChange={() => onToggleRpItem(item)} />
-              <span>{item}</span>
-            </label>
-          ))}
-        </div>
-      )}
-
-      {/* Progress bar for RP summary */}
-      {card.isSummary && (
-        <div className="kanban-card-progress">
-          <div className="kanban-card-progress-fill" style={{
-            width: `${(card.doneCount / card.total) * 100}%`,
-            background: isDone ? 'var(--success)' : card.doneCount === 0 ? 'var(--border)' : 'var(--warning)',
-          }} />
-        </div>
-      )}
-    </div>
   )
 }
 
@@ -1135,6 +963,54 @@ export default function Dashboard() {
               </div>
             </div>
           )}
+
+          {/* --- RP Quick Log --- */}
+          <div className="dash-panel-section">
+            <div className={`dash-rp-quick ${rpComplete ? 'dash-rp-quick--done' : ''}`}>
+              <div className="dash-rp-quick-header">
+                <h3 className="dash-rp-quick-title">
+                  {TILE_ICONS.rplog && (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+                      <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
+                      <rect x="8" y="2" width="8" height="4" rx="1" /><path d="M9 14l2 2 4-4" />
+                    </svg>
+                  )}
+                  RP Log
+                  <span className="dash-rp-quick-count">{rpDoneCount}/{allRpItems.length}</span>
+                </h3>
+                {rpComplete ? (
+                  <span className="dash-rp-quick-alldone">Complete</span>
+                ) : (
+                  <button className="dash-rp-quick-link" onClick={() => navigate('/rp-log')}>
+                    Full log &rarr;
+                  </button>
+                )}
+              </div>
+              <ul className="dash-rp-quick-list">
+                {RP_DAILY.map(item => (
+                  <li key={item} className={`dash-rp-quick-item ${rpChecklist[item] ? 'dash-rp-quick-item--done' : ''}`}>
+                    <button
+                      className={`dash-my-task-check ${rpChecklist[item] ? 'dash-my-task-check--done' : ''}`}
+                      onClick={() => handleToggleRpItem(item)}
+                    >
+                      {rpChecklist[item] ? (
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="14" height="14"><polyline points="20 6 9 17 4 12" /></svg>
+                      ) : (
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><circle cx="12" cy="12" r="10" /></svg>
+                      )}
+                    </button>
+                    <span className="dash-rp-quick-label">{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="dash-my-tasks-progress">
+                <div className="dash-my-tasks-progress-fill" style={{
+                  width: `${allRpItems.length > 0 ? Math.round((rpDoneCount / allRpItems.length) * 100) : 0}%`,
+                  background: rpComplete ? 'var(--success)' : rpDoneCount > 0 ? 'var(--warning)' : 'var(--border)',
+                }} />
+              </div>
+            </div>
+          </div>
 
           {/* --- To Do --- */}
           <div className="dash-panel-section">
