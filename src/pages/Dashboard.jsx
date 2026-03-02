@@ -15,19 +15,15 @@ import {
 import { getTaskAssignee, getRPAssignee, getStaffInitials, getTasksForStaff } from '../utils/rotationManager'
 import { useUser } from '../contexts/UserContext'
 import { useToast } from '../components/Toast'
-import { ProgressRing, CompletionModal, KanbanBoard } from '../components/dashboard'
-
-function scoreColor(pct) {
-  if (pct > 80) return 'var(--success)'
-  if (pct >= 50) return 'var(--warning)'
-  return 'var(--danger)'
-}
-
-function scoreClass(pct) {
-  if (pct > 80) return 'green'
-  if (pct >= 50) return 'amber'
-  return 'red'
-}
+import {
+  AlertBanner,
+  ActionCounter,
+  ComplianceCards,
+  QuickLinks,
+  KanbanBoard,
+  CompletionModal,
+  ProgressRing,
+} from '../components/dashboard'
 
 function getGreeting() {
   const h = new Date().getHours()
@@ -114,43 +110,6 @@ const TILE_ICONS = {
       <rect x="8" y="2" width="8" height="4" rx="1" /><path d="M9 14l2 2 4-4" />
     </svg>
   ),
-}
-
-// Animated bar for compliance footer with counting number
-function AnimatedBar({ pct, label, onClick }) {
-  const [width, setWidth] = useState(0)
-  const [displayPct, setDisplayPct] = useState(0)
-
-  useEffect(() => {
-    const timer = setTimeout(() => setWidth(pct), 200)
-    return () => clearTimeout(timer)
-  }, [pct])
-
-  useEffect(() => {
-    if (pct === 0) { setDisplayPct(0); return }
-    let start = 0
-    const duration = 800
-    const step = Math.ceil(pct / (duration / 16))
-    const id = setInterval(() => {
-      start += step
-      if (start >= pct) { setDisplayPct(pct); clearInterval(id) }
-      else setDisplayPct(start)
-    }, 16)
-    return () => clearInterval(id)
-  }, [pct])
-
-  const cls = scoreClass(pct)
-  return (
-    <button className="compliance-strip-item" onClick={onClick}>
-      <div className="compliance-strip-top">
-        <span className="compliance-strip-label">{label}</span>
-        <span className={`compliance-strip-score compliance-strip-score--${cls} compliance-strip-score--lg`}>{displayPct}%</span>
-      </div>
-      <div className="compliance-strip-bar">
-        <div className={`compliance-strip-bar-fill compliance-strip-bar-fill--${cls}`} style={{ width: `${width}%` }} />
-      </div>
-    </button>
-  )
 }
 
 export default function Dashboard() {
@@ -369,6 +328,48 @@ export default function Dashboard() {
     localStorage.setItem('ipd_weekly_scores', JSON.stringify(scores))
     localStorage.setItem('ipd_score_week', weekKey)
   }
+
+  // Tile/card counts
+  const dailyDueCount = taskStatuses.filter(t => t.frequency === 'daily' && (t.status === 'due' || t.status === 'overdue')).length
+  const docsExpiring = documents.filter(d => { const tl = getTrafficLight(d.expiryDate); return tl === 'red' || tl === 'amber' }).length
+  const trainingOverdue = overdueTraining.length
+
+  // Critical alerts (score < 25%)
+  const criticalAlerts = complianceAreas
+    .filter(a => a.score < 25)
+    .map(a => {
+      let subtitle = ''
+      if (a.label === 'Training') subtitle = `${overdueTraining.length} items overdue across all staff`
+      else if (a.label === 'Cleaning') subtitle = `${overdueCleaningTasks.length} tasks overdue`
+      else if (a.label === 'Documents') subtitle = `${expiredDocs.length} documents expired`
+      else subtitle = `${sgDueSoon.length} records need attention`
+      return { label: a.label, score: a.score, subtitle, nav: a.nav }
+    })
+
+  // Segmented action counts
+  const overdueCount = expiredDocs.length + overdueTraining.length + overdueCleaningTasks.length
+    + sgDueSoon.filter(r => getSafeguardingStatus(r.trainingDate) === 'overdue').length
+  const dueTodayCount = tempMissing + rpMissing + dailyDueCount
+  const upcomingCount = dueSoon.length
+    + sgDueSoon.filter(r => getSafeguardingStatus(r.trainingDate) === 'due-soon').length
+
+  // Compliance card data
+  const complianceCardData = [
+    { label: 'Documents', score: docScore, subtitle: docsExpiring > 0 ? `${docsExpiring} expiring` : 'All current', trend: trends['Documents'] ? { direction: trends['Documents'], value: Math.abs(docScore - (storedScores['Documents'] || docScore)) } : null, nav: '/documents' },
+    { label: 'Training', score: staffScore, subtitle: trainingOverdue > 0 ? `${trainingOverdue} overdue` : 'All complete', trend: trends['Training'] ? { direction: trends['Training'], value: Math.abs(staffScore - (storedScores['Training'] || staffScore)) } : null, nav: '/staff-training' },
+    { label: 'Cleaning', score: cleaningScore, subtitle: overdueCleaningTasks.length > 0 ? `${overdueCleaningTasks.length} overdue` : 'All clear', trend: trends['Cleaning'] ? { direction: trends['Cleaning'], value: Math.abs(cleaningScore - (storedScores['Cleaning'] || cleaningScore)) } : null, nav: '/cleaning' },
+    { label: 'Safeguarding', score: sgScore, subtitle: sgDueSoon.length > 0 ? `${sgDueSoon.length} due soon` : 'All current', trend: trends['Safeguarding'] ? { direction: trends['Safeguarding'], value: Math.abs(sgScore - (storedScores['Safeguarding'] || sgScore)) } : null, nav: '/safeguarding' },
+  ]
+
+  // Quick link data (reuses TILE_ICONS for icons)
+  const quickLinksData = [
+    { key: 'cleaning', icon: TILE_ICONS.cleaning, title: 'Cleaning Rota', subtitle: dailyDueCount > 0 ? `${dailyDueCount} due today` : 'All clear', nav: '/cleaning' },
+    { key: 'documents', icon: TILE_ICONS.documents, title: 'Documents', subtitle: docsExpiring > 0 ? `${docsExpiring} expiring` : 'All current', nav: '/documents' },
+    { key: 'training', icon: TILE_ICONS.training, title: 'Staff Training', subtitle: trainingOverdue > 0 ? `${trainingOverdue} overdue` : 'Up to date', nav: '/staff-training' },
+    { key: 'safeguarding', icon: TILE_ICONS.safeguarding, title: 'Safeguarding', subtitle: `${sgScore}% compliant`, nav: '/safeguarding' },
+    { key: 'temperature', icon: TILE_ICONS.temperature, title: 'Temp Log', subtitle: tempLoggedToday ? 'Logged today' : 'Not logged yet', nav: '/temperature' },
+    { key: 'rplog', icon: TILE_ICONS.rplog, title: 'RP Log', subtitle: rpComplete ? 'Complete' : `${rpDoneCount}/${allRpItems.length} done`, nav: '/rp-log' },
+  ]
 
   // Today's priorities — top 3 most urgent items
   const priorities = []
@@ -620,22 +621,10 @@ export default function Dashboard() {
   // Last updated timestamp
   const lastUpdated = clock.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
 
-  // Tile data
-  const dailyDueCount = taskStatuses.filter(t => t.frequency === 'daily' && (t.status === 'due' || t.status === 'overdue')).length
-  const docsExpiring = documents.filter(d => { const tl = getTrafficLight(d.expiryDate); return tl === 'red' || tl === 'amber' }).length
-  const trainingOverdue = overdueTraining.length
-
-  const tiles = [
-    { key: 'cleaning', icon: TILE_ICONS.cleaning, title: 'Cleaning Rota', stat: `${dailyDueCount} due today`, nav: '/cleaning', cls: 'tile--green', pct: cleaningScore, warn: dailyDueCount > 0 },
-    { key: 'documents', icon: TILE_ICONS.documents, title: 'Documents', stat: `${docsExpiring} expiring`, nav: '/documents', cls: 'tile--blue', pct: docScore, warn: docsExpiring > 0 },
-    { key: 'training', icon: TILE_ICONS.training, title: 'Staff Training', stat: `${trainingOverdue} overdue`, nav: '/staff-training', cls: 'tile--purple', pct: staffScore, warn: trainingOverdue > 0 },
-    { key: 'safeguarding', icon: TILE_ICONS.safeguarding, title: 'Safeguarding', stat: `${sgScore}% compliant`, nav: '/safeguarding', cls: 'tile--teal', pct: sgScore, warn: sgScore < 100 },
-    { key: 'temperature', icon: TILE_ICONS.temperature, title: 'Temp Log', stat: tempLoggedToday ? '\u2713 Logged' : 'NOT YET', statOk: tempLoggedToday, nav: '/temperature', cls: 'tile--orange', pct: tempLoggedToday ? 100 : 0, warn: !tempLoggedToday },
-    { key: 'rplog', icon: TILE_ICONS.rplog, title: 'RP Log', stat: rpComplete ? '\u2713 Complete' : 'NOT YET', statOk: rpComplete, nav: '/rp-log', cls: 'tile--rose', pct: allRpItems.length > 0 ? Math.round((rpDoneCount / allRpItems.length) * 100) : 100, warn: !rpComplete },
-  ]
-
   return (
     <div className="dashboard">
+      <AlertBanner alerts={criticalAlerts} />
+
       {/* === TOP BAR === */}
       <div className="dash-topbar no-print">
         <div className="dash-topbar-left">
@@ -651,23 +640,12 @@ export default function Dashboard() {
         </div>
 
         <div className="dash-topbar-center">
-          {totalActionItems > 0 ? (
-            <button
-              className="dash-topbar-badge dash-topbar-badge--action dash-pulse"
-              onClick={() => setShowOutstanding(!showOutstanding)}
-              title={tooltipText}
-            >
-              <span className="dash-topbar-badge-count">{totalActionItems}</span>
-              <span className="dash-topbar-badge-label">Action{totalActionItems !== 1 ? 's' : ''} needed</span>
-            </button>
-          ) : (
-            <span className="dash-topbar-badge dash-topbar-badge--clear">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16">
-                <path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
-              </svg>
-              All Clear
-            </span>
-          )}
+          <ActionCounter
+            overdue={overdueCount}
+            dueToday={dueTodayCount}
+            upcoming={upcomingCount}
+            onToggleOutstanding={() => setShowOutstanding(!showOutstanding)}
+          />
         </div>
 
         <div className="dash-topbar-right">
@@ -708,30 +686,11 @@ export default function Dashboard() {
 
       <div className="dash-body">
       <div className="dash-main-col">
-      {/* === QUICK-NAV TILE GRID === */}
-      <div className="dash-tiles no-print">
-        {tiles.map((t, i) => (
-          <button
-            key={t.key}
-            className={`dash-tile ${t.cls} ${t.warn && !t.statOk ? 'dash-tile--shimmer' : ''}`}
-            onClick={() => navigate(t.nav)}
-            style={{ animationDelay: `${i * 100}ms` }}
-          >
-            <span className="dash-tile-icon">{t.icon}</span>
-            <div className="dash-tile-content">
-              <span className="dash-tile-title">{t.title}</span>
-              <span className={`dash-tile-stat ${t.statOk === true ? 'dash-tile-stat--ok' : ''} ${t.statOk === false ? 'dash-tile-stat--warn' : ''}`}>
-                {t.stat}
-              </span>
-            </div>
-            <span className="dash-tile-arrow">&rarr;</span>
-            {/* Progress bar along bottom */}
-            <div className="dash-tile-progress">
-              <div className="dash-tile-progress-fill" style={{ width: `${t.pct}%` }} />
-            </div>
-          </button>
-        ))}
-      </div>
+      {/* === COMPLIANCE CARDS === */}
+      <ComplianceCards areas={complianceCardData} />
+
+      {/* === QUICK LINKS === */}
+      <QuickLinks links={quickLinksData} />
 
       {/* === SEARCH BAR === */}
       <div className="dash-search no-print">
@@ -787,27 +746,6 @@ export default function Dashboard() {
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       />
-
-      {/* === COMPLIANCE FOOTER STRIP === */}
-      <div className="compliance-strip no-print">
-        {complianceAreas.map(item => (
-          <AnimatedBar
-            key={item.label}
-            pct={item.score}
-            label={
-              <>
-                {item.label}
-                {trends[item.label] && (
-                  <span className={`trend-arrow trend-arrow--${trends[item.label]}`}>
-                    {trends[item.label] === 'up' ? '\u2191' : '\u2193'}
-                  </span>
-                )}
-              </>
-            }
-            onClick={() => navigate(item.nav)}
-          />
-        ))}
-      </div>
 
       </div>{/* end dash-main-col */}
 
