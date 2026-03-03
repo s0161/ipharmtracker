@@ -5,271 +5,202 @@ import { useTheme } from '../hooks/useTheme'
 import { useUser } from '../contexts/UserContext'
 import { getStaffInitials } from '../utils/rotationManager'
 
+// ─── NAV ICONS (16x16 viewBox) ───
+function NI({ name, color }) {
+  const p = { stroke: color, strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round', fill: 'none' }
+  const m = {
+    grid: <><rect x="2" y="2" width="5" height="5" rx="1" {...p} /><rect x="9" y="2" width="5" height="5" rx="1" {...p} /><rect x="2" y="9" width="5" height="5" rx="1" {...p} /><rect x="9" y="9" width="5" height="5" rx="1" {...p} /></>,
+    check: <path d="M4 8l2.5 2.5L12 4" {...p} />,
+    clip: <><rect x="4" y="2" width="8" height="12" rx="1" {...p} /><path d="M6 2V1h4v1M7 7h2M7 10h4" {...p} /></>,
+    therm: <path d="M8 2v7.5a2.5 2.5 0 1 1-2 0V2a1 1 0 0 1 2 0z" {...p} />,
+    book: <><path d="M2 3h4a2 2 0 0 1 2 2v9a1.5 1.5 0 0 0-1.5-1.5H2V3z" {...p} /><path d="M14 3h-4a2 2 0 0 0-2 2v9a1.5 1.5 0 0 1 1.5-1.5H14V3z" {...p} /></>,
+    spark: <path d="M8 2l1.5 4.5L14 8l-4.5 1.5L8 14l-1.5-4.5L2 8l4.5-1.5z" {...p} />,
+    file: <><path d="M4 2h6l4 4v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" {...p} /><path d="M10 2v4h4" {...p} /></>,
+    shield: <path d="M8 1L2 4v4c0 4.5 3 7.5 6 9 3-1.5 6-4.5 6-9V4L8 1z" {...p} />,
+    users: <><circle cx="6" cy="5" r="2.5" {...p} /><path d="M1 14c0-3 2.5-5 5-5s5 2 5 5" {...p} /></>,
+    gear: <><circle cx="8" cy="8" r="2.5" {...p} /><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4" {...p} /></>,
+    sun: <><circle cx="8" cy="8" r="3" {...p} /><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.2 3.2l1.4 1.4M11.4 11.4l1.4 1.4M3.2 12.8l1.4-1.4M11.4 4.6l1.4-1.4" {...p} /></>,
+    moon: <path d="M12 3a6 6 0 1 0 0 10A5 5 0 0 1 12 3z" {...p} />,
+  }
+  return <svg width="16" height="16" viewBox="0 0 16 16" fill="none">{m[name]}</svg>
+}
+
 const sections = [
   {
     label: 'DAILY',
     items: [
-      {
-        to: '/',
-        label: 'Dashboard',
-        icon: (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" />
-            <rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" />
-          </svg>
-        ),
-        shortcut: 'D',
-      },
-      {
-        to: '/my-tasks',
-        label: 'My Tasks',
-        icon: (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M9 11l3 3L22 4" />
-            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
-          </svg>
-        ),
-        shortcut: 'M',
-      },
-      {
-        to: '/rp-log',
-        label: 'RP Log',
-        icon: (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
-            <rect x="8" y="2" width="8" height="4" rx="1" /><path d="M9 14l2 2 4-4" /><path d="M9 10h6" />
-          </svg>
-        ),
-        shortcut: 'R',
-      },
-      {
-        to: '/temperature',
-        label: 'Temp Log',
-        icon: (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z" />
-          </svg>
-        ),
-      },
+      { to: '/', label: 'Dashboard', icon: 'grid', shortcut: 'D' },
+      { to: '/my-tasks', label: 'My Tasks', icon: 'check', shortcut: 'M' },
+      { to: '/rp-log', label: 'RP Log', icon: 'clip', shortcut: 'R' },
+      { to: '/temperature', label: 'Temp Log', icon: 'therm' },
     ],
   },
   {
     label: 'RECORDS',
     items: [
-      {
-        to: '/training',
-        label: 'Training Logs',
-        icon: (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" /><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" />
-          </svg>
-        ),
-        shortcut: 'T',
-      },
-      {
-        to: '/cleaning',
-        label: 'Cleaning Rota',
-        icon: (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
-            <rect x="8" y="2" width="8" height="4" rx="1" /><path d="M9 14l2 2 4-4" />
-          </svg>
-        ),
-        shortcut: 'C',
-      },
-      {
-        to: '/documents',
-        label: 'Documents',
-        icon: (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-            <polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" />
-          </svg>
-        ),
-      },
+      { to: '/training', label: 'Training Logs', icon: 'book', shortcut: 'T' },
+      { to: '/cleaning', label: 'Cleaning Rota', icon: 'spark', shortcut: 'C' },
+      { to: '/documents', label: 'Documents', icon: 'file' },
     ],
   },
   {
     label: 'COMPLIANCE',
     items: [
-      {
-        to: '/safeguarding',
-        label: 'Safeguarding',
-        icon: (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-          </svg>
-        ),
-      },
-      {
-        to: '/staff-training',
-        label: 'Staff Training',
-        icon: (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" />
-            <path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" />
-          </svg>
-        ),
-        shortcut: 'S',
-      },
+      { to: '/safeguarding', label: 'Safeguarding', icon: 'shield' },
+      { to: '/staff-training', label: 'Staff Training', icon: 'users', shortcut: 'S' },
     ],
   },
   {
     label: 'SYSTEM',
     items: [
-      {
-        to: '/settings',
-        label: 'Settings',
-        icon: (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="3" />
-            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
-          </svg>
-        ),
-      },
+      { to: '/settings', label: 'Settings', icon: 'gear' },
     ],
   },
 ]
-
-// Flatten for notification bell
-const allNavItems = sections.flatMap(s => s.items)
 
 export default function Sidebar({ open, onClose }) {
   const counts = useSidebarCounts()
   const { theme, toggle: toggleTheme } = useTheme()
   const { user, logout: logoutUser } = useUser()
-  const [bellOpen, setBellOpen] = useState(false)
-  const [lastSynced, setLastSynced] = useState(new Date())
-
-  // Update last synced timestamp periodically
-  useEffect(() => {
-    const id = setInterval(() => setLastSynced(new Date()), 30000)
-    return () => clearInterval(id)
-  }, [])
-
-  function timeAgo(date) {
-    const diff = Math.floor((Date.now() - date.getTime()) / 1000)
-    if (diff < 60) return 'just now'
-    if (diff < 3600) return `${Math.floor(diff / 60)} min ago`
-    return `${Math.floor(diff / 3600)} hr ago`
-  }
-
-  // Gather all alerts for notification bell
-  const alerts = []
-  Object.entries(counts).forEach(([path, c]) => {
-    const label = allNavItems.find(n => n.to === path)?.label || path
-    if (c.red > 0) alerts.push({ label, count: c.red, type: 'red' })
-    if (c.amber > 0) alerts.push({ label, count: c.amber, type: 'amber' })
-  })
-  const totalAlerts = alerts.reduce((s, a) => s + a.count, 0)
 
   return (
     <>
-      {open && <div className="sidebar-overlay" onClick={onClose} />}
-      <aside className={`sidebar ${open ? 'sidebar--open' : ''}`}>
-        <div className="sidebar-brand">
-          <svg className="sidebar-logo" viewBox="0 0 40 40">
-            <defs>
-              <linearGradient id="logo-grad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#3b82f6" />
-                <stop offset="100%" stopColor="#1d4ed8" />
-              </linearGradient>
-            </defs>
-            <rect rx="10" width="40" height="40" fill="url(#logo-grad)" />
-            <path d="M20 8v24M10 20h20" stroke="rgba(255,255,255,0.15)" strokeWidth="6" strokeLinecap="round" />
-            <text x="20" y="26" textAnchor="middle" fill="white" fontWeight="700" fontSize="13" fontFamily="DM Sans, sans-serif">iPD</text>
-          </svg>
-          <div className="sidebar-brand-text">
-            <span className="sidebar-brand-name">iPharmacy</span>
-            <span className="sidebar-brand-sub">Direct</span>
+      {/* Mobile overlay */}
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/75 backdrop-blur-sm z-[49] lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      <aside
+        className={`fixed left-0 top-0 h-screen w-[220px] bg-ec-sidebar z-50 flex flex-col
+          border-r border-ec-div font-sans
+          transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
+          lg:translate-x-0 ${open ? 'translate-x-0 shadow-[8px_0_32px_rgba(0,0,0,0.5)]' : '-translate-x-full'}`}
+      >
+        {/* Emerald gradient edge */}
+        <div
+          className="absolute left-0 top-0 w-px h-1/2 pointer-events-none"
+          style={{ background: 'linear-gradient(to bottom, #10b981 0%, rgba(16,185,129,0.2) 40%, transparent 100%)' }}
+        />
+        {/* Emerald radial glow */}
+        <div
+          className="absolute left-0 top-0 w-full h-[120px] pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at 0% 0%, rgba(16,185,129,0.04), transparent 70%)' }}
+        />
+
+        {/* Brand */}
+        <div className="flex items-center gap-2.5 px-4 py-5 border-b border-ec-div">
+          <div
+            className="w-[30px] h-[30px] rounded-lg flex items-center justify-center text-[9px] font-extrabold text-white tracking-tighter"
+            style={{
+              background: 'linear-gradient(135deg, #10b981, #059669)',
+              boxShadow: '0 2px 8px rgba(16,185,129,0.3)',
+            }}
+          >
+            IPD
           </div>
-          {/* Notification bell */}
-          <button className="sidebar-bell" onClick={() => setBellOpen(!bellOpen)} aria-label="Notifications">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15">
-              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 01-3.46 0" />
-            </svg>
-            {totalAlerts > 0 && <span className="sidebar-bell-dot" />}
+          <div>
+            <div className="text-[13px] font-bold text-ec-t1 leading-tight">iPharmacy</div>
+            <div className="text-[9px] font-semibold text-ec-t3 tracking-[1.5px] uppercase">Direct</div>
+          </div>
+          {/* Mobile close */}
+          <button
+            onClick={onClose}
+            className="ml-auto bg-transparent border-none text-ec-t3 cursor-pointer text-lg p-1 lg:hidden"
+          >
+            ✕
           </button>
         </div>
 
-        {/* Notification dropdown */}
-        {bellOpen && (
-          <div className="sidebar-notifications">
-            <h4 className="sidebar-notifications-title">Alerts</h4>
-            {alerts.length === 0 ? (
-              <p className="sidebar-notifications-empty">No alerts</p>
-            ) : (
-              alerts.map((a, i) => (
-                <div key={i} className={`sidebar-notification sidebar-notification--${a.type}`}>
-                  <span className={`sidebar-notification-dot sidebar-notification-dot--${a.type}`} />
-                  <span>{a.label}: {a.count} {a.type === 'red' ? 'overdue' : 'due soon'}</span>
-                </div>
-              ))
-            )}
-          </div>
-        )}
-
-        <nav className="sidebar-nav">
+        {/* Nav */}
+        <nav className="flex-1 overflow-y-auto py-1">
           {sections.map((section) => (
-            <div key={section.label} className="sidebar-section">
-              <span className="sidebar-section-label">{section.label}</span>
+            <div key={section.label}>
+              <div className="text-[9px] font-bold text-ec-t4 tracking-[1.5px] uppercase px-4 pt-[22px] pb-1.5">
+                {section.label}
+              </div>
               {section.items.map((item) => {
                 const badge = counts[item.to]
-                const hasAction = badge && (badge.red > 0 || badge.amber > 0)
+                const total = badge ? (badge.red || 0) + (badge.amber || 0) : 0
+                const badgeType = badge?.red > 0 ? 'red' : badge?.amber > 0 ? 'amber' : null
+
                 return (
                   <NavLink
                     key={item.to}
                     to={item.to}
                     end={item.to === '/'}
-                    className={({ isActive }) =>
-                      `sidebar-link ${isActive ? 'sidebar-link--active' : ''}`
-                    }
                     onClick={onClose}
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 w-[calc(100%-16px)] mx-2 my-px px-3 py-2 rounded-[7px]
+                       border-none cursor-pointer text-[13px] text-left no-underline
+                       transition-all duration-150 ease-in-out
+                       ${isActive
+                        ? 'bg-white/[0.06] text-ec-t1 font-semibold shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]'
+                        : 'bg-transparent text-ec-z6 font-normal hover:bg-white/[0.03] hover:text-[#a1a1aa]'
+                      }`
+                    }
                   >
-                    <span className="sidebar-link-icon">
-                      {item.icon}
-                      {hasAction && <span className="sidebar-red-dot" />}
-                    </span>
-                    <span className="sidebar-link-label">{item.label}</span>
-                    {item.shortcut && <span className="sidebar-shortcut">{item.shortcut}</span>}
-                    {badge && (badge.red + badge.amber) > 0 && (
-                      <span className={`sidebar-badge sidebar-badge--${badge.red > 0 ? 'red' : 'amber'}`}>
-                        {badge.red + badge.amber}
-                      </span>
+                    {({ isActive }) => (
+                      <>
+                        <NI name={item.icon} color={isActive ? '#e4e4e7' : '#52525b'} />
+                        <span className="flex-1">{item.label}</span>
+                        {total > 0 && (
+                          <span
+                            className={`text-[10px] font-bold px-1.5 py-px rounded-lg min-w-[18px] text-center
+                              ${badgeType === 'red'
+                                ? 'bg-[rgba(239,68,68,0.12)] text-ec-crit-light'
+                                : 'bg-[rgba(245,158,11,0.12)] text-ec-warn-light'
+                              }`}
+                          >
+                            {total}
+                          </span>
+                        )}
+                      </>
                     )}
                   </NavLink>
                 )
               })}
             </div>
           ))}
+
+          {/* Theme toggle in SYSTEM section */}
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-2 w-[calc(100%-16px)] mx-2 my-px px-3 py-2 rounded-[7px]
+              border-none cursor-pointer text-[13px] text-left font-normal
+              bg-transparent text-ec-z6 hover:bg-white/[0.03] hover:text-[#a1a1aa]
+              transition-all duration-150 ease-in-out font-sans"
+          >
+            <NI name={theme === 'dark' ? 'sun' : 'moon'} color="#52525b" />
+            <span className="flex-1">{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+          </button>
         </nav>
 
-        <div className="sidebar-theme-toggle">
-          <button className="sidebar-link" onClick={toggleTheme} style={{ border: 'none', background: 'none', width: '100%', cursor: 'pointer', textAlign: 'left' }}>
-            <span className="sidebar-link-icon">
-              {theme === 'dark' ? (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
-                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                  <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
-                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-                </svg>
-              ) : (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
-                </svg>
-              )}
-            </span>
-            <span className="sidebar-link-label">{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
-          </button>
-        </div>
-
-        {/* User identity pill */}
+        {/* User pill */}
         {user && (
-          <div className="sidebar-user-pill">
-            <span className="sidebar-user-avatar">{getStaffInitials(user.name)}</span>
-            <span className="sidebar-user-name">{user.name}</span>
-            <button className="sidebar-user-switch" onClick={logoutUser} title="Switch user">
+          <div className="flex items-center gap-2.5 px-4 py-3.5 border-t border-ec-div">
+            <div
+              className="w-[30px] h-[30px] rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
+              style={{
+                background: 'linear-gradient(135deg, #10b981, #059669)',
+                boxShadow: '0 2px 8px rgba(16,185,129,0.2)',
+              }}
+            >
+              {getStaffInitials(user.name)}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-semibold text-ec-t1 truncate">{user.name}</div>
+              <div className="text-[10px] text-ec-t3">
+                {user.is_manager ? 'Manager' : 'Staff'}
+              </div>
+            </div>
+            <button
+              onClick={logoutUser}
+              title="Switch user"
+              className="bg-transparent border-none text-ec-t3 cursor-pointer p-1 hover:text-ec-t1 transition-colors"
+            >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
                 <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
                 <polyline points="16 17 21 12 16 7" />
@@ -278,16 +209,6 @@ export default function Sidebar({ open, onClose }) {
             </button>
           </div>
         )}
-
-        <div className="sidebar-footer">
-          <small>Compliance Tracker v4.0</small>
-          <small className="sidebar-synced">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="10" height="10">
-              <polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
-            </svg>
-            Synced {timeAgo(lastSynced)}
-          </small>
-        </div>
       </aside>
     </>
   )

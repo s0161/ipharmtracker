@@ -98,6 +98,22 @@ export function getRotationList() {
   return CLEANING_ROTATION
 }
 
+const STAFF_COLORS = {
+  'Amjid Shakoor': '#3b82f6',
+  'Salma Shakoor': '#a78bfa',
+  'Umama Khan': '#0ea5e9',
+  'Urooj Khan': '#0ea5e9',
+  'Moniba Jamil': '#f59e0b',
+  'Sadaf Subhani': '#ec4899',
+  'Shain Nawaz': '#14b8a6',
+  'Marian Hadaway': '#f97316',
+}
+const DEFAULT_STAFF_COLOR = '#22c55e'
+
+export function getStaffColor(name) {
+  return STAFF_COLORS[name] || DEFAULT_STAFF_COLOR
+}
+
 /**
  * Get all cleaning tasks assigned to a specific staff member today.
  * Returns array of { name, frequency, taskIndex } for tasks where
