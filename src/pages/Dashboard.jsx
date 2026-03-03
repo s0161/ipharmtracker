@@ -10,6 +10,7 @@ import {
 } from '../utils/helpers'
 import { getTaskAssignee, getRPAssignee, getStaffInitials, getStaffColor } from '../utils/rotationManager'
 import { useUser } from '../contexts/UserContext'
+import { usePharmacyConfig } from '../hooks/usePharmacyConfig'
 import { useToast } from '../components/Toast'
 import {
   AlertBanner,
@@ -52,6 +53,7 @@ export default function Dashboard() {
   const navigate = useNavigate()
   const showToast = useToast()
   const { user } = useUser()
+  const [pharmacyConfig] = usePharmacyConfig()
 
   // ─── SUPABASE DATA ───
   const [documents, , docsLoading] = useSupabase('documents', [])
@@ -550,7 +552,7 @@ export default function Dashboard() {
           <NotificationBell notifications={notifications} />
 
           <div className="text-[11px] text-ec-z6 px-3 py-1 rounded-[20px] bg-white/[0.03] border border-ec-border font-medium tracking-wide">
-            FED07
+            {pharmacyConfig.gphcNumber || 'FED07'}
           </div>
         </div>
       </div>
@@ -658,7 +660,7 @@ export default function Dashboard() {
         className="ec-fadeup mt-12 py-5 border-t border-ec-div text-center"
         style={{ animationDelay: '0.55s' }}
       >
-        <span className="text-[11px] text-ec-t5 tracking-wide">Compliance Tracker v4.0 · iPharmacy Direct</span>
+        <span className="text-[11px] text-ec-t5 tracking-wide">Compliance Tracker v4.0 · {pharmacyConfig.pharmacyName || 'iPharmacy Direct'}</span>
       </div>
 
       {/* SCROLL FADE */}

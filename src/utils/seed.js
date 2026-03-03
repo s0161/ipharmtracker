@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { generateId } from './helpers'
 
-const SEED_KEY = 'ipd_seeded_v23'
+const SEED_KEY = 'ipd_seeded_v24'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -11,6 +11,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
   'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13', 'ipd_seeded_v14', 'ipd_seeded_v15', 'ipd_seeded_v16',
   'ipd_seeded_v17', 'ipd_seeded_v18', 'ipd_seeded_v19', 'ipd_seeded_v20', 'ipd_seeded_v21', 'ipd_seeded_v22',
+  'ipd_seeded_v23',
 ]
 
 export function cleanupOldLocalStorage() {
@@ -173,6 +174,66 @@ export async function seedIfNeeded() {
       notes: 'Six-monthly full pharmacy audit — next due June 2026. Covers dispensing, CDs, fridge, premises, SOPs, staff training records.',
       created_at: new Date().toISOString(),
     },
+    // Risk Assessments
+    {
+      id: generateId(),
+      document_name: 'COSHH Assessment',
+      category: 'Risk Assessment',
+      owner: 'Amjid Shakoor',
+      issue_date: '2025-06-01',
+      expiry_date: '2027-06-01',
+      notes: 'Biennial COSHH assessment — covers hazardous substances used in dispensing and cleaning.',
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: generateId(),
+      document_name: 'Lone Working Assessment',
+      category: 'Risk Assessment',
+      owner: 'Amjid Shakoor',
+      issue_date: '2025-06-01',
+      expiry_date: '2027-06-01',
+      notes: 'Biennial lone working risk assessment — covers pharmacist and staff lone working procedures.',
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: generateId(),
+      document_name: 'Manual Handling Assessment',
+      category: 'Risk Assessment',
+      owner: 'Salma Shakoor',
+      issue_date: '2025-06-01',
+      expiry_date: '2027-06-01',
+      notes: 'Biennial manual handling assessment — covers stock handling, deliveries, and dispensary operations.',
+      created_at: new Date().toISOString(),
+    },
+    // DBS Checks — one per staff member, 3-year cycle, staggered Jan–Jun 2024
+    ...[
+      { name: 'Amjid Shakoor', issue: '2024-01-10' },
+      { name: 'Salma Shakoor', issue: '2024-01-20' },
+      { name: 'Moniba Jamil', issue: '2024-02-05' },
+      { name: 'Umama Khan', issue: '2024-02-15' },
+      { name: 'Sadaf Subhani', issue: '2024-02-25' },
+      { name: 'Urooj Khan', issue: '2024-03-05' },
+      { name: 'Shain Nawaz', issue: '2024-03-15' },
+      { name: 'Marian Hadaway', issue: '2024-03-25' },
+      { name: 'Jamila Adwan', issue: '2024-04-05' },
+      { name: 'M Imran', issue: '2024-04-15' },
+      { name: 'Shahzadul Hassan', issue: '2024-05-01' },
+      { name: 'Manzoor Ahmed', issue: '2024-05-15' },
+      { name: 'Sarmad Khalid', issue: '2024-06-01' },
+    ].map(s => {
+      const expiry = new Date(s.issue)
+      expiry.setFullYear(expiry.getFullYear() + 3)
+      return {
+        id: generateId(),
+        document_name: `DBS Check — ${s.name}`,
+        category: 'DBS Check',
+        owner: s.name,
+        issue_date: s.issue,
+        expiry_date: expiry.toISOString().slice(0, 10),
+        notes: 'Enhanced DBS',
+        created_at: new Date().toISOString(),
+      }
+    }),
   ]
 
   // Staff Training
@@ -460,6 +521,7 @@ export async function seedIfNeeded() {
     supabase.from('training_logs').delete().neq('id', ''),
     supabase.from('action_items').delete().neq('id', ''),
     supabase.from('assigned_tasks').delete().neq('id', ''),
+    supabase.from('pharmacy_config').delete().neq('id', '00000000-0000-0000-0000-000000000000'),
   ])
 
   // Insert into Supabase tables
@@ -473,6 +535,15 @@ export async function seedIfNeeded() {
     supabase.from('training_topics').insert(trainingTopics.map((name) => ({ name }))),
     supabase.from('training_logs').insert(trainingLogs),
     supabase.from('action_items').insert(actionItems),
+    supabase.from('pharmacy_config').insert({
+      pharmacy_name: 'iPharmacy Direct',
+      address: 'Manchester, UK',
+      superintendent: 'Amjid Shakoor',
+      rp_name: 'Amjid Shakoor',
+      gphc_number: 'FED07',
+      phone: '',
+      email: '',
+    }),
   ]
 
   const results = await Promise.allSettled(inserts)
