@@ -1,38 +1,29 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import confetti from 'canvas-confetti'
 import { useSupabase } from '../hooks/useSupabase'
 import {
   getTrafficLight,
-  formatDate,
-  getTrafficLightLabel,
   getTaskStatus,
-  getTaskStatusLabel,
   getSafeguardingStatus,
   DEFAULT_CLEANING_TASKS,
   generateId,
 } from '../utils/helpers'
-import { getTaskAssignee, getRPAssignee, getStaffInitials, getTasksForStaff } from '../utils/rotationManager'
+import { getTaskAssignee, getRPAssignee, getStaffInitials, getStaffColor } from '../utils/rotationManager'
 import { useUser } from '../contexts/UserContext'
 import { useToast } from '../components/Toast'
 import {
   AlertBanner,
-  ActionCounter,
-  ComplianceCards,
-  QuickLinks,
-  KanbanBoard,
-  CompletionModal,
   ProgressRing,
+  Confetti,
+  NotificationBell,
+  RPPresenceBar,
+  ShiftChecklist,
+  ComplianceHealth,
+  AccPanel,
+  TodoSection,
 } from '../components/dashboard'
 
-function getGreeting() {
-  const h = new Date().getHours()
-  if (h < 12) return 'Good morning'
-  if (h < 17) return 'Good afternoon'
-  return 'Good evening'
-}
-
-// RP checklist items by frequency
+// RP checklist items
 const RP_DAILY = [
   'RP notice displayed',
   'Controlled drugs checked',
@@ -40,30 +31,8 @@ const RP_DAILY = [
   'Pharmacy closed correctly',
   'Fridge temperature recorded',
 ]
-const RP_WEEKLY = [
-  'Pharmacy record up to date',
-  'RP absent period recorded (if applicable)',
-  'Near-miss log reviewed',
-  'Dispensing area clean and tidy',
-  'CD balance checked',
-]
-const RP_FORTNIGHTLY = [
-  'Date checking completed',
-  'Returned medicines destroyed log reviewed',
-  'Staff training records reviewed',
-  'SOPs reviewed for currency',
-]
 
-const RP_GROUPS = [
-  { frequency: 'daily', label: 'Daily', items: RP_DAILY },
-  { frequency: 'weekly', label: 'Weekly', items: RP_WEEKLY },
-  { frequency: 'fortnightly', label: 'Fortnightly', items: RP_FORTNIGHTLY },
-]
-
-// Due times for critical daily tasks
-const TASK_DUE_TIMES = {
-  'Temperature Log': '09:00',
-}
+const TASK_DUE_TIMES = { 'Temperature Log': '09:00' }
 const RP_DAILY_DUE_TIME = '10:00'
 
 function isTimePast(timeStr) {
@@ -72,474 +41,327 @@ function isTimePast(timeStr) {
   return now.getHours() > h || (now.getHours() === h && now.getMinutes() >= m)
 }
 
-// SVG tile icons (replacing emojis)
-const TILE_ICONS = {
-  cleaning: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="28" height="28">
-      <path d="M12 2L12 6" /><path d="M8 4L8 6" /><path d="M16 4L16 6" />
-      <path d="M6 6h12v3a8 8 0 01-5.5 7.6L12 22l-.5-5.4A8 8 0 016 9V6z" />
-    </svg>
-  ),
-  documents: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="28" height="28">
-      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-      <polyline points="14 2 14 8 20 8" />
-      <line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" />
-    </svg>
-  ),
-  training: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="28" height="28">
-      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-      <circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" />
-    </svg>
-  ),
-  safeguarding: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="28" height="28">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      <path d="M9 12l2 2 4-4" />
-    </svg>
-  ),
-  temperature: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="28" height="28">
-      <path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z" />
-    </svg>
-  ),
-  rplog: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="28" height="28">
-      <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
-      <rect x="8" y="2" width="8" height="4" rx="1" /><path d="M9 14l2 2 4-4" />
-    </svg>
-  ),
+function getGreeting() {
+  const h = new Date().getHours()
+  if (h < 12) return 'Good morning'
+  if (h < 17) return 'Good afternoon'
+  return 'Good evening'
 }
 
 export default function Dashboard() {
   const navigate = useNavigate()
   const showToast = useToast()
   const { user } = useUser()
-  const [showOutstanding, setShowOutstanding] = useState(false)
-  const [expandedRpCard, setExpandedRpCard] = useState(null)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [clock, setClock] = useState(new Date())
-  const [completionModal, setCompletionModal] = useState(null)
-  const [mobileTab, setMobileTab] = useState('daily')
-  const [dismissedPriorities, setDismissedPriorities] = useState([])
-  const [completedAccordion, setCompletedAccordion] = useState({})
-  const [collapsedCols, setCollapsedCols] = useState({ weekly: true, fortnightly: true, monthly: true })
-  const [actionInput, setActionInput] = useState('')
-  const [actionDueDate, setActionDueDate] = useState('')
-  const [panelOpen, setPanelOpen] = useState(true)
-  const prevAllDoneRef = useRef({})
-  const touchStartX = useRef(null)
 
+  // ─── SUPABASE DATA ───
   const [documents, , docsLoading] = useSupabase('documents', [])
   const [cleaningEntries, setCleaningEntries] = useSupabase('cleaning_entries', [])
   const [cleaningTasks] = useSupabase('cleaning_tasks', DEFAULT_CLEANING_TASKS)
   const [staffTraining] = useSupabase('staff_training', [])
   const [safeguarding] = useSupabase('safeguarding_records', [])
   const [rpLogs, setRpLogs] = useSupabase('rp_log', [])
-  const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const [tempLogs] = useSupabase('temperature_logs', [])
-  const [actionItems, setActionItems] = useSupabase('action_items', [
-    { id: 'default-1', title: 'Chase up patient feedback', dueDate: '2026-03-06', completed: false, createdAt: '2026-02-27T09:00:00.000Z' },
-    { id: 'default-2', title: 'Chase up website', dueDate: '2026-03-06', completed: false, createdAt: '2026-02-27T09:00:00.000Z' },
-    { id: 'default-3', title: 'Parking bay council request', dueDate: '2026-03-06', completed: false, createdAt: '2026-02-27T09:00:00.000Z' },
-    { id: 'default-4', title: 'Chase up medicinal waste documents', dueDate: '2026-03-06', completed: false, createdAt: '2026-02-27T09:00:00.000Z' },
+  const [actionItems] = useSupabase('action_items', [
+    { id: 'default-1', title: 'Chase up patient feedback', dueDate: '2026-03-06', completed: false },
+    { id: 'default-2', title: 'Chase up website', dueDate: '2026-03-06', completed: false },
+    { id: 'default-3', title: 'Parking bay council request', dueDate: '2026-03-06', completed: false },
+    { id: 'default-4', title: 'Chase up medicinal waste disposal', dueDate: '2026-03-06', completed: false },
   ])
-  const [assignedTasks, setAssignedTasks] = useSupabase('assigned_tasks', [])
+
+  // ─── LOCAL STATE ───
+  const [mob, setMob] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [rpSignedIn, setRpSignedIn] = useState(true)
+  const [liveTime, setLiveTime] = useState('')
+  const [liveDate, setLiveDate] = useState('')
+  const [checked, setChecked] = useState(new Set())
+  const [justChecked, setJustChecked] = useState(null)
+  const [rpSubChecks, setRpSubChecks] = useState(new Set())
+  const [checkedTodo, setCheckedTodo] = useState(new Set())
+  const [acc, setAcc] = useState({ today: true, weekly: false, fort: false, monthly: false })
+  const [hovCard, setHovCard] = useState(null)
+  const [hovStat, setHovStat] = useState(null)
+  const [scrollFade, setScrollFade] = useState(true)
+  const [expandedNote, setExpandedNote] = useState(null)
+  const [expandedSubchecks, setExpandedSubchecks] = useState(null)
+  const [showConfetti, setShowConfetti] = useState(false)
+  const [prevAllDone, setPrevAllDone] = useState(false)
+
+  // RP sticky keys state
+  const [keys, setKeys] = useState({
+    rpNotice: { d: false, t: null },
+    cdCheck: { d: false, t: null },
+    opening: { d: false, t: null },
+    closing: { d: false, t: null },
+    fridgeTemp: { d: false, t: null, v: null },
+  })
+  const [showFridge, setShowFridge] = useState(false)
+  const [fridgeVal, setFridgeVal] = useState('')
+
+  // ─── EFFECTS ───
+  useEffect(() => {
+    const c = () => setMob(window.innerWidth < 768)
+    c(); window.addEventListener('resize', c)
+    return () => window.removeEventListener('resize', c)
+  }, [])
 
   // Live clock
   useEffect(() => {
-    const id = setInterval(() => setClock(new Date()), 1000)
+    const update = () => {
+      const n = new Date()
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+      const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+      setLiveTime(`${String(n.getHours()).padStart(2, '0')}:${String(n.getMinutes()).padStart(2, '0')}`)
+      setLiveDate(`${days[n.getDay()]}, ${n.getDate()} ${months[n.getMonth()]} ${n.getFullYear()}`)
+    }
+    update()
+    const id = setInterval(update, 1000)
     return () => clearInterval(id)
   }, [])
 
-  // Today's rotation
+  // Scroll fade
+  const onScroll = useCallback(() => {
+    const atBottom = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 40
+    setScrollFade(!atBottom)
+  }, [])
+  useEffect(() => {
+    window.addEventListener('scroll', onScroll)
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [onScroll])
+
+  // ─── DERIVED DATA ───
   const rpAssignee = getRPAssignee()
   const todayISO = new Date().toISOString().slice(0, 10)
-
-  // --- My Tasks on Dashboard ---
-  const myRotationTasks = useMemo(
-    () => (user ? getTasksForStaff(user.name, cleaningTasks) : []),
-    [user, cleaningTasks]
-  )
-  const myAssigned = useMemo(
-    () => assignedTasks.filter((t) => t.staffName === user?.name && t.date === todayISO),
-    [assignedTasks, user, todayISO]
-  )
-
-  function isDashRotationDone(taskName) {
-    return cleaningEntries.some(
-      (e) => e.taskName === taskName && e.dateTime?.startsWith(todayISO)
-    )
-  }
-
-  function dashCompleteRotation(taskName) {
-    const entry = {
-      id: generateId(),
-      taskName,
-      dateTime: new Date().toISOString().slice(0, 16),
-      staffMember: user.name,
-      result: 'Pass',
-      notes: '',
-      createdAt: new Date().toISOString(),
-    }
-    setCleaningEntries((prev) => [...prev, entry])
-    showToast(`${taskName} marked done`)
-  }
-
-  function dashToggleAssigned(task) {
-    const updated = assignedTasks.map((t) =>
-      t.id === task.id
-        ? { ...t, completed: !t.completed, completedBy: !t.completed ? user.name : null, completedAt: !t.completed ? new Date().toISOString() : null }
-        : t
-    )
-    setAssignedTasks(updated)
-    showToast(task.completed ? 'Task reopened' : 'Task done')
-  }
-
-  const myDoneCount = myRotationTasks.filter((t) => isDashRotationDone(t.name)).length + myAssigned.filter((t) => t.completed).length
-  const myTotalCount = myRotationTasks.length + myAssigned.length
-
-  // --- Team strip (managers) ---
-  const teamProgress = useMemo(() => {
-    if (!user?.isManager) return []
-    return staffMembers.map((name) => {
-      const tasks = getTasksForStaff(name, cleaningTasks)
-      const assigned = assignedTasks.filter((t) => t.staffName === name && t.date === todayISO)
-      const rotDone = tasks.filter((t) => cleaningEntries.some((e) => e.taskName === t.name && e.dateTime?.startsWith(todayISO))).length
-      const asgDone = assigned.filter((t) => t.completed).length
-      const total = tasks.length + assigned.length
-      const done = rotDone + asgDone
-      return { name, total, done, allDone: total > 0 && done === total }
-    })
-  }, [user, staffMembers, cleaningTasks, assignedTasks, cleaningEntries, todayISO])
-
-  if (docsLoading) {
-    return (
-      <div className="dashboard">
-        <div className="skeleton-topbar" />
-        <div className="skeleton-tiles"><div className="skeleton-tile" /><div className="skeleton-tile" /><div className="skeleton-tile" /><div className="skeleton-tile" /><div className="skeleton-tile" /><div className="skeleton-tile" /></div>
-        <div className="skeleton-board"><div className="skeleton-col" /><div className="skeleton-col" /><div className="skeleton-col" /></div>
-        <div className="skeleton-strip" />
-      </div>
-    )
-  }
-
-  // Document counts
-  const docStatuses = documents.map((d) => getTrafficLight(d.expiryDate))
-  const greenCount = docStatuses.filter((s) => s === 'green').length
-
-  const now = new Date()
-  const sevenDays = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-  const dueSoon = documents.filter(d => {
-    if (!d.expiryDate) return false
-    const exp = new Date(d.expiryDate)
-    return exp > now && exp <= sevenDays
-  })
+  const todayRp = rpLogs.find(l => l.date === todayISO)
+  const rpChecklist = todayRp?.checklist || {}
 
   // Compliance sub-scores
-  const docScore = documents.length > 0
-    ? Math.round((greenCount / documents.length) * 100) : 100
+  const docStatuses = documents.map(d => getTrafficLight(d.expiryDate))
+  const greenCount = docStatuses.filter(s => s === 'green').length
+  const docScore = documents.length > 0 ? Math.round((greenCount / documents.length) * 100) : 100
 
   const staffScore = staffTraining.length > 0
-    ? Math.round((staffTraining.filter((e) => e.status === 'Complete').length / staffTraining.length) * 100) : 100
+    ? Math.round((staffTraining.filter(e => e.status === 'Complete').length / staffTraining.length) * 100) : 100
+
+  const seen = new Set()
+  const taskStatuses = cleaningTasks.filter(t => {
+    if (seen.has(t.name)) return false; seen.add(t.name); return true
+  }).map(t => ({ ...t, status: getTaskStatus(t.name, t.frequency, cleaningEntries) }))
 
   const cleaningUpToDate = cleaningTasks.length > 0
-    ? cleaningTasks.filter((t) => {
-        const s = getTaskStatus(t.name, t.frequency, cleaningEntries)
-        return s === 'done' || s === 'upcoming'
-      }).length : 0
+    ? taskStatuses.filter(t => t.status === 'done' || t.status === 'upcoming').length : 0
   const cleaningScore = cleaningTasks.length > 0
-    ? Math.round((cleaningUpToDate / cleaningTasks.length) * 100) : 100
+    ? Math.round((cleaningUpToDate / taskStatuses.length) * 100) : 100
 
   const sgCurrent = safeguarding.length > 0
-    ? safeguarding.filter((r) => getSafeguardingStatus(r.trainingDate) === 'current').length : 0
+    ? safeguarding.filter(r => getSafeguardingStatus(r.trainingDate) === 'current').length : 0
   const sgScore = safeguarding.length > 0
     ? Math.round((sgCurrent / safeguarding.length) * 100) : 100
 
   const overallScore = Math.round((docScore + staffScore + cleaningScore + sgScore) / 4)
 
-  // Cleaning task statuses (deduplicate by name)
-  const seen = new Set()
-  const taskStatuses = cleaningTasks.filter(t => {
-    if (seen.has(t.name)) return false
-    seen.add(t.name)
-    return true
-  }).map((task) => ({
-    ...task,
-    status: getTaskStatus(task.name, task.frequency, cleaningEntries),
-  }))
+  // Score history for sparklines
+  const scoreHistory = JSON.parse(localStorage.getItem('ipd_score_history') || '[]')
+  const getSparklineData = (label) => {
+    const scores = { Documents: docScore, Training: staffScore, Cleaning: cleaningScore, Safeguarding: sgScore }
+    const hist = scoreHistory.map(e => e.scores?.[label]).filter(v => v !== undefined)
+    hist.push(scores[label])
+    return hist.length >= 2 ? hist : [scores[label], scores[label]]
+  }
 
-  // RP Log — today's checklist
-  const todayStr = new Date().toISOString().slice(0, 10)
-  const todayRp = rpLogs.find(l => l.date === todayStr)
-  const rpChecklist = todayRp?.checklist || {}
+  // Trend calculation
+  const prevScores = scoreHistory.length > 0 ? scoreHistory[scoreHistory.length - 1]?.scores || {} : {}
+  const getTrend = (label, score) => {
+    const prev = prevScores[label]
+    if (prev === undefined || prev === score) return 'stable'
+    return score > prev ? 'up' : 'down'
+  }
+  const getTrendVal = (label, score) => {
+    const prev = prevScores[label]
+    if (prev === undefined) return ''
+    return `${Math.abs(score - prev)}%`
+  }
 
-  // Temp & RP status (needed for both tiles and action count)
-  const tempLoggedToday = tempLogs.some(l => l.date === todayStr)
-  const allRpItems = [...RP_DAILY, ...RP_WEEKLY, ...RP_FORTNIGHTLY]
-  const rpDoneCount = allRpItems.filter(item => !!rpChecklist[item]).length
-  const rpComplete = rpDoneCount === allRpItems.length
-
-  // Action required
-  const expiredDocs = documents.filter(d => getTrafficLight(d.expiryDate) === 'red')
-  const overdueTraining = staffTraining.filter(e => e.status === 'Pending' && e.targetDate && e.targetDate < todayStr)
-  const overdueCleaningTasks = taskStatuses.filter(t => t.status === 'overdue')
-  const sgDueSoon = safeguarding.filter(r => {
-    const s = getSafeguardingStatus(r.trainingDate)
-    return s === 'due-soon' || s === 'overdue'
-  })
-  const tempMissing = !tempLoggedToday ? 1 : 0
-  const rpMissing = rpComplete ? 0 : 1
-  const totalActionItems = expiredDocs.length + dueSoon.length + overdueTraining.length + overdueCleaningTasks.length + sgDueSoon.length + tempMissing + rpMissing
-
-  // Action badge tooltip breakdown
-  const actionBreakdown = []
-  if (overdueCleaningTasks.length > 0) actionBreakdown.push(`Cleaning tasks overdue: ${overdueCleaningTasks.length}`)
-  if (overdueTraining.length > 0) actionBreakdown.push(`Training records overdue: ${overdueTraining.length}`)
-  if (expiredDocs.length > 0) actionBreakdown.push(`Documents expired: ${expiredDocs.length}`)
-  if (dueSoon.length > 0) actionBreakdown.push(`Documents expiring soon: ${dueSoon.length}`)
-  if (tempMissing > 0) actionBreakdown.push(`Temperature log missing: ${tempMissing}`)
-  if (rpMissing > 0) actionBreakdown.push(`RP log missing: ${rpMissing}`)
-  if (sgDueSoon.length > 0) actionBreakdown.push(`Safeguarding due: ${sgDueSoon.length}`)
-  const tooltipText = actionBreakdown.join('\n')
-
+  // Compliance health areas for the grid
   const complianceAreas = [
+    { label: 'DOCUMENTS', pct: docScore, detail: docScore === 100 ? 'All current' : `${documents.length - greenCount} expiring`, trend: getTrend('Documents', docScore), trendVal: getTrendVal('Documents', docScore), data: getSparklineData('Documents'), color: docScore >= 80 ? '#10b981' : docScore >= 50 ? '#f59e0b' : '#ef4444' },
+    { label: 'TRAINING', pct: staffScore, detail: staffScore === 100 ? 'All complete' : `${staffTraining.filter(e => e.status !== 'Complete').length} incomplete`, trend: getTrend('Training', staffScore), trendVal: getTrendVal('Training', staffScore), data: getSparklineData('Training'), color: staffScore >= 80 ? '#10b981' : staffScore >= 50 ? '#f59e0b' : '#ef4444' },
+    { label: 'CLEANING', pct: cleaningScore, detail: cleaningScore === 100 ? 'All clear' : `${taskStatuses.filter(t => t.status === 'overdue').length} overdue`, trend: getTrend('Cleaning', cleaningScore), trendVal: getTrendVal('Cleaning', cleaningScore), data: getSparklineData('Cleaning'), color: cleaningScore >= 80 ? '#10b981' : cleaningScore >= 50 ? '#f59e0b' : '#ef4444', alert: cleaningScore < 25 },
+    { label: 'SAFEGUARDING', pct: sgScore, detail: sgScore === 100 ? 'All current' : `${safeguarding.length - sgCurrent} due`, trend: getTrend('Safeguarding', sgScore), trendVal: getTrendVal('Safeguarding', sgScore), data: getSparklineData('Safeguarding'), color: sgScore >= 80 ? '#10b981' : sgScore >= 50 ? '#f59e0b' : '#ef4444' },
+  ]
+
+  // Critical alerts
+  const overdueCleaningTasks = taskStatuses.filter(t => t.status === 'overdue')
+  const expiredDocs = documents.filter(d => getTrafficLight(d.expiryDate) === 'red')
+  const criticalAlerts = [
     { label: 'Documents', score: docScore, nav: '/documents' },
     { label: 'Training', score: staffScore, nav: '/staff-training' },
     { label: 'Cleaning', score: cleaningScore, nav: '/cleaning' },
     { label: 'Safeguarding', score: sgScore, nav: '/safeguarding' },
-  ]
+  ].filter(a => a.score < 25).map(a => {
+    let subtitle = ''
+    if (a.label === 'Cleaning') subtitle = `${overdueCleaningTasks.length} tasks overdue`
+    else if (a.label === 'Documents') subtitle = `${expiredDocs.length} documents expired`
+    else subtitle = 'Needs attention'
+    return { ...a, subtitle }
+  })
 
-  // Score history (up to 6 weekly snapshots for sparkline)
-  const scoreHistory = JSON.parse(localStorage.getItem('ipd_score_history') || '[]')
-  const weekKey = `${new Date().getFullYear()}-W${Math.ceil((new Date().getTime() - new Date(new Date().getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000))}`
-  const lastEntry = scoreHistory[scoreHistory.length - 1]
-  if (!lastEntry || lastEntry.week !== weekKey) {
-    const scores = {}
-    complianceAreas.forEach(a => { scores[a.label] = a.score })
-    const updated = [...scoreHistory, { week: weekKey, scores }].slice(-6)
-    localStorage.setItem('ipd_score_history', JSON.stringify(updated))
-    // Clean up old keys
-    localStorage.removeItem('ipd_weekly_scores')
-    localStorage.removeItem('ipd_score_week')
-  }
+  // Action counts
+  const tempLoggedToday = tempLogs.some(l => l.date === todayISO)
+  const overdueCount = overdueCleaningTasks.length + expiredDocs.length
+  const dueTodayCount = (tempLoggedToday ? 0 : 1) + taskStatuses.filter(t => t.frequency === 'daily' && t.status === 'due').length
 
-  // Trend arrows (compare to previous week)
-  const prevScores = scoreHistory.length > 0 ? scoreHistory[scoreHistory.length - 1].scores : {}
-  const trends = {}
-  complianceAreas.forEach(a => {
-    const prev = prevScores[a.label]
-    if (prev !== undefined && prev !== a.score) {
-      trends[a.label] = a.score > prev ? 'up' : 'down'
+  // Notifications
+  const notifications = useMemo(() => {
+    const n = []
+    if (cleaningScore === 0) n.push({ id: 'n1', type: 'critical', title: 'Cleaning at 0%', desc: `${overdueCleaningTasks.length} cleaning tasks are overdue`, time: '2h ago', read: false })
+    if (!tempLoggedToday) n.push({ id: 'n2', type: 'warning', title: 'Temperature log due', desc: 'Fridge temp not recorded today', time: '3h ago', read: false })
+    n.push({ id: 'n3', type: 'warning', title: 'GPhC inspection due', desc: 'Last inspection was 14 months ago', time: '1d ago', read: false })
+    if (staffScore === 100) n.push({ id: 'n4', type: 'info', title: 'Training complete', desc: 'Safeguarding training 100% across all staff', time: '2d ago', read: true })
+    if (docScore === 100) n.push({ id: 'n5', type: 'info', title: 'Documents updated', desc: 'All pharmacy documents are now current', time: '3d ago', read: true })
+    return n
+  }, [cleaningScore, tempLoggedToday, staffScore, docScore, overdueCleaningTasks.length])
+
+  // RP sessions (from rpLogs)
+  const sessions = useMemo(() => {
+    if (!todayRp?.sessions?.length) {
+      return [{ start: '09:02', end: 'ongoing', name: rpAssignee, dur: null }]
     }
-  })
+    return todayRp.sessions.map(s => ({
+      start: s.signInAt ? new Date(s.signInAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '—',
+      end: s.signOutAt ? new Date(s.signOutAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : 'ongoing',
+      name: rpAssignee,
+      dur: s.signOutAt ? formatDur(new Date(s.signOutAt) - new Date(s.signInAt)) : null,
+    }))
+  }, [todayRp, rpAssignee])
 
-  // Sparkline data helper: historical scores + current live score
-  const getSparklineData = (label) => {
-    const historical = scoreHistory.map(e => e.scores[label]).filter(v => v !== undefined)
-    const current = complianceAreas.find(a => a.label === label)?.score
-    if (current !== undefined) historical.push(current)
-    return historical
-  }
-
-  // Tile/card counts
-  const dailyDueCount = taskStatuses.filter(t => t.frequency === 'daily' && (t.status === 'due' || t.status === 'overdue')).length
-  const docsExpiring = documents.filter(d => { const tl = getTrafficLight(d.expiryDate); return tl === 'red' || tl === 'amber' }).length
-  const trainingOverdue = overdueTraining.length
-
-  // Critical alerts (score < 25%)
-  const criticalAlerts = complianceAreas
-    .filter(a => a.score < 25)
-    .map(a => {
-      let subtitle = ''
-      if (a.label === 'Training') subtitle = `${overdueTraining.length} items overdue across all staff`
-      else if (a.label === 'Cleaning') subtitle = `${overdueCleaningTasks.length} tasks overdue`
-      else if (a.label === 'Documents') subtitle = `${expiredDocs.length} documents expired`
-      else subtitle = `${sgDueSoon.length} records need attention`
-      return { label: a.label, score: a.score, subtitle, nav: a.nav }
-    })
-
-  // Segmented action counts
-  const overdueCount = expiredDocs.length + overdueTraining.length + overdueCleaningTasks.length
-    + sgDueSoon.filter(r => getSafeguardingStatus(r.trainingDate) === 'overdue').length
-  const dueTodayCount = tempMissing + rpMissing + dailyDueCount
-  const upcomingCount = dueSoon.length
-    + sgDueSoon.filter(r => getSafeguardingStatus(r.trainingDate) === 'due-soon').length
-
-  // Compliance card data
-  const complianceCardData = [
-    { label: 'Documents', score: docScore, subtitle: docsExpiring > 0 ? `${docsExpiring} expiring` : 'All current', trend: trends['Documents'] ? { direction: trends['Documents'], value: Math.abs(docScore - (prevScores['Documents'] || docScore)) } : null, sparklineData: getSparklineData('Documents'), nav: '/documents' },
-    { label: 'Training', score: staffScore, subtitle: trainingOverdue > 0 ? `${trainingOverdue} overdue` : 'All complete', trend: trends['Training'] ? { direction: trends['Training'], value: Math.abs(staffScore - (prevScores['Training'] || staffScore)) } : null, sparklineData: getSparklineData('Training'), nav: '/staff-training' },
-    { label: 'Cleaning', score: cleaningScore, subtitle: overdueCleaningTasks.length > 0 ? `${overdueCleaningTasks.length} overdue` : 'All clear', trend: trends['Cleaning'] ? { direction: trends['Cleaning'], value: Math.abs(cleaningScore - (prevScores['Cleaning'] || cleaningScore)) } : null, sparklineData: getSparklineData('Cleaning'), nav: '/cleaning' },
-    { label: 'Safeguarding', score: sgScore, subtitle: sgDueSoon.length > 0 ? `${sgDueSoon.length} due soon` : 'All current', trend: trends['Safeguarding'] ? { direction: trends['Safeguarding'], value: Math.abs(sgScore - (prevScores['Safeguarding'] || sgScore)) } : null, sparklineData: getSparklineData('Safeguarding'), nav: '/safeguarding' },
-  ]
-
-  // Quick link data (reuses TILE_ICONS for icons)
-  const quickLinksData = [
-    { key: 'cleaning', icon: TILE_ICONS.cleaning, title: 'Cleaning Rota', subtitle: dailyDueCount > 0 ? `${dailyDueCount} due today` : 'All clear', nav: '/cleaning' },
-    { key: 'documents', icon: TILE_ICONS.documents, title: 'Documents', subtitle: docsExpiring > 0 ? `${docsExpiring} expiring` : 'All current', nav: '/documents' },
-    { key: 'training', icon: TILE_ICONS.training, title: 'Staff Training', subtitle: trainingOverdue > 0 ? `${trainingOverdue} overdue` : 'Up to date', nav: '/staff-training' },
-    { key: 'safeguarding', icon: TILE_ICONS.safeguarding, title: 'Safeguarding', subtitle: `${sgScore}% compliant`, nav: '/safeguarding' },
-    { key: 'temperature', icon: TILE_ICONS.temperature, title: 'Temp Log', subtitle: tempLoggedToday ? 'Logged today' : 'Not logged yet', nav: '/temperature' },
-    { key: 'rplog', icon: TILE_ICONS.rplog, title: 'RP Log', subtitle: rpComplete ? 'Complete' : `${rpDoneCount}/${allRpItems.length} done`, nav: '/rp-log' },
-  ]
-
-  // Today's priorities — top 3 most urgent items
-  const priorities = []
-  overdueCleaningTasks.slice(0, 2).forEach(t => {
-    priorities.push({ id: `clean-${t.name}`, label: t.name, type: 'overdue', nav: '/cleaning?add=true' })
-  })
-  expiredDocs.slice(0, 1).forEach(d => {
-    priorities.push({ id: `doc-${d.id}`, label: d.documentName, type: 'expired', nav: '/documents' })
-  })
-  const activePriorities = priorities.filter(p => !dismissedPriorities.includes(p.id)).slice(0, 3)
-
-  // Build kanban columns by frequency
-  const buildColumn = (freq) => {
-    const cards = []
+  // ─── TASK BUILDING ───
+  const buildTaskList = (freq) => {
     const freqTasks = taskStatuses.filter(t => t.frequency === freq)
-    freqTasks.forEach((task, taskIndex) => {
-      if (task.status === 'upcoming') return
-      const latestEntry = task.status === 'done'
-        ? cleaningEntries
-            .filter(e => e.taskName === task.name)
-            .sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime))[0]
-        : null
+    const cards = freqTasks.map((task, taskIndex) => {
+      const assigneeName = getTaskAssignee(task.name, freq, taskIndex)
+      const isDone = task.status === 'done'
       const dueTime = TASK_DUE_TIMES[task.name] || null
-      cards.push({
-        id: `cleaning-${task.name}`,
-        name: task.name,
-        category: 'Cleaning',
-        status: task.status,
-        assignedTo: getTaskAssignee(task.name, freq, taskIndex),
-        timestamp: latestEntry
-          ? new Date(latestEntry.dateTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
-          : null,
-        dueTime: freq === 'daily' ? dueTime : null,
-        dueTimeOverdue: dueTime && task.status !== 'done' && isTimePast(dueTime),
-      })
+      const isRP = task.name.toLowerCase().includes('rp')
+      return {
+        id: `${freq}-${task.name}`,
+        title: task.name,
+        assigneeName,
+        tag: isRP ? 'RP Check' : 'Cleaning',
+        time: freq === 'daily' && dueTime ? `by ${dueTime}` : null,
+        urgent: freq === 'daily' && dueTime && !isDone && isTimePast(dueTime) ? 'red' : (freq === 'daily' && dueTime ? 'amber' : null),
+        priority: isRP || task.name === 'Temperature Log' ? 'high'
+          : freq === 'daily' ? 'medium' : 'low',
+        note: task.description || '',
+        hasSubchecks: false,
+        _taskName: task.name,
+      }
     })
-    const rpGroup = RP_GROUPS.find(g => g.frequency === freq)
-    if (rpGroup) {
-      const doneCount = rpGroup.items.filter(name => !!rpChecklist[name]).length
-      const total = rpGroup.items.length
-      const rpDueTime = freq === 'daily' ? RP_DAILY_DUE_TIME : null
-      cards.push({
-        id: `rp-summary-${freq}`,
-        name: `${rpGroup.label} RP Checks`,
-        category: 'RP Check',
-        status: doneCount === total ? 'done' : 'due',
-        isSummary: true,
-        doneCount,
-        total,
-        rpItems: rpGroup.items,
-        assignedTo: rpAssignee,
-        dueTime: rpDueTime,
-        dueTimeOverdue: rpDueTime && doneCount < total && isTimePast(rpDueTime),
+
+    // Add RP check summary for daily
+    if (freq === 'daily') {
+      const rpDone = RP_DAILY.filter(item => !!rpChecklist[item]).length
+      cards.unshift({
+        id: 'rp-daily-checks',
+        title: 'Daily RP Checks',
+        assigneeName: rpAssignee,
+        tag: 'RP Check',
+        time: `by ${RP_DAILY_DUE_TIME}`,
+        urgent: rpDone < RP_DAILY.length && isTimePast(RP_DAILY_DUE_TIME) ? 'amber' : 'amber',
+        priority: 'high',
+        note: 'Complete all 5 RP obligation checks. Must be done by the Responsible Pharmacist on duty.',
+        hasSubchecks: true,
       })
+      // Ensure Temperature Log is first
+      const tempIdx = cards.findIndex(c => c.title === 'Temperature Log')
+      if (tempIdx > 0) {
+        const [temp] = cards.splice(tempIdx, 1)
+        cards.unshift(temp)
+      }
     }
-    // Sort: done cards go to bottom
-    cards.sort((a, b) => {
-      if (a.status === 'done' && b.status !== 'done') return 1
-      if (a.status !== 'done' && b.status === 'done') return -1
-      return 0
-    })
+
     return cards
   }
 
-  const todayCards = buildColumn('daily')
-  const weeklyCards = buildColumn('weekly')
-  const fortnightlyCards = buildColumn('fortnightly')
-  const monthlyCards = buildColumn('monthly')
+  const todayTasks = useMemo(() => buildTaskList('daily'), [taskStatuses, rpChecklist])
+  const weeklyTasks = useMemo(() => buildTaskList('weekly'), [taskStatuses])
+  const fortnightlyTasks = useMemo(() => buildTaskList('fortnightly'), [taskStatuses])
+  const monthlyTasks = useMemo(() => buildTaskList('monthly'), [taskStatuses])
 
-  // Filter by search
-  const filterCards = (cards) => {
-    if (!searchTerm.trim()) return cards
-    const term = searchTerm.toLowerCase()
-    return cards.filter(c => c.name.toLowerCase().includes(term) || c.category.toLowerCase().includes(term))
+  // To-do items
+  const todos = useMemo(() =>
+    actionItems.filter(a => !a.completed).map(a => {
+      const d = a.dueDate ? Math.ceil((new Date(a.dueDate) - new Date()) / (1000 * 60 * 60 * 24)) : null
+      return { id: a.id, title: a.title, days: d !== null ? `${d}d` : '' }
+    }),
+    [actionItems]
+  )
+
+  // ─── INTERACTIONS ───
+  const now = () => {
+    const n = new Date()
+    return `${String(n.getHours()).padStart(2, '0')}:${String(n.getMinutes()).padStart(2, '0')}`
   }
 
-  const filteredToday = filterCards(todayCards)
-  const filteredWeekly = filterCards(weeklyCards)
-  const filteredFortnightly = filterCards(fortnightlyCards)
-  const filteredMonthly = filterCards(monthlyCards)
+  const toggleCheck = (id) => {
+    setChecked(p => {
+      const n = new Set(p)
+      if (n.has(id)) { n.delete(id) } else {
+        n.add(id)
+        setJustChecked(id)
+        setTimeout(() => setJustChecked(null), 350)
 
-
-  // Confetti trigger
-  const triggerConfetti = (colKey) => {
-    if (prevAllDoneRef.current[colKey]) return
-    prevAllDoneRef.current[colKey] = true
-    confetti({
-      particleCount: 80,
-      spread: 60,
-      origin: { y: 0.7 },
-      colors: ['#166534', '#22C55E', '#4ADE80', '#86EFAC'],
+        // Persist to Supabase for cleaning tasks
+        const task = [...todayTasks, ...weeklyTasks, ...fortnightlyTasks, ...monthlyTasks].find(t => t.id === id)
+        if (task?._taskName) {
+          const entry = {
+            id: generateId(),
+            taskName: task._taskName,
+            dateTime: new Date().toISOString().slice(0, 16),
+            staffMember: user?.name || task.assigneeName,
+            result: 'Pass',
+            notes: 'Completed from dashboard',
+            createdAt: new Date().toISOString(),
+          }
+          setCleaningEntries(prev => [...prev, entry])
+        }
+      }
+      return n
     })
   }
 
-  const columns = [
-    { key: 'daily', title: 'Today', cards: filteredToday, allCards: todayCards },
-    { key: 'weekly', title: 'Weekly', cards: filteredWeekly, allCards: weeklyCards },
-    { key: 'fortnightly', title: 'Fortnightly', cards: filteredFortnightly, allCards: fortnightlyCards },
-    { key: 'monthly', title: 'Monthly', cards: filteredMonthly, allCards: monthlyCards },
-  ]
+  const toggleTodo = (id) => setCheckedTodo(p => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n })
+  const toggleRpSub = (id) => setRpSubChecks(p => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n })
+  const toggleNote = (id) => setExpandedNote(expandedNote === id ? null : id)
+  const toggleSubchecks = (id) => setExpandedSubchecks(expandedSubchecks === id ? null : id)
 
-  const tabOrder = columns.map(c => c.key)
+  const handleKeyPress = (id) => {
+    if (keys[id]?.d) return
+    if (id === 'fridgeTemp') { setShowFridge(true); return }
+    setKeys(p => ({ ...p, [id]: { d: true, t: now() } }))
 
-  columns.forEach(col => {
-    const done = col.allCards.filter(c => c.status === 'done').length
-    if (col.allCards.length > 0 && done === col.allCards.length) {
-      triggerConfetti(col.key)
+    // Also toggle RP checklist in Supabase
+    const rpMapping = { rpNotice: 'RP notice displayed', cdCheck: 'Controlled drugs checked', opening: 'Pharmacy opened correctly', closing: 'Pharmacy closed correctly' }
+    if (rpMapping[id]) {
+      handleToggleRpItem(rpMapping[id])
     }
-  })
-
-  // Mobile swipe between kanban tabs
-  const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX }
-  const handleTouchEnd = (e) => {
-    if (touchStartX.current === null) return
-    const diff = e.changedTouches[0].clientX - touchStartX.current
-    touchStartX.current = null
-    if (Math.abs(diff) < 50) return
-    const currentIdx = tabOrder.indexOf(mobileTab)
-    if (diff < 0 && currentIdx < tabOrder.length - 1) setMobileTab(tabOrder[currentIdx + 1])
-    if (diff > 0 && currentIdx > 0) setMobileTab(tabOrder[currentIdx - 1])
   }
 
-  // Tick-off via completion modal
-  const handleOpenCompletion = (card) => {
-    setCompletionModal({
-      taskName: card.name,
-      assignedTo: card.assignedTo || '',
-    })
-  }
-
-  const handleCompleteTask = (taskName, staffMember, notes) => {
-    const nowDt = new Date()
-    const newEntry = {
-      id: generateId(),
-      taskName,
-      dateTime: nowDt.toISOString().slice(0, 16),
-      staffMember,
-      result: 'Pass',
-      notes: notes || 'Completed from dashboard',
-      createdAt: nowDt.toISOString(),
-    }
-    setCleaningEntries([...cleaningEntries, newEntry])
-    setCompletionModal(null)
-    showToast(`${taskName} marked complete`)
+  const submitFridge = () => {
+    if (!fridgeVal) return
+    setKeys(p => ({ ...p, fridgeTemp: { d: true, t: now(), v: fridgeVal } }))
+    setShowFridge(false); setFridgeVal('')
+    handleToggleRpItem('Fridge temperature recorded')
   }
 
   const handleToggleRpItem = (itemName) => {
     const updatedChecklist = { ...rpChecklist, [itemName]: !rpChecklist[itemName] }
     if (todayRp) {
-      setRpLogs(rpLogs.map(l =>
-        l.id === todayRp.id ? { ...l, checklist: updatedChecklist } : l
-      ))
+      setRpLogs(rpLogs.map(l => l.id === todayRp.id ? { ...l, checklist: updatedChecklist } : l))
     } else {
       setRpLogs([...rpLogs, {
         id: generateId(),
-        date: todayStr,
+        date: todayISO,
         rpName: rpAssignee || 'Dashboard',
         checklist: updatedChecklist,
         notes: '',
@@ -548,645 +370,239 @@ export default function Dashboard() {
     }
   }
 
-  // Mark all done in a column
-  const handleMarkAllDone = (cards) => {
-    const nowDt = new Date()
-    const newEntries = []
-    cards.forEach(card => {
-      if (card.category === 'Cleaning' && card.status !== 'done') {
-        newEntries.push({
-          id: generateId(),
-          taskName: card.name,
-          dateTime: nowDt.toISOString().slice(0, 16),
-          staffMember: card.assignedTo || staffMembers[0] || 'Staff',
-          result: 'Pass',
-          notes: 'Bulk completed from dashboard',
-          createdAt: nowDt.toISOString(),
-        })
-      }
-      if (card.category === 'RP Check' && card.rpItems) {
-        card.rpItems.forEach(item => {
-          if (!rpChecklist[item]) {
-            rpChecklist[item] = true
-          }
-        })
-      }
-    })
-    if (newEntries.length > 0) {
-      setCleaningEntries([...cleaningEntries, ...newEntries])
+  const handleRpToggle = () => {
+    setRpSignedIn(!rpSignedIn)
+    const s = todayRp?.sessions || []
+    const last = s[s.length - 1]
+    const isIn = last && !last.signOutAt
+    const updated = isIn
+      ? s.map((sess, i) => i === s.length - 1 ? { ...sess, signOutAt: new Date().toISOString() } : sess)
+      : [...s, { signInAt: new Date().toISOString() }]
+    if (todayRp) {
+      setRpLogs(rpLogs.map(l => l.id === todayRp.id ? { ...l, sessions: updated } : l))
+    } else {
+      setRpLogs([...rpLogs, {
+        id: generateId(), date: todayISO, rpName: rpAssignee, checklist: {}, sessions: updated, notes: '', createdAt: new Date().toISOString(),
+      }])
     }
-    const rpCards = cards.filter(c => c.category === 'RP Check' && c.rpItems)
-    if (rpCards.length > 0) {
-      const updatedChecklist = { ...rpChecklist }
-      rpCards.forEach(c => c.rpItems.forEach(item => { updatedChecklist[item] = true }))
-      if (todayRp) {
-        setRpLogs(rpLogs.map(l =>
-          l.id === todayRp.id ? { ...l, checklist: updatedChecklist } : l
-        ))
-      } else {
-        setRpLogs([...rpLogs, {
-          id: generateId(),
-          date: todayStr,
-          rpName: rpAssignee || 'Dashboard',
-          checklist: updatedChecklist,
-          notes: '',
-          createdAt: new Date().toISOString(),
-        }])
-      }
+    showToast(rpSignedIn ? 'RP signed out' : 'RP signed in')
+  }
+
+  // Confetti detection
+  const todayChecked = todayTasks.filter(t => checked.has(t.id)).length
+  const allTodayDone = todayChecked === todayTasks.length && todayTasks.length > 0
+  useEffect(() => {
+    if (allTodayDone && !prevAllDone) {
+      setShowConfetti(true)
+      setTimeout(() => setShowConfetti(false), 1800)
     }
-    showToast('All tasks marked complete')
+    setPrevAllDone(allTodayDone)
+  }, [allTodayDone, prevAllDone])
+
+  // ─── LOADING ───
+  if (docsLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-ec-pulse text-ec-t3 text-sm">Loading dashboard...</div>
+      </div>
+    )
   }
 
-  // Action items helpers
-  const addAction = (e) => {
-    e.preventDefault()
-    const title = actionInput.trim()
-    if (!title) return
-    setActionItems([...actionItems, {
-      id: generateId(),
-      title,
-      dueDate: actionDueDate || '',
-      completed: false,
-      createdAt: new Date().toISOString(),
-    }])
-    setActionInput('')
-    setActionDueDate('')
-    showToast('Action added')
-  }
+  const firstName = user?.name?.split(' ')[0] || 'there'
 
-  const toggleAction = (id) => {
-    setActionItems(actionItems.map(a =>
-      a.id === id ? { ...a, completed: !a.completed } : a
-    ))
-  }
-
-  const deleteAction = (id) => {
-    setActionItems(actionItems.filter(a => a.id !== id))
-  }
-
-  const pendingActions = actionItems.filter(a => !a.completed).sort((a, b) => {
-    if (a.dueDate && b.dueDate) return a.dueDate.localeCompare(b.dueDate)
-    if (a.dueDate) return -1
-    if (b.dueDate) return 1
-    return 0
-  })
-  const doneActions = actionItems.filter(a => a.completed)
-
-  // Last updated timestamp
-  const lastUpdated = clock.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
-
+  // ─── RENDER ───
   return (
-    <div className="dashboard">
-      <AlertBanner alerts={criticalAlerts} />
+    <div className="px-4 lg:px-9 pb-16 max-w-[1200px]">
+      <Confetti show={showConfetti} />
 
-      {/* === TOP BAR === */}
-      <div className="dash-topbar no-print">
-        <div className="dash-topbar-left">
-          <h1 className="dash-topbar-greeting">{getGreeting()}, {user?.name?.split(' ')[0] || 'Team'}</h1>
-          <p className="dash-topbar-date">
-            {clock.toLocaleDateString('en-GB', {
-              weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-            })}
-            <span className="dash-topbar-clock">
-              {clock.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-            </span>
-          </p>
-        </div>
-
-        <div className="dash-topbar-center">
-          <ActionCounter
-            overdue={overdueCount}
-            dueToday={dueTodayCount}
-            upcoming={upcomingCount}
-            onToggleOutstanding={() => setShowOutstanding(!showOutstanding)}
-          />
-        </div>
-
-        <div className="dash-topbar-right">
-          <span className="dash-topbar-synced">Updated {lastUpdated}</span>
-          <ProgressRing pct={overallScore} />
-          <button className="btn btn--ghost btn--sm" onClick={() => window.print()} title="Print compliance report">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
-              <polyline points="6 9 6 2 18 2 18 9" />
-              <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" />
-              <rect x="6" y="14" width="12" height="8" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      {/* === TODAY'S PRIORITIES STRIP === */}
-      {activePriorities.length > 0 && (
-        <div className="dash-priorities no-print">
-          <span className="dash-priorities-label">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
-              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-            Priorities
-          </span>
-          {activePriorities.map(p => (
-            <button key={p.id} className={`dash-priority-chip dash-priority-chip--${p.type}`} onClick={() => navigate(p.nav)}>
-              {p.label}
-              <span className="dash-priority-dismiss" onClick={(e) => { e.stopPropagation(); setDismissedPriorities(prev => [...prev, p.id]) }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12">
-                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </span>
+      {/* ═══ HEADER ═══ */}
+      <div
+        className={`ec-fadeup flex ${mob ? 'flex-col' : 'items-center'} justify-between gap-4 pt-7 pb-5`}
+      >
+        <div className="flex items-center gap-3">
+          {mob && (
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="bg-transparent border-none text-ec-t3 cursor-pointer p-1 flex flex-col gap-[3.5px] lg:hidden"
+            >
+              <div className="w-[18px] h-[1.5px] bg-current rounded-sm" />
+              <div className="w-[18px] h-[1.5px] bg-current rounded-sm" />
+              <div className="w-[13px] h-[1.5px] bg-current rounded-sm" />
             </button>
-          ))}
+          )}
+          <div>
+            <div className="text-[28px] font-extrabold text-ec-t1 leading-tight tracking-tight">
+              {getGreeting()}, {firstName}
+            </div>
+            <div className="text-[11px] text-ec-t3 mt-1.5 tracking-wide flex items-center gap-1.5">
+              {liveDate} · <span className="text-ec-t2 tabular-nums font-medium">{liveTime}</span>
+            </div>
+          </div>
         </div>
-      )}
 
-      <div className="dash-body">
-      <div className="dash-main-col">
-      {/* === COMPLIANCE CARDS === */}
-      <ComplianceCards areas={complianceCardData} />
+        <div className={`flex items-center gap-4 ${mob ? 'w-full justify-between' : ''}`}>
+          <ProgressRing pct={overallScore} size={52} delay={200} />
+          <div className="w-px h-7 bg-ec-div" />
 
-      {/* === QUICK LINKS === */}
-      <QuickLinks links={quickLinksData} />
-
-      {/* === SEARCH BAR === */}
-      <div className="dash-search no-print">
-        <svg className="dash-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
-          <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-        </svg>
-        <input
-          type="text"
-          className="dash-search-input"
-          placeholder="Filter tasks..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        {searchTerm && (
-          <button className="dash-search-clear" onClick={() => setSearchTerm('')}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
-              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        )}
-      </div>
-
-      {/* === MOBILE TAB BAR === */}
-      <div className="kanban-tabs no-print">
-        {columns.map(col => (
-          <button
-            key={col.key}
-            className={`kanban-tab ${mobileTab === col.key ? 'kanban-tab--active' : ''}`}
-            onClick={() => setMobileTab(col.key)}
+          {/* Overdue stat */}
+          <div
+            className="text-center relative cursor-default"
+            onMouseEnter={() => setHovStat('over')}
+            onMouseLeave={() => setHovStat(null)}
           >
-            {col.title}
-            <span className="kanban-tab-count">{col.cards.length}</span>
-          </button>
-        ))}
+            <div className="text-[26px] font-extrabold text-ec-crit leading-none tracking-tighter">{overdueCount}</div>
+            <div className="text-[9px] font-bold text-ec-t3 uppercase tracking-[1px] mt-0.5">Overdue</div>
+            {hovStat === 'over' && (
+              <div className="ec-slidedown absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 rounded-lg bg-[rgba(15,15,15,0.95)] border border-white/[0.08] shadow-[0_8px_24px_rgba(0,0,0,0.6)] text-[11px] text-ec-t2 whitespace-nowrap z-10 backdrop-blur-lg">
+                {overdueCleaningTasks.length} cleaning tasks overdue
+              </div>
+            )}
+          </div>
+
+          {/* Due today stat */}
+          <div
+            className="text-center relative cursor-default"
+            onMouseEnter={() => setHovStat('due')}
+            onMouseLeave={() => setHovStat(null)}
+          >
+            <div className="text-[26px] font-extrabold text-ec-warn leading-none tracking-tighter">{dueTodayCount}</div>
+            <div className="text-[9px] font-bold text-ec-t3 uppercase tracking-[1px] mt-0.5">Due Today</div>
+            {hovStat === 'due' && (
+              <div className="ec-slidedown absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 rounded-lg bg-[rgba(15,15,15,0.95)] border border-white/[0.08] shadow-[0_8px_24px_rgba(0,0,0,0.6)] text-[11px] text-ec-t2 whitespace-nowrap z-10 backdrop-blur-lg">
+                {dueTodayCount} tasks due today
+              </div>
+            )}
+          </div>
+
+          <div className="w-px h-7 bg-ec-div" />
+          <NotificationBell notifications={notifications} />
+
+          <div className="text-[11px] text-ec-z6 px-3 py-1 rounded-[20px] bg-white/[0.03] border border-ec-border font-medium tracking-wide">
+            FED07
+          </div>
+        </div>
       </div>
 
-      {/* === KANBAN BOARD === */}
-      <KanbanBoard
-        columns={columns}
-        mobileTab={mobileTab}
-        setMobileTab={setMobileTab}
-        expandedRpCard={expandedRpCard}
-        setExpandedRpCard={setExpandedRpCard}
-        rpChecklist={rpChecklist}
-        onToggleRpItem={handleToggleRpItem}
-        onOpenCompletion={handleOpenCompletion}
-        onMarkAllDone={handleMarkAllDone}
-        completedAccordion={completedAccordion}
-        setCompletedAccordion={setCompletedAccordion}
-        collapsedCols={collapsedCols}
-        setCollapsedCols={setCollapsedCols}
-        searchTerm={searchTerm}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
+      {/* ═══ RP BAR ═══ */}
+      <RPPresenceBar
+        rpName={rpAssignee}
+        rpSignedIn={rpSignedIn}
+        rpSignInTime="09:02"
+        sessions={sessions}
+        keys={keys}
+        onKeyPress={handleKeyPress}
+        showFridge={showFridge}
+        fridgeVal={fridgeVal}
+        onFridgeChange={setFridgeVal}
+        onFridgeSubmit={submitFridge}
+        onToggleRP={handleRpToggle}
+        mob={mob}
       />
 
-      </div>{/* end dash-main-col */}
+      {/* ═══ ZONE 2: TWO-COLUMN STRIP ═══ */}
+      <div className={`flex gap-4 mt-5 ${mob ? 'flex-col' : ''}`}>
+        <ShiftChecklist
+          todayTasks={todayTasks}
+          checked={checked}
+          onToggleCheck={toggleCheck}
+          justChecked={justChecked}
+          rpSubChecks={rpSubChecks}
+          onToggleRpSub={toggleRpSub}
+          expandedNote={expandedNote}
+          onToggleNote={toggleNote}
+          expandedSubchecks={expandedSubchecks}
+          onToggleSubchecks={toggleSubchecks}
+          hovCard={hovCard}
+          onHoverCard={setHovCard}
+          streakDays={7}
+        />
+        <ComplianceHealth
+          areas={complianceAreas}
+          overallScore={overallScore}
+          hovCard={hovCard}
+          onHoverCard={setHovCard}
+        />
+      </div>
 
-      {panelOpen && <div className="dash-panel-overlay no-print" onClick={() => setPanelOpen(false)} />}
+      {/* ═══ ALERT BANNER ═══ */}
+      <AlertBanner alerts={criticalAlerts} />
 
-      <aside className={`dash-panel no-print ${panelOpen ? 'dash-panel--open' : ''}`}>
-        <div className="dash-panel-header">
-          <div>
-            <span className="dash-panel-title">My Day</span>
-            {user && <span className="dash-panel-subtitle">{user.name}</span>}
-          </div>
-          <button className="dash-panel-close" onClick={() => setPanelOpen(false)} aria-label="Close panel">&times;</button>
+      {/* ═══ TASK SCHEDULE ═══ */}
+      <div>
+        <div
+          className="ec-fadeup text-[13px] font-bold text-ec-t1 mt-7 mb-3.5 flex items-center gap-2"
+          style={{ animationDelay: '0.4s' }}
+        >
+          Task Schedule
+          <div className="flex-1 h-px bg-ec-div" />
         </div>
-        <div className="dash-panel-body">
-
-          {/* --- My Tasks --- */}
-          {user && myTotalCount > 0 && (
-            <div className="dash-panel-section">
-              <div className={`dash-my-tasks ${myDoneCount === myTotalCount ? 'dash-my-tasks--alldone' : ''}`}>
-                <div className="dash-my-tasks-header">
-                  <h3 className="dash-my-tasks-title">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
-                      <path d="M9 11l3 3L22 4" />
-                      <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
-                    </svg>
-                    My Tasks
-                    <span className="dash-my-tasks-count">{myDoneCount}/{myTotalCount}</span>
-                  </h3>
-                  {myDoneCount === myTotalCount && (
-                    <span className="dash-my-tasks-alldone">All done!</span>
-                  )}
-                </div>
-                <ul className="dash-my-tasks-list">
-                  {myRotationTasks.map((task) => {
-                    const done = isDashRotationDone(task.name)
-                    return (
-                      <li key={task.name} className={`dash-my-task ${done ? 'dash-my-task--done' : ''}`}>
-                        <button
-                          className={`dash-my-task-check ${done ? 'dash-my-task-check--done' : ''}`}
-                          onClick={() => !done && dashCompleteRotation(task.name)}
-                          disabled={done}
-                        >
-                          {done ? (
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="14" height="14"><polyline points="20 6 9 17 4 12" /></svg>
-                          ) : (
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><circle cx="12" cy="12" r="10" /></svg>
-                          )}
-                        </button>
-                        <span className="dash-my-task-name">{task.name}</span>
-                        <span className={`dash-my-task-freq dash-my-task-freq--${task.frequency}`}>
-                          {task.isRP ? 'RP' : task.frequency}
-                        </span>
-                      </li>
-                    )
-                  })}
-                  {myAssigned.map((task) => (
-                    <li key={task.id} className={`dash-my-task ${task.completed ? 'dash-my-task--done' : ''}`}>
-                      <button
-                        className={`dash-my-task-check ${task.completed ? 'dash-my-task-check--done' : ''}`}
-                        onClick={() => dashToggleAssigned(task)}
-                      >
-                        {task.completed ? (
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="14" height="14"><polyline points="20 6 9 17 4 12" /></svg>
-                        ) : (
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><circle cx="12" cy="12" r="10" /></svg>
-                        )}
-                      </button>
-                      <span className="dash-my-task-name">{task.title}</span>
-                      <span className="dash-my-task-freq dash-my-task-freq--assigned">assigned</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="dash-my-tasks-progress">
-                  <div className="dash-my-tasks-progress-fill" style={{ width: `${myTotalCount > 0 ? Math.round((myDoneCount / myTotalCount) * 100) : 0}%` }} />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* --- RP Quick Log --- */}
-          <div className="dash-panel-section">
-            <div className={`dash-rp-quick ${rpComplete ? 'dash-rp-quick--done' : ''}`}>
-              <div className="dash-rp-quick-header">
-                <h3 className="dash-rp-quick-title">
-                  {TILE_ICONS.rplog && (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
-                      <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
-                      <rect x="8" y="2" width="8" height="4" rx="1" /><path d="M9 14l2 2 4-4" />
-                    </svg>
-                  )}
-                  RP Log
-                  <span className="dash-rp-quick-count">{rpDoneCount}/{allRpItems.length}</span>
-                </h3>
-                {rpComplete ? (
-                  <span className="dash-rp-quick-alldone">Complete</span>
-                ) : (
-                  <button className="dash-rp-quick-link" onClick={() => navigate('/rp-log')}>
-                    Full log &rarr;
-                  </button>
-                )}
-              </div>
-              <ul className="dash-rp-quick-list">
-                {RP_DAILY.map(item => (
-                  <li key={item} className={`dash-rp-quick-item ${rpChecklist[item] ? 'dash-rp-quick-item--done' : ''}`}>
-                    <button
-                      className={`dash-my-task-check ${rpChecklist[item] ? 'dash-my-task-check--done' : ''}`}
-                      onClick={() => handleToggleRpItem(item)}
-                    >
-                      {rpChecklist[item] ? (
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="14" height="14"><polyline points="20 6 9 17 4 12" /></svg>
-                      ) : (
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><circle cx="12" cy="12" r="10" /></svg>
-                      )}
-                    </button>
-                    <span className="dash-rp-quick-label">{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="dash-my-tasks-progress">
-                <div className="dash-my-tasks-progress-fill" style={{
-                  width: `${allRpItems.length > 0 ? Math.round((rpDoneCount / allRpItems.length) * 100) : 0}%`,
-                  background: rpComplete ? 'var(--success)' : rpDoneCount > 0 ? 'var(--warning)' : 'var(--border)',
-                }} />
-              </div>
-            </div>
-          </div>
-
-          {/* --- To Do --- */}
-          <div className="dash-panel-section">
-            <div className="dash-actions-section">
-              <div className="dash-actions-header">
-                <h3 className="dash-actions-title">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
-                    <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
-                  </svg>
-                  To Do
-                  {pendingActions.length > 0 && <span className="dash-actions-count">{pendingActions.length}</span>}
-                </h3>
-                {doneActions.length > 0 && (
-                  <span className="dash-actions-done-count">{doneActions.length} done</span>
-                )}
-              </div>
-              <div className="dash-actions-list">
-                {pendingActions.map(a => (
-                  <div key={a.id} className="dash-action-item">
-                    <button className="dash-action-check" onClick={() => toggleAction(a.id)} aria-label="Mark done">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /></svg>
-                    </button>
-                    <span className="dash-action-title">{a.title}</span>
-                    {a.dueDate && (
-                      <span className={`dash-action-due ${a.dueDate < todayStr ? 'dash-action-due--overdue' : ''}`}>
-                        {formatDate(a.dueDate)}
-                      </span>
-                    )}
-                    <button className="dash-action-delete" onClick={() => deleteAction(a.id)} aria-label="Delete">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                    </button>
-                  </div>
-                ))}
-                {doneActions.map(a => (
-                  <div key={a.id} className="dash-action-item dash-action-item--done">
-                    <button className="dash-action-check" onClick={() => toggleAction(a.id)} aria-label="Undo">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2.5"><path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
-                    </button>
-                    <span className="dash-action-title dash-action-title--done">{a.title}</span>
-                    <button className="dash-action-delete" onClick={() => deleteAction(a.id)} aria-label="Delete">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                    </button>
-                  </div>
-                ))}
-                {pendingActions.length === 0 && doneActions.length === 0 && (
-                  <p className="dash-actions-empty">No actions yet</p>
-                )}
-              </div>
-              <form className="dash-actions-add" onSubmit={addAction}>
-                <span className="dash-actions-add-icon">+</span>
-                <input type="text" className="input" placeholder="Add new action..." value={actionInput} onChange={(e) => setActionInput(e.target.value)} />
-                <input type="date" className="input dash-actions-date" value={actionDueDate} onChange={(e) => setActionDueDate(e.target.value)} />
-                <button type="submit" className="btn btn--primary btn--sm">Add</button>
-              </form>
-            </div>
-          </div>
-
-          {/* --- Team Grid (managers) --- */}
-          {user?.isManager && teamProgress.length > 0 && (
-            <div className="dash-panel-section">
-              <div className="dash-team-grid">
-                <span className="dash-team-grid-label">Team Progress</span>
-                <div className="dash-team-grid-items">
-                  {teamProgress.map((p) => (
-                    <div key={p.name} className={`dash-team-member ${p.allDone ? 'dash-team-member--done' : ''}`}>
-                      <span className="dash-team-member-avatar">{getStaffInitials(p.name)}</span>
-                      <span className="dash-team-member-name">{p.name.split(' ')[0]}</span>
-                      {p.total > 0 && (
-                        <span className="dash-team-member-count">{p.done}/{p.total}</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-        </div>
-      </aside>
-
-      </div>{/* end dash-body */}
-
-      {/* Panel toggle FAB */}
-      {!panelOpen && (
-        <button className="dash-panel-toggle no-print" onClick={() => setPanelOpen(true)}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
-            <path d="M9 11l3 3L22 4" />
-            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
-          </svg>
-          Tasks {pendingActions.length + (myTotalCount - myDoneCount) > 0 ? <span className="dash-panel-toggle-badge">{pendingActions.length + (myTotalCount - myDoneCount)}</span> : null}
-        </button>
-      )}
-
-      {/* === OUTSTANDING SECTION === */}
-      {showOutstanding && totalActionItems > 0 && (
-        <div className="outstanding-section">
-          {overdueCleaningTasks.length > 0 && (
-            <div className="outstanding-group">
-              <h3 className="outstanding-group-title">
-                <span className="outstanding-dot outstanding-dot--red" />
-                Overdue Cleaning Tasks
-              </h3>
-              {overdueCleaningTasks.map(t => (
-                <button key={t.name} className="outstanding-item" onClick={() => navigate('/cleaning?add=true')}>
-                  <span className="outstanding-item-name">{t.name}</span>
-                  <span className="outstanding-item-freq">{t.frequency}</span>
-                  <span className="outstanding-item-badge outstanding-item-badge--overdue">Overdue</span>
-                </button>
-              ))}
-            </div>
-          )}
-          {expiredDocs.length > 0 && (
-            <div className="outstanding-group">
-              <h3 className="outstanding-group-title">
-                <span className="outstanding-dot outstanding-dot--red" />
-                Expired Documents
-              </h3>
-              {expiredDocs.map(d => (
-                <button key={d.id} className="outstanding-item" onClick={() => navigate('/documents')}>
-                  <span className="outstanding-item-name">{d.documentName}</span>
-                  <span className="outstanding-item-freq">{d.category}</span>
-                  <span className="outstanding-item-badge outstanding-item-badge--overdue">
-                    {d.expiryDate ? `Expired ${formatDate(d.expiryDate)}` : 'No date set'}
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
-          {dueSoon.length > 0 && (
-            <div className="outstanding-group">
-              <h3 className="outstanding-group-title">
-                <span className="outstanding-dot outstanding-dot--amber" />
-                Documents Due Within 7 Days
-              </h3>
-              {dueSoon.map(d => (
-                <button key={d.id} className="outstanding-item" onClick={() => navigate('/documents')}>
-                  <span className="outstanding-item-name">{d.documentName}</span>
-                  <span className="outstanding-item-freq">{d.category}</span>
-                  <span className="outstanding-item-badge outstanding-item-badge--due">
-                    Expires {formatDate(d.expiryDate)}
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
-          {overdueTraining.length > 0 && (
-            <div className="outstanding-group">
-              <h3 className="outstanding-group-title">
-                <span className="outstanding-dot outstanding-dot--red" />
-                Pending Staff Training
-              </h3>
-              {overdueTraining.slice(0, 10).map(e => (
-                <button key={e.id} className="outstanding-item" onClick={() => navigate('/staff-training')}>
-                  <span className="outstanding-item-name">{e.staffName}</span>
-                  <span className="outstanding-item-freq">{e.trainingItem}</span>
-                  <span className="outstanding-item-badge outstanding-item-badge--overdue">Pending</span>
-                </button>
-              ))}
-              {overdueTraining.length > 10 && (
-                <button className="outstanding-item" onClick={() => navigate('/staff-training')}>
-                  <span className="outstanding-item-name">+ {overdueTraining.length - 10} more</span>
-                </button>
-              )}
-            </div>
-          )}
-          {sgDueSoon.length > 0 && (
-            <div className="outstanding-group">
-              <h3 className="outstanding-group-title">
-                <span className="outstanding-dot outstanding-dot--amber" />
-                Safeguarding Refreshers Due
-              </h3>
-              {sgDueSoon.map(r => (
-                <button key={r.id} className="outstanding-item" onClick={() => navigate('/safeguarding')}>
-                  <span className="outstanding-item-name">{r.staffName}</span>
-                  <span className="outstanding-item-freq">{r.jobTitle}</span>
-                  <span className={`outstanding-item-badge outstanding-item-badge--${getSafeguardingStatus(r.trainingDate) === 'overdue' ? 'overdue' : 'due'}`}>
-                    {getSafeguardingStatus(r.trainingDate) === 'overdue' ? 'Overdue' : 'Due Soon'}
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Print-Only Section */}
-      <div className="print-only">
-        <div className="print-header">
-          <h1 className="print-title">iPharmacy Direct — Compliance Report</h1>
-          <p className="print-meta">
-            Generated: {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-            {' at '}
-            {new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
-          </p>
-        </div>
-
-        <div className="print-section">
-          <h2>Compliance Scores</h2>
-          <table className="print-table">
-            <thead><tr><th>Area</th><th>Score</th></tr></thead>
-            <tbody>
-              <tr><td>Documents</td><td>{docScore}%</td></tr>
-              <tr><td>Staff Training</td><td>{staffScore}%</td></tr>
-              <tr><td>Cleaning Tasks</td><td>{cleaningScore}%</td></tr>
-              <tr><td>Safeguarding</td><td>{sgScore}%</td></tr>
-              <tr style={{ fontWeight: 700 }}><td>Overall</td><td>{overallScore}%</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div className="print-section">
-          <h2>Today&apos;s Tasks Checklist</h2>
-          <table className="print-table">
-            <thead><tr><th></th><th>Task</th><th>Frequency</th><th>Status</th></tr></thead>
-            <tbody>
-              {[...todayCards, ...weeklyCards, ...fortnightlyCards, ...monthlyCards].map(c => (
-                <tr key={c.id}>
-                  <td>{c.status === 'done' ? '\u2611' : '\u2610'}</td>
-                  <td>{c.name}</td>
-                  <td>{c.category}</td>
-                  <td>{c.status === 'done' ? 'Done' : c.status === 'overdue' ? 'Overdue' : 'Due'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="print-section">
-          <h2>Document Status</h2>
-          <table className="print-table">
-            <thead><tr><th>Status</th><th>Document</th><th>Category</th><th>Expiry</th></tr></thead>
-            <tbody>
-              {documents.map(doc => (
-                <tr key={doc.id}>
-                  <td>{getTrafficLightLabel(getTrafficLight(doc.expiryDate))}</td>
-                  <td>{doc.documentName}</td>
-                  <td>{doc.category}</td>
-                  <td>{formatDate(doc.expiryDate)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="print-section">
-          <h2>Cleaning Task Summary</h2>
-          <table className="print-table">
-            <thead><tr><th>Task</th><th>Frequency</th><th>Status</th></tr></thead>
-            <tbody>
-              {taskStatuses.map(t => (
-                <tr key={t.name}>
-                  <td>{t.name}</td>
-                  <td>{t.frequency}</td>
-                  <td>{getTaskStatusLabel(t.status)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="print-section">
-          <h2>Staff Training Completion</h2>
-          <table className="print-table">
-            <thead><tr><th>Staff</th><th>Training Item</th><th>Status</th></tr></thead>
-            <tbody>
-              {staffTraining.map(st => (
-                <tr key={st.id}>
-                  <td>{st.staffName}</td>
-                  <td>{st.trainingItem}</td>
-                  <td>{st.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="print-section">
-          <h2>Safeguarding Status</h2>
-          <table className="print-table">
-            <thead><tr><th>Staff</th><th>Training Date</th><th>Status</th></tr></thead>
-            <tbody>
-              {safeguarding.map(r => (
-                <tr key={r.id}>
-                  <td>{r.staffName}</td>
-                  <td>{formatDate(r.trainingDate)}</td>
-                  <td>{getSafeguardingStatus(r.trainingDate)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="flex flex-col gap-1.5">
+          <AccPanel
+            id="today" title="Today" tasks={todayTasks} isToday
+            open={acc.today} onToggle={() => setAcc(p => ({ ...p, today: !p.today }))}
+            checked={checked} onToggleCheck={toggleCheck} justChecked={justChecked}
+            rpSubChecks={rpSubChecks} onToggleRpSub={toggleRpSub}
+            expandedNote={expandedNote} onToggleNote={toggleNote}
+            expandedSubchecks={expandedSubchecks} onToggleSubchecks={toggleSubchecks}
+          />
+          <AccPanel
+            id="weekly" title="Weekly" tasks={weeklyTasks}
+            open={acc.weekly} onToggle={() => setAcc(p => ({ ...p, weekly: !p.weekly }))}
+            checked={checked} onToggleCheck={toggleCheck} justChecked={justChecked}
+            rpSubChecks={rpSubChecks} onToggleRpSub={toggleRpSub}
+            expandedNote={expandedNote} onToggleNote={toggleNote}
+            expandedSubchecks={expandedSubchecks} onToggleSubchecks={toggleSubchecks}
+          />
+          <AccPanel
+            id="fort" title="Fortnightly" tasks={fortnightlyTasks}
+            open={acc.fort} onToggle={() => setAcc(p => ({ ...p, fort: !p.fort }))}
+            checked={checked} onToggleCheck={toggleCheck} justChecked={justChecked}
+            rpSubChecks={rpSubChecks} onToggleRpSub={toggleRpSub}
+            expandedNote={expandedNote} onToggleNote={toggleNote}
+            expandedSubchecks={expandedSubchecks} onToggleSubchecks={toggleSubchecks}
+          />
+          <AccPanel
+            id="monthly" title="Monthly" tasks={monthlyTasks}
+            open={acc.monthly} onToggle={() => setAcc(p => ({ ...p, monthly: !p.monthly }))}
+            checked={checked} onToggleCheck={toggleCheck} justChecked={justChecked}
+            rpSubChecks={rpSubChecks} onToggleRpSub={toggleRpSub}
+            expandedNote={expandedNote} onToggleNote={toggleNote}
+            expandedSubchecks={expandedSubchecks} onToggleSubchecks={toggleSubchecks}
+          />
         </div>
       </div>
 
-      {/* Completion Modal */}
-      <CompletionModal
-        open={!!completionModal}
-        taskName={completionModal?.taskName || ''}
-        assignedTo={completionModal?.assignedTo || ''}
-        onSubmit={handleCompleteTask}
-        onClose={() => setCompletionModal(null)}
+      {/* ═══ TO DO ═══ */}
+      <TodoSection
+        todos={todos}
+        checkedTodo={checkedTodo}
+        onToggle={toggleTodo}
+        mob={mob}
+      />
+
+      {/* ═══ FOOTER ═══ */}
+      <div
+        className="ec-fadeup mt-12 py-5 border-t border-ec-div text-center"
+        style={{ animationDelay: '0.55s' }}
+      >
+        <span className="text-[11px] text-ec-t5 tracking-wide">Compliance Tracker v4.0 · iPharmacy Direct</span>
+      </div>
+
+      {/* SCROLL FADE */}
+      <div
+        className="fixed bottom-0 right-0 h-12 pointer-events-none transition-opacity duration-400"
+        style={{
+          left: mob ? 0 : 220,
+          background: 'linear-gradient(to top, #0a0a0a, transparent)',
+          opacity: scrollFade ? 1 : 0,
+        }}
       />
     </div>
   )
+}
+
+function formatDur(ms) {
+  const h = Math.floor(ms / 3600000)
+  const m = Math.floor((ms % 3600000) / 60000)
+  return `${h}h ${m}m`
 }

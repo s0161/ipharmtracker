@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 
 export function useTheme() {
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('ipd_theme') || 'light'
+    return localStorage.getItem('ipd_theme') || 'dark'
   })
 
   useEffect(() => {

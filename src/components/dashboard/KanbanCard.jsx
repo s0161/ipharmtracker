@@ -1,4 +1,4 @@
-import { getStaffInitials } from '../../utils/rotationManager'
+import { getStaffInitials, getStaffColor } from '../../utils/rotationManager'
 
 function getUrgencyClass(card) {
   if (card.status === 'done') return ''
@@ -61,7 +61,13 @@ export default function KanbanCard({ card, onOpenCompletion, expandedRpCard, set
 
         {/* Staff avatar */}
         {card.assignedTo && (
-          <span className="kanban-avatar" title={card.assignedTo}>{getStaffInitials(card.assignedTo)}</span>
+          <span
+            className="kanban-avatar"
+            title={card.assignedTo}
+            style={{ background: `${getStaffColor(card.assignedTo)}22`, color: getStaffColor(card.assignedTo) }}
+          >
+            {getStaffInitials(card.assignedTo)}
+          </span>
         )}
 
         <div className="kanban-card-body">

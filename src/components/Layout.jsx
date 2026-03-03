@@ -27,7 +27,6 @@ const SHORTCUTS = {
   s: '/staff-training',
 }
 
-// Mobile bottom nav items (icons only on small screens)
 const bottomNav = [
   {
     to: '/',
@@ -61,67 +60,72 @@ export default function Layout({ children }) {
   const location = useLocation()
   const navigate = useNavigate()
   const title = titles[location.pathname] || 'iPharmacy Direct'
-  const isHome = location.pathname === '/'
+  const isDashboard = location.pathname === '/'
 
   // Keyboard shortcuts
   useEffect(() => {
     const handler = (e) => {
-      // Skip if typing in input, textarea, select, or contenteditable
       const tag = e.target.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return
       if (e.metaKey || e.ctrlKey || e.altKey) return
-
       const route = SHORTCUTS[e.key.toLowerCase()]
-      if (route) {
-        e.preventDefault()
-        navigate(route)
-      }
+      if (route) { e.preventDefault(); navigate(route) }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [navigate])
 
   return (
-    <div className="layout">
+    <div
+      className="min-h-screen bg-ec-bg font-sans"
+      style={{
+        backgroundImage: 'radial-gradient(ellipse at 25% -5%, rgba(16,185,129,0.035), transparent 50%), radial-gradient(ellipse at 80% 100%, rgba(99,102,241,0.02), transparent 50%)',
+      }}
+    >
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <main className="main">
-        <header className="main-header">
-          <button
-            className="hamburger"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Open menu"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
-          </button>
-          <div className="main-header-center">
-            {/* Breadcrumbs */}
-            {!isHome && (
-              <nav className="breadcrumbs">
-                <NavLink to="/" className="breadcrumb-link">Dashboard</NavLink>
-                <span className="breadcrumb-sep">/</span>
-                <span className="breadcrumb-current">{title}</span>
-              </nav>
-            )}
-            <h1 className="main-title">{title}</h1>
-          </div>
-          <GlobalSearch />
-        </header>
-        <div className="main-content page-transition">{children}</div>
+
+      <main className="lg:ml-[220px]">
+        {/* Header — hidden on Dashboard (it has its own) */}
+        {!isDashboard && (
+          <header className="sticky top-0 z-30 flex items-center gap-3 px-4 lg:px-9 py-3 border-b border-ec-div bg-ec-bg/80 backdrop-blur-md">
+            <button
+              className="lg:hidden bg-transparent border-none text-ec-t3 cursor-pointer p-1 flex flex-col gap-[3.5px]"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open menu"
+            >
+              <div className="w-[18px] h-[1.5px] bg-current rounded-sm" />
+              <div className="w-[18px] h-[1.5px] bg-current rounded-sm" />
+              <div className="w-[13px] h-[1.5px] bg-current rounded-sm" />
+            </button>
+            <nav className="flex items-center gap-1.5 text-xs">
+              <NavLink to="/" className="text-ec-t3 hover:text-ec-t1 no-underline transition-colors">Dashboard</NavLink>
+              <span className="text-ec-t4">/</span>
+              <span className="text-ec-t1 font-medium">{title}</span>
+            </nav>
+            <div className="flex-1" />
+            <GlobalSearch />
+          </header>
+        )}
+
+        <div className={isDashboard ? '' : 'px-4 lg:px-9 py-6 pb-20 lg:pb-6'}>
+          {children}
+        </div>
       </main>
 
       {/* Mobile bottom nav */}
-      <nav className="mobile-bottom-nav">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden flex items-stretch bg-ec-bg/95 backdrop-blur-md border-t border-ec-div">
         {bottomNav.map(item => (
           <NavLink
             key={item.to}
             to={item.to}
             end={item.to === '/'}
-            className={({ isActive }) => `mobile-bottom-link ${isActive ? 'mobile-bottom-link--active' : ''}`}
+            className={({ isActive }) =>
+              `flex-1 flex flex-col items-center justify-center gap-0.5 py-2 no-underline transition-colors
+               ${isActive ? 'text-ec-t1' : 'text-ec-z6'}`
+            }
           >
             {item.icon}
-            <span className="mobile-bottom-label">{item.label}</span>
+            <span className="text-[9px] font-medium">{item.label}</span>
           </NavLink>
         ))}
       </nav>
