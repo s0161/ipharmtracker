@@ -71,7 +71,7 @@ export default function Dashboard() {
   // ─── LOCAL STATE ───
   const [mob, setMob] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [rpSignedIn, setRpSignedIn] = useState(true)
+  const [rpSignedIn, setRpSignedIn] = useState(false)
   const [liveTime, setLiveTime] = useState('')
   const [liveDate, setLiveDate] = useState('')
   const [checked, setChecked] = useState(new Set())
@@ -135,6 +135,36 @@ export default function Dashboard() {
   const todayRp = rpLogs.find(l => l.date === todayISO)
   const rpChecklist = todayRp?.checklist || {}
 
+  // Derive RP signed-in state from rp_log sessions
+  useEffect(() => {
+    if (!todayRp) { setRpSignedIn(false); return }
+    const sessions = todayRp.sessions || []
+    if (sessions.length === 0) { setRpSignedIn(false); return }
+    const lastSession = sessions[sessions.length - 1]
+    setRpSignedIn(!!lastSession.signInAt && !lastSession.signOutAt)
+  }, [todayRp])
+
+  // Computed RP sign-in time (from last session)
+  const rpSignInTime = useMemo(() => {
+    if (!todayRp) return null
+    const sessions = todayRp.sessions || []
+    const lastSession = sessions[sessions.length - 1]
+    if (!lastSession?.signInAt) return null
+    return new Date(lastSession.signInAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+  }, [todayRp])
+
+  // Computed last RP sign-out time
+  const rpLastSignOut = useMemo(() => {
+    if (!todayRp) return null
+    const sessions = todayRp.sessions || []
+    for (let i = sessions.length - 1; i >= 0; i--) {
+      if (sessions[i].signOutAt) {
+        return new Date(sessions[i].signOutAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+      }
+    }
+    return null
+  }, [todayRp])
+
   // Compliance sub-scores
   const docStatuses = documents.map(d => getTrafficLight(d.expiryDate))
   const greenCount = docStatuses.filter(s => s === 'green').length
@@ -183,6 +213,29 @@ export default function Dashboard() {
   }
 
   // Compliance health areas for the grid
+  // ─── SCORE HISTORY PERSISTENCE ───
+  useEffect(() => {
+    if (docsLoading) return
+    const key = 'ipd_score_history'
+    const todayKey = new Date().toISOString().slice(0, 10)
+    try {
+      const history = JSON.parse(localStorage.getItem(key) || '{}')
+      if (!history[todayKey]) {
+        history[todayKey] = {
+          documents: Math.round(docScore),
+          training: Math.round(staffScore),
+          cleaning: Math.round(cleaningScore),
+          safeguarding: Math.round(sgScore),
+        }
+        const cutoff = new Date()
+        cutoff.setDate(cutoff.getDate() - 30)
+        const cutoffStr = cutoff.toISOString().slice(0, 10)
+        Object.keys(history).forEach(k => { if (k < cutoffStr) delete history[k] })
+        localStorage.setItem(key, JSON.stringify(history))
+      }
+    } catch (e) { console.warn('Score history write failed:', e) }
+  }, [docsLoading, docScore, staffScore, cleaningScore, sgScore])
+
   const complianceAreas = [
     { label: 'DOCUMENTS', pct: docScore, detail: docScore === 100 ? 'All current' : `${documents.length - greenCount} expiring`, trend: getTrend('Documents', docScore), trendVal: getTrendVal('Documents', docScore), data: getSparklineData('Documents'), color: docScore >= 80 ? '#10b981' : docScore >= 50 ? '#f59e0b' : '#ef4444' },
     { label: 'TRAINING', pct: staffScore, detail: staffScore === 100 ? 'All complete' : `${staffTraining.filter(e => e.status !== 'Complete').length} incomplete`, trend: getTrend('Training', staffScore), trendVal: getTrendVal('Training', staffScore), data: getSparklineData('Training'), color: staffScore >= 80 ? '#10b981' : staffScore >= 50 ? '#f59e0b' : '#ef4444' },
@@ -287,6 +340,25 @@ export default function Dashboard() {
   const weeklyTasks = useMemo(() => buildTaskList('weekly'), [taskStatuses])
   const fortnightlyTasks = useMemo(() => buildTaskList('fortnightly'), [taskStatuses])
   const monthlyTasks = useMemo(() => buildTaskList('monthly'), [taskStatuses])
+
+  // Streak calculation (consecutive days with cleaning entries)
+  const streakDays = useMemo(() => {
+    if (!cleaningEntries.length) return 0
+    const entryDates = new Set(cleaningEntries.map(e => {
+      const dt = e.dateTime || e.date || ''
+      return dt.slice(0, 10)
+    }))
+    let streak = 0
+    const d = new Date()
+    if (!entryDates.has(d.toISOString().slice(0, 10))) {
+      d.setDate(d.getDate() - 1)
+    }
+    while (entryDates.has(d.toISOString().slice(0, 10))) {
+      streak++
+      d.setDate(d.getDate() - 1)
+    }
+    return streak
+  }, [cleaningEntries])
 
   // To-do items
   const todos = useMemo(() =>
@@ -487,7 +559,8 @@ export default function Dashboard() {
       <RPPresenceBar
         rpName={rpAssignee}
         rpSignedIn={rpSignedIn}
-        rpSignInTime="09:02"
+        rpSignInTime={rpSignInTime}
+        rpLastSignOut={rpLastSignOut}
         sessions={sessions}
         keys={keys}
         onKeyPress={handleKeyPress}
@@ -514,7 +587,7 @@ export default function Dashboard() {
           onToggleSubchecks={toggleSubchecks}
           hovCard={hovCard}
           onHoverCard={setHovCard}
-          streakDays={7}
+          streakDays={streakDays}
         />
         <ComplianceHealth
           areas={complianceAreas}

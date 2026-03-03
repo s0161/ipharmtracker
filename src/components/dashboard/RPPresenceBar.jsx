@@ -23,7 +23,7 @@ const Chev = ({ open, color = 'currentColor', size = 10 }) => (
 )
 
 export default function RPPresenceBar({
-  rpName, rpSignedIn, rpSignInTime, sessions,
+  rpName, rpSignedIn, rpSignInTime, rpLastSignOut, sessions,
   keys, onKeyPress, showFridge, fridgeVal, onFridgeChange, onFridgeSubmit,
   onToggleRP, mob,
 }) {
@@ -31,7 +31,7 @@ export default function RPPresenceBar({
   const [sessOpen, setSessOpen] = useState(false)
 
   useEffect(() => {
-    if (!rpSignedIn || !rpSignInTime) { setElapsed(''); return }
+    if (!rpSignedIn || !rpSignInTime) { setElapsed(rpSignedIn ? '\u2014' : ''); return }
     const calc = () => {
       const now = new Date()
       const [h, m] = rpSignInTime.split(':').map(Number)
@@ -63,13 +63,13 @@ export default function RPPresenceBar({
           {rpSignedIn ? (
             <div className="flex items-baseline gap-2 flex-wrap">
               <span className="text-sm font-semibold text-ec-t1">{rpName}</span>
-              <span className="text-[11px] text-ec-t3">RP since {rpSignInTime}</span>
+              <span className="text-[11px] text-ec-t3">RP since {rpSignInTime || '\u2014'}</span>
               <span className="text-sm font-bold text-ec-em tabular-nums tracking-tight">{elapsed}</span>
             </div>
           ) : (
             <div className="flex items-baseline gap-2 flex-wrap">
               <span className="text-sm font-semibold text-ec-crit-light">No RP signed in</span>
-              <span className="text-[11px] text-ec-t3">Last: {rpName} out at 13:15</span>
+              <span className="text-[11px] text-ec-t3">Last: {rpName} out at {rpLastSignOut || '\u2014'}</span>
             </div>
           )}
         </div>
