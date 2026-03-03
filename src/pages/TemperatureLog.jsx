@@ -14,7 +14,7 @@
   CREATE POLICY "anon full access" ON temperature_logs FOR ALL USING (true) WITH CHECK (true);
 */
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
 import { logAudit } from '../utils/auditLog'
 import { useUser } from '../contexts/UserContext'
@@ -22,6 +22,7 @@ import { generateId, formatDate } from '../utils/helpers'
 import { useToast } from '../components/Toast'
 import PageActions from '../components/PageActions'
 import { downloadCsv } from '../utils/exportCsv'
+import TemperatureChart from '../components/TemperatureChart'
 
 const emptyForm = {
   date: new Date().toISOString().slice(0, 10),
@@ -52,6 +53,28 @@ export default function TemperatureLog() {
     if (d !== 0) return d
     return (b.time || '').localeCompare(a.time || '')
   })
+
+  const chartData = useMemo(() => {
+    const cutoff = new Date()
+    cutoff.setDate(cutoff.getDate() - 14)
+    const cutoffStr = cutoff.toISOString().slice(0, 10)
+
+    // Get readings from last 14 days, average if multiple per day
+    const byDate = {}
+    logs.forEach(l => {
+      if (l.date >= cutoffStr) {
+        if (!byDate[l.date]) byDate[l.date] = []
+        byDate[l.date].push(parseFloat(l.temperature))
+      }
+    })
+
+    return Object.entries(byDate)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, temps]) => ({
+        date,
+        temperature: temps.reduce((a, b) => a + b, 0) / temps.length,
+      }))
+  }, [logs])
 
   const update = (field) => (e) => setForm({ ...form, [field]: e.target.value })
 
@@ -173,6 +196,8 @@ export default function TemperatureLog() {
           Log Temperature
         </button>
       </form>
+
+      <TemperatureChart readings={chartData} minRange={IN_RANGE_MIN} maxRange={IN_RANGE_MAX} />
 
       {sorted.length === 0 ? (
         <div className="text-center py-10 text-ec-t3 text-sm">
