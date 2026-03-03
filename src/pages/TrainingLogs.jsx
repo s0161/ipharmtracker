@@ -38,6 +38,18 @@ function getExpiryLabel(status) {
   }
 }
 
+const expiryBadgeClass = (status) => {
+  const base = "px-2 py-0.5 rounded-full text-xs font-semibold"
+  switch (status) {
+    case 'green': return `${base} bg-ec-em/10 text-ec-em`
+    case 'amber': return `${base} bg-ec-warn/10 text-ec-warn`
+    case 'red': return `${base} bg-ec-crit/10 text-ec-crit-light`
+    default: return base
+  }
+}
+
+const inputClass = "w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+
 export default function TrainingLogs() {
   const [logs, setLogs, loading] = useSupabase('training_logs', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
@@ -61,7 +73,7 @@ export default function TrainingLogs() {
   }, [loading, searchParams, setSearchParams])
 
   if (loading) {
-    return <div className="loading-container"><div className="spinner" />Loading…</div>
+    return <div className="flex items-center justify-center py-20 text-sm text-ec-t3">Loading…</div>
   }
 
   // Stats
@@ -165,93 +177,93 @@ export default function TrainingLogs() {
 
   return (
     <div>
-      <div className="page-header">
-        <p className="page-desc">
+      <div>
+        <p className="text-sm text-ec-t3 mb-2">
           Record and track staff training activities, certifications, and compliance.
         </p>
-        <div className="page-header-actions">
+        <div className="flex items-center gap-2 flex-wrap mb-4">
           <PageActions onDownloadCsv={handleCsvDownload} />
-          <button className="btn btn--primary" onClick={openAdd}>
+          <button className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors flex items-center gap-1.5 font-sans" onClick={openAdd}>
             + Add Entry
           </button>
         </div>
       </div>
 
       {/* Stats Row */}
-      <div className="training-summary">
-        <div className="training-summary-card training-summary-card--complete">
-          <span className="training-summary-num">{totalLogs}</span>
-          <span className="training-summary-label">Total Records</span>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <div className="rounded-xl p-4 text-center" style={{ backgroundColor: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)' }}>
+          <span className="text-2xl font-bold text-ec-em block">{totalLogs}</span>
+          <span className="text-xs text-ec-t3 mt-1 block">Total Records</span>
         </div>
-        <div className="training-summary-card training-summary-card--inprogress">
-          <span className="training-summary-num">{thisMonthCount}</span>
-          <span className="training-summary-label">This Month</span>
+        <div className="rounded-xl p-4 text-center" style={{ backgroundColor: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)' }}>
+          <span className="text-2xl font-bold text-ec-info block">{thisMonthCount}</span>
+          <span className="text-xs text-ec-t3 mt-1 block">This Month</span>
         </div>
-        <div className="training-summary-card training-summary-card--pending">
-          <span className="training-summary-num">{expiringSoon}</span>
-          <span className="training-summary-label">Expiring / Expired</span>
+        <div className="rounded-xl p-4 text-center" style={{ backgroundColor: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)' }}>
+          <span className="text-2xl font-bold text-ec-warn block">{expiringSoon}</span>
+          <span className="text-xs text-ec-t3 mt-1 block">Expiring / Expired</span>
         </div>
-        <div className="training-summary-card training-summary-card--complete">
-          <span className="training-summary-num">{staffTrained}</span>
-          <span className="training-summary-label">Staff Trained</span>
+        <div className="rounded-xl p-4 text-center" style={{ backgroundColor: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)' }}>
+          <span className="text-2xl font-bold text-ec-em block">{staffTrained}</span>
+          <span className="text-xs text-ec-t3 mt-1 block">Staff Trained</span>
         </div>
       </div>
 
       {/* Filter Bar */}
-      <div className="training-filters">
-        <div className="search-box">
-          <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <div className="flex flex-wrap gap-2 items-center mb-4">
+        <div className="relative flex-1 min-w-[200px]">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-ec-t3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
             <circle cx="11" cy="11" r="8" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
           <input
             type="text"
-            className="input search-input"
+            className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg pl-9 pr-3 py-2 text-sm text-ec-t1 placeholder:text-ec-t3 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
             placeholder="Search staff, topic, or trainer..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <select className="input input--inline" value={filterStaff} onChange={(e) => setFilterStaff(e.target.value)}>
+        <select className="bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans" value={filterStaff} onChange={(e) => setFilterStaff(e.target.value)}>
           <option value="">All Staff</option>
           {uniqueStaff.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
-        <select className="input input--inline" value={filterTopic} onChange={(e) => setFilterTopic(e.target.value)}>
+        <select className="bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans" value={filterTopic} onChange={(e) => setFilterTopic(e.target.value)}>
           <option value="">All Topics</option>
           {uniqueTopics.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
         {(filterStaff || filterTopic || search) && (
-          <button className="btn btn--ghost btn--sm" onClick={() => { setFilterStaff(''); setFilterTopic(''); setSearch('') }}>
+          <button className="px-3 py-1.5 bg-white/[0.05] text-ec-t2 rounded-lg text-xs border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors font-sans" onClick={() => { setFilterStaff(''); setFilterTopic(''); setSearch('') }}>
             Clear All
           </button>
         )}
       </div>
 
-      <p className="results-count">
+      <p className="text-xs text-ec-t3 mb-2">
         Showing {sorted.length} of {logs.length} entries
       </p>
 
       {sorted.length === 0 ? (
-        <div className="empty-state-box">
-          <p className="empty-state">
+        <div className="text-center py-10 text-ec-t3 text-sm">
+          <p>
             {logs.length === 0
               ? 'No training logs yet. Add your first entry to get started.'
               : 'No entries match your filters.'}
           </p>
         </div>
       ) : (
-        <div className="table-wrap">
-          <table className="table">
+        <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+          <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                <th>Staff Member</th>
-                <th>Date Completed</th>
-                <th>Topic</th>
-                <th className="mobile-hide">Trainer</th>
-                <th className="mobile-hide">Cert. Expiry</th>
-                <th>Status</th>
-                <th className="mobile-hide">Notes</th>
-                <th className="mobile-hide">Actions</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Staff Member</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Date Completed</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Topic</th>
+                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Trainer</th>
+                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Cert. Expiry</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Status</th>
+                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Notes</th>
+                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -259,31 +271,31 @@ export default function TrainingLogs() {
                 const status = getExpiryStatus(log.certificateExpiry)
                 return (
                   <SwipeRow key={log.id} onEdit={() => openEdit(log)} onDelete={() => handleDelete(log.id)}>
-                    <td>{log.staffName}</td>
-                    <td>{formatDate(log.dateCompleted)}</td>
-                    <td>{log.topic}</td>
-                    <td className="mobile-hide">{log.trainerName || '—'}</td>
-                    <td className="mobile-hide">{formatDate(log.certificateExpiry)}</td>
-                    <td>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{log.staffName}</td>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{formatDate(log.dateCompleted)}</td>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{log.topic}</td>
+                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{log.trainerName || '—'}</td>
+                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{formatDate(log.certificateExpiry)}</td>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
                       {status !== 'none' ? (
-                        <span className={`status-badge status-badge--${status === 'green' ? 'complete' : status === 'amber' ? 'inprogress' : 'pending'}`}>
+                        <span className={expiryBadgeClass(status)}>
                           {getExpiryLabel(status)}
                         </span>
                       ) : (
-                        <span className="text-muted">—</span>
+                        <span className="text-ec-t3">—</span>
                       )}
                     </td>
-                    <td className="cell-notes mobile-hide">{log.notes || '—'}</td>
-                    <td className="mobile-hide">
-                      <div className="action-btns">
+                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t3 border-b border-white/[0.04] max-w-[200px] truncate">{log.notes || '—'}</td>
+                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
+                      <div className="flex gap-1">
                         <button
-                          className="btn btn--ghost btn--sm"
+                          className="px-2.5 py-1 bg-white/[0.05] text-ec-t2 rounded-lg text-xs border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors font-sans"
                           onClick={() => openEdit(log)}
                         >
                           Edit
                         </button>
                         <button
-                          className="btn btn--ghost btn--sm btn--danger"
+                          className="px-2.5 py-1 bg-ec-crit/10 text-ec-crit-light rounded-lg text-xs border border-ec-crit/20 cursor-pointer hover:bg-ec-crit/20 transition-colors font-sans"
                           onClick={() => handleDelete(log.id)}
                         >
                           Delete
@@ -303,17 +315,17 @@ export default function TrainingLogs() {
         onClose={() => setModalOpen(false)}
         title={editingId ? 'Edit Training Log' : 'Add Training Log'}
       >
-        <form className="form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="label">Staff Member *</label>
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <div>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Staff Member *</label>
             {staffMembers.length === 0 ? (
-              <p className="form-hint">
+              <p className="text-xs text-ec-t3 mt-1">
                 No staff members configured.{' '}
-                <a href="/settings">Add them in Settings</a>.
+                <a href="/settings" className="text-ec-em hover:underline">Add them in Settings</a>.
               </p>
             ) : (
               <select
-                className="input"
+                className={inputClass}
                 value={form.staffName}
                 onChange={update('staffName')}
                 required
@@ -328,22 +340,22 @@ export default function TrainingLogs() {
             )}
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label className="label">Date Completed *</label>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-semibold text-ec-t2 mb-1 block">Date Completed *</label>
               <input
                 type="date"
-                className="input"
+                className={inputClass}
                 value={form.dateCompleted}
                 onChange={update('dateCompleted')}
                 required
               />
             </div>
-            <div className="form-group">
-              <label className="label">Duration</label>
+            <div>
+              <label className="text-xs font-semibold text-ec-t2 mb-1 block">Duration</label>
               <input
                 type="text"
-                className="input"
+                className={inputClass}
                 placeholder="e.g. 2 hours"
                 value={form.duration}
                 onChange={update('duration')}
@@ -351,12 +363,12 @@ export default function TrainingLogs() {
             </div>
           </div>
 
-          <div className="form-group">
-            <label className="label">Training Topic *</label>
+          <div>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Training Topic *</label>
             {topics.length === 0 ? (
               <input
                 type="text"
-                className="input"
+                className={inputClass}
                 placeholder="Enter training topic..."
                 value={form.topic}
                 onChange={update('topic')}
@@ -364,7 +376,7 @@ export default function TrainingLogs() {
               />
             ) : (
               <select
-                className="input"
+                className={inputClass}
                 value={form.topic}
                 onChange={update('topic')}
                 required
@@ -379,21 +391,21 @@ export default function TrainingLogs() {
             )}
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label className="label">Trainer Name</label>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-semibold text-ec-t2 mb-1 block">Trainer Name</label>
               <input
                 type="text"
-                className="input"
+                className={inputClass}
                 placeholder="e.g. Amjid Shakoor"
                 value={form.trainerName}
                 onChange={update('trainerName')}
               />
             </div>
-            <div className="form-group">
-              <label className="label">Delivery Method</label>
+            <div>
+              <label className="text-xs font-semibold text-ec-t2 mb-1 block">Delivery Method</label>
               <select
-                className="input"
+                className={inputClass}
                 value={form.deliveryMethod}
                 onChange={update('deliveryMethod')}
               >
@@ -405,11 +417,11 @@ export default function TrainingLogs() {
             </div>
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label className="label">Outcome</label>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-semibold text-ec-t2 mb-1 block">Outcome</label>
               <select
-                className="input"
+                className={inputClass}
                 value={form.outcome}
                 onChange={update('outcome')}
               >
@@ -419,32 +431,32 @@ export default function TrainingLogs() {
                 ))}
               </select>
             </div>
-            <div className="form-group">
-              <label className="label">Certificate Expiry</label>
+            <div>
+              <label className="text-xs font-semibold text-ec-t2 mb-1 block">Certificate Expiry</label>
               <input
                 type="date"
-                className="input"
+                className={inputClass}
                 value={form.certificateExpiry}
                 onChange={update('certificateExpiry')}
               />
             </div>
           </div>
 
-          <div className="form-group">
-            <label className="label">Renewal Date</label>
+          <div>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Renewal Date</label>
             <input
               type="date"
-              className="input"
+              className={inputClass}
               value={form.renewalDate}
               onChange={update('renewalDate')}
             />
-            <p className="form-hint">When this training needs to be renewed.</p>
+            <p className="text-xs text-ec-t3 mt-1">When this training needs to be renewed.</p>
           </div>
 
-          <div className="form-group">
-            <label className="label">Notes</label>
+          <div>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Notes</label>
             <textarea
-              className="input input--textarea"
+              className={`${inputClass} resize-none`}
               placeholder="Optional notes..."
               value={form.notes}
               onChange={update('notes')}
@@ -452,15 +464,15 @@ export default function TrainingLogs() {
             />
           </div>
 
-          <div className="form-actions">
+          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-white/[0.04]">
             <button
               type="button"
-              className="btn btn--ghost"
+              className="px-4 py-2 bg-white/[0.05] text-ec-t2 rounded-lg text-sm border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] transition-colors font-sans"
               onClick={() => setModalOpen(false)}
             >
               Cancel
             </button>
-            <button type="submit" className="btn btn--primary">
+            <button type="submit" className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors font-sans">
               {editingId ? 'Save Changes' : 'Add Entry'}
             </button>
           </div>

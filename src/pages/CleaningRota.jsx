@@ -17,6 +17,9 @@ const emptyForm = {
   notes: '',
 }
 
+const inputClass =
+  'w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans'
+
 export default function CleaningRota() {
   const [entries, setEntries, loading] = useSupabase('cleaning_entries', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
@@ -37,7 +40,7 @@ export default function CleaningRota() {
   }, [loading, searchParams, setSearchParams])
 
   if (loading) {
-    return <div className="loading-container"><div className="spinner" />Loading…</div>
+    return <div className="flex items-center justify-center py-20 text-sm text-ec-t3">Loading…</div>
   }
 
   const taskNames = cleaningTasks.map((t) => t.name)
@@ -130,63 +133,69 @@ export default function CleaningRota() {
     downloadCsv('cleaning-rota', headers, rows)
   }
 
+  function resultBadgeClass(result) {
+    if (result === 'Pass') {
+      return 'inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-ec-em/10 text-ec-em'
+    }
+    return 'inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-ec-warn/10 text-ec-warn'
+  }
+
   return (
-    <div>
-      <div className="page-header">
-        <p className="page-desc">
+    <div className="space-y-4">
+      <div>
+        <p className="text-sm text-ec-t3 mb-2">
           Log cleaning activities and task completion for compliance auditing.
         </p>
-        <div className="page-header-actions">
+        <div className="flex items-center gap-2 flex-wrap mb-4">
           <PageActions onDownloadCsv={handleCsvDownload} />
-          <button className="btn btn--primary" onClick={openAdd}>
+          <button
+            className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors flex items-center gap-1.5 font-sans"
+            onClick={openAdd}
+          >
             + Add Entry
           </button>
         </div>
       </div>
 
       {sorted.length === 0 ? (
-        <div className="empty-state-box">
-          <p className="empty-state">
-            No cleaning entries yet. Add your first entry to get started.
-          </p>
+        <div className="text-center py-10 text-ec-t3 text-sm">
+          No cleaning entries yet. Add your first entry to get started.
         </div>
       ) : (
-        <div className="table-wrap">
-          <table className="table">
+        <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+          <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                <th>Task</th>
-                <th>Date / Time</th>
-                <th>Staff Member</th>
-                <th>Result</th>
-                <th>Notes</th>
-                <th className="mobile-hide">Actions</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Task</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Date / Time</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Staff Member</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Result</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Notes</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06] hidden md:table-cell">Actions</th>
               </tr>
             </thead>
             <tbody>
               {sorted.map((entry) => (
                 <SwipeRow key={entry.id} onEdit={() => openEdit(entry)} onDelete={() => handleDelete(entry.id)}>
-                  <td>{entry.taskName}</td>
-                  <td>{formatDateTime(entry.dateTime)}</td>
-                  <td>{entry.staffMember}</td>
-                  <td>
-                    <span
-                      className={`result-badge result-badge--${entry.result === 'Pass' ? 'pass' : 'action'}`}
-                    >
+                  <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04] font-medium">{entry.taskName}</td>
+                  <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{formatDateTime(entry.dateTime)}</td>
+                  <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{entry.staffMember}</td>
+                  <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
+                    <span className={resultBadgeClass(entry.result)}>
                       {entry.result}
                     </span>
                   </td>
-                  <td className="cell-notes">{entry.notes || '—'}</td>
-                  <td className="mobile-hide">
-                    <div className="action-btns">
+                  <td className="px-4 py-2.5 text-ec-t3 border-b border-white/[0.04] max-w-[200px] truncate">{entry.notes || '—'}</td>
+                  <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04] hidden md:table-cell">
+                    <div className="flex gap-1">
                       <button
-                        className="btn btn--ghost btn--sm"
+                        className="px-2.5 py-1 bg-white/[0.05] text-ec-t2 rounded-lg text-xs border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors font-sans"
                         onClick={() => openEdit(entry)}
                       >
                         Edit
                       </button>
                       <button
-                        className="btn btn--ghost btn--sm btn--danger"
+                        className="px-2.5 py-1 bg-ec-crit/10 text-ec-crit-light rounded-lg text-xs border border-ec-crit/20 cursor-pointer hover:bg-ec-crit/20 transition-colors font-sans"
                         onClick={() => handleDelete(entry.id)}
                       >
                         Delete
@@ -205,11 +214,11 @@ export default function CleaningRota() {
         onClose={() => setModalOpen(false)}
         title={editingId ? 'Edit Cleaning Entry' : 'Add Cleaning Entry'}
       >
-        <form className="form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="label">Task *</label>
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <div>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Task *</label>
             <select
-              className="input"
+              className={inputClass}
               value={form.taskName}
               onChange={update('taskName')}
               required
@@ -225,11 +234,11 @@ export default function CleaningRota() {
           </div>
 
           {form.taskName === '__other__' && (
-            <div className="form-group">
-              <label className="label">Custom Task Name *</label>
+            <div>
+              <label className="text-xs font-semibold text-ec-t2 mb-1 block">Custom Task Name *</label>
               <input
                 type="text"
-                className="input"
+                className={inputClass}
                 placeholder="Enter task name..."
                 value={form.customTask}
                 onChange={update('customTask')}
@@ -238,27 +247,27 @@ export default function CleaningRota() {
             </div>
           )}
 
-          <div className="form-group">
-            <label className="label">Date / Time *</label>
+          <div>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Date / Time *</label>
             <input
               type="datetime-local"
-              className="input"
+              className={inputClass}
               value={form.dateTime}
               onChange={update('dateTime')}
               required
             />
           </div>
 
-          <div className="form-group">
-            <label className="label">Staff Member *</label>
+          <div>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Staff Member *</label>
             {staffMembers.length === 0 ? (
-              <p className="form-hint">
+              <p className="text-xs text-ec-t3 mt-1">
                 No staff members configured.{' '}
                 <a href="/settings">Add them in Settings</a>.
               </p>
             ) : (
               <select
-                className="input"
+                className={inputClass}
                 value={form.staffMember}
                 onChange={update('staffMember')}
                 required
@@ -273,10 +282,10 @@ export default function CleaningRota() {
             )}
           </div>
 
-          <div className="form-group">
-            <label className="label">Result *</label>
+          <div>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Result *</label>
             <select
-              className="input"
+              className={inputClass}
               value={form.result}
               onChange={update('result')}
               required
@@ -287,10 +296,10 @@ export default function CleaningRota() {
             </select>
           </div>
 
-          <div className="form-group">
-            <label className="label">Notes</label>
+          <div>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Notes</label>
             <textarea
-              className="input input--textarea"
+              className={`${inputClass} resize-none`}
               placeholder="Optional notes..."
               value={form.notes}
               onChange={update('notes')}
@@ -298,15 +307,18 @@ export default function CleaningRota() {
             />
           </div>
 
-          <div className="form-actions">
+          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-white/[0.04]">
             <button
               type="button"
-              className="btn btn--ghost"
+              className="px-4 py-2 bg-white/[0.05] text-ec-t2 rounded-lg text-sm border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] transition-colors font-sans"
               onClick={() => setModalOpen(false)}
             >
               Cancel
             </button>
-            <button type="submit" className="btn btn--primary">
+            <button
+              type="submit"
+              className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors font-sans"
+            >
               {editingId ? 'Save Changes' : 'Add Entry'}
             </button>
           </div>

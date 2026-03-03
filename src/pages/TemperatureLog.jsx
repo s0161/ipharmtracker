@@ -32,6 +32,8 @@ const emptyForm = {
 const IN_RANGE_MIN = 2
 const IN_RANGE_MAX = 8
 
+const inputClass = "w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+
 export default function TemperatureLog() {
   const [logs, setLogs, loading] = useSupabase('temperature_logs', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
@@ -39,7 +41,7 @@ export default function TemperatureLog() {
   const [form, setForm] = useState(emptyForm)
 
   if (loading) {
-    return <div className="loading-container"><div className="spinner" />Loading…</div>
+    return <div className="flex items-center justify-center py-20 text-sm text-ec-t3">Loading…</div>
   }
 
   const sorted = [...logs].sort((a, b) => {
@@ -97,43 +99,46 @@ export default function TemperatureLog() {
 
   return (
     <div>
-      <div className="page-header">
-        <p className="page-desc">
+      <div>
+        <p className="text-sm text-ec-t3 mb-2">
           Record daily fridge temperature readings. Safe range: {IN_RANGE_MIN}–{IN_RANGE_MAX}°C.
           Readings outside this range are flagged in red.
         </p>
-        <div className="page-header-actions">
+        <div className="flex items-center gap-2 flex-wrap mb-4">
           <PageActions onDownloadCsv={handleCsvDownload} />
         </div>
       </div>
 
       {todayCount === 0 && (
-        <div className="alert-banner alert-banner--warning">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
+        <div className="flex items-center gap-3 px-4 py-3 rounded-xl mb-4"
+          style={{ backgroundColor: 'rgba(245,158,11,0.06)', borderLeft: '3px solid #f59e0b' }}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20" className="text-ec-warn shrink-0">
             <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
             <line x1="12" y1="9" x2="12" y2="13" />
             <line x1="12" y1="17" x2="12.01" y2="17" />
           </svg>
-          <span>No temperature reading has been logged today. Please record a reading.</span>
+          <span className="text-sm text-ec-t1">No temperature reading has been logged today. Please record a reading.</span>
         </div>
       )}
 
-      <form className="temp-form" onSubmit={handleSubmit}>
-        <div className="form-row">
-          <div className="form-group">
-            <label className="label">Date</label>
-            <input type="date" className="input" value={form.date} onChange={update('date')} required />
+      <form className="rounded-2xl p-5 space-y-4"
+        style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+        onSubmit={handleSubmit}>
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Date</label>
+            <input type="date" className={inputClass} value={form.date} onChange={update('date')} required />
           </div>
-          <div className="form-group">
-            <label className="label">Time</label>
-            <input type="time" className="input" value={form.time} onChange={update('time')} />
+          <div>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Time</label>
+            <input type="time" className={inputClass} value={form.time} onChange={update('time')} />
           </div>
-          <div className="form-group">
-            <label className="label">Temperature (°C) *</label>
+          <div>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Temperature (°C) *</label>
             <input
               type="number"
               step="0.1"
-              className="input"
+              className={inputClass}
               placeholder="e.g. 4.5"
               value={form.temperature}
               onChange={update('temperature')}
@@ -141,43 +146,43 @@ export default function TemperatureLog() {
             />
           </div>
         </div>
-        <div className="form-row">
-          <div className="form-group" style={{ flex: 1 }}>
-            <label className="label">Logged By</label>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Logged By</label>
             {staffMembers.length > 0 ? (
-              <select className="input" value={form.loggedBy} onChange={update('loggedBy')}>
+              <select className={inputClass} value={form.loggedBy} onChange={update('loggedBy')}>
                 <option value="">Select staff...</option>
                 {staffMembers.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             ) : (
-              <input type="text" className="input" placeholder="Name" value={form.loggedBy} onChange={update('loggedBy')} />
+              <input type="text" className={inputClass} placeholder="Name" value={form.loggedBy} onChange={update('loggedBy')} />
             )}
           </div>
-          <div className="form-group" style={{ flex: 1 }}>
-            <label className="label">Notes</label>
-            <input type="text" className="input" placeholder="Optional notes..." value={form.notes} onChange={update('notes')} />
+          <div>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Notes</label>
+            <input type="text" className={inputClass} placeholder="Optional notes..." value={form.notes} onChange={update('notes')} />
           </div>
         </div>
-        <button type="submit" className="btn btn--primary" style={{ marginTop: '0.5rem' }}>
+        <button type="submit" className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors flex items-center gap-1.5 font-sans mt-2">
           Log Temperature
         </button>
       </form>
 
       {sorted.length === 0 ? (
-        <div className="empty-state-box">
-          <p className="empty-state">No temperature readings yet.</p>
+        <div className="text-center py-10 text-ec-t3 text-sm">
+          No temperature readings yet.
         </div>
       ) : (
-        <div className="table-wrap" style={{ marginTop: '1.5rem' }}>
-          <table className="table">
+        <div className="overflow-x-auto rounded-xl mt-6" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+          <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Temperature</th>
-                <th>Logged By</th>
-                <th className="mobile-hide">Notes</th>
-                <th>Actions</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Date</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Time</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Temperature</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Logged By</th>
+                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Notes</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -185,13 +190,13 @@ export default function TemperatureLog() {
                 const temp = parseFloat(log.temperature)
                 const inRange = temp >= IN_RANGE_MIN && temp <= IN_RANGE_MAX
                 return (
-                  <tr key={log.id} className={!inRange ? 'temp-row--danger' : ''}>
-                    <td className="cell-bold">{formatDate(log.date)}</td>
-                    <td>{log.time || '—'}</td>
-                    <td>
-                      <span className={`temp-reading ${!inRange ? 'temp-reading--danger' : 'temp-reading--ok'}`}>
+                  <tr key={log.id} style={!inRange ? { backgroundColor: 'rgba(239,68,68,0.04)' } : undefined}>
+                    <td className="px-4 py-2.5 text-ec-t1 font-medium border-b border-white/[0.04]">{formatDate(log.date)}</td>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{log.time || '—'}</td>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
+                      <span className={inRange ? "inline-flex items-center text-ec-em font-semibold" : "inline-flex items-center text-ec-crit-light font-semibold"}>
                         {!inRange && (
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14" style={{ marginRight: 4 }}>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14" className="mr-1">
                             <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                             <line x1="12" y1="9" x2="12" y2="13" />
                             <line x1="12" y1="17" x2="12.01" y2="17" />
@@ -200,10 +205,10 @@ export default function TemperatureLog() {
                         {temp.toFixed(1)}°C
                       </span>
                     </td>
-                    <td>{log.loggedBy || '—'}</td>
-                    <td className="cell-notes mobile-hide">{log.notes || '—'}</td>
-                    <td>
-                      <button className="btn btn--ghost btn--sm btn--danger" onClick={() => handleDelete(log.id)}>Delete</button>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{log.loggedBy || '—'}</td>
+                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t3 border-b border-white/[0.04]">{log.notes || '—'}</td>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
+                      <button className="px-2.5 py-1 bg-ec-crit/10 text-ec-crit-light rounded-lg text-xs border border-ec-crit/20 cursor-pointer hover:bg-ec-crit/20 transition-colors font-sans" onClick={() => handleDelete(log.id)}>Delete</button>
                     </td>
                   </tr>
                 )

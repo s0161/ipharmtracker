@@ -30,6 +30,17 @@ const emptyForm = {
   signedOff: false,
 }
 
+const inputClass = "w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+
+const statusStyle = (status) => {
+  switch (status) {
+    case 'current': return { bg: 'rgba(16,185,129,0.1)', color: '#10b981', dot: '#10b981' }
+    case 'due-soon': return { bg: 'rgba(245,158,11,0.1)', color: '#f59e0b', dot: '#f59e0b' }
+    case 'overdue': return { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', dot: '#ef4444' }
+    default: return { bg: 'transparent', color: '#e4e4e7', dot: '#e4e4e7' }
+  }
+}
+
 export default function SafeguardingTraining() {
   const [records, setRecords, loading] = useSupabase('safeguarding_records', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
@@ -37,9 +48,10 @@ export default function SafeguardingTraining() {
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
+  const [docsOpen, setDocsOpen] = useState(false)
 
   if (loading) {
-    return <div className="loading-container"><div className="spinner" />Loading…</div>
+    return <div className="flex items-center justify-center py-20 text-sm text-ec-t3">Loading…</div>
   }
 
   const sorted = [...records].sort((a, b) => a.staffName.localeCompare(b.staffName))
@@ -115,62 +127,68 @@ export default function SafeguardingTraining() {
 
   return (
     <div>
-      <div className="page-header">
-        <p className="page-desc">
+      <div>
+        <p className="text-sm text-ec-t3 mb-2">
           Safeguarding training records for iPharmacy Direct, Ashton-under-Lyne.
-          Safeguarding Lead: <strong>Amjid Shakoor</strong> (Superintendent Pharmacist).
+          Safeguarding Lead: <strong className="text-ec-t1">Amjid Shakoor</strong> (Superintendent Pharmacist).
         </p>
-        <div className="page-header-actions">
+        <div className="flex items-center gap-2 flex-wrap mb-4">
           <PageActions onDownloadCsv={handleCsvDownload} />
-          <button className="btn btn--primary" onClick={openAdd}>
+          <button
+            className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors flex items-center gap-1.5 font-sans"
+            onClick={openAdd}
+          >
             + Add Record
           </button>
         </div>
       </div>
 
       {/* Summary Banner */}
-      <div className="sg-banner">
-        <div className="sg-banner-item">
-          <span className="sg-banner-num">{totalTrained}</span>
-          <span className="sg-banner-label">Staff Trained</span>
+      <div
+        className="grid grid-cols-4 gap-px rounded-xl overflow-hidden mb-6"
+        style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+      >
+        <div className="p-4 text-center" style={{ backgroundColor: 'rgba(255,255,255,0.025)' }}>
+          <span className="text-2xl font-bold text-ec-t1 block">{totalTrained}</span>
+          <span className="text-xs text-ec-t3 mt-1 block">Staff Trained</span>
         </div>
-        <div className="sg-banner-divider" />
-        <div className="sg-banner-item sg-banner-item--current">
-          <span className="sg-banner-num">{currentCount}</span>
-          <span className="sg-banner-label">Current</span>
+        <div className="p-4 text-center" style={{ backgroundColor: 'rgba(255,255,255,0.025)' }}>
+          <span className="text-2xl font-bold text-ec-em block">{currentCount}</span>
+          <span className="text-xs text-ec-t3 mt-1 block">Current</span>
         </div>
-        <div className="sg-banner-divider" />
-        <div className="sg-banner-item sg-banner-item--due">
-          <span className="sg-banner-num">{dueSoonCount}</span>
-          <span className="sg-banner-label">Due Soon</span>
+        <div className="p-4 text-center" style={{ backgroundColor: 'rgba(255,255,255,0.025)' }}>
+          <span className="text-2xl font-bold text-ec-warn block">{dueSoonCount}</span>
+          <span className="text-xs text-ec-t3 mt-1 block">Due Soon</span>
         </div>
-        <div className="sg-banner-divider" />
-        <div className="sg-banner-item sg-banner-item--overdue">
-          <span className="sg-banner-num">{overdueCount}</span>
-          <span className="sg-banner-label">Overdue</span>
+        <div className="p-4 text-center" style={{ backgroundColor: 'rgba(255,255,255,0.025)' }}>
+          <span className="text-2xl font-bold text-ec-crit-light block">{overdueCount}</span>
+          <span className="text-xs text-ec-t3 mt-1 block">Overdue</span>
         </div>
       </div>
 
       {/* Training Records Table */}
       {sorted.length === 0 ? (
-        <div className="empty-state-box">
-          <p className="empty-state">No safeguarding records yet. Add your first record.</p>
+        <div className="text-center py-10 text-ec-t3 text-sm">
+          No safeguarding records yet. Add your first record.
         </div>
       ) : (
-        <div className="table-wrap">
-          <table className="table">
+        <div
+          className="overflow-x-auto rounded-xl"
+          style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+        >
+          <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                <th>Staff Name</th>
-                <th>Job Title</th>
-                <th>Training Date</th>
-                <th className="mobile-hide">Delivered By</th>
-                <th className="mobile-hide">Method</th>
-                <th className="mobile-hide">Handbook</th>
-                <th>Signed Off</th>
-                <th>Next Refresher</th>
-                <th>Status</th>
-                <th className="mobile-hide">Actions</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Staff Name</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Job Title</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Training Date</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06] hidden md:table-cell">Delivered By</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06] hidden md:table-cell">Method</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06] hidden md:table-cell">Handbook</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Signed Off</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Next Refresher</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Status</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06] hidden md:table-cell">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -178,35 +196,48 @@ export default function SafeguardingTraining() {
                 const status = getSafeguardingStatus(record.trainingDate)
                 const refresher = getRefresherDate(record.trainingDate)
                 return (
-                  <SwipeRow key={record.id} className={`training-row training-row--${status === 'current' ? 'complete' : status === 'due-soon' ? 'inprogress' : 'pending'}`} onEdit={() => openEdit(record)} onDelete={() => handleDelete(record.id)}>
-                    <td className="cell-bold">{record.staffName}</td>
-                    <td>{record.jobTitle}</td>
-                    <td>{formatDate(record.trainingDate)}</td>
-                    <td className="cell-notes mobile-hide">{record.deliveredBy}</td>
-                    <td className="cell-notes mobile-hide">{record.trainingMethod}</td>
-                    <td className="cell-notes mobile-hide">{record.handbookVersion}</td>
-                    <td>
+                  <SwipeRow key={record.id} className="hover:bg-white/[0.03] transition-colors" onEdit={() => openEdit(record)} onDelete={() => handleDelete(record.id)}>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04] font-medium">{record.staffName}</td>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{record.jobTitle}</td>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{formatDate(record.trainingDate)}</td>
+                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t3 border-b border-white/[0.04]">{record.deliveredBy}</td>
+                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t3 border-b border-white/[0.04]">{record.trainingMethod}</td>
+                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t3 border-b border-white/[0.04]">{record.handbookVersion}</td>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
                       <button
-                        className={`signed-badge ${record.signedOff ? 'signed-badge--yes' : 'signed-badge--no'}`}
+                        className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border-none cursor-pointer transition-colors font-sans ${
+                          record.signedOff
+                            ? 'bg-ec-em/10 text-ec-em hover:bg-ec-em/20'
+                            : 'bg-white/[0.06] text-ec-t3 hover:bg-white/[0.1]'
+                        }`}
                         onClick={() => toggleSignedOff(record.id)}
                         title="Click to toggle"
                       >
                         {record.signedOff ? 'Yes' : 'No'}
                       </button>
                     </td>
-                    <td>{refresher ? formatDate(refresher) : '—'}</td>
-                    <td>
-                      <span className={`sg-status sg-status--${status}`}>
-                        <span className={`traffic-dot traffic-dot--${status === 'current' ? 'green' : status === 'due-soon' ? 'amber' : 'red'}`} />
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{refresher ? formatDate(refresher) : '—'}</td>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
+                      <span
+                        className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold"
+                        style={{ backgroundColor: statusStyle(status).bg, color: statusStyle(status).color }}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: statusStyle(status).dot }} />
                         {STATUS_LABELS[status]}
                       </span>
                     </td>
-                    <td className="mobile-hide">
-                      <div className="action-btns">
-                        <button className="btn btn--ghost btn--sm" onClick={() => openEdit(record)}>
+                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
+                      <div className="flex gap-1">
+                        <button
+                          className="px-2.5 py-1 bg-white/[0.05] text-ec-t2 rounded-lg text-xs border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors font-sans"
+                          onClick={() => openEdit(record)}
+                        >
                           Edit
                         </button>
-                        <button className="btn btn--ghost btn--sm btn--danger" onClick={() => handleDelete(record.id)}>
+                        <button
+                          className="px-2.5 py-1 bg-ec-crit/10 text-ec-crit-light rounded-lg text-xs border border-ec-crit/20 cursor-pointer hover:bg-ec-crit/20 transition-colors font-sans"
+                          onClick={() => handleDelete(record.id)}
+                        >
                           Delete
                         </button>
                       </div>
@@ -219,27 +250,49 @@ export default function SafeguardingTraining() {
         </div>
       )}
 
-      {/* Reference Documents */}
-      <div className="sg-docs">
-        <h2 className="sg-docs-title">Reference Documents</h2>
-        <p className="sg-docs-sub">Safeguarding Lead: Amjid Shakoor — Superintendent Pharmacist, iPharmacy Direct, Ashton-under-Lyne</p>
-        <div className="sg-docs-grid">
-          {REFERENCE_DOCS.map((doc) => (
-            <div key={doc.name} className="sg-doc-card">
-              <div className="sg-doc-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      {/* Reference Documents — Collapsible */}
+      <div className="mt-6 rounded-2xl p-5" style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
+        <button
+          onClick={() => setDocsOpen(!docsOpen)}
+          className="w-full flex items-center justify-between text-sm font-bold text-ec-t1 bg-transparent border-none cursor-pointer p-0 font-sans"
+        >
+          <span className="flex items-center gap-2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
+            Reference Documents
+          </span>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            width="16"
+            height="16"
+            className={`transition-transform duration-200 ${docsOpen ? 'rotate-180' : ''}`}
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+        <p className="text-xs text-ec-t3 mt-1">Safeguarding Lead: Amjid Shakoor — Superintendent Pharmacist</p>
+        {docsOpen && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
+            {REFERENCE_DOCS.map((doc) => (
+              <div key={doc.name} className="flex items-start gap-3 p-3 rounded-lg" style={{ backgroundColor: 'rgba(255,255,255,0.025)' }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20" className="text-ec-t3 shrink-0 mt-0.5">
                   <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                   <polyline points="14 2 14 8 20 8" />
                 </svg>
+                <div>
+                  <span className="text-sm text-ec-t1 font-medium block">{doc.name}</span>
+                  <span className="text-xs text-ec-t3 block">{doc.version}</span>
+                  <span className="text-xs text-ec-t3 block">{doc.review}</span>
+                </div>
               </div>
-              <div className="sg-doc-info">
-                <span className="sg-doc-name">{doc.name}</span>
-                <span className="sg-doc-version">{doc.version}</span>
-                <span className="sg-doc-review">{doc.review}</span>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Add/Edit Modal */}
@@ -248,11 +301,11 @@ export default function SafeguardingTraining() {
         onClose={() => setModalOpen(false)}
         title={editingId ? 'Edit Safeguarding Record' : 'Add Safeguarding Record'}
       >
-        <form className="form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="label">Staff Name *</label>
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <div>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Staff Name *</label>
             <select
-              className="input"
+              className={inputClass}
               value={form.staffName}
               onChange={update('staffName')}
               required
@@ -264,11 +317,11 @@ export default function SafeguardingTraining() {
             </select>
           </div>
 
-          <div className="form-group">
-            <label className="label">Job Title *</label>
+          <div>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Job Title *</label>
             <input
               type="text"
-              className="input"
+              className={inputClass}
               placeholder="e.g. Dispenser"
               value={form.jobTitle}
               onChange={update('jobTitle')}
@@ -276,64 +329,71 @@ export default function SafeguardingTraining() {
             />
           </div>
 
-          <div className="form-group">
-            <label className="label">Training Date</label>
+          <div>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Training Date</label>
             <input
               type="date"
-              className="input"
+              className={inputClass}
               value={form.trainingDate}
               onChange={update('trainingDate')}
             />
           </div>
 
-          <div className="form-group">
-            <label className="label">Delivered By</label>
+          <div>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Delivered By</label>
             <input
               type="text"
-              className="input"
+              className={inputClass}
               value={form.deliveredBy}
               onChange={update('deliveredBy')}
             />
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label className="label">Training Method</label>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-semibold text-ec-t2 mb-1 block">Training Method</label>
               <input
                 type="text"
-                className="input"
+                className={inputClass}
                 value={form.trainingMethod}
                 onChange={update('trainingMethod')}
               />
             </div>
-            <div className="form-group">
-              <label className="label">Handbook Version</label>
+            <div>
+              <label className="text-xs font-semibold text-ec-t2 mb-1 block">Handbook Version</label>
               <input
                 type="text"
-                className="input"
+                className={inputClass}
                 value={form.handbookVersion}
                 onChange={update('handbookVersion')}
               />
             </div>
           </div>
 
-          <div className="form-group">
-            <label className="label">
+          <div>
+            <label className="flex items-center gap-2 text-sm text-ec-t1 cursor-pointer">
               <input
                 type="checkbox"
+                className="accent-[#10b981]"
                 checked={form.signedOff}
                 onChange={(e) => setForm({ ...form, signedOff: e.target.checked })}
-                style={{ marginRight: '0.5rem' }}
               />
               Signed Off
             </label>
           </div>
 
-          <div className="form-actions">
-            <button type="button" className="btn btn--ghost" onClick={() => setModalOpen(false)}>
+          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-white/[0.04]">
+            <button
+              type="button"
+              className="px-4 py-2 bg-white/[0.05] text-ec-t2 rounded-lg text-sm border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] transition-colors font-sans"
+              onClick={() => setModalOpen(false)}
+            >
               Cancel
             </button>
-            <button type="submit" className="btn btn--primary">
+            <button
+              type="submit"
+              className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors font-sans"
+            >
               {editingId ? 'Save Changes' : 'Add Record'}
             </button>
           </div>

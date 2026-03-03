@@ -9,7 +9,6 @@ import StaffTraining from './pages/StaffTraining'
 import SafeguardingTraining from './pages/SafeguardingTraining'
 import RPLog from './pages/RPLog'
 import Settings from './pages/Settings'
-import DashboardStage1 from './pages/DashboardStage1'
 import TemperatureLog from './pages/TemperatureLog'
 import MyTasks from './pages/MyTasks'
 import Login, { isAuthenticated } from './pages/Login'
@@ -36,7 +35,6 @@ function AuthedApp() {
         <Route path="/safeguarding" element={<SafeguardingTraining />} />
         <Route path="/temperature" element={<TemperatureLog />} />
         <Route path="/settings" element={<Settings />} />
-        <Route path="/stage1" element={<DashboardStage1 />} />
       </Routes>
     </Layout>
   )

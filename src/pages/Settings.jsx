@@ -8,6 +8,8 @@ import { useToast } from '../components/Toast'
 import { useUser } from '../contexts/UserContext'
 import { logout } from './Login'
 
+const inputClass = "w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 placeholder:text-ec-t3 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+
 function ListManager({ title, description, items, onUpdate }) {
   const [value, setValue] = useState('')
 
@@ -24,30 +26,33 @@ function ListManager({ title, description, items, onUpdate }) {
   }
 
   return (
-    <div className="settings-section">
-      <h2 className="settings-section-title">{title}</h2>
-      <p className="settings-section-desc">{description}</p>
-      <form className="settings-add-form" onSubmit={handleAdd}>
+    <div
+      className="rounded-2xl p-5 mb-4"
+      style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+    >
+      <h2 className="text-base font-bold text-ec-t1 mb-1">{title}</h2>
+      <p className="text-sm text-ec-t3 mb-4">{description}</p>
+      <form className="flex gap-2 mb-4" onSubmit={handleAdd}>
         <input
           type="text"
-          className="input"
+          className={inputClass}
           placeholder={`Add new ${title.toLowerCase().replace(/s$/, '')}...`}
           value={value}
           onChange={(e) => setValue(e.target.value)}
         />
-        <button type="submit" className="btn btn--primary">
+        <button type="submit" className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors shrink-0 font-sans">
           Add
         </button>
       </form>
       {items.length === 0 ? (
-        <p className="empty-state">No items added yet.</p>
+        <p className="text-sm text-ec-t3 py-4">No items added yet.</p>
       ) : (
-        <ul className="settings-list">
+        <ul className="space-y-1">
           {items.map((item) => (
-            <li key={item} className="settings-list-item">
-              <span>{item}</span>
+            <li key={item} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg hover:bg-white/[0.03] transition-colors">
+              <span className="text-sm text-ec-t1">{item}</span>
               <button
-                className="btn btn--ghost btn--sm"
+                className="w-7 h-7 rounded-lg flex items-center justify-center bg-white/[0.05] text-ec-t3 hover:bg-ec-crit/10 hover:text-ec-crit-light transition-colors border-none cursor-pointer shrink-0"
                 onClick={() => handleRemove(item)}
                 aria-label={`Remove ${item}`}
               >
@@ -103,43 +108,47 @@ function StaffManager({ staff, onUpdate, showToast }) {
   }
 
   return (
-    <div className="settings-section">
-      <h2 className="settings-section-title">Staff Members</h2>
-      <p className="settings-section-desc">
+    <div
+      className="rounded-2xl p-5 mb-4"
+      style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+    >
+      <h2 className="text-base font-bold text-ec-t1 mb-1">Staff Members</h2>
+      <p className="text-sm text-ec-t3 mb-4">
         Manage staff, set PINs, and assign manager roles.
       </p>
-      <form className="settings-add-form" onSubmit={handleAdd}>
+      <form className="flex gap-2 mb-4" onSubmit={handleAdd}>
         <input
           type="text"
-          className="input"
+          className={inputClass}
           placeholder="Add new staff member..."
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-        <button type="submit" className="btn btn--primary">Add</button>
+        <button type="submit" className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors shrink-0 font-sans">Add</button>
       </form>
       {staff.length === 0 ? (
-        <p className="empty-state">No staff added yet.</p>
+        <p className="text-sm text-ec-t3 py-4">No staff added yet.</p>
       ) : (
-        <ul className="settings-list">
+        <ul className="space-y-1">
           {staff.map((s) => (
-            <li key={s.id} className="settings-list-item settings-staff-row">
-              <div className="settings-staff-info">
-                <span className="settings-staff-name">{s.name}</span>
-                <div className="settings-staff-controls">
-                  <label className="settings-manager-toggle">
+            <li key={s.id} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg hover:bg-white/[0.03] transition-colors">
+              <div className="flex-1 min-w-0">
+                <span className="text-sm text-ec-t1 font-medium block">{s.name}</span>
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  <label className="flex items-center gap-1.5 text-xs text-ec-t2 cursor-pointer">
                     <input
                       type="checkbox"
+                      className="accent-[#10b981]"
                       checked={!!s.isManager}
                       onChange={() => toggleManager(s.id)}
                     />
                     <span>Manager</span>
                   </label>
                   {editPin?.id === s.id ? (
-                    <div className="settings-pin-edit">
+                    <div className="flex items-center gap-1.5">
                       <input
                         type="text"
-                        className="input input--sm"
+                        className="w-20 bg-white/[0.04] border border-white/[0.06] rounded-lg px-2 py-1 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 transition-colors font-sans text-center"
                         maxLength={4}
                         pattern="[0-9]*"
                         inputMode="numeric"
@@ -151,14 +160,14 @@ function StaffManager({ staff, onUpdate, showToast }) {
                         autoFocus
                       />
                       <button
-                        className="btn btn--primary btn--sm"
+                        className="px-2.5 py-1 bg-ec-em text-white rounded-lg text-xs border-none cursor-pointer hover:bg-ec-em-dark transition-colors font-sans disabled:opacity-40"
                         onClick={() => savePin(s.id)}
                         disabled={editPin.pin.length !== 4}
                       >
                         Save
                       </button>
                       <button
-                        className="btn btn--ghost btn--sm"
+                        className="px-2.5 py-1 bg-white/[0.05] text-ec-t2 rounded-lg text-xs border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors font-sans"
                         onClick={() => setEditPin(null)}
                       >
                         Cancel
@@ -166,7 +175,7 @@ function StaffManager({ staff, onUpdate, showToast }) {
                     </div>
                   ) : (
                     <button
-                      className="btn btn--ghost btn--sm"
+                      className="px-2.5 py-1 bg-white/[0.05] text-ec-t2 rounded-lg text-xs border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors font-sans"
                       onClick={() => setEditPin({ id: s.id, pin: s.pin || '' })}
                     >
                       {s.pin ? 'Change PIN' : 'Set PIN'}
@@ -175,7 +184,7 @@ function StaffManager({ staff, onUpdate, showToast }) {
                 </div>
               </div>
               <button
-                className="btn btn--ghost btn--sm"
+                className="w-7 h-7 rounded-lg flex items-center justify-center bg-white/[0.05] text-ec-t3 hover:bg-ec-crit/10 hover:text-ec-crit-light transition-colors border-none cursor-pointer shrink-0"
                 onClick={() => handleRemove(s.id)}
                 aria-label={`Remove ${s.name}`}
               >
@@ -214,24 +223,26 @@ function TaskManager({ tasks, onUpdate }) {
   }
 
   return (
-    <div className="settings-section">
-      <h2 className="settings-section-title">Cleaning Tasks</h2>
-      <p className="settings-section-desc">
+    <div
+      className="rounded-2xl p-5 mb-4"
+      style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+    >
+      <h2 className="text-base font-bold text-ec-t1 mb-1">Cleaning Tasks</h2>
+      <p className="text-sm text-ec-t3 mb-4">
         Manage cleaning tasks and how often they need doing. The &lsquo;Other&rsquo; option is always available.
       </p>
-      <form className="settings-add-form" onSubmit={handleAdd}>
+      <form className="flex gap-2 mb-4" onSubmit={handleAdd}>
         <input
           type="text"
-          className="input"
+          className={inputClass}
           placeholder="Add new task..."
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
         <select
-          className="input input--inline"
+          className="bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none transition-colors font-sans"
           value={frequency}
           onChange={(e) => setFrequency(e.target.value)}
-          style={{ minWidth: 110 }}
         >
           {FREQUENCIES.map((f) => (
             <option key={f} value={f}>
@@ -239,20 +250,20 @@ function TaskManager({ tasks, onUpdate }) {
             </option>
           ))}
         </select>
-        <button type="submit" className="btn btn--primary">
+        <button type="submit" className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors shrink-0 font-sans">
           Add
         </button>
       </form>
       {tasks.length === 0 ? (
-        <p className="empty-state">No tasks added yet.</p>
+        <p className="text-sm text-ec-t3 py-4">No tasks added yet.</p>
       ) : (
-        <ul className="settings-list">
+        <ul className="space-y-1">
           {tasks.map((task) => (
-            <li key={task.name} className="settings-list-item">
-              <span>{task.name}</span>
-              <div className="settings-list-actions">
+            <li key={task.name} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg hover:bg-white/[0.03] transition-colors">
+              <span className="text-sm text-ec-t1">{task.name}</span>
+              <div className="flex items-center gap-2">
                 <select
-                  className="input input--inline input--sm"
+                  className="bg-white/[0.04] border border-white/[0.06] rounded-lg px-2 py-1 text-xs text-ec-t1 focus:outline-none transition-colors font-sans"
                   value={task.frequency}
                   onChange={(e) => handleFreqChange(task.name, e.target.value)}
                 >
@@ -263,7 +274,7 @@ function TaskManager({ tasks, onUpdate }) {
                   ))}
                 </select>
                 <button
-                  className="btn btn--ghost btn--sm"
+                  className="w-7 h-7 rounded-lg flex items-center justify-center bg-white/[0.05] text-ec-t3 hover:bg-ec-crit/10 hover:text-ec-crit-light transition-colors border-none cursor-pointer shrink-0"
                   onClick={() => handleRemove(task.name)}
                   aria-label={`Remove ${task.name}`}
                 >
@@ -372,7 +383,7 @@ export default function Settings() {
   }
 
   return (
-    <div className="settings">
+    <div className="space-y-4">
       <StaffManager
         staff={staffMembers}
         onUpdate={setStaffMembers}
@@ -387,33 +398,39 @@ export default function Settings() {
       <TaskManager tasks={cleaningTasks} onUpdate={setCleaningTasks} />
 
       {/* Pharmacy Details */}
-      <div className="settings-section">
-        <h2 className="settings-section-title">Pharmacy Details</h2>
-        <p className="settings-section-desc">
+      <div
+        className="rounded-2xl p-5 mb-4"
+        style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+      >
+        <h2 className="text-base font-bold text-ec-t1 mb-1">Pharmacy Details</h2>
+        <p className="text-sm text-ec-t3 mb-4">
           Core pharmacy information. Contact your administrator to update these details.
         </p>
-        <div className="settings-details-grid">
+        <div className="grid grid-cols-2 gap-4">
           {Object.entries({
             'Pharmacy Name': PHARMACY_DETAILS.name,
             'Superintendent': PHARMACY_DETAILS.superintendent,
             'Responsible Pharmacist': PHARMACY_DETAILS.responsiblePharmacist,
             'Address': PHARMACY_DETAILS.address,
           }).map(([label, value]) => (
-            <div key={label} className="settings-detail-item">
-              <span className="settings-detail-label">{label}</span>
-              <span className="settings-detail-value">{value || '—'}</span>
+            <div key={label}>
+              <span className="text-xs font-semibold text-ec-t3 block mb-0.5">{label}</span>
+              <span className="text-sm text-ec-t1">{value || '—'}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* Notification Preferences */}
-      <div className="settings-section">
-        <h2 className="settings-section-title">Notification Preferences</h2>
-        <p className="settings-section-desc">
+      <div
+        className="rounded-2xl p-5 mb-4"
+        style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+      >
+        <h2 className="text-base font-bold text-ec-t1 mb-1">Notification Preferences</h2>
+        <p className="text-sm text-ec-t3 mb-4">
           Control which alerts appear in the sidebar and dashboard.
         </p>
-        <div className="settings-notif-list">
+        <div className="space-y-2">
           {[
             { key: 'documentExpiry', label: 'Document expiry alerts' },
             { key: 'trainingOverdue', label: 'Training overdue alerts' },
@@ -421,9 +438,10 @@ export default function Settings() {
             { key: 'safeguardingDue', label: 'Safeguarding due alerts' },
             { key: 'temperatureMissing', label: 'Temperature log reminders' },
           ].map(({ key, label }) => (
-            <label key={key} className="settings-notif-toggle">
+            <label key={key} className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/[0.03] transition-colors cursor-pointer">
               <input
                 type="checkbox"
+                className="accent-[#10b981]"
                 checked={!!notifPrefs[key]}
                 onChange={() => {
                   const updated = { ...notifPrefs, [key]: !notifPrefs[key] }
@@ -432,34 +450,28 @@ export default function Settings() {
                   showToast('Preference saved')
                 }}
               />
-              <span>{label}</span>
+              <span className="text-sm text-ec-t1">{label}</span>
             </label>
           ))}
         </div>
       </div>
 
       {/* Data Management */}
-      <div className="settings-section">
-        <h2 className="settings-section-title">Data Management</h2>
-        <p className="settings-section-desc">
+      <div
+        className="rounded-2xl p-5 mb-4"
+        style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+      >
+        <h2 className="text-base font-bold text-ec-t1 mb-1">Data Management</h2>
+        <p className="text-sm text-ec-t3 mb-4">
           Export a backup of all your data, restore from a previous backup, or clear everything.
         </p>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+        <div className="flex items-center gap-2 mb-4">
           <span
-            style={{
-              display: 'inline-block',
-              width: 10,
-              height: 10,
-              borderRadius: '50%',
-              backgroundColor: backendStatus.checking
-                ? '#aaa'
-                : backendStatus.ok
-                  ? '#22c55e'
-                  : '#ef4444',
-            }}
+            className="w-2.5 h-2.5 rounded-full"
+            style={{ backgroundColor: backendStatus.checking ? '#71717a' : backendStatus.ok ? '#10b981' : '#ef4444' }}
           />
-          <span style={{ fontSize: 14 }}>
+          <span className="text-sm text-ec-t2">
             {backendStatus.checking
               ? 'Checking backend…'
               : backendStatus.ok
@@ -468,8 +480,8 @@ export default function Settings() {
           </span>
         </div>
 
-        <div className="data-mgmt-actions" style={{ flexWrap: 'wrap' }}>
-          <button className="btn btn--ghost" onClick={() => {
+        <div className="flex flex-wrap gap-2 mb-3">
+          <button className="px-4 py-2 bg-white/[0.05] text-ec-t2 rounded-lg text-sm border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors flex items-center gap-1.5 font-sans" onClick={() => {
             // Deduplicate cleaning entries
             const cleanMap = new Map()
             cleaningEntries.forEach(e => {
@@ -521,8 +533,8 @@ export default function Settings() {
             Delete Duplicates
           </button>
         </div>
-        <div className="data-mgmt-actions">
-          <button className="btn btn--primary" onClick={handleExport}>
+        <div className="flex flex-wrap gap-2 mb-3">
+          <button className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors flex items-center gap-1.5 font-sans" onClick={handleExport}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
               <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
               <polyline points="7 10 12 15 17 10" />
@@ -530,7 +542,7 @@ export default function Settings() {
             </svg>
             Export Backup
           </button>
-          <button className="btn btn--ghost" onClick={() => fileRef.current?.click()}>
+          <button className="px-4 py-2 bg-white/[0.05] text-ec-t2 rounded-lg text-sm border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors flex items-center gap-1.5 font-sans" onClick={() => fileRef.current?.click()}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
               <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
               <polyline points="17 8 12 3 7 8" />
@@ -545,7 +557,7 @@ export default function Settings() {
             onChange={handleImport}
             style={{ display: 'none' }}
           />
-          <button className="btn btn--danger" onClick={handleClear}>
+          <button className="px-4 py-2 bg-ec-crit/10 text-ec-crit-light rounded-lg text-sm border border-ec-crit/20 cursor-pointer hover:bg-ec-crit/20 transition-colors flex items-center gap-1.5 font-sans" onClick={handleClear}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
               <polyline points="3 6 5 6 21 6" />
               <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
@@ -555,13 +567,13 @@ export default function Settings() {
         </div>
 
         {importMsg && (
-          <p className={`data-mgmt-msg data-mgmt-msg--${importMsg.type}`}>
+          <p className={importMsg.type === 'success' ? 'text-sm text-ec-em mt-2' : 'text-sm text-ec-crit-light mt-2'}>
             {importMsg.text}
           </p>
         )}
 
-        <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid var(--border-light)' }}>
-          <button className="btn btn--ghost" onClick={() => { logoutUser(); logout(); window.location.reload() }}>
+        <div className="mt-6 pt-4 border-t border-white/[0.04]">
+          <button className="px-4 py-2 bg-white/[0.05] text-ec-t2 rounded-lg text-sm border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors flex items-center gap-1.5 font-sans" onClick={() => { logoutUser(); logout(); window.location.reload() }}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
               <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
               <polyline points="16 17 21 12 16 7" />
@@ -573,12 +585,15 @@ export default function Settings() {
       </div>
 
       {/* Weekly Compliance Report */}
-      <div className="settings-section">
-        <h2 className="settings-section-title">Weekly Compliance Report</h2>
-        <p className="settings-section-desc">
+      <div
+        className="rounded-2xl p-5 mb-4"
+        style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+      >
+        <h2 className="text-base font-bold text-ec-t1 mb-1">Weekly Compliance Report</h2>
+        <p className="text-sm text-ec-t3 mb-4">
           Generate a CSV summary of this week&apos;s compliance scores, incidents, expiring documents, and overdue training.
         </p>
-        <button className="btn btn--primary" onClick={() => {
+        <button className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors flex items-center gap-1.5 font-sans" onClick={() => {
           const docGreen = documents.filter(d => getTrafficLight(d.expiryDate) === 'green').length
           const docPct = documents.length > 0 ? Math.round((docGreen / documents.length) * 100) : 100
           const trainPct = staffTraining.length > 0 ? Math.round((staffTraining.filter(e => e.status === 'Complete').length / staffTraining.length) * 100) : 100
@@ -624,37 +639,40 @@ export default function Settings() {
       </div>
 
       {/* Audit Trail */}
-      <div className="settings-section">
-        <h2 className="settings-section-title">Audit Trail</h2>
-        <p className="settings-section-desc">
+      <div
+        className="rounded-2xl p-5 mb-4"
+        style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+      >
+        <h2 className="text-base font-bold text-ec-t1 mb-1">Audit Trail</h2>
+        <p className="text-sm text-ec-t3 mb-4">
           View a log of all actions performed in the system.
         </p>
-        <button className="btn btn--ghost" onClick={() => setShowAudit(!showAudit)}>
+        <button className="px-4 py-2 bg-white/[0.05] text-ec-t2 rounded-lg text-sm border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors flex items-center gap-1.5 font-sans" onClick={() => setShowAudit(!showAudit)}>
           {showAudit ? 'Hide Audit Trail' : 'Show Audit Trail'}
         </button>
         {showAudit && (
-          <div className="table-wrap" style={{ marginTop: '1rem' }}>
+          <div className="overflow-x-auto rounded-xl mt-4" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
             {auditLogs.length === 0 ? (
-              <p className="empty-state">No audit entries yet.</p>
+              <p className="text-sm text-ec-t3 py-4">No audit entries yet.</p>
             ) : (
-              <table className="table">
+              <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
                 <thead>
                   <tr>
-                    <th>Timestamp</th>
-                    <th>Action</th>
-                    <th>Item</th>
-                    <th className="mobile-hide">User</th>
-                    <th className="mobile-hide">Page</th>
+                    <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Timestamp</th>
+                    <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Action</th>
+                    <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Item</th>
+                    <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">User</th>
+                    <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Page</th>
                   </tr>
                 </thead>
                 <tbody>
                   {[...auditLogs].sort((a, b) => new Date(b.timestamp || b.createdAt) - new Date(a.timestamp || a.createdAt)).map(log => (
                     <tr key={log.id}>
-                      <td>{new Date(log.timestamp || log.createdAt).toLocaleString('en-GB')}</td>
-                      <td>{log.action}</td>
-                      <td>{log.itemName}</td>
-                      <td className="mobile-hide">{log.userName || '—'}</td>
-                      <td className="mobile-hide">{log.page || '—'}</td>
+                      <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{new Date(log.timestamp || log.createdAt).toLocaleString('en-GB')}</td>
+                      <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{log.action}</td>
+                      <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{log.itemName}</td>
+                      <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{log.userName || '—'}</td>
+                      <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{log.page || '—'}</td>
                     </tr>
                   ))}
                 </tbody>

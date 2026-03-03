@@ -1,8 +1,7 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
 import { generateId, formatDate } from '../utils/helpers'
 import { downloadCsv } from '../utils/exportCsv'
-import { useToast } from '../components/Toast'
 import PageActions from '../components/PageActions'
 
 const DAILY_ITEMS = [
@@ -32,7 +31,6 @@ const ALL_ITEMS = [...DAILY_ITEMS, ...WEEKLY_ITEMS, ...FORTNIGHTLY_ITEMS]
 
 export default function RPLog() {
   const [logs, setLogs, loading] = useSupabase('rp_log', [])
-  const showToast = useToast()
 
   const today = new Date().toISOString().slice(0, 10)
   const [selectedDate, setSelectedDate] = useState(today)
@@ -40,13 +38,12 @@ export default function RPLog() {
   const [checklist, setChecklist] = useState({})
   const [notes, setNotes] = useState('')
   const [editingId, setEditingId] = useState(null)
+  const saveTimerRef = useRef(null)
 
-  // Load existing entry when date changes
   const existingEntry = useMemo(() => {
     return logs.find(l => l.date === selectedDate)
   }, [logs, selectedDate])
 
-  // When we find an existing entry, load its data
   useEffect(() => {
     if (existingEntry) {
       setRpName(existingEntry.rpName || 'Amjid Shakoor')
@@ -55,6 +52,22 @@ export default function RPLog() {
       setEditingId(existingEntry.id)
     }
   }, [existingEntry])
+
+  useEffect(() => {
+    if (!rpName) return
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    saveTimerRef.current = setTimeout(() => {
+      const data = { date: selectedDate, rpName, checklist, notes }
+      if (editingId) {
+        setLogs(logs.map(l => (l.id === editingId ? { ...l, ...data } : l)))
+      } else {
+        const id = generateId()
+        setLogs([...logs, { id, ...data, createdAt: new Date().toISOString() }])
+        setEditingId(id)
+      }
+    }, 500)
+    return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current) }
+  }, [checklist, notes, rpName, selectedDate])
 
   const loadEntry = (date) => {
     setSelectedDate(date)
@@ -76,33 +89,13 @@ export default function RPLog() {
     setChecklist(prev => ({ ...prev, [item]: !prev[item] }))
   }
 
-  const handleSave = () => {
-    if (!rpName) return
-
-    const data = {
-      date: selectedDate,
-      rpName,
-      checklist,
-      notes,
-    }
-
-    if (editingId) {
-      setLogs(logs.map(l => (l.id === editingId ? { ...l, ...data } : l)))
-      showToast('RP checklist updated')
-    } else {
-      const id = generateId()
-      setLogs([...logs, { id, ...data, createdAt: new Date().toISOString() }])
-      setEditingId(id)
-      showToast('RP checklist saved')
-    }
-  }
-
   if (loading) {
-    return <div className="loading-container"><div className="spinner" />Loading…</div>
+    return <div className="flex items-center justify-center py-20 text-ec-t3 text-sm">Loading…</div>
   }
 
   const checkedCount = (items) => items.filter(i => checklist[i]).length
   const totalChecked = ALL_ITEMS.filter(i => checklist[i]).length
+  const pctComplete = ALL_ITEMS.length > 0 ? (totalChecked / ALL_ITEMS.length) * 100 : 0
 
   const sorted = [...logs].sort((a, b) => b.date.localeCompare(a.date))
 
@@ -116,34 +109,48 @@ export default function RPLog() {
     downloadCsv('rp-log', headers, rows)
   }
 
-  const renderChecklist = (title, items, frequency) => (
-    <div className="rp-checklist-group">
-      <h3 className="rp-checklist-group-title">
+  function getProgressColor() {
+    if (totalChecked === ALL_ITEMS.length) return 'bg-ec-em'
+    if (totalChecked > 0) return 'bg-ec-warn'
+    return 'bg-white/[0.08]'
+  }
+
+  const renderChecklist = (title, items) => (
+    <div className="mb-5">
+      <h3 className="text-xs font-bold text-ec-t2 tracking-wide uppercase flex items-center justify-between mb-2">
         {title}
-        <span className="rp-checklist-group-count">
+        <span className="text-xs text-ec-t3 font-normal normal-case tracking-normal">
           {checkedCount(items)}/{items.length}
         </span>
       </h3>
-      <div className="rp-checklist-items">
+      <div className="space-y-1">
         {items.map(item => (
-          <label key={item} className={`rp-checklist-item ${checklist[item] ? 'rp-checklist-item--checked' : ''}`}>
+          <label
+            key={item}
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-colors hover:bg-white/[0.03] ${checklist[item] ? 'bg-white/[0.02]' : ''}`}
+          >
             <input
               type="checkbox"
               checked={!!checklist[item]}
               onChange={() => toggleItem(item)}
+              className="hidden"
             />
-            <span className="rp-check-icon">
-              {checklist[item] ? (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <span
+              className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-all ${
+                checklist[item]
+                  ? 'border-ec-em bg-ec-em'
+                  : 'border-white/[0.15]'
+              }`}
+            >
+              {checklist[item] && (
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" width="12" height="12">
                   <path d="M20 6L9 17l-5-5" />
-                </svg>
-              ) : (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="3" y="3" width="18" height="18" rx="3" />
                 </svg>
               )}
             </span>
-            <span className="rp-check-label">{item}</span>
+            <span className={`text-sm ${checklist[item] ? 'line-through text-ec-t3' : 'text-ec-t1'}`}>
+              {item}
+            </span>
           </label>
         ))}
       </div>
@@ -156,12 +163,28 @@ export default function RPLog() {
   })
 
   return (
-    <div>
+    <div className="space-y-6">
       {/* Sticky date banner */}
-      <div className={`rp-sticky-date ${!todayHasEntry ? 'rp-sticky-date--warning' : 'rp-sticky-date--ok'}`}>
-        <span className="rp-sticky-date-text">{todayLabel}</span>
-        {!todayHasEntry && (
-          <span className="rp-sticky-date-alert">
+      {todayHasEntry ? (
+        <div
+          className="rounded-xl px-4 py-3 flex items-center justify-between flex-wrap gap-2 mb-4"
+          style={{ backgroundColor: 'rgba(16,185,129,0.04)', border: '1px solid rgba(16,185,129,0.1)' }}
+        >
+          <span className="text-sm font-medium text-ec-t1">{todayLabel}</span>
+          <span className="text-xs text-ec-em flex items-center gap-1.5">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+            Completed
+          </span>
+        </div>
+      ) : (
+        <div
+          className="rounded-xl px-4 py-3 flex items-center justify-between flex-wrap gap-2 mb-4"
+          style={{ backgroundColor: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)' }}
+        >
+          <span className="text-sm font-medium text-ec-t1">{todayLabel}</span>
+          <span className="text-xs text-ec-warn flex items-center gap-1.5">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
               <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
               <line x1="12" y1="9" x2="12" y2="13" />
@@ -169,139 +192,122 @@ export default function RPLog() {
             </svg>
             Today&apos;s RP log not yet completed
           </span>
-        )}
-        {todayHasEntry && (
-          <span className="rp-sticky-date-ok">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16">
-              <path d="M20 6L9 17l-5-5" />
-            </svg>
-            Completed
-          </span>
-        )}
-      </div>
+        </div>
+      )}
 
-      <div className="page-header">
-        <p className="page-desc">
+      <div>
+        <p className="text-sm text-ec-t3 mb-2">
           Daily Responsible Pharmacist checklist — GPhC compliance requirement.
           Record RP duties and checks for each day.
         </p>
-        <div className="page-header-actions">
+        <div className="flex items-center gap-2 mb-4">
           <PageActions onDownloadCsv={handleCsvDownload} />
         </div>
       </div>
 
       {/* Form Section */}
-      <div className="rp-form-section">
-        <div className="rp-form-header">
-          <div className="form-group">
-            <label className="label">Date</label>
+      <div
+        className="rounded-2xl p-5"
+        style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+      >
+        <div className="flex gap-4 flex-wrap mb-4">
+          <div>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Date</label>
             <input
               type="date"
-              className="input"
+              className="bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
               value={selectedDate}
               onChange={(e) => loadEntry(e.target.value)}
             />
           </div>
-          <div className="form-group" style={{ flex: 1 }}>
-            <label className="label">Responsible Pharmacist</label>
+          <div className="flex-1">
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Responsible Pharmacist</label>
             <input
               type="text"
-              className="input"
+              className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans cursor-default"
               value={rpName}
               readOnly
-              style={{ background: 'var(--bg-secondary)', cursor: 'default' }}
             />
           </div>
         </div>
 
-        <div className="rp-completion-bar">
-          <div className="rp-completion-label">
+        <div className="flex items-center gap-3 mb-4">
+          <span className="text-sm text-ec-t2">
             Completion: {totalChecked}/{ALL_ITEMS.length}
-          </div>
-          <div className="progress-bar" style={{ flex: 1 }}>
+          </span>
+          <div className="flex-1 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
             <div
-              className="progress-bar-fill"
-              style={{
-                width: `${ALL_ITEMS.length > 0 ? (totalChecked / ALL_ITEMS.length) * 100 : 0}%`,
-                background: totalChecked === ALL_ITEMS.length
-                  ? 'var(--success)'
-                  : totalChecked > 0
-                    ? 'var(--warning)'
-                    : 'var(--border)'
-              }}
+              className={`h-full rounded-full transition-all duration-300 ${getProgressColor()}`}
+              style={{ width: `${pctComplete}%` }}
             />
           </div>
         </div>
 
-        {renderChecklist('Daily Checks', DAILY_ITEMS, 'daily')}
-        {renderChecklist('Weekly Checks', WEEKLY_ITEMS, 'weekly')}
-        {renderChecklist('Fortnightly Checks', FORTNIGHTLY_ITEMS, 'fortnightly')}
+        {renderChecklist('Daily Checks', DAILY_ITEMS)}
+        {renderChecklist('Weekly Checks', WEEKLY_ITEMS)}
+        {renderChecklist('Fortnightly Checks', FORTNIGHTLY_ITEMS)}
 
-        <div className="form-group" style={{ marginTop: '1rem' }}>
-          <label className="label">Notes</label>
+        <div className="mt-4">
+          <label className="text-xs font-semibold text-ec-t2 mb-1 block">Notes</label>
           <textarea
-            className="input input--textarea"
+            className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans resize-none"
             placeholder="Any issues, observations, or actions taken..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
           />
         </div>
-
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1rem' }}>
-          <button
-            className="btn btn--primary"
-            onClick={handleSave}
-            disabled={!rpName}
-          >
-            {editingId ? 'Update Checklist' : 'Save Checklist'}
-          </button>
-        </div>
       </div>
 
       {/* History Table */}
-      <h2 className="rp-history-title">Recent Checklists</h2>
-      {sorted.length === 0 ? (
-        <div className="empty-state-box">
-          <p className="empty-state">No RP checklists recorded yet.</p>
-        </div>
-      ) : (
-        <div className="table-wrap">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>RP Name</th>
-                <th>Completion</th>
-                <th className="mobile-hide">Notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sorted.map(log => {
-                const c = log.checklist || {}
-                const completed = ALL_ITEMS.filter(i => c[i]).length
-                const pct = Math.round((completed / ALL_ITEMS.length) * 100)
-                return (
-                  <tr
-                    key={log.id}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => loadEntry(log.date)}
-                  >
-                    <td className="cell-bold">{formatDate(log.date)}</td>
-                    <td>{log.rpName}</td>
-                    <td>
-                      <span className={`result-badge ${pct === 100 ? 'result-badge--pass' : 'result-badge--action'}`}>
-                        {completed}/{ALL_ITEMS.length}
-                      </span>
-                    </td>
-                    <td className="cell-notes mobile-hide">{log.notes || '—'}</td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <div>
+        <h2 className="text-sm font-bold text-ec-t1 mb-3">Recent Checklists</h2>
+        {sorted.length === 0 ? (
+          <div className="text-center py-8 text-ec-t3 text-sm">
+            No RP checklists recorded yet.
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+            <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
+              <thead className="text-left">
+                <tr>
+                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Date</th>
+                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">RP Name</th>
+                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Completion</th>
+                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06] hidden md:table-cell">Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sorted.map(log => {
+                  const c = log.checklist || {}
+                  const completed = ALL_ITEMS.filter(i => c[i]).length
+                  const pct = Math.round((completed / ALL_ITEMS.length) * 100)
+                  return (
+                    <tr
+                      key={log.id}
+                      className="cursor-pointer hover:bg-white/[0.03] transition-colors"
+                      onClick={() => loadEntry(log.date)}
+                    >
+                      <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04] font-medium">{formatDate(log.date)}</td>
+                      <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{log.rpName}</td>
+                      <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                          pct === 100
+                            ? 'bg-ec-em/10 text-ec-em'
+                            : 'bg-ec-warn/10 text-ec-warn'
+                        }`}>
+                          {completed}/{ALL_ITEMS.length}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04] hidden md:table-cell">{log.notes || '—'}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

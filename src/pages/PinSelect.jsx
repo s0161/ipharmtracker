@@ -39,10 +39,8 @@ export default function PinSelect() {
         setPin(next)
         return
       }
-      // 4 digits entered — verify
       setPin(next)
       if (!selected.pin || selected.pin === next) {
-        // Correct or no PIN set — log in
         login(selected)
       } else {
         setError('Wrong PIN')
@@ -67,7 +65,6 @@ export default function PinSelect() {
     setError('')
   }
 
-  // Keyboard support
   useEffect(() => {
     if (!selected) return
     const handler = (e) => {
@@ -81,52 +78,63 @@ export default function PinSelect() {
 
   if (loading) {
     return (
-      <div className="pin-screen">
-        <div className="pin-loading">Loading staff...</div>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0a0a0a' }}>
+        <p className="text-sm text-ec-t3">Loading staff...</p>
       </div>
     )
   }
 
-  // PIN entry view
   if (selected) {
     return (
-      <div className="pin-screen">
-        <div className="pin-entry">
-          <button className="pin-back" onClick={handleBack} aria-label="Back">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#0a0a0a' }}>
+        <div className="w-full max-w-xs flex flex-col items-center ec-fadeup">
+          <button
+            onClick={handleBack}
+            className="self-start mb-6 w-8 h-8 rounded-lg flex items-center justify-center bg-white/[0.05] text-ec-t3 hover:bg-white/[0.08] hover:text-ec-t1 transition-colors border-none cursor-pointer"
+            aria-label="Back"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
               <polyline points="15 18 9 12 15 6" />
             </svg>
           </button>
-          <div className="pin-avatar pin-avatar--lg">
+
+          <div
+            className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-lg mb-3"
+            style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
+          >
             {getStaffInitials(selected.name)}
           </div>
-          <h2 className="pin-name">{selected.name}</h2>
-          {!selected.pin ? (
-            <p className="pin-hint">No PIN set — tap any 4 digits to continue</p>
-          ) : (
-            <p className="pin-hint">Enter your 4-digit PIN</p>
-          )}
-          <div className={`pin-dots ${shaking ? 'pin-dots--shake' : ''}`}>
+          <h2 className="text-lg font-bold text-ec-t1 mb-1">{selected.name}</h2>
+          <p className="text-xs text-ec-t3 mb-6">
+            {!selected.pin ? 'No PIN set — tap any 4 digits to continue' : 'Enter your 4-digit PIN'}
+          </p>
+
+          <div className={`flex gap-3 mb-2 ${shaking ? 'animate-[ecBellShake_0.5s_ease-in-out]' : ''}`}>
             {[0, 1, 2, 3].map((i) => (
-              <span
+              <div
                 key={i}
-                className={`pin-dot ${i < pin.length ? 'pin-dot--filled' : ''}`}
+                className="w-3 h-3 rounded-full transition-all duration-200"
+                style={{
+                  backgroundColor: i < pin.length ? '#10b981' : 'rgba(255,255,255,0.1)',
+                  boxShadow: i < pin.length ? '0 0 8px rgba(16,185,129,0.4)' : 'none',
+                }}
               />
             ))}
           </div>
-          {error && <p className="pin-error">{error}</p>}
-          <div className="pin-pad">
+          {error && <p className="text-xs text-ec-crit-light mt-1 mb-2">{error}</p>}
+
+          <div className="grid grid-cols-3 gap-2 mt-4 w-full max-w-[240px]">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, null, 0, 'del'].map((key, i) =>
               key === null ? (
-                <div key={i} className="pin-key pin-key--empty" />
+                <div key={i} />
               ) : key === 'del' ? (
                 <button
                   key={i}
-                  className="pin-key pin-key--del"
                   onClick={handleBackspace}
+                  className="h-14 rounded-xl flex items-center justify-center bg-white/[0.04] text-ec-t3 hover:bg-white/[0.08] transition-colors border-none cursor-pointer"
                   aria-label="Delete"
                 >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
                     <path d="M21 4H8l-7 8 7 8h13a2 2 0 002-2V6a2 2 0 00-2-2z" />
                     <line x1="18" y1="9" x2="12" y2="15" />
                     <line x1="12" y1="9" x2="18" y2="15" />
@@ -135,8 +143,8 @@ export default function PinSelect() {
               ) : (
                 <button
                   key={i}
-                  className="pin-key"
                   onClick={() => handleDigit(String(key))}
+                  className="h-14 rounded-xl flex items-center justify-center bg-white/[0.04] text-ec-t1 text-lg font-semibold hover:bg-white/[0.08] active:scale-95 transition-all border-none cursor-pointer font-sans"
                 >
                   {key}
                 </button>
@@ -148,34 +156,47 @@ export default function PinSelect() {
     )
   }
 
-  // Staff selection grid
   return (
-    <div className="pin-screen">
-      <div className="pin-select">
-        <div className="pin-header">
-          <svg className="pin-logo" viewBox="0 0 40 40">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#0a0a0a' }}>
+      <div className="w-full max-w-2xl ec-fadeup">
+        <div className="flex flex-col items-center mb-8">
+          <svg viewBox="0 0 40 40" width="44" height="44" className="mb-3">
             <defs>
-              <linearGradient id="pin-logo-grad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#22c55e" />
-                <stop offset="100%" stopColor="#16a34a" />
+              <linearGradient id="pin-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#10b981" />
+                <stop offset="100%" stopColor="#059669" />
               </linearGradient>
             </defs>
-            <rect rx="10" width="40" height="40" fill="url(#pin-logo-grad)" />
-            <text x="20" y="26" textAnchor="middle" fill="white" fontWeight="700" fontSize="13" fontFamily="DM Sans, sans-serif">iPD</text>
+            <rect rx="12" width="40" height="40" fill="url(#pin-grad)" />
+            <text x="20" y="26" textAnchor="middle" fill="white" fontWeight="700" fontSize="13" fontFamily="system-ui, sans-serif">iPD</text>
           </svg>
-          <h1 className="pin-title">Who are you?</h1>
-          <p className="pin-subtitle">Tap your name to sign in</p>
+          <h1 className="text-lg font-bold text-ec-t1">Who are you?</h1>
+          <p className="text-sm text-ec-t3 mt-1">Tap your name to sign in</p>
         </div>
-        <div className="pin-grid">
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
           {staff.map((s) => (
             <button
               key={s.id}
-              className="pin-staff-btn"
               onClick={() => setSelected(s)}
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border-none cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] font-sans"
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.025)',
+                border: '1px solid rgba(255,255,255,0.06)',
+              }}
             >
-              <span className="pin-avatar">{getStaffInitials(s.name)}</span>
-              <span className="pin-staff-name">{s.name}</span>
-              {s.isManager && <span className="pin-manager-badge">Manager</span>}
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
+              >
+                {getStaffInitials(s.name)}
+              </div>
+              <span className="text-sm font-medium text-ec-t1">{s.name}</span>
+              {s.isManager && (
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-ec-em/10 text-ec-em font-semibold">
+                  Manager
+                </span>
+              )}
             </button>
           ))}
         </div>

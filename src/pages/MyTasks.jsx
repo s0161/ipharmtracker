@@ -10,7 +10,7 @@ import Modal from '../components/Modal'
 function getGreeting() {
   const h = new Date().getHours()
   if (h < 12) return 'Good morning'
-  if (h < 18) return 'Good afternoon'
+  if (h < 17) return 'Good afternoon'
   return 'Good evening'
 }
 
@@ -123,13 +123,18 @@ export default function MyTasks() {
     })
   }, [user, allStaff, cleaningTasks, assignedTasks, cleaningEntries, today])
 
+  const doneCount =
+    myRotationTasks.filter((t) => isRotationDone(t.name)).length +
+    myAssigned.filter((t) => t.completed).length
+  const totalCount = myRotationTasks.length + myAssigned.length
+
   return (
-    <div className="my-tasks">
-      <div className="my-tasks-header">
-        <h1 className="my-tasks-greeting">
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-xl font-bold text-ec-t1">
           {getGreeting()}, {firstName}
         </h1>
-        <p className="my-tasks-date">
+        <p className="text-sm text-ec-t3 mt-1">
           {new Date().toLocaleDateString('en-GB', {
             weekday: 'long',
             day: 'numeric',
@@ -139,36 +144,52 @@ export default function MyTasks() {
       </div>
 
       {/* My task list */}
-      <div className="my-tasks-section">
-        <h2 className="my-tasks-section-title">
+      <div
+        className="rounded-2xl p-5"
+        style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+      >
+        <h2 className="text-sm font-bold text-ec-t1 flex items-center gap-2 mb-3">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
             <path d="M9 11l3 3L22 4" />
             <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
           </svg>
           My tasks today
-          <span className="my-tasks-count">
-            {myRotationTasks.filter((t) => isRotationDone(t.name)).length +
-              myAssigned.filter((t) => t.completed).length}
-            /{myRotationTasks.length + myAssigned.length}
+          <span className="text-xs font-semibold text-ec-t3 ml-auto tabular-nums">
+            {doneCount}/{totalCount}
           </span>
         </h2>
 
         {myRotationTasks.length === 0 && myAssigned.length === 0 ? (
-          <div className="my-tasks-empty">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="40" height="40">
+          <div className="text-center py-10 text-ec-t3 text-sm">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              width="40"
+              height="40"
+              className="mx-auto mb-3 opacity-40"
+            >
               <path d="M9 11l3 3L22 4" />
               <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
             </svg>
             <p>No tasks assigned to you today</p>
           </div>
         ) : (
-          <ul className="my-tasks-list">
+          <ul className="space-y-1">
             {myRotationTasks.map((task) => {
               const done = isRotationDone(task.name)
               return (
-                <li key={task.name} className={`my-task-item ${done ? 'my-task-item--done' : ''}`}>
+                <li
+                  key={task.name}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors hover:bg-white/[0.03] ${done ? 'opacity-50' : ''}`}
+                >
                   <button
-                    className={`my-task-check ${done ? 'my-task-check--done' : ''}`}
+                    className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-all cursor-pointer ${
+                      done
+                        ? 'border-ec-em bg-ec-em'
+                        : 'border-white/[0.15] bg-transparent'
+                    }`}
                     onClick={() => !done && completeRotation(task.name)}
                     disabled={done}
                     aria-label={done ? 'Completed' : 'Mark done'}
@@ -179,9 +200,15 @@ export default function MyTasks() {
                       </svg>
                     )}
                   </button>
-                  <div className="my-task-info">
-                    <span className="my-task-name">{task.name}</span>
-                    <span className={`my-task-freq my-task-freq--${task.frequency}`}>
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <span className={`text-sm text-ec-t1 ${done ? 'line-through' : ''}`}>{task.name}</span>
+                    <span
+                      className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
+                        task.frequency === 'daily'
+                          ? 'bg-ec-em/10 text-ec-em'
+                          : 'bg-ec-info/10 text-ec-info-light'
+                      }`}
+                    >
                       {task.isRP ? 'RP' : task.frequency}
                     </span>
                   </div>
@@ -191,10 +218,14 @@ export default function MyTasks() {
             {myAssigned.map((task) => (
               <li
                 key={task.id}
-                className={`my-task-item ${task.completed ? 'my-task-item--done' : ''}`}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors hover:bg-white/[0.03] ${task.completed ? 'opacity-50' : ''}`}
               >
                 <button
-                  className={`my-task-check ${task.completed ? 'my-task-check--done' : ''}`}
+                  className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-all cursor-pointer ${
+                    task.completed
+                      ? 'border-ec-em bg-ec-em'
+                      : 'border-white/[0.15] bg-transparent'
+                  }`}
                   onClick={() => toggleAssigned(task)}
                   aria-label={task.completed ? 'Completed' : 'Mark done'}
                 >
@@ -204,9 +235,9 @@ export default function MyTasks() {
                     </svg>
                     )}
                 </button>
-                <div className="my-task-info">
-                  <span className="my-task-name">{task.title}</span>
-                  <span className="my-task-freq my-task-freq--assigned">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <span className={`text-sm text-ec-t1 ${task.completed ? 'line-through' : ''}`}>{task.title}</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-ec-warn/10 text-ec-warn">
                     Assigned by {task.createdBy?.split(' ')[0] || '?'}
                   </span>
                 </div>
@@ -218,9 +249,12 @@ export default function MyTasks() {
 
       {/* Manager: Team Progress */}
       {user?.isManager && (
-        <div className="my-tasks-section my-tasks-manager">
+        <div
+          className="rounded-2xl p-5"
+          style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+        >
           <button
-            className="my-tasks-section-title my-tasks-section-title--toggle"
+            className="w-full flex items-center gap-2 text-sm font-bold text-ec-t1 bg-transparent border-none cursor-pointer p-0 font-sans"
             onClick={() => setTeamOpen(!teamOpen)}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
@@ -237,7 +271,7 @@ export default function MyTasks() {
               strokeWidth="2"
               width="16"
               height="16"
-              className={`my-tasks-chevron ${teamOpen ? 'my-tasks-chevron--open' : ''}`}
+              className={`transition-transform duration-200 ml-auto ${teamOpen ? 'rotate-180' : ''}`}
             >
               <polyline points="6 9 12 15 18 9" />
             </svg>
@@ -245,25 +279,31 @@ export default function MyTasks() {
 
           {teamOpen && (
             <>
-              <div className="team-grid">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mt-3">
                 {teamProgress.map((row) => (
                   <div
                     key={row.name}
-                    className={`team-row ${row.allDone ? 'team-row--done' : ''} ${row.total === 0 ? 'team-row--none' : ''}`}
+                    className="flex items-center gap-2.5 p-3 rounded-xl"
+                    style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
                   >
-                    <span className="team-avatar">{getStaffInitials(row.name)}</span>
-                    <span className="team-name">{row.name}</span>
-                    <span className="team-progress">
+                    <span
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
+                      style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
+                    >
+                      {getStaffInitials(row.name)}
+                    </span>
+                    <span className="text-sm text-ec-t1 flex-1 truncate">{row.name}</span>
+                    <span>
                       {row.total === 0 ? (
-                        <span className="team-na">--</span>
+                        <span className="text-xs text-ec-t3">--</span>
                       ) : row.allDone ? (
-                        <span className="team-tick">
+                        <span className="text-ec-em">
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="16" height="16">
                             <polyline points="20 6 9 17 4 12" />
                           </svg>
                         </span>
                       ) : (
-                        <span className="team-pending">
+                        <span className="text-xs text-ec-t3 tabular-nums">
                           {row.done}/{row.total}
                         </span>
                       )}
@@ -273,7 +313,7 @@ export default function MyTasks() {
               </div>
 
               <button
-                className="btn btn--primary my-tasks-assign-btn"
+                className="px-4 py-2.5 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors flex items-center gap-2 mt-4 font-sans"
                 onClick={() => setAssignModal(true)}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
@@ -288,11 +328,13 @@ export default function MyTasks() {
           {/* Assign modal */}
           {assignModal && (
             <Modal onClose={() => setAssignModal(false)} title="Assign Task">
-              <form className="assign-form" onSubmit={handleAssign}>
-                <label className="assign-label">
-                  Staff member
+              <form className="space-y-4" onSubmit={handleAssign}>
+                <div>
+                  <label className="text-xs font-semibold text-ec-t2 mb-1 block">
+                    Staff member
+                  </label>
                   <select
-                    className="input"
+                    className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
                     value={assignName}
                     onChange={(e) => setAssignName(e.target.value)}
                   >
@@ -303,22 +345,32 @@ export default function MyTasks() {
                       </option>
                     ))}
                   </select>
-                </label>
-                <label className="assign-label">
-                  Task title
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-ec-t2 mb-1 block">
+                    Task title
+                  </label>
                   <input
                     type="text"
-                    className="input"
+                    className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
                     placeholder="e.g. Restock fridge"
                     value={assignTitle}
                     onChange={(e) => setAssignTitle(e.target.value)}
                   />
-                </label>
-                <div className="assign-actions">
-                  <button type="button" className="btn btn--ghost" onClick={() => setAssignModal(false)}>
+                </div>
+                <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-white/[0.04]">
+                  <button
+                    type="button"
+                    className="px-4 py-2 bg-white/[0.05] text-ec-t2 rounded-lg text-sm border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] transition-colors font-sans"
+                    onClick={() => setAssignModal(false)}
+                  >
                     Cancel
                   </button>
-                  <button type="submit" className="btn btn--primary" disabled={!assignName || !assignTitle.trim()}>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors font-sans disabled:opacity-40"
+                    disabled={!assignName || !assignTitle.trim()}
+                  >
                     Assign
                   </button>
                 </div>

@@ -22,6 +22,11 @@ const emptyForm = {
   notes: '',
 }
 
+const statusColors = { green: '#10b981', amber: '#f59e0b', red: '#ef4444' }
+const statusBg = { green: 'rgba(16,185,129,0.1)', amber: 'rgba(245,158,11,0.1)', red: 'rgba(239,68,68,0.1)' }
+
+const inputClass = "w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+
 export default function DocumentTracker() {
   const [documents, setDocuments, loading] = useSupabase('documents', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
@@ -32,7 +37,7 @@ export default function DocumentTracker() {
   const [filterCategory, setFilterCategory] = useState('')
 
   if (loading) {
-    return <div className="loading-container"><div className="spinner" />Loading…</div>
+    return <div className="flex items-center justify-center py-20 text-sm text-ec-t3">Loading…</div>
   }
 
   // Deduplicate by document name (keep most recent by createdAt)
@@ -133,8 +138,8 @@ export default function DocumentTracker() {
     <div>
       {/* Document Expiry Alerts */}
       {alertDocs.length > 0 && (
-        <div className="doc-alert-banner">
-          <h3 className="doc-alert-title">
+        <div className="rounded-2xl p-4 mb-4" style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <h3 className="text-sm font-bold text-ec-t1 flex items-center gap-2 mb-3">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
               <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
               <line x1="12" y1="9" x2="12" y2="13" />
@@ -142,12 +147,19 @@ export default function DocumentTracker() {
             </svg>
             Document Expiry Alerts
           </h3>
-          <div className="doc-alert-list">
+          <div className="space-y-2">
             {alertDocs.map(d => (
-              <div key={d.id} className={`doc-alert-item doc-alert-item--${d.trafficLight}`}>
-                <span className={`doc-alert-dot doc-alert-dot--${d.trafficLight}`} />
-                <span className="doc-alert-name">{d.documentName}</span>
-                <span className="doc-alert-days">
+              <div
+                key={d.id}
+                className="flex items-center gap-3 px-3 py-2 rounded-lg"
+                style={{ backgroundColor: d.trafficLight === 'red' ? 'rgba(239,68,68,0.04)' : 'rgba(245,158,11,0.04)' }}
+              >
+                <span
+                  className="w-2 h-2 rounded-full shrink-0"
+                  style={{ backgroundColor: d.trafficLight === 'red' ? '#ef4444' : '#f59e0b' }}
+                />
+                <span className="text-sm text-ec-t1 font-medium flex-1">{d.documentName}</span>
+                <span className="text-xs text-ec-t3 tabular-nums">
                   {d.daysLeft !== null
                     ? d.daysLeft < 0 ? `Expired ${Math.abs(d.daysLeft)} days ago` : `${d.daysLeft} days remaining`
                     : 'No date set'}
@@ -158,15 +170,15 @@ export default function DocumentTracker() {
         </div>
       )}
 
-      <div className="page-header">
-        <p className="page-desc">
+      <div>
+        <p className="text-sm text-ec-t3 mb-2">
           Track documents, registrations, and renewals. Status updates
           automatically based on expiry dates.
         </p>
-        <div className="page-header-actions">
+        <div className="flex items-center gap-2 flex-wrap mb-4">
           <PageActions onDownloadCsv={handleCsvDownload} />
           <select
-            className="input input--inline"
+            className="bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
           >
@@ -177,33 +189,33 @@ export default function DocumentTracker() {
               </option>
             ))}
           </select>
-          <button className="btn btn--primary" onClick={openAdd}>
+          <button className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors flex items-center gap-1.5 font-sans" onClick={openAdd}>
             + Add Document
           </button>
         </div>
       </div>
 
       {sorted.length === 0 ? (
-        <div className="empty-state-box">
-          <p className="empty-state">
+        <div className="text-center py-10 text-ec-t3 text-sm">
+          <p>
             {filterCategory
               ? `No documents in "${filterCategory}" category.`
               : 'No documents yet. Add your first document to get started.'}
           </p>
         </div>
       ) : (
-        <div className="table-wrap">
-          <table className="table">
+        <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+          <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                <th>Status</th>
-                <th>Document Name</th>
-                <th>Category</th>
-                <th className="mobile-hide">Owner</th>
-                <th className="mobile-hide">Issue Date</th>
-                <th>Expiry / Review</th>
-                <th>Notes</th>
-                <th className="mobile-hide">Actions</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Status</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Document Name</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Category</th>
+                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Owner</th>
+                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Issue Date</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Expiry / Review</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Notes</th>
+                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -211,35 +223,34 @@ export default function DocumentTracker() {
                 const status = getTrafficLight(doc.expiryDate)
                 return (
                   <SwipeRow key={doc.id} onEdit={() => openEdit(doc)} onDelete={() => handleDelete(doc.id)}>
-                    <td>
+                    <td className="px-4 py-2.5 border-b border-white/[0.04]">
                       <span
-                        className={`traffic-light traffic-light--${status}`}
+                        className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold"
+                        style={{ backgroundColor: statusBg[status], color: statusColors[status] }}
                         title={getTrafficLightLabel(status)}
                       >
-                        <span className={`traffic-dot traffic-dot--${status}`} />
-                        <span className="traffic-label">
-                          {getTrafficLightLabel(status)}
-                        </span>
+                        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: statusColors[status] }} />
+                        {getTrafficLightLabel(status)}
                       </span>
                     </td>
-                    <td className="cell-bold">{doc.documentName}</td>
-                    <td>
-                      <span className="badge">{doc.category}</span>
+                    <td className="px-4 py-2.5 text-ec-t1 font-medium border-b border-white/[0.04]">{doc.documentName}</td>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-white/[0.06] text-ec-t2">{doc.category}</span>
                     </td>
-                    <td className="mobile-hide">{doc.owner || '—'}</td>
-                    <td className="mobile-hide">{formatDate(doc.issueDate)}</td>
-                    <td>{formatDate(doc.expiryDate)}</td>
-                    <td className="cell-notes">{doc.notes || '—'}</td>
-                    <td className="mobile-hide">
-                      <div className="action-btns">
+                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{doc.owner || '—'}</td>
+                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{formatDate(doc.issueDate)}</td>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{formatDate(doc.expiryDate)}</td>
+                    <td className="px-4 py-2.5 text-ec-t3 border-b border-white/[0.04] max-w-[200px] truncate">{doc.notes || '—'}</td>
+                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
+                      <div className="flex gap-1">
                         <button
-                          className="btn btn--ghost btn--sm"
+                          className="px-2.5 py-1 bg-white/[0.05] text-ec-t2 rounded-lg text-xs border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors font-sans"
                           onClick={() => openEdit(doc)}
                         >
                           Edit
                         </button>
                         <button
-                          className="btn btn--ghost btn--sm btn--danger"
+                          className="px-2.5 py-1 bg-ec-crit/10 text-ec-crit-light rounded-lg text-xs border border-ec-crit/20 cursor-pointer hover:bg-ec-crit/20 transition-colors font-sans"
                           onClick={() => handleDelete(doc.id)}
                         >
                           Delete
@@ -259,12 +270,12 @@ export default function DocumentTracker() {
         onClose={() => setModalOpen(false)}
         title={editingId ? 'Edit Document' : 'Add Document'}
       >
-        <form className="form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="label">Document Name *</label>
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <div>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Document Name *</label>
             <input
               type="text"
-              className="input"
+              className={inputClass}
               placeholder="e.g. GPhC Registration"
               value={form.documentName}
               onChange={update('documentName')}
@@ -272,10 +283,10 @@ export default function DocumentTracker() {
             />
           </div>
 
-          <div className="form-group">
-            <label className="label">Category *</label>
+          <div>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Category *</label>
             <select
-              className="input"
+              className={inputClass}
               value={form.category}
               onChange={update('category')}
               required
@@ -289,19 +300,19 @@ export default function DocumentTracker() {
             </select>
           </div>
 
-          <div className="form-group">
-            <label className="label">Owner / Responsible Person</label>
+          <div>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Owner / Responsible Person</label>
             {staffMembers.length === 0 ? (
               <input
                 type="text"
-                className="input"
+                className={inputClass}
                 placeholder="Enter name or add staff in Settings"
                 value={form.owner}
                 onChange={update('owner')}
               />
             ) : (
               <select
-                className="input"
+                className={inputClass}
                 value={form.owner}
                 onChange={update('owner')}
               >
@@ -315,34 +326,34 @@ export default function DocumentTracker() {
             )}
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label className="label">Issue Date</label>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-semibold text-ec-t2 mb-1 block">Issue Date</label>
               <input
                 type="date"
-                className="input"
+                className={inputClass}
                 value={form.issueDate}
                 onChange={update('issueDate')}
               />
             </div>
-            <div className="form-group">
-              <label className="label">Expiry / Review Date</label>
+            <div>
+              <label className="text-xs font-semibold text-ec-t2 mb-1 block">Expiry / Review Date</label>
               <input
                 type="date"
-                className="input"
+                className={inputClass}
                 value={form.expiryDate}
                 onChange={update('expiryDate')}
               />
-              <p className="form-hint">
+              <p className="text-xs text-ec-t3 mt-1">
                 Leave blank to flag as red (no date set).
               </p>
             </div>
           </div>
 
-          <div className="form-group">
-            <label className="label">Notes</label>
+          <div>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Notes</label>
             <textarea
-              className="input input--textarea"
+              className={inputClass + " resize-none"}
               placeholder="Optional notes..."
               value={form.notes}
               onChange={update('notes')}
@@ -350,15 +361,15 @@ export default function DocumentTracker() {
             />
           </div>
 
-          <div className="form-actions">
+          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-white/[0.04]">
             <button
               type="button"
-              className="btn btn--ghost"
+              className="px-4 py-2 bg-white/[0.05] text-ec-t2 rounded-lg text-sm border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] transition-colors font-sans"
               onClick={() => setModalOpen(false)}
             >
               Cancel
             </button>
-            <button type="submit" className="btn btn--primary">
+            <button type="submit" className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors font-sans">
               {editingId ? 'Save Changes' : 'Add Document'}
             </button>
           </div>

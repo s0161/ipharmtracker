@@ -33,27 +33,52 @@ export default function Login({ onLogin }) {
   }
 
   return (
-    <div className="login-page">
-      <form className="login-card" onSubmit={handleSubmit}>
-        <div className="login-logo">iPD</div>
-        <h1 className="login-title">iPharmacy Direct</h1>
-        <p className="login-subtitle">Compliance Tracker</p>
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#0a0a0a' }}>
+      <div
+        className="w-full max-w-sm rounded-2xl p-8 ec-fadeup"
+        style={{
+          backgroundColor: 'rgba(255,255,255,0.025)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          boxShadow: '0 24px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04)',
+        }}
+      >
+        <div className="flex flex-col items-center mb-8">
+          <svg viewBox="0 0 40 40" width="48" height="48" className="mb-4">
+            <defs>
+              <linearGradient id="login-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#10b981" />
+                <stop offset="100%" stopColor="#059669" />
+              </linearGradient>
+            </defs>
+            <rect rx="12" width="40" height="40" fill="url(#login-grad)" />
+            <text x="20" y="26" textAnchor="middle" fill="white" fontWeight="700" fontSize="13" fontFamily="system-ui, sans-serif">iPD</text>
+          </svg>
+          <h1 className="text-lg font-bold text-ec-t1">iPharmacy Direct</h1>
+          <p className="text-sm text-ec-t3 mt-1">Compliance Tracker</p>
+        </div>
 
-        <input
-          type="password"
-          className="input login-input"
-          placeholder="Enter password"
-          value={password}
-          onChange={(e) => { setPassword(e.target.value); setError(false) }}
-          autoFocus
-        />
+        <form onSubmit={handleSubmit}>
+          <input
+            type="password"
+            className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-4 py-3 text-sm text-ec-t1 placeholder:text-ec-t3 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+            placeholder="Enter password"
+            value={password}
+            onChange={(e) => { setPassword(e.target.value); setError(false) }}
+            autoFocus
+          />
 
-        {error && <p className="login-error">Incorrect password</p>}
+          {error && (
+            <p className="text-xs text-ec-crit-light mt-2 text-center">Incorrect password</p>
+          )}
 
-        <button type="submit" className="btn btn--primary login-btn">
-          Log In
-        </button>
-      </form>
+          <button
+            type="submit"
+            className="w-full mt-4 px-4 py-3 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors font-sans"
+          >
+            Log In
+          </button>
+        </form>
+      </div>
     </div>
   )
 }
