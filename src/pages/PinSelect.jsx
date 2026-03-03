@@ -154,7 +154,13 @@ export default function PinSelect() {
       <div className="pin-select">
         <div className="pin-header">
           <svg className="pin-logo" viewBox="0 0 40 40">
-            <rect rx="10" width="40" height="40" fill="#166534" />
+            <defs>
+              <linearGradient id="pin-logo-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#22c55e" />
+                <stop offset="100%" stopColor="#16a34a" />
+              </linearGradient>
+            </defs>
+            <rect rx="10" width="40" height="40" fill="url(#pin-logo-grad)" />
             <text x="20" y="26" textAnchor="middle" fill="white" fontWeight="700" fontSize="13" fontFamily="DM Sans, sans-serif">iPD</text>
           </svg>
           <h1 className="pin-title">Who are you?</h1>

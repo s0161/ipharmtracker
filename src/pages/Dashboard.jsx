@@ -474,7 +474,7 @@ export default function Dashboard() {
       particleCount: 80,
       spread: 60,
       origin: { y: 0.7 },
-      colors: ['#166534', '#22C55E', '#4ADE80', '#86EFAC'],
+      colors: ['#22c55e', '#3b82f6', '#f59e0b', '#a78bfa'],
     })
   }
 

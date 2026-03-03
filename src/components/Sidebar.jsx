@@ -169,7 +169,13 @@ export default function Sidebar({ open, onClose }) {
       <aside className={`sidebar ${open ? 'sidebar--open' : ''}`}>
         <div className="sidebar-brand">
           <svg className="sidebar-logo" viewBox="0 0 40 40">
-            <rect rx="10" width="40" height="40" fill="#166534" />
+            <defs>
+              <linearGradient id="logo-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#22c55e" />
+                <stop offset="100%" stopColor="#16a34a" />
+              </linearGradient>
+            </defs>
+            <rect rx="10" width="40" height="40" fill="url(#logo-grad)" />
             <path d="M20 8v24M10 20h20" stroke="rgba(255,255,255,0.15)" strokeWidth="6" strokeLinecap="round" />
             <text x="20" y="26" textAnchor="middle" fill="white" fontWeight="700" fontSize="13" fontFamily="DM Sans, sans-serif">iPD</text>
           </svg>
