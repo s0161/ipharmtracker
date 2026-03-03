@@ -8,6 +8,7 @@ import {
   DEFAULT_CLEANING_TASKS,
   generateId,
 } from '../utils/helpers'
+import { logAudit } from '../utils/auditLog'
 import { getTaskAssignee, getRPAssignee, getStaffInitials, getStaffColor } from '../utils/rotationManager'
 import { useUser } from '../contexts/UserContext'
 import { useToast } from '../components/Toast'
@@ -61,12 +62,7 @@ export default function Dashboard() {
   const [safeguarding] = useSupabase('safeguarding_records', [])
   const [rpLogs, setRpLogs] = useSupabase('rp_log', [])
   const [tempLogs] = useSupabase('temperature_logs', [])
-  const [actionItems] = useSupabase('action_items', [
-    { id: 'default-1', title: 'Chase up patient feedback', dueDate: '2026-03-06', completed: false },
-    { id: 'default-2', title: 'Chase up website', dueDate: '2026-03-06', completed: false },
-    { id: 'default-3', title: 'Parking bay council request', dueDate: '2026-03-06', completed: false },
-    { id: 'default-4', title: 'Chase up medicinal waste disposal', dueDate: '2026-03-06', completed: false },
-  ])
+  const [actionItems, setActionItems] = useSupabase('action_items', [])
 
   // ─── LOCAL STATE ───
   const [mob, setMob] = useState(false)
@@ -77,7 +73,7 @@ export default function Dashboard() {
   const [checked, setChecked] = useState(new Set())
   const [justChecked, setJustChecked] = useState(null)
   const [rpSubChecks, setRpSubChecks] = useState(new Set())
-  const [checkedTodo, setCheckedTodo] = useState(new Set())
+  // checkedTodo removed — completion now stored in actionItems via Supabase
   const [acc, setAcc] = useState({ today: true, weekly: false, fort: false, monthly: false })
   const [hovCard, setHovCard] = useState(null)
   const [hovStat, setHovStat] = useState(null)
@@ -264,14 +260,16 @@ export default function Dashboard() {
   const overdueCount = overdueCleaningTasks.length + expiredDocs.length
   const dueTodayCount = (tempLoggedToday ? 0 : 1) + taskStatuses.filter(t => t.frequency === 'daily' && t.status === 'due').length
 
-  // Notifications
+  // Notifications — respect user preferences from Settings
   const notifications = useMemo(() => {
+    const prefs = JSON.parse(localStorage.getItem('ipd_notification_prefs') || '{}')
     const n = []
-    if (cleaningScore === 0) n.push({ id: 'n1', type: 'critical', title: 'Cleaning at 0%', desc: `${overdueCleaningTasks.length} cleaning tasks are overdue`, time: '2h ago', read: false })
-    if (!tempLoggedToday) n.push({ id: 'n2', type: 'warning', title: 'Temperature log due', desc: 'Fridge temp not recorded today', time: '3h ago', read: false })
+    if (prefs.cleaningOverdue !== false && cleaningScore === 0) n.push({ id: 'n1', type: 'critical', title: 'Cleaning at 0%', desc: `${overdueCleaningTasks.length} cleaning tasks are overdue`, time: '2h ago', read: false })
+    if (prefs.temperatureMissing !== false && !tempLoggedToday) n.push({ id: 'n2', type: 'warning', title: 'Temperature log due', desc: 'Fridge temp not recorded today', time: '3h ago', read: false })
+    // GPhC notification always shown (not a preference category)
     n.push({ id: 'n3', type: 'warning', title: 'GPhC inspection due', desc: 'Last inspection was 14 months ago', time: '1d ago', read: false })
-    if (staffScore === 100) n.push({ id: 'n4', type: 'info', title: 'Training complete', desc: 'Safeguarding training 100% across all staff', time: '2d ago', read: true })
-    if (docScore === 100) n.push({ id: 'n5', type: 'info', title: 'Documents updated', desc: 'All pharmacy documents are now current', time: '3d ago', read: true })
+    if (prefs.trainingOverdue !== false && staffScore === 100) n.push({ id: 'n4', type: 'info', title: 'Training complete', desc: 'Safeguarding training 100% across all staff', time: '2d ago', read: true })
+    if (prefs.documentExpiry !== false && docScore === 100) n.push({ id: 'n5', type: 'info', title: 'Documents updated', desc: 'All pharmacy documents are now current', time: '3d ago', read: true })
     return n
   }, [cleaningScore, tempLoggedToday, staffScore, docScore, overdueCleaningTasks.length])
 
@@ -360,14 +358,24 @@ export default function Dashboard() {
     return streak
   }, [cleaningEntries])
 
-  // To-do items
-  const todos = useMemo(() =>
-    actionItems.filter(a => !a.completed).map(a => {
-      const d = a.dueDate ? Math.ceil((new Date(a.dueDate) - new Date()) / (1000 * 60 * 60 * 24)) : null
-      return { id: a.id, title: a.title, days: d !== null ? `${d}d` : '' }
-    }),
-    [actionItems]
-  )
+  // To-do items — show uncompleted + recently completed (< 24h)
+  const todos = useMemo(() => {
+    const now = Date.now()
+    return actionItems
+      .filter(a => {
+        if (!a.completed) return true
+        if (a.completedAt) {
+          return (now - new Date(a.completedAt).getTime()) < 86400000
+        }
+        return false
+      })
+      .map(a => ({
+        id: a.id,
+        title: a.title,
+        days: a.dueDate ? Math.ceil((new Date(a.dueDate) - new Date()) / 86400000) + 'd' : null,
+        completed: !!a.completed,
+      }))
+  }, [actionItems])
 
   // ─── INTERACTIONS ───
   const now = () => {
@@ -402,7 +410,32 @@ export default function Dashboard() {
     })
   }
 
-  const toggleTodo = (id) => setCheckedTodo(p => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n })
+  const handleToggleTodo = (id) => {
+    const item = actionItems.find(a => a.id === id)
+    if (!item) return
+    setActionItems(actionItems.map(a =>
+      a.id === id ? { ...a, completed: !a.completed, completedAt: !a.completed ? new Date().toISOString() : null } : a
+    ))
+    logAudit('Updated', `Action item: ${item.title} → ${item.completed ? 'reopened' : 'completed'}`, 'Dashboard', user?.name)
+  }
+
+  const handleAddTodo = (title, dueDate) => {
+    const newItem = {
+      id: generateId(),
+      title,
+      dueDate: dueDate || null,
+      completed: false,
+      createdAt: new Date().toISOString(),
+    }
+    setActionItems([...actionItems, newItem])
+    logAudit('Created', `Action item: ${title}`, 'Dashboard', user?.name)
+  }
+
+  const handleDeleteTodo = (id) => {
+    const item = actionItems.find(a => a.id === id)
+    setActionItems(actionItems.filter(a => a.id !== id))
+    if (item) logAudit('Deleted', `Action item: ${item.title}`, 'Dashboard', user?.name)
+  }
   const toggleRpSub = (id) => setRpSubChecks(p => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n })
   const toggleNote = (id) => setExpandedNote(expandedNote === id ? null : id)
   const toggleSubchecks = (id) => setExpandedSubchecks(expandedSubchecks === id ? null : id)
@@ -648,8 +681,9 @@ export default function Dashboard() {
       {/* ═══ TO DO ═══ */}
       <TodoSection
         todos={todos}
-        checkedTodo={checkedTodo}
-        onToggle={toggleTodo}
+        onToggle={handleToggleTodo}
+        onAdd={handleAddTodo}
+        onDelete={handleDeleteTodo}
         mob={mob}
       />
 
