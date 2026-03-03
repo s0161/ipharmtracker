@@ -10,6 +10,7 @@ import {
 } from '../utils/helpers'
 import { getTaskAssignee, getRPAssignee, getStaffInitials, getStaffColor } from '../utils/rotationManager'
 import { useUser } from '../contexts/UserContext'
+import { useDocumentReminders } from '../hooks/useDocumentReminders'
 import { useToast } from '../components/Toast'
 import {
   AlertBanner,
@@ -67,6 +68,8 @@ export default function Dashboard() {
     { id: 'default-3', title: 'Parking bay council request', dueDate: '2026-03-06', completed: false },
     { id: 'default-4', title: 'Chase up medicinal waste disposal', dueDate: '2026-03-06', completed: false },
   ])
+
+  const { reminders: docReminders, dismiss: dismissReminder } = useDocumentReminders(documents)
 
   // ─── LOCAL STATE ───
   const [mob, setMob] = useState(false)
@@ -219,8 +222,12 @@ export default function Dashboard() {
     n.push({ id: 'n3', type: 'warning', title: 'GPhC inspection due', desc: 'Last inspection was 14 months ago', time: '1d ago', read: false })
     if (staffScore === 100) n.push({ id: 'n4', type: 'info', title: 'Training complete', desc: 'Safeguarding training 100% across all staff', time: '2d ago', read: true })
     if (docScore === 100) n.push({ id: 'n5', type: 'info', title: 'Documents updated', desc: 'All pharmacy documents are now current', time: '3d ago', read: true })
+    // Document expiry reminders
+    docReminders.forEach(r => {
+      n.push({ ...r, read: false })
+    })
     return n
-  }, [cleaningScore, tempLoggedToday, staffScore, docScore, overdueCleaningTasks.length])
+  }, [cleaningScore, tempLoggedToday, staffScore, docScore, overdueCleaningTasks.length, docReminders])
 
   // RP sessions (from rpLogs)
   const sessions = useMemo(() => {
@@ -334,6 +341,12 @@ export default function Dashboard() {
   const toggleRpSub = (id) => setRpSubChecks(p => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n })
   const toggleNote = (id) => setExpandedNote(expandedNote === id ? null : id)
   const toggleSubchecks = (id) => setExpandedSubchecks(expandedSubchecks === id ? null : id)
+
+  const handleDismissNotification = useCallback((notification) => {
+    if (notification.docId && notification.threshold) {
+      dismissReminder(notification.docId, notification.threshold)
+    }
+  }, [dismissReminder])
 
   const handleKeyPress = (id) => {
     if (keys[id]?.d) return
@@ -475,7 +488,7 @@ export default function Dashboard() {
           </div>
 
           <div className="w-px h-7 bg-ec-div" />
-          <NotificationBell notifications={notifications} />
+          <NotificationBell notifications={notifications} onDismissNotification={handleDismissNotification} />
 
           <div className="text-[11px] text-ec-z6 px-3 py-1 rounded-[20px] bg-white/[0.03] border border-ec-border font-medium tracking-wide">
             FED07
