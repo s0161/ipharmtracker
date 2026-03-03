@@ -7557,3 +7557,8 @@ select.input {
   border-color: var(--border);
   color: var(--text-muted);
 }
+
+/* Light mode sidebar edge shadow */
+[data-theme="light"] aside {
+  box-shadow: 1px 0 0 #e2e8f0, 2px 0 8px rgba(0,0,0,0.04);
+}

@@ -79,7 +79,7 @@ export default function Sidebar({ open, onClose }) {
       {/* Mobile overlay */}
       {open && (
         <div
-          className="fixed inset-0 bg-black/75 backdrop-blur-sm z-[49] lg:hidden"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[49] lg:hidden"
           onClick={onClose}
         />
       )}
@@ -93,7 +93,7 @@ export default function Sidebar({ open, onClose }) {
         {/* Emerald gradient edge */}
         <div
           className="absolute left-0 top-0 w-px h-1/2 pointer-events-none"
-          style={{ background: 'linear-gradient(to bottom, #10b981 0%, rgba(16,185,129,0.2) 40%, transparent 100%)' }}
+          style={{ background: 'linear-gradient(to bottom, var(--ec-em) 0%, rgba(16,185,129,0.2) 40%, transparent 100%)' }}
         />
         {/* Emerald radial glow */}
         <div
@@ -106,7 +106,7 @@ export default function Sidebar({ open, onClose }) {
           <div
             className="w-[30px] h-[30px] rounded-lg flex items-center justify-center text-[9px] font-extrabold text-white tracking-tighter"
             style={{
-              background: 'linear-gradient(135deg, #10b981, #059669)',
+              background: 'linear-gradient(135deg, var(--ec-em), var(--ec-em-dark))',
               boxShadow: '0 2px 8px rgba(16,185,129,0.3)',
             }}
           >
@@ -148,21 +148,25 @@ export default function Sidebar({ open, onClose }) {
                        border-none cursor-pointer text-[13px] text-left no-underline
                        transition-all duration-150 ease-in-out
                        ${isActive
-                        ? 'bg-white/[0.06] text-ec-t1 font-semibold shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]'
-                        : 'bg-transparent text-ec-z6 font-normal hover:bg-white/[0.03] hover:text-[#a1a1aa]'
+                        ? 'font-semibold shadow-sm'
+                        : 'font-normal hover:bg-ec-card-hover'
                       }`
                     }
+                    style={({ isActive }) => ({
+                      backgroundColor: isActive ? 'var(--ec-card)' : 'transparent',
+                      color: isActive ? 'var(--ec-t1)' : undefined,
+                    })}
                   >
                     {({ isActive }) => (
                       <>
-                        <NI name={item.icon} color={isActive ? '#e4e4e7' : '#52525b'} />
+                        <NI name={item.icon} color={isActive ? 'var(--ec-t1)' : 'var(--ec-z6)'} />
                         <span className="flex-1">{item.label}</span>
                         {total > 0 && (
                           <span
                             className={`text-[10px] font-bold px-1.5 py-px rounded-lg min-w-[18px] text-center
                               ${badgeType === 'red'
-                                ? 'bg-[rgba(239,68,68,0.12)] text-ec-crit-light'
-                                : 'bg-[rgba(245,158,11,0.12)] text-ec-warn-light'
+                                ? 'bg-ec-crit-faint text-ec-crit-light'
+                                : 'bg-ec-warn-faint text-ec-warn-light'
                               }`}
                           >
                             {total}
@@ -181,10 +185,10 @@ export default function Sidebar({ open, onClose }) {
             onClick={toggleTheme}
             className="flex items-center gap-2 w-[calc(100%-16px)] mx-2 my-px px-3 py-2 rounded-[7px]
               border-none cursor-pointer text-[13px] text-left font-normal
-              bg-transparent text-ec-z6 hover:bg-white/[0.03] hover:text-[#a1a1aa]
+              bg-transparent text-ec-z6 hover:bg-ec-card-hover hover:text-ec-t2
               transition-all duration-150 ease-in-out font-sans"
           >
-            <NI name={theme === 'dark' ? 'sun' : 'moon'} color="#52525b" />
+            <NI name={theme === 'dark' ? 'sun' : 'moon'} color="var(--ec-z6)" />
             <span className="flex-1">{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
           </button>
         </nav>
@@ -195,7 +199,7 @@ export default function Sidebar({ open, onClose }) {
             <div
               className="w-[30px] h-[30px] rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
               style={{
-                background: 'linear-gradient(135deg, #10b981, #059669)',
+                background: 'linear-gradient(135deg, var(--ec-em), var(--ec-em-dark))',
                 boxShadow: '0 2px 8px rgba(16,185,129,0.2)',
               }}
             >
