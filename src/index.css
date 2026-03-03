@@ -6240,7 +6240,7 @@ select.input {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.15rem;
 }
 
 .compliance-card-label {
@@ -6260,12 +6260,19 @@ select.input {
 .compliance-card-trend--up { color: var(--success); }
 .compliance-card-trend--down { color: var(--danger); }
 
-.compliance-card-score {
-  font-family: var(--mono-font);
-  font-size: 1.75rem;
-  font-weight: 700;
-  line-height: 1.2;
-  display: block;
+.compliance-card-body {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.compliance-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.compliance-card .progress-ring-text {
+  font-size: 11px;
 }
 
 .compliance-card-subtitle {
@@ -6273,20 +6280,12 @@ select.input {
   color: var(--text-secondary);
   display: block;
   margin-top: 0.15rem;
-  margin-bottom: 0.5rem;
 }
 
-.compliance-card-bar {
-  height: 4px;
-  background: color-mix(in srgb, var(--border) 60%, transparent);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.compliance-card-bar-fill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 800ms ease-out;
+.sparkline {
+  display: inline-block;
+  vertical-align: middle;
+  margin-top: 0.2rem;
 }
 
 @media (max-width: 900px) {

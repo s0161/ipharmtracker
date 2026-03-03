@@ -124,7 +124,7 @@ export default function Dashboard() {
   const [mobileTab, setMobileTab] = useState('daily')
   const [dismissedPriorities, setDismissedPriorities] = useState([])
   const [completedAccordion, setCompletedAccordion] = useState({})
-  const [collapsedCols, setCollapsedCols] = useState({})
+  const [collapsedCols, setCollapsedCols] = useState({ weekly: true, fortnightly: true, monthly: true })
   const [actionInput, setActionInput] = useState('')
   const [actionDueDate, setActionDueDate] = useState('')
   const [panelOpen, setPanelOpen] = useState(true)
@@ -311,22 +311,36 @@ export default function Dashboard() {
     { label: 'Safeguarding', score: sgScore, nav: '/safeguarding' },
   ]
 
-  // Trend arrows
-  const storedScores = JSON.parse(localStorage.getItem('ipd_weekly_scores') || '{}')
+  // Score history (up to 6 weekly snapshots for sparkline)
+  const scoreHistory = JSON.parse(localStorage.getItem('ipd_score_history') || '[]')
+  const weekKey = `${new Date().getFullYear()}-W${Math.ceil((new Date().getTime() - new Date(new Date().getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000))}`
+  const lastEntry = scoreHistory[scoreHistory.length - 1]
+  if (!lastEntry || lastEntry.week !== weekKey) {
+    const scores = {}
+    complianceAreas.forEach(a => { scores[a.label] = a.score })
+    const updated = [...scoreHistory, { week: weekKey, scores }].slice(-6)
+    localStorage.setItem('ipd_score_history', JSON.stringify(updated))
+    // Clean up old keys
+    localStorage.removeItem('ipd_weekly_scores')
+    localStorage.removeItem('ipd_score_week')
+  }
+
+  // Trend arrows (compare to previous week)
+  const prevScores = scoreHistory.length > 0 ? scoreHistory[scoreHistory.length - 1].scores : {}
   const trends = {}
   complianceAreas.forEach(a => {
-    const prev = storedScores[a.label]
+    const prev = prevScores[a.label]
     if (prev !== undefined && prev !== a.score) {
       trends[a.label] = a.score > prev ? 'up' : 'down'
     }
   })
 
-  const weekKey = `${new Date().getFullYear()}-W${Math.ceil((new Date().getTime() - new Date(new Date().getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000))}`
-  if (localStorage.getItem('ipd_score_week') !== weekKey) {
-    const scores = {}
-    complianceAreas.forEach(a => { scores[a.label] = a.score })
-    localStorage.setItem('ipd_weekly_scores', JSON.stringify(scores))
-    localStorage.setItem('ipd_score_week', weekKey)
+  // Sparkline data helper: historical scores + current live score
+  const getSparklineData = (label) => {
+    const historical = scoreHistory.map(e => e.scores[label]).filter(v => v !== undefined)
+    const current = complianceAreas.find(a => a.label === label)?.score
+    if (current !== undefined) historical.push(current)
+    return historical
   }
 
   // Tile/card counts
@@ -355,10 +369,10 @@ export default function Dashboard() {
 
   // Compliance card data
   const complianceCardData = [
-    { label: 'Documents', score: docScore, subtitle: docsExpiring > 0 ? `${docsExpiring} expiring` : 'All current', trend: trends['Documents'] ? { direction: trends['Documents'], value: Math.abs(docScore - (storedScores['Documents'] || docScore)) } : null, nav: '/documents' },
-    { label: 'Training', score: staffScore, subtitle: trainingOverdue > 0 ? `${trainingOverdue} overdue` : 'All complete', trend: trends['Training'] ? { direction: trends['Training'], value: Math.abs(staffScore - (storedScores['Training'] || staffScore)) } : null, nav: '/staff-training' },
-    { label: 'Cleaning', score: cleaningScore, subtitle: overdueCleaningTasks.length > 0 ? `${overdueCleaningTasks.length} overdue` : 'All clear', trend: trends['Cleaning'] ? { direction: trends['Cleaning'], value: Math.abs(cleaningScore - (storedScores['Cleaning'] || cleaningScore)) } : null, nav: '/cleaning' },
-    { label: 'Safeguarding', score: sgScore, subtitle: sgDueSoon.length > 0 ? `${sgDueSoon.length} due soon` : 'All current', trend: trends['Safeguarding'] ? { direction: trends['Safeguarding'], value: Math.abs(sgScore - (storedScores['Safeguarding'] || sgScore)) } : null, nav: '/safeguarding' },
+    { label: 'Documents', score: docScore, subtitle: docsExpiring > 0 ? `${docsExpiring} expiring` : 'All current', trend: trends['Documents'] ? { direction: trends['Documents'], value: Math.abs(docScore - (prevScores['Documents'] || docScore)) } : null, sparklineData: getSparklineData('Documents'), nav: '/documents' },
+    { label: 'Training', score: staffScore, subtitle: trainingOverdue > 0 ? `${trainingOverdue} overdue` : 'All complete', trend: trends['Training'] ? { direction: trends['Training'], value: Math.abs(staffScore - (prevScores['Training'] || staffScore)) } : null, sparklineData: getSparklineData('Training'), nav: '/staff-training' },
+    { label: 'Cleaning', score: cleaningScore, subtitle: overdueCleaningTasks.length > 0 ? `${overdueCleaningTasks.length} overdue` : 'All clear', trend: trends['Cleaning'] ? { direction: trends['Cleaning'], value: Math.abs(cleaningScore - (prevScores['Cleaning'] || cleaningScore)) } : null, sparklineData: getSparklineData('Cleaning'), nav: '/cleaning' },
+    { label: 'Safeguarding', score: sgScore, subtitle: sgDueSoon.length > 0 ? `${sgDueSoon.length} due soon` : 'All current', trend: trends['Safeguarding'] ? { direction: trends['Safeguarding'], value: Math.abs(sgScore - (prevScores['Safeguarding'] || sgScore)) } : null, sparklineData: getSparklineData('Safeguarding'), nav: '/safeguarding' },
   ]
 
   // Quick link data (reuses TILE_ICONS for icons)
