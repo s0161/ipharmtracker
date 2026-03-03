@@ -19,8 +19,7 @@ import {
   AlertBanner,
   ActionCounter,
   ComplianceCards,
-  QuickLinks,
-  KanbanBoard,
+  TaskAccordion,
   CompletionModal,
   ProgressRing,
 } from '../components/dashboard'
@@ -127,7 +126,6 @@ export default function Dashboard() {
   const [collapsedCols, setCollapsedCols] = useState({ weekly: true, fortnightly: true, monthly: true })
   const [actionInput, setActionInput] = useState('')
   const [actionDueDate, setActionDueDate] = useState('')
-  const [panelOpen, setPanelOpen] = useState(true)
   const prevAllDoneRef = useRef({})
   const touchStartX = useRef(null)
 
@@ -147,9 +145,9 @@ export default function Dashboard() {
   ])
   const [assignedTasks, setAssignedTasks] = useSupabase('assigned_tasks', [])
 
-  // Live clock
+  // Clock (updates every minute for "Updated HH:MM")
   useEffect(() => {
-    const id = setInterval(() => setClock(new Date()), 1000)
+    const id = setInterval(() => setClock(new Date()), 60000)
     return () => clearInterval(id)
   }, [])
 
@@ -218,9 +216,9 @@ export default function Dashboard() {
     return (
       <div className="dashboard">
         <div className="skeleton-topbar" />
-        <div className="skeleton-tiles"><div className="skeleton-tile" /><div className="skeleton-tile" /><div className="skeleton-tile" /><div className="skeleton-tile" /><div className="skeleton-tile" /><div className="skeleton-tile" /></div>
-        <div className="skeleton-board"><div className="skeleton-col" /><div className="skeleton-col" /><div className="skeleton-col" /></div>
-        <div className="skeleton-strip" />
+        <div className="skeleton-tiles"><div className="skeleton-tile" /><div className="skeleton-tile" /><div className="skeleton-tile" /><div className="skeleton-tile" /></div>
+        <div className="skeleton-focus-row"><div className="skeleton-focus" /><div className="skeleton-focus" /></div>
+        <div className="skeleton-accordion"><div className="skeleton-accordion-row" /><div className="skeleton-accordion-row" /><div className="skeleton-accordion-row" /></div>
       </div>
     )
   }
@@ -373,16 +371,6 @@ export default function Dashboard() {
     { label: 'Training', score: staffScore, subtitle: trainingOverdue > 0 ? `${trainingOverdue} overdue` : 'All complete', trend: trends['Training'] ? { direction: trends['Training'], value: Math.abs(staffScore - (prevScores['Training'] || staffScore)) } : null, sparklineData: getSparklineData('Training'), nav: '/staff-training' },
     { label: 'Cleaning', score: cleaningScore, subtitle: overdueCleaningTasks.length > 0 ? `${overdueCleaningTasks.length} overdue` : 'All clear', trend: trends['Cleaning'] ? { direction: trends['Cleaning'], value: Math.abs(cleaningScore - (prevScores['Cleaning'] || cleaningScore)) } : null, sparklineData: getSparklineData('Cleaning'), nav: '/cleaning' },
     { label: 'Safeguarding', score: sgScore, subtitle: sgDueSoon.length > 0 ? `${sgDueSoon.length} due soon` : 'All current', trend: trends['Safeguarding'] ? { direction: trends['Safeguarding'], value: Math.abs(sgScore - (prevScores['Safeguarding'] || sgScore)) } : null, sparklineData: getSparklineData('Safeguarding'), nav: '/safeguarding' },
-  ]
-
-  // Quick link data (reuses TILE_ICONS for icons)
-  const quickLinksData = [
-    { key: 'cleaning', icon: TILE_ICONS.cleaning, title: 'Cleaning Rota', subtitle: dailyDueCount > 0 ? `${dailyDueCount} due today` : 'All clear', nav: '/cleaning' },
-    { key: 'documents', icon: TILE_ICONS.documents, title: 'Documents', subtitle: docsExpiring > 0 ? `${docsExpiring} expiring` : 'All current', nav: '/documents' },
-    { key: 'training', icon: TILE_ICONS.training, title: 'Staff Training', subtitle: trainingOverdue > 0 ? `${trainingOverdue} overdue` : 'Up to date', nav: '/staff-training' },
-    { key: 'safeguarding', icon: TILE_ICONS.safeguarding, title: 'Safeguarding', subtitle: `${sgScore}% compliant`, nav: '/safeguarding' },
-    { key: 'temperature', icon: TILE_ICONS.temperature, title: 'Temp Log', subtitle: tempLoggedToday ? 'Logged today' : 'Not logged yet', nav: '/temperature' },
-    { key: 'rplog', icon: TILE_ICONS.rplog, title: 'RP Log', subtitle: rpComplete ? 'Complete' : `${rpDoneCount}/${allRpItems.length} done`, nav: '/rp-log' },
   ]
 
   // Today's priorities — top 3 most urgent items
@@ -642,15 +630,15 @@ export default function Dashboard() {
       {/* === TOP BAR === */}
       <div className="dash-topbar no-print">
         <div className="dash-topbar-left">
-          <h1 className="dash-topbar-greeting">{getGreeting()}, {user?.name?.split(' ')[0] || 'Team'}</h1>
-          <p className="dash-topbar-date">
-            {clock.toLocaleDateString('en-GB', {
-              weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-            })}
-            <span className="dash-topbar-clock">
-              {clock.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+          <h1 className="dash-topbar-greeting">
+            {getGreeting()}, {user?.name?.split(' ')[0] || 'Team'}
+            <span className="dash-topbar-date-inline">
+              {' \u2014 '}
+              {clock.toLocaleDateString('en-GB', {
+                weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+              })}
             </span>
-          </p>
+          </h1>
         </div>
 
         <div className="dash-topbar-center">
@@ -664,7 +652,7 @@ export default function Dashboard() {
 
         <div className="dash-topbar-right">
           <span className="dash-topbar-synced">Updated {lastUpdated}</span>
-          <ProgressRing pct={overallScore} />
+          <ProgressRing pct={overallScore} size={40} strokeWidth={3} />
           <button className="btn btn--ghost btn--sm" onClick={() => window.print()} title="Print compliance report">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
               <polyline points="6 9 6 2 18 2 18 9" />
@@ -698,13 +686,88 @@ export default function Dashboard() {
         </div>
       )}
 
-      <div className="dash-body">
-      <div className="dash-main-col">
       {/* === COMPLIANCE CARDS === */}
       <ComplianceCards areas={complianceCardData} />
 
-      {/* === QUICK LINKS === */}
-      <QuickLinks links={quickLinksData} />
+      {/* === TODAY'S FOCUS + RP DAILY LOG === */}
+      <div className="dash-focus-row no-print">
+        <div className="dash-focus-card">
+          <div className="dash-focus-header">
+            <h2 className="dash-focus-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+                <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+              </svg>
+              Today&apos;s Focus
+            </h2>
+            <span className="dash-focus-count">
+              {todayCards.filter(c => c.status === 'done').length}/{todayCards.length}
+            </span>
+          </div>
+          {todayCards.length === 0 ? (
+            <p className="dash-empty-state">No daily tasks configured</p>
+          ) : (
+            <ul className="dash-focus-list">
+              {todayCards.map(card => (
+                <li key={card.id} className={`dash-focus-item ${card.status === 'done' ? 'dash-focus-item--done' : ''}`}>
+                  <button
+                    className={`dash-focus-check ${card.status === 'done' ? 'dash-focus-check--done' : ''}`}
+                    onClick={() => card.status !== 'done' && handleOpenCompletion(card)}
+                    disabled={card.status === 'done'}
+                  >
+                    {card.status === 'done' ? (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="14" height="14"><polyline points="20 6 9 17 4 12" /></svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><circle cx="12" cy="12" r="10" /></svg>
+                    )}
+                  </button>
+                  <span className="dash-focus-name">{card.name}</span>
+                  <span className={`dash-focus-pill dash-focus-pill--${card.category === 'RP Check' ? 'rp' : 'cleaning'}`}>
+                    {card.category === 'RP Check' ? 'RP' : 'Cleaning'}
+                  </span>
+                  {card.dueTime && <span className={`dash-focus-time ${card.dueTimeOverdue ? 'dash-focus-time--overdue' : ''}`}>{card.dueTime}</span>}
+                  {card.assignedTo && <span className="dash-focus-avatar" title={card.assignedTo}>{card.assignedTo.split(' ').map(w => w[0]).join('')}</span>}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="dash-focus-card dash-focus-card--rp">
+          <div className="dash-focus-header">
+            <h2 className="dash-focus-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+                <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
+                <rect x="8" y="2" width="8" height="4" rx="1" /><path d="M9 14l2 2 4-4" />
+              </svg>
+              RP Daily Log
+            </h2>
+            <span className="dash-focus-count">
+              {RP_DAILY.filter(item => !!rpChecklist[item]).length}/{RP_DAILY.length}
+            </span>
+          </div>
+          {RP_DAILY.filter(item => !!rpChecklist[item]).length === RP_DAILY.length ? (
+            <p className="dash-empty-state dash-empty-state--success">All RP checks complete!</p>
+          ) : (
+            <ul className="dash-focus-list">
+              {RP_DAILY.map(item => (
+                <li key={item} className={`dash-focus-item ${rpChecklist[item] ? 'dash-focus-item--done' : ''}`}>
+                  <button
+                    className={`dash-focus-check ${rpChecklist[item] ? 'dash-focus-check--done' : ''}`}
+                    onClick={() => handleToggleRpItem(item)}
+                  >
+                    {rpChecklist[item] ? (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="14" height="14"><polyline points="20 6 9 17 4 12" /></svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><circle cx="12" cy="12" r="10" /></svg>
+                    )}
+                  </button>
+                  <span className="dash-focus-name">{item}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
 
       {/* === SEARCH BAR === */}
       <div className="dash-search no-print">
@@ -741,8 +804,8 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* === KANBAN BOARD === */}
-      <KanbanBoard
+      {/* === TASK SCHEDULE === */}
+      <TaskAccordion
         columns={columns}
         mobileTab={mobileTab}
         setMobileTab={setMobileTab}
@@ -761,223 +824,59 @@ export default function Dashboard() {
         onTouchEnd={handleTouchEnd}
       />
 
-      </div>{/* end dash-main-col */}
-
-      {panelOpen && <div className="dash-panel-overlay no-print" onClick={() => setPanelOpen(false)} />}
-
-      <aside className={`dash-panel no-print ${panelOpen ? 'dash-panel--open' : ''}`}>
-        <div className="dash-panel-header">
-          <div>
-            <span className="dash-panel-title">My Day</span>
-            {user && <span className="dash-panel-subtitle">{user.name}</span>}
-          </div>
-          <button className="dash-panel-close" onClick={() => setPanelOpen(false)} aria-label="Close panel">&times;</button>
-        </div>
-        <div className="dash-panel-body">
-
-          {/* --- My Tasks --- */}
-          {user && myTotalCount > 0 && (
-            <div className="dash-panel-section">
-              <div className={`dash-my-tasks ${myDoneCount === myTotalCount ? 'dash-my-tasks--alldone' : ''}`}>
-                <div className="dash-my-tasks-header">
-                  <h3 className="dash-my-tasks-title">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
-                      <path d="M9 11l3 3L22 4" />
-                      <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
-                    </svg>
-                    My Tasks
-                    <span className="dash-my-tasks-count">{myDoneCount}/{myTotalCount}</span>
-                  </h3>
-                  {myDoneCount === myTotalCount && (
-                    <span className="dash-my-tasks-alldone">All done!</span>
-                  )}
-                </div>
-                <ul className="dash-my-tasks-list">
-                  {myRotationTasks.map((task) => {
-                    const done = isDashRotationDone(task.name)
-                    return (
-                      <li key={task.name} className={`dash-my-task ${done ? 'dash-my-task--done' : ''}`}>
-                        <button
-                          className={`dash-my-task-check ${done ? 'dash-my-task-check--done' : ''}`}
-                          onClick={() => !done && dashCompleteRotation(task.name)}
-                          disabled={done}
-                        >
-                          {done ? (
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="14" height="14"><polyline points="20 6 9 17 4 12" /></svg>
-                          ) : (
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><circle cx="12" cy="12" r="10" /></svg>
-                          )}
-                        </button>
-                        <span className="dash-my-task-name">{task.name}</span>
-                        <span className={`dash-my-task-freq dash-my-task-freq--${task.frequency}`}>
-                          {task.isRP ? 'RP' : task.frequency}
-                        </span>
-                      </li>
-                    )
-                  })}
-                  {myAssigned.map((task) => (
-                    <li key={task.id} className={`dash-my-task ${task.completed ? 'dash-my-task--done' : ''}`}>
-                      <button
-                        className={`dash-my-task-check ${task.completed ? 'dash-my-task-check--done' : ''}`}
-                        onClick={() => dashToggleAssigned(task)}
-                      >
-                        {task.completed ? (
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="14" height="14"><polyline points="20 6 9 17 4 12" /></svg>
-                        ) : (
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><circle cx="12" cy="12" r="10" /></svg>
-                        )}
-                      </button>
-                      <span className="dash-my-task-name">{task.title}</span>
-                      <span className="dash-my-task-freq dash-my-task-freq--assigned">assigned</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="dash-my-tasks-progress">
-                  <div className="dash-my-tasks-progress-fill" style={{ width: `${myTotalCount > 0 ? Math.round((myDoneCount / myTotalCount) * 100) : 0}%` }} />
-                </div>
-              </div>
-            </div>
+      {/* === TO DO === */}
+      <div className="dash-todo-card no-print">
+        <div className="dash-todo-header">
+          <h2 className="dash-todo-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+              <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
+            </svg>
+            To Do
+            {pendingActions.length > 0 && <span className="dash-todo-badge">{pendingActions.length}</span>}
+          </h2>
+          {doneActions.length > 0 && (
+            <span className="dash-todo-done-count">{doneActions.length} done</span>
           )}
-
-          {/* --- RP Quick Log --- */}
-          <div className="dash-panel-section">
-            <div className={`dash-rp-quick ${rpComplete ? 'dash-rp-quick--done' : ''}`}>
-              <div className="dash-rp-quick-header">
-                <h3 className="dash-rp-quick-title">
-                  {TILE_ICONS.rplog && (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
-                      <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
-                      <rect x="8" y="2" width="8" height="4" rx="1" /><path d="M9 14l2 2 4-4" />
-                    </svg>
-                  )}
-                  RP Log
-                  <span className="dash-rp-quick-count">{rpDoneCount}/{allRpItems.length}</span>
-                </h3>
-                {rpComplete ? (
-                  <span className="dash-rp-quick-alldone">Complete</span>
-                ) : (
-                  <button className="dash-rp-quick-link" onClick={() => navigate('/rp-log')}>
-                    Full log &rarr;
-                  </button>
-                )}
-              </div>
-              <ul className="dash-rp-quick-list">
-                {RP_DAILY.map(item => (
-                  <li key={item} className={`dash-rp-quick-item ${rpChecklist[item] ? 'dash-rp-quick-item--done' : ''}`}>
-                    <button
-                      className={`dash-my-task-check ${rpChecklist[item] ? 'dash-my-task-check--done' : ''}`}
-                      onClick={() => handleToggleRpItem(item)}
-                    >
-                      {rpChecklist[item] ? (
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="14" height="14"><polyline points="20 6 9 17 4 12" /></svg>
-                      ) : (
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><circle cx="12" cy="12" r="10" /></svg>
-                      )}
-                    </button>
-                    <span className="dash-rp-quick-label">{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="dash-my-tasks-progress">
-                <div className="dash-my-tasks-progress-fill" style={{
-                  width: `${allRpItems.length > 0 ? Math.round((rpDoneCount / allRpItems.length) * 100) : 0}%`,
-                  background: rpComplete ? 'var(--success)' : rpDoneCount > 0 ? 'var(--warning)' : 'var(--border)',
-                }} />
-              </div>
-            </div>
-          </div>
-
-          {/* --- To Do --- */}
-          <div className="dash-panel-section">
-            <div className="dash-actions-section">
-              <div className="dash-actions-header">
-                <h3 className="dash-actions-title">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
-                    <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
-                  </svg>
-                  To Do
-                  {pendingActions.length > 0 && <span className="dash-actions-count">{pendingActions.length}</span>}
-                </h3>
-                {doneActions.length > 0 && (
-                  <span className="dash-actions-done-count">{doneActions.length} done</span>
-                )}
-              </div>
-              <div className="dash-actions-list">
-                {pendingActions.map(a => (
-                  <div key={a.id} className="dash-action-item">
-                    <button className="dash-action-check" onClick={() => toggleAction(a.id)} aria-label="Mark done">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /></svg>
-                    </button>
-                    <span className="dash-action-title">{a.title}</span>
-                    {a.dueDate && (
-                      <span className={`dash-action-due ${a.dueDate < todayStr ? 'dash-action-due--overdue' : ''}`}>
-                        {formatDate(a.dueDate)}
-                      </span>
-                    )}
-                    <button className="dash-action-delete" onClick={() => deleteAction(a.id)} aria-label="Delete">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                    </button>
-                  </div>
-                ))}
-                {doneActions.map(a => (
-                  <div key={a.id} className="dash-action-item dash-action-item--done">
-                    <button className="dash-action-check" onClick={() => toggleAction(a.id)} aria-label="Undo">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2.5"><path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
-                    </button>
-                    <span className="dash-action-title dash-action-title--done">{a.title}</span>
-                    <button className="dash-action-delete" onClick={() => deleteAction(a.id)} aria-label="Delete">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                    </button>
-                  </div>
-                ))}
-                {pendingActions.length === 0 && doneActions.length === 0 && (
-                  <p className="dash-actions-empty">No actions yet</p>
-                )}
-              </div>
-              <form className="dash-actions-add" onSubmit={addAction}>
-                <span className="dash-actions-add-icon">+</span>
-                <input type="text" className="input" placeholder="Add new action..." value={actionInput} onChange={(e) => setActionInput(e.target.value)} />
-                <input type="date" className="input dash-actions-date" value={actionDueDate} onChange={(e) => setActionDueDate(e.target.value)} />
-                <button type="submit" className="btn btn--primary btn--sm">Add</button>
-              </form>
-            </div>
-          </div>
-
-          {/* --- Team Grid (managers) --- */}
-          {user?.isManager && teamProgress.length > 0 && (
-            <div className="dash-panel-section">
-              <div className="dash-team-grid">
-                <span className="dash-team-grid-label">Team Progress</span>
-                <div className="dash-team-grid-items">
-                  {teamProgress.map((p) => (
-                    <div key={p.name} className={`dash-team-member ${p.allDone ? 'dash-team-member--done' : ''}`}>
-                      <span className="dash-team-member-avatar">{getStaffInitials(p.name)}</span>
-                      <span className="dash-team-member-name">{p.name.split(' ')[0]}</span>
-                      {p.total > 0 && (
-                        <span className="dash-team-member-count">{p.done}/{p.total}</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
         </div>
-      </aside>
-
-      </div>{/* end dash-body */}
-
-      {/* Panel toggle FAB */}
-      {!panelOpen && (
-        <button className="dash-panel-toggle no-print" onClick={() => setPanelOpen(true)}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
-            <path d="M9 11l3 3L22 4" />
-            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
-          </svg>
-          Tasks {pendingActions.length + (myTotalCount - myDoneCount) > 0 ? <span className="dash-panel-toggle-badge">{pendingActions.length + (myTotalCount - myDoneCount)}</span> : null}
-        </button>
-      )}
+        <div className="dash-todo-list">
+          {pendingActions.map(a => (
+            <div key={a.id} className="dash-todo-item">
+              <button className="dash-focus-check" onClick={() => toggleAction(a.id)} aria-label="Mark done">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><circle cx="12" cy="12" r="10" /></svg>
+              </button>
+              <span className="dash-todo-item-title">{a.title}</span>
+              {a.dueDate && (
+                <span className={`dash-todo-due ${a.dueDate < todayStr ? 'dash-todo-due--overdue' : ''}`}>
+                  {formatDate(a.dueDate)}
+                </span>
+              )}
+              <button className="dash-todo-delete" onClick={() => deleteAction(a.id)} aria-label="Delete">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              </button>
+            </div>
+          ))}
+          {doneActions.map(a => (
+            <div key={a.id} className="dash-todo-item dash-todo-item--done">
+              <button className="dash-focus-check dash-focus-check--done" onClick={() => toggleAction(a.id)} aria-label="Undo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="14" height="14"><polyline points="20 6 9 17 4 12" /></svg>
+              </button>
+              <span className="dash-todo-item-title">{a.title}</span>
+              <button className="dash-todo-delete" onClick={() => deleteAction(a.id)} aria-label="Delete">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              </button>
+            </div>
+          ))}
+          {pendingActions.length === 0 && doneActions.length === 0 && (
+            <p className="dash-empty-state">No action items — add one below</p>
+          )}
+        </div>
+        <form className="dash-todo-add" onSubmit={addAction}>
+          <span className="dash-todo-add-icon">+</span>
+          <input type="text" className="input" placeholder="Add new action..." value={actionInput} onChange={(e) => setActionInput(e.target.value)} />
+          <input type="date" className="input dash-todo-date" value={actionDueDate} onChange={(e) => setActionDueDate(e.target.value)} />
+          <button type="submit" className="btn btn--primary btn--sm">Add</button>
+        </form>
+      </div>
 
       {/* === OUTSTANDING SECTION === */}
       {showOutstanding && totalActionItems > 0 && (
@@ -1178,6 +1077,11 @@ export default function Dashboard() {
           </table>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="dash-footer no-print">
+        <span>iPharmacy Direct &middot; Compliance Tracker v3.1</span>
+      </footer>
 
       {/* Completion Modal */}
       <CompletionModal

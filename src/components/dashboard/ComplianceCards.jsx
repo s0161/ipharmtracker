@@ -19,6 +19,7 @@ export default function ComplianceCards({ areas }) {
           <button
             key={area.label}
             className={`compliance-card compliance-card--${tier}`}
+            data-score={area.score}
             onClick={() => navigate(area.nav)}
           >
             <div className="compliance-card-body">
@@ -35,6 +36,9 @@ export default function ComplianceCards({ areas }) {
                 <span className="compliance-card-subtitle">{area.subtitle}</span>
                 <Sparkline data={area.sparklineData} />
               </div>
+            </div>
+            <div className="compliance-card-bar">
+              <div className="compliance-card-bar-fill" style={{ width: `${area.score}%` }} />
             </div>
           </button>
         )
