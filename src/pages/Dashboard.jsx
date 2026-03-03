@@ -191,24 +191,27 @@ export default function Dashboard() {
 
   const overallScore = Math.round((docScore + staffScore + cleaningScore + sgScore) / 4)
 
-  // Score history for sparklines
-  const scoreHistory = JSON.parse(localStorage.getItem('ipd_score_history') || '[]')
+  // Score history for sparklines (stored as { "2026-03-03": { documents: 80, ... }, ... })
+  const scoreHistoryObj = JSON.parse(localStorage.getItem('ipd_score_history') || '{}')
+  const scoreHistoryEntries = Object.entries(scoreHistoryObj).sort(([a], [b]) => a.localeCompare(b))
   const getSparklineData = (label) => {
     const scores = { Documents: docScore, Training: staffScore, Cleaning: cleaningScore, Safeguarding: sgScore }
-    const hist = scoreHistory.map(e => e.scores?.[label]).filter(v => v !== undefined)
+    const keyMap = { Documents: 'documents', Training: 'training', Cleaning: 'cleaning', Safeguarding: 'safeguarding' }
+    const hist = scoreHistoryEntries.map(([, v]) => v?.[keyMap[label]]).filter(v => v !== undefined)
     hist.push(scores[label])
     return hist.length >= 2 ? hist : [scores[label], scores[label]]
   }
 
   // Trend calculation
-  const prevScores = scoreHistory.length > 0 ? scoreHistory[scoreHistory.length - 1]?.scores || {} : {}
+  const prevScores = scoreHistoryEntries.length > 0 ? scoreHistoryEntries[scoreHistoryEntries.length - 1]?.[1] || {} : {}
+  const trendKeyMap = { Documents: 'documents', Training: 'training', Cleaning: 'cleaning', Safeguarding: 'safeguarding' }
   const getTrend = (label, score) => {
-    const prev = prevScores[label]
+    const prev = prevScores[trendKeyMap[label] || label]
     if (prev === undefined || prev === score) return 'stable'
     return score > prev ? 'up' : 'down'
   }
   const getTrendVal = (label, score) => {
-    const prev = prevScores[label]
+    const prev = prevScores[trendKeyMap[label] || label]
     if (prev === undefined) return ''
     return `${Math.abs(score - prev)}%`
   }
