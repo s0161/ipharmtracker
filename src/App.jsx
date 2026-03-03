@@ -11,6 +11,8 @@ import RPLog from './pages/RPLog'
 import Settings from './pages/Settings'
 import TemperatureLog from './pages/TemperatureLog'
 import MyTasks from './pages/MyTasks'
+import Incidents from './pages/Incidents'
+import NearMissLog from './pages/NearMissLog'
 import Login, { isAuthenticated } from './pages/Login'
 import PinSelect from './pages/PinSelect'
 import { UserProvider, useUser } from './contexts/UserContext'
@@ -34,6 +36,8 @@ function AuthedApp() {
         <Route path="/staff-training" element={<StaffTraining />} />
         <Route path="/safeguarding" element={<SafeguardingTraining />} />
         <Route path="/temperature" element={<TemperatureLog />} />
+        <Route path="/incidents" element={<Incidents />} />
+        <Route path="/near-misses" element={<NearMissLog />} />
         <Route path="/settings" element={<Settings />} />
       </Routes>
     </Layout>
