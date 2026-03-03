@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { generateId } from './helpers'
 
-const SEED_KEY = 'ipd_seeded_v23'
+const SEED_KEY = 'ipd_seeded_v24'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -11,6 +11,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
   'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13', 'ipd_seeded_v14', 'ipd_seeded_v15', 'ipd_seeded_v16',
   'ipd_seeded_v17', 'ipd_seeded_v18', 'ipd_seeded_v19', 'ipd_seeded_v20', 'ipd_seeded_v21', 'ipd_seeded_v22',
+  'ipd_seeded_v23',
 ]
 
 export function cleanupOldLocalStorage() {
@@ -460,6 +461,7 @@ export async function seedIfNeeded() {
     supabase.from('training_logs').delete().neq('id', ''),
     supabase.from('action_items').delete().neq('id', ''),
     supabase.from('assigned_tasks').delete().neq('id', ''),
+    supabase.from('near_misses').delete().neq('id', ''),
   ])
 
   // Insert into Supabase tables

@@ -17,6 +17,8 @@ function NI({ name, color }) {
     spark: <path d="M8 2l1.5 4.5L14 8l-4.5 1.5L8 14l-1.5-4.5L2 8l4.5-1.5z" {...p} />,
     file: <><path d="M4 2h6l4 4v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" {...p} /><path d="M10 2v4h4" {...p} /></>,
     shield: <path d="M8 1L2 4v4c0 4.5 3 7.5 6 9 3-1.5 6-4.5 6-9V4L8 1z" {...p} />,
+    alertTri: <><path d="M8 1.5L1.5 13h13L8 1.5z" {...p} /><line x1="8" y1="6" x2="8" y2="9" {...p} /><line x1="8" y1="11" x2="8.01" y2="11" {...p} /></>,
+    shieldAlert: <><path d="M8 1L2 4v4c0 4.5 3 7.5 6 9 3-1.5 6-4.5 6-9V4L8 1z" {...p} /><line x1="8" y1="5.5" x2="8" y2="8.5" {...p} /><line x1="8" y1="10.5" x2="8.01" y2="10.5" {...p} /></>,
     users: <><circle cx="6" cy="5" r="2.5" {...p} /><path d="M1 14c0-3 2.5-5 5-5s5 2 5 5" {...p} /></>,
     gear: <><circle cx="8" cy="8" r="2.5" {...p} /><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4" {...p} /></>,
     sun: <><circle cx="8" cy="8" r="3" {...p} /><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.2 3.2l1.4 1.4M11.4 11.4l1.4 1.4M3.2 12.8l1.4-1.4M11.4 4.6l1.4-1.4" {...p} /></>,
@@ -41,6 +43,7 @@ const sections = [
       { to: '/training', label: 'Training Logs', icon: 'book', shortcut: 'T' },
       { to: '/cleaning', label: 'Cleaning Rota', icon: 'spark', shortcut: 'C' },
       { to: '/documents', label: 'Documents', icon: 'file' },
+      { to: '/incidents', label: 'Incidents', icon: 'alertTri' },
     ],
   },
   {
@@ -48,6 +51,7 @@ const sections = [
     items: [
       { to: '/safeguarding', label: 'Safeguarding', icon: 'shield' },
       { to: '/staff-training', label: 'Staff Training', icon: 'users', shortcut: 'S' },
+      { to: '/near-misses', label: 'Near Misses', icon: 'shieldAlert' },
     ],
   },
   {
