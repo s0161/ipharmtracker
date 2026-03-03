@@ -7,6 +7,7 @@ import { exportData, importData, clearAllData } from '../utils/dataManager'
 import { downloadCsv } from '../utils/exportCsv'
 import { useToast } from '../components/Toast'
 import { useUser } from '../contexts/UserContext'
+import { usePharmacyConfig } from '../hooks/usePharmacyConfig'
 import { logout } from './Login'
 
 const inputClass = "w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 placeholder:text-ec-t3 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
@@ -307,15 +308,6 @@ function TaskManager({ tasks, onUpdate, userName }) {
   )
 }
 
-const PHARMACY_DETAILS = {
-  name: 'iPharmacy Direct',
-  address: 'Manchester, UK',
-  phone: '',
-  gphcNumber: '',
-  superintendent: 'Amjid Shakoor',
-  responsiblePharmacist: 'Amjid Shakoor',
-}
-
 const DEFAULT_NOTIFICATION_PREFS = {
   documentExpiry: true,
   trainingOverdue: true,
@@ -327,6 +319,8 @@ const DEFAULT_NOTIFICATION_PREFS = {
 export default function Settings() {
   const [staffMembers, setStaffMembers] = useSupabase('staff_members', [])
   const { user, logout: logoutUser } = useUser()
+  const [pharmacyConfig, updatePharmacyConfig] = usePharmacyConfig()
+  const [pharmacyForm, setPharmacyForm] = useState(null)
   const [trainingTopics, setTrainingTopics] = useSupabase('training_topics', [], { valueField: 'name' })
   const [cleaningTasks, setCleaningTasks] = useSupabase(
     'cleaning_tasks',
@@ -361,6 +355,16 @@ export default function Settings() {
         }
       })
   }, [])
+
+  useEffect(() => {
+    if (pharmacyConfig?.id) setPharmacyForm({ ...pharmacyConfig })
+  }, [pharmacyConfig.id])
+
+  const handleSavePharmacy = async () => {
+    if (!pharmacyForm) return
+    await updatePharmacyConfig(pharmacyForm)
+    showToast('Pharmacy details saved')
+  }
 
   const handleExport = async () => {
     await exportData()
@@ -415,21 +419,57 @@ export default function Settings() {
       >
         <h2 className="text-base font-bold text-ec-t1 mb-1">Pharmacy Details</h2>
         <p className="text-sm text-ec-t3 mb-4">
-          Core pharmacy information. Contact your administrator to update these details.
+          Core pharmacy information stored in your database.
         </p>
-        <div className="grid grid-cols-2 gap-4">
-          {Object.entries({
-            'Pharmacy Name': PHARMACY_DETAILS.name,
-            'Superintendent': PHARMACY_DETAILS.superintendent,
-            'Responsible Pharmacist': PHARMACY_DETAILS.responsiblePharmacist,
-            'Address': PHARMACY_DETAILS.address,
-          }).map(([label, value]) => (
-            <div key={label}>
-              <span className="text-xs font-semibold text-ec-t3 block mb-0.5">{label}</span>
-              <span className="text-sm text-ec-t1">{value || '—'}</span>
+        {pharmacyForm ? (
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {[
+                { key: 'pharmacyName', label: 'Pharmacy Name' },
+                { key: 'address', label: 'Address' },
+                { key: 'superintendent', label: 'Superintendent' },
+                { key: 'rpName', label: 'Responsible Pharmacist' },
+                { key: 'gphcNumber', label: 'GPhC Number' },
+                { key: 'phone', label: 'Phone' },
+                { key: 'email', label: 'Email' },
+              ].map(({ key, label }) => (
+                <div key={key}>
+                  <label className="text-xs font-semibold text-ec-t3 block mb-1">{label}</label>
+                  <input
+                    type="text"
+                    className={inputClass}
+                    value={pharmacyForm[key] || ''}
+                    onChange={(e) => setPharmacyForm({ ...pharmacyForm, [key]: e.target.value })}
+                    placeholder={label}
+                  />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+            <button
+              className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors font-sans"
+              onClick={handleSavePharmacy}
+            >
+              Save Pharmacy Details
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              ['Pharmacy Name', pharmacyConfig.pharmacyName],
+              ['Superintendent', pharmacyConfig.superintendent],
+              ['Responsible Pharmacist', pharmacyConfig.rpName],
+              ['Address', pharmacyConfig.address],
+              ['GPhC Number', pharmacyConfig.gphcNumber],
+              ['Phone', pharmacyConfig.phone],
+              ['Email', pharmacyConfig.email],
+            ].map(([label, value]) => (
+              <div key={label}>
+                <span className="text-xs font-semibold text-ec-t3 block mb-0.5">{label}</span>
+                <span className="text-sm text-ec-t1">{value || '—'}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Notification Preferences */}

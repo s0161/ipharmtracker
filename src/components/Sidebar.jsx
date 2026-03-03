@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom'
 import { useSidebarCounts } from '../hooks/useSidebarCounts'
 import { useTheme } from '../hooks/useTheme'
 import { useUser } from '../contexts/UserContext'
+import { usePharmacyConfig } from '../hooks/usePharmacyConfig'
 import { getStaffInitials } from '../utils/rotationManager'
 
 // ─── NAV ICONS (16x16 viewBox) ───
@@ -66,6 +67,12 @@ export default function Sidebar({ open, onClose }) {
   const counts = useSidebarCounts()
   const { theme, toggle: toggleTheme } = useTheme()
   const { user, logout: logoutUser } = useUser()
+  const [pharmacyConfig] = usePharmacyConfig()
+  const brandName = pharmacyConfig.pharmacyName || 'iPharmacy Direct'
+  const brandParts = brandName.split(' ')
+  const brandInitials = brandParts.length >= 2
+    ? (brandParts[0][0] + brandParts[1][0] + (brandParts[2]?.[0] || '')).toUpperCase()
+    : brandName.slice(0, 3).toUpperCase()
 
   return (
     <>
@@ -103,11 +110,11 @@ export default function Sidebar({ open, onClose }) {
               boxShadow: '0 2px 8px rgba(16,185,129,0.3)',
             }}
           >
-            IPD
+            {brandInitials}
           </div>
           <div>
-            <div className="text-[13px] font-bold text-ec-t1 leading-tight">iPharmacy</div>
-            <div className="text-[9px] font-semibold text-ec-t3 tracking-[1.5px] uppercase">Direct</div>
+            <div className="text-[13px] font-bold text-ec-t1 leading-tight">{brandParts.slice(0, -1).join(' ') || brandName}</div>
+            <div className="text-[9px] font-semibold text-ec-t3 tracking-[1.5px] uppercase">{brandParts.length > 1 ? brandParts[brandParts.length - 1] : ''}</div>
           </div>
           {/* Mobile close */}
           <button

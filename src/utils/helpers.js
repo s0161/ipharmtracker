@@ -68,6 +68,8 @@ export const CATEGORIES = [
   'Policy',
   'Certificate',
   'Risk Assessment',
+  'DBS Check',
+  'MHRA Alert',
   'Other',
 ]
 

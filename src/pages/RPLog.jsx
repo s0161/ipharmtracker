@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
+import { usePharmacyConfig } from '../hooks/usePharmacyConfig'
 import { generateId, formatDate } from '../utils/helpers'
 import { downloadCsv } from '../utils/exportCsv'
 import { logAudit } from '../utils/auditLog'
@@ -34,10 +35,12 @@ const ALL_ITEMS = [...DAILY_ITEMS, ...WEEKLY_ITEMS, ...FORTNIGHTLY_ITEMS]
 export default function RPLog() {
   const { user } = useUser()
   const [logs, setLogs, loading] = useSupabase('rp_log', [])
+  const [pharmacyConfig] = usePharmacyConfig()
+  const defaultRp = pharmacyConfig.rpName || 'Amjid Shakoor'
 
   const today = new Date().toISOString().slice(0, 10)
   const [selectedDate, setSelectedDate] = useState(today)
-  const [rpName, setRpName] = useState('Amjid Shakoor')
+  const [rpName, setRpName] = useState(defaultRp)
   const [checklist, setChecklist] = useState({})
   const [notes, setNotes] = useState('')
   const [editingId, setEditingId] = useState(null)
@@ -49,12 +52,17 @@ export default function RPLog() {
 
   useEffect(() => {
     if (existingEntry) {
-      setRpName(existingEntry.rpName || 'Amjid Shakoor')
+      setRpName(existingEntry.rpName || defaultRp)
       setChecklist(existingEntry.checklist || {})
       setNotes(existingEntry.notes || '')
       setEditingId(existingEntry.id)
     }
   }, [existingEntry])
+
+  // Sync default RP name when config loads (only if no existing entry)
+  useEffect(() => {
+    if (!existingEntry && defaultRp) setRpName(defaultRp)
+  }, [defaultRp])
 
   useEffect(() => {
     if (!rpName) return
@@ -82,7 +90,7 @@ export default function RPLog() {
       setNotes(entry.notes || '')
       setEditingId(entry.id)
     } else {
-      setRpName('Amjid Shakoor')
+      setRpName(defaultRp)
       setChecklist({})
       setNotes('')
       setEditingId(null)
