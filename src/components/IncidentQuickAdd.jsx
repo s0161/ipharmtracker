@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
 import { generateId } from '../utils/helpers'
+import { logAudit } from '../utils/auditLog'
+import { useUser } from '../contexts/UserContext'
 import { useToast } from './Toast'
 import Modal from './Modal'
 
@@ -15,6 +17,7 @@ const emptyForm = {
 }
 
 export default function IncidentQuickAdd() {
+  const { user } = useUser()
   const [incidents, setIncidents] = useSupabase('incidents', [])
   const showToast = useToast()
   const [open, setOpen] = useState(false)
@@ -31,6 +34,7 @@ export default function IncidentQuickAdd() {
       ...form,
       createdAt: new Date().toISOString(),
     }])
+    logAudit('Created', `Incident: ${form.type}`, 'Incidents', user?.name)
     showToast('Incident reported successfully')
     setForm(emptyForm)
     setOpen(false)

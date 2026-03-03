@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
+import { logAudit } from '../utils/auditLog'
+import { useUser } from '../contexts/UserContext'
 import { formatDate, generateId } from '../utils/helpers'
 import { downloadCsv } from '../utils/exportCsv'
 import { useToast } from '../components/Toast'
@@ -39,6 +41,7 @@ const statusBadgeClass = (status) => {
 const inputClass = "w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
 
 export default function StaffTraining() {
+  const { user } = useUser()
   const [entries, setEntries, loading] = useSupabase('staff_training', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const showToast = useToast()
@@ -111,14 +114,16 @@ export default function StaffTraining() {
   }
 
   const cycleStatus = (id) => {
+    const entry = entries.find((e) => e.id === id)
+    const idx = STATUS_CYCLE.indexOf(entry?.status)
+    const next = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length]
     setEntries(
       entries.map((e) => {
         if (e.id !== id) return e
-        const idx = STATUS_CYCLE.indexOf(e.status)
-        const next = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length]
         return { ...e, status: next }
       })
     )
+    logAudit('Updated', `Training: ${entry?.trainingItem} for ${entry?.staffName} -> ${next}`, 'Staff Training', user?.name)
   }
 
   // CRUD
@@ -146,9 +151,11 @@ export default function StaffTraining() {
 
     if (editingId) {
       setEntries(entries.map((e) => (e.id === editingId ? { ...e, ...form } : e)))
+      logAudit('Updated', `Training: ${form.trainingItem} for ${form.staffName}`, 'Staff Training', user?.name)
       showToast('Training item updated')
     } else {
       setEntries([...entries, { id: generateId(), ...form }])
+      logAudit('Created', `Training: ${form.trainingItem} for ${form.staffName}`, 'Staff Training', user?.name)
       showToast('Training item added')
     }
     setModalOpen(false)
@@ -156,7 +163,9 @@ export default function StaffTraining() {
 
   const handleDelete = (id) => {
     if (window.confirm('Delete this training item?')) {
+      const entry = entries.find((e) => e.id === id)
       setEntries(entries.filter((e) => e.id !== id))
+      logAudit('Deleted', `Training: ${entry?.trainingItem} for ${entry?.staffName}`, 'Staff Training', user?.name)
       showToast('Training item deleted', 'info')
     }
   }

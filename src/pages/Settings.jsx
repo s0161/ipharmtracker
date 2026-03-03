@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
 import { supabase } from '../lib/supabase'
+import { logAudit } from '../utils/auditLog'
 import { DEFAULT_CLEANING_TASKS, FREQUENCIES, getTrafficLight, getSafeguardingStatus, getTaskStatus } from '../utils/helpers'
 import { exportData, importData, clearAllData } from '../utils/dataManager'
 import { downloadCsv } from '../utils/exportCsv'
@@ -10,7 +11,7 @@ import { logout } from './Login'
 
 const inputClass = "w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 placeholder:text-ec-t3 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
 
-function ListManager({ title, description, items, onUpdate }) {
+function ListManager({ title, description, items, onUpdate, userName }) {
   const [value, setValue] = useState('')
 
   const handleAdd = (e) => {
@@ -18,11 +19,13 @@ function ListManager({ title, description, items, onUpdate }) {
     const trimmed = value.trim()
     if (!trimmed || items.includes(trimmed)) return
     onUpdate([...items, trimmed])
+    logAudit('Created', `${title}: ${trimmed}`, 'Settings', userName)
     setValue('')
   }
 
   const handleRemove = (item) => {
     onUpdate(items.filter((i) => i !== item))
+    logAudit('Deleted', `${title}: ${item}`, 'Settings', userName)
   }
 
   return (
@@ -76,7 +79,7 @@ function ListManager({ title, description, items, onUpdate }) {
   )
 }
 
-function StaffManager({ staff, onUpdate, showToast }) {
+function StaffManager({ staff, onUpdate, showToast, userName }) {
   const [name, setName] = useState('')
   const [editPin, setEditPin] = useState(null) // { id, pin }
 
@@ -85,11 +88,14 @@ function StaffManager({ staff, onUpdate, showToast }) {
     const trimmed = name.trim()
     if (!trimmed || staff.some((s) => s.name === trimmed)) return
     onUpdate([...staff, { name: trimmed, pin: '', isManager: false }])
+    logAudit('Created', `Staff: ${trimmed}`, 'Settings', userName)
     setName('')
   }
 
   const handleRemove = (id) => {
+    const member = staff.find((s) => s.id === id)
     onUpdate(staff.filter((s) => s.id !== id))
+    logAudit('Deleted', `Staff: ${member?.name || id}`, 'Settings', userName)
   }
 
   const toggleManager = (id) => {
@@ -201,7 +207,7 @@ function StaffManager({ staff, onUpdate, showToast }) {
   )
 }
 
-function TaskManager({ tasks, onUpdate }) {
+function TaskManager({ tasks, onUpdate, userName }) {
   const [name, setName] = useState('')
   const [frequency, setFrequency] = useState('daily')
 
@@ -210,12 +216,14 @@ function TaskManager({ tasks, onUpdate }) {
     const trimmed = name.trim()
     if (!trimmed || tasks.some((t) => t.name === trimmed)) return
     onUpdate([...tasks, { name: trimmed, frequency }])
+    logAudit('Created', `Cleaning Task: ${trimmed}`, 'Settings', userName)
     setName('')
     setFrequency('daily')
   }
 
   const handleRemove = (taskName) => {
     onUpdate(tasks.filter((t) => t.name !== taskName))
+    logAudit('Deleted', `Cleaning Task: ${taskName}`, 'Settings', userName)
   }
 
   const handleFreqChange = (taskName, newFreq) => {
@@ -318,7 +326,7 @@ const DEFAULT_NOTIFICATION_PREFS = {
 
 export default function Settings() {
   const [staffMembers, setStaffMembers] = useSupabase('staff_members', [])
-  const { logout: logoutUser } = useUser()
+  const { user, logout: logoutUser } = useUser()
   const [trainingTopics, setTrainingTopics] = useSupabase('training_topics', [], { valueField: 'name' })
   const [cleaningTasks, setCleaningTasks] = useSupabase(
     'cleaning_tasks',
@@ -378,6 +386,7 @@ export default function Settings() {
     if (!window.confirm('Are you sure you want to delete ALL data? This cannot be undone.')) return
     if (!window.confirm('This is your final warning. All compliance data will be permanently deleted. Continue?')) return
     await clearAllData()
+    logAudit('Deleted', 'All data cleared', 'Settings', user?.name)
     showToast('All data cleared', 'info')
     window.location.reload()
   }
@@ -388,14 +397,16 @@ export default function Settings() {
         staff={staffMembers}
         onUpdate={setStaffMembers}
         showToast={showToast}
+        userName={user?.name}
       />
       <ListManager
         title="Training Topics"
         description="Manage the list of training topics available when logging training entries."
         items={trainingTopics}
         onUpdate={setTrainingTopics}
+        userName={user?.name}
       />
-      <TaskManager tasks={cleaningTasks} onUpdate={setCleaningTasks} />
+      <TaskManager tasks={cleaningTasks} onUpdate={setCleaningTasks} userName={user?.name} />
 
       {/* Pharmacy Details */}
       <div
@@ -522,6 +533,7 @@ export default function Settings() {
             if (totalRemoved === 0) {
               showToast('No duplicates found')
             } else {
+              logAudit('Deleted', `${totalRemoved} duplicate${totalRemoved !== 1 ? 's' : ''} removed`, 'Settings', user?.name)
               showToast(`Removed ${totalRemoved} duplicate${totalRemoved !== 1 ? 's' : ''}`)
               window.location.reload()
             }

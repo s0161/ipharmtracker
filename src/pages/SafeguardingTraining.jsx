@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
+import { logAudit } from '../utils/auditLog'
+import { useUser } from '../contexts/UserContext'
 import { formatDate, generateId, getSafeguardingStatus, getRefresherDate } from '../utils/helpers'
 import { downloadCsv } from '../utils/exportCsv'
 import { useToast } from '../components/Toast'
@@ -42,6 +44,7 @@ const statusStyle = (status) => {
 }
 
 export default function SafeguardingTraining() {
+  const { user } = useUser()
   const [records, setRecords, loading] = useSupabase('safeguarding_records', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const showToast = useToast()
@@ -63,7 +66,10 @@ export default function SafeguardingTraining() {
   const overdueCount = records.filter((r) => getSafeguardingStatus(r.trainingDate) === 'overdue').length
 
   const toggleSignedOff = (id) => {
-    setRecords(records.map((r) => (r.id === id ? { ...r, signedOff: !r.signedOff } : r)))
+    const record = records.find((r) => r.id === id)
+    const newVal = !record?.signedOff
+    setRecords(records.map((r) => (r.id === id ? { ...r, signedOff: newVal } : r)))
+    logAudit('Updated', `Safeguarding: ${record?.staffName} signed off -> ${newVal ? 'Yes' : 'No'}`, 'Safeguarding', user?.name)
   }
 
   const openAdd = () => {
@@ -92,9 +98,11 @@ export default function SafeguardingTraining() {
 
     if (editingId) {
       setRecords(records.map((r) => (r.id === editingId ? { ...r, ...form } : r)))
+      logAudit('Updated', `Safeguarding: ${form.staffName}`, 'Safeguarding', user?.name)
       showToast('Safeguarding record updated')
     } else {
       setRecords([...records, { id: generateId(), ...form }])
+      logAudit('Created', `Safeguarding: ${form.staffName}`, 'Safeguarding', user?.name)
       showToast('Safeguarding record added')
     }
     setModalOpen(false)
@@ -102,7 +110,9 @@ export default function SafeguardingTraining() {
 
   const handleDelete = (id) => {
     if (window.confirm('Delete this safeguarding record?')) {
+      const record = records.find((r) => r.id === id)
       setRecords(records.filter((r) => r.id !== id))
+      logAudit('Deleted', `Safeguarding: ${record?.staffName}`, 'Safeguarding', user?.name)
       showToast('Record deleted', 'info')
     }
   }

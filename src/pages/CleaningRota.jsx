@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useSupabase } from '../hooks/useSupabase'
+import { logAudit } from '../utils/auditLog'
+import { useUser } from '../contexts/UserContext'
 import { generateId, formatDateTime, DEFAULT_CLEANING_TASKS } from '../utils/helpers'
 import { downloadCsv } from '../utils/exportCsv'
 import { useToast } from '../components/Toast'
@@ -21,6 +23,7 @@ const inputClass =
   'w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans'
 
 export default function CleaningRota() {
+  const { user } = useUser()
   const [entries, setEntries, loading] = useSupabase('cleaning_entries', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const [cleaningTasks] = useSupabase('cleaning_tasks', DEFAULT_CLEANING_TASKS)
@@ -101,12 +104,14 @@ export default function CleaningRota() {
 
     if (editingId) {
       setEntries(entries.map((e) => (e.id === editingId ? { ...e, ...data } : e)))
+      logAudit('Updated', `Cleaning: ${taskName}`, 'Cleaning Rota', user?.name)
       showToast('Cleaning entry updated')
     } else {
       setEntries([
         ...entries,
         { id: generateId(), ...data, createdAt: new Date().toISOString() },
       ])
+      logAudit('Created', `Cleaning: ${taskName}`, 'Cleaning Rota', user?.name)
       showToast('Cleaning entry added')
     }
     setModalOpen(false)
@@ -114,7 +119,9 @@ export default function CleaningRota() {
 
   const handleDelete = (id) => {
     if (window.confirm('Are you sure you want to delete this entry?')) {
+      const entry = entries.find((e) => e.id === id)
       setEntries(entries.filter((e) => e.id !== id))
+      logAudit('Deleted', `Cleaning: ${entry?.taskName}`, 'Cleaning Rota', user?.name)
       showToast('Entry deleted', 'info')
     }
   }

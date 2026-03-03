@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useSupabase } from '../hooks/useSupabase'
+import { logAudit } from '../utils/auditLog'
+import { useUser } from '../contexts/UserContext'
 import { generateId, formatDate, getTrafficLight } from '../utils/helpers'
 import { downloadCsv } from '../utils/exportCsv'
 import { useToast } from '../components/Toast'
@@ -51,6 +53,7 @@ const expiryBadgeClass = (status) => {
 const inputClass = "w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
 
 export default function TrainingLogs() {
+  const { user } = useUser()
   const [logs, setLogs, loading] = useSupabase('training_logs', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const [topics] = useSupabase('training_topics', [], { valueField: 'name' })
@@ -137,12 +140,14 @@ export default function TrainingLogs() {
           l.id === editingId ? { ...l, ...form } : l
         )
       )
+      logAudit('Updated', `Training Log: ${form.topic} for ${form.staffName}`, 'Training Logs', user?.name)
       showToast('Training log updated')
     } else {
       setLogs([
         ...logs,
         { id: generateId(), ...form, createdAt: new Date().toISOString() },
       ])
+      logAudit('Created', `Training Log: ${form.topic} for ${form.staffName}`, 'Training Logs', user?.name)
       showToast('Training log added')
     }
     setModalOpen(false)
@@ -150,7 +155,9 @@ export default function TrainingLogs() {
 
   const handleDelete = (id) => {
     if (window.confirm('Are you sure you want to delete this entry?')) {
+      const log = logs.find((l) => l.id === id)
       setLogs(logs.filter((l) => l.id !== id))
+      logAudit('Deleted', `Training Log: ${log?.topic} for ${log?.staffName}`, 'Training Logs', user?.name)
       showToast('Entry deleted', 'info')
     }
   }

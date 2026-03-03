@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
 import { generateId, formatDate } from '../utils/helpers'
 import { downloadCsv } from '../utils/exportCsv'
+import { logAudit } from '../utils/auditLog'
+import { useUser } from '../contexts/UserContext'
 import PageActions from '../components/PageActions'
 
 const DAILY_ITEMS = [
@@ -30,6 +32,7 @@ const FORTNIGHTLY_ITEMS = [
 const ALL_ITEMS = [...DAILY_ITEMS, ...WEEKLY_ITEMS, ...FORTNIGHTLY_ITEMS]
 
 export default function RPLog() {
+  const { user } = useUser()
   const [logs, setLogs, loading] = useSupabase('rp_log', [])
 
   const today = new Date().toISOString().slice(0, 10)
@@ -64,6 +67,7 @@ export default function RPLog() {
         const id = generateId()
         setLogs([...logs, { id, ...data, createdAt: new Date().toISOString() }])
         setEditingId(id)
+        logAudit('Created', `RP Log: ${selectedDate}`, 'RP Log', user?.name)
       }
     }, 500)
     return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current) }

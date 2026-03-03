@@ -16,6 +16,8 @@
 
 import { useState } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
+import { logAudit } from '../utils/auditLog'
+import { useUser } from '../contexts/UserContext'
 import { generateId, formatDate } from '../utils/helpers'
 import { useToast } from '../components/Toast'
 import PageActions from '../components/PageActions'
@@ -35,6 +37,7 @@ const IN_RANGE_MAX = 8
 const inputClass = "w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
 
 export default function TemperatureLog() {
+  const { user } = useUser()
   const [logs, setLogs, loading] = useSupabase('temperature_logs', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const showToast = useToast()
@@ -68,6 +71,7 @@ export default function TemperatureLog() {
       notes: form.notes,
       createdAt: new Date().toISOString(),
     }])
+    logAudit('Created', `Temperature reading: ${temp}°C`, 'Temperature Log', user?.name)
 
     const inRange = temp >= IN_RANGE_MIN && temp <= IN_RANGE_MAX
     showToast(
@@ -79,7 +83,9 @@ export default function TemperatureLog() {
 
   const handleDelete = (id) => {
     if (window.confirm('Delete this reading?')) {
+      const log = logs.find(l => l.id === id)
       setLogs(logs.filter(l => l.id !== id))
+      logAudit('Deleted', `Temperature reading: ${log?.temperature}°C`, 'Temperature Log', user?.name)
       showToast('Reading deleted', 'info')
     }
   }

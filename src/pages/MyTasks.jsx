@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useUser } from '../contexts/UserContext'
 import { useSupabase } from '../hooks/useSupabase'
+import { logAudit } from '../utils/auditLog'
 import { supabase } from '../lib/supabase'
 import { getTasksForStaff, getTaskAssignee, getStaffInitials, getRotationList } from '../utils/rotationManager'
 import { generateId } from '../utils/helpers'
@@ -64,22 +65,25 @@ export default function MyTasks() {
       createdAt: new Date().toISOString(),
     }
     setCleaningEntries((prev) => [...prev, entry])
+    logAudit('Created', `Task completed: ${taskName}`, 'My Tasks', user?.name)
     showToast(`${taskName} marked done`)
   }
 
   // Toggle a manually assigned task
   async function toggleAssigned(task) {
+    const newCompleted = !task.completed
     const updated = assignedTasks.map((t) =>
       t.id === task.id
         ? {
             ...t,
-            completed: !t.completed,
-            completedBy: !t.completed ? user.name : null,
-            completedAt: !t.completed ? new Date().toISOString() : null,
+            completed: newCompleted,
+            completedBy: newCompleted ? user.name : null,
+            completedAt: newCompleted ? new Date().toISOString() : null,
           }
         : t
     )
     setAssignedTasks(updated)
+    logAudit('Updated', `Assigned task ${newCompleted ? 'completed' : 'reopened'}: ${task.title}`, 'My Tasks', user?.name)
     showToast(task.completed ? 'Task reopened' : 'Task done')
   }
 
@@ -100,6 +104,7 @@ export default function MyTasks() {
       createdAt: new Date().toISOString(),
     }
     setAssignedTasks((prev) => [...prev, newTask])
+    logAudit('Created', `Assigned task: ${assignTitle.trim()} to ${assignName}`, 'My Tasks', user?.name)
     showToast(`Task assigned to ${assignName.split(' ')[0]}`)
     setAssignModal(false)
     setAssignName('')

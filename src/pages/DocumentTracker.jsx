@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
+import { logAudit } from '../utils/auditLog'
+import { useUser } from '../contexts/UserContext'
 import {
   generateId,
   formatDate,
@@ -28,6 +30,7 @@ const statusBg = { green: 'rgba(16,185,129,0.1)', amber: 'rgba(245,158,11,0.1)',
 const inputClass = "w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
 
 export default function DocumentTracker() {
+  const { user } = useUser()
   const [documents, setDocuments, loading] = useSupabase('documents', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const showToast = useToast()
@@ -87,12 +90,14 @@ export default function DocumentTracker() {
       setDocuments(
         documents.map((d) => (d.id === editingId ? { ...d, ...form } : d))
       )
+      logAudit('Updated', `Document: ${form.documentName}`, 'Documents', user?.name)
       showToast('Document updated')
     } else {
       setDocuments([
         ...documents,
         { id: generateId(), ...form, createdAt: new Date().toISOString() },
       ])
+      logAudit('Created', `Document: ${form.documentName}`, 'Documents', user?.name)
       showToast('Document added')
     }
     setModalOpen(false)
@@ -100,7 +105,9 @@ export default function DocumentTracker() {
 
   const handleDelete = (id) => {
     if (window.confirm('Are you sure you want to delete this document?')) {
+      const doc = documents.find((d) => d.id === id)
       setDocuments(documents.filter((d) => d.id !== id))
+      logAudit('Deleted', `Document: ${doc?.documentName || id}`, 'Documents', user?.name)
       showToast('Document deleted', 'info')
     }
   }
