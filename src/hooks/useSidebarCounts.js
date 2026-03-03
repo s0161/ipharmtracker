@@ -14,6 +14,7 @@ function emptyCounts() {
 
 async function fetchCounts() {
   const counts = emptyCounts()
+  const prefs = JSON.parse(localStorage.getItem('ipd_notification_prefs') || '{}')
 
   const [docsRes, staffRes, sgRes, tasksRes, entriesRes, tempRes] = await Promise.all([
     supabase.from('documents').select('expiry_date'),
@@ -76,6 +77,13 @@ async function fetchCounts() {
   } else {
     counts['/temperature'].amber = 1
   }
+
+  // Zero out counts for disabled notification categories
+  if (prefs.documentExpiry === false) counts['/documents'] = { red: 0, amber: 0 }
+  if (prefs.trainingOverdue === false) counts['/staff-training'] = { red: 0, amber: 0 }
+  if (prefs.safeguardingDue === false) counts['/safeguarding'] = { red: 0, amber: 0 }
+  if (prefs.cleaningOverdue === false) counts['/cleaning'] = { red: 0, amber: 0 }
+  if (prefs.temperatureMissing === false) counts['/temperature'] = { red: 0, amber: 0 }
 
   return counts
 }
