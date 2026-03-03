@@ -10,6 +10,7 @@ import {
   CATEGORIES,
 } from '../utils/helpers'
 import { downloadCsv } from '../utils/exportCsv'
+import { useDocumentReminders } from '../hooks/useDocumentReminders'
 import { useToast } from '../components/Toast'
 import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
@@ -32,6 +33,7 @@ const inputClass = "w-full bg-white/[0.04] border border-white/[0.06] rounded-lg
 export default function DocumentTracker() {
   const { user } = useUser()
   const [documents, setDocuments, loading] = useSupabase('documents', [])
+  const { reminders: docReminders } = useDocumentReminders(documents)
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const showToast = useToast()
   const [modalOpen, setModalOpen] = useState(false)
@@ -128,54 +130,53 @@ export default function DocumentTracker() {
     downloadCsv('documents', headers, rows)
   }
 
-  // Expiry alert: documents expiring within 30 days or already expired
-  const alertDocs = uniqueDocs.filter(d => {
-    const tl = getTrafficLight(d.expiryDate)
-    return tl === 'red' || tl === 'amber'
-  }).map(d => {
-    const tl = getTrafficLight(d.expiryDate)
-    const exp = d.expiryDate ? new Date(d.expiryDate + 'T00:00:00') : null
-    const today = new Date()
-    today.setHours(0,0,0,0)
-    const daysLeft = exp ? Math.ceil((exp - today) / (1000 * 60 * 60 * 24)) : null
-    return { ...d, trafficLight: tl, daysLeft }
-  })
-
   return (
     <div>
-      {/* Document Expiry Alerts */}
-      {alertDocs.length > 0 && (
-        <div className="rounded-2xl p-4 mb-4" style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <h3 className="text-sm font-bold text-ec-t1 flex items-center gap-2 mb-3">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+      {docReminders.length > 0 && (() => {
+        const hasCritical = docReminders.some(r => r.type === 'critical')
+        const critCount = docReminders.filter(r => r.type === 'critical').length
+        const warnCount = docReminders.filter(r => r.type === 'warning').length
+        return (
+          <div
+            className="rounded-xl px-4 py-3 mb-4 flex items-center gap-3"
+            style={{
+              backgroundColor: hasCritical ? 'rgba(239,68,68,0.06)' : 'rgba(245,158,11,0.06)',
+              border: `1px solid ${hasCritical ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)'}`,
+            }}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20"
+              className={hasCritical ? 'text-ec-crit-light shrink-0' : 'text-ec-warn shrink-0'}>
               <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
               <line x1="12" y1="9" x2="12" y2="13" />
               <line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
-            Document Expiry Alerts
-          </h3>
-          <div className="space-y-2">
-            {alertDocs.map(d => (
-              <div
-                key={d.id}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg"
-                style={{ backgroundColor: d.trafficLight === 'red' ? 'rgba(239,68,68,0.04)' : 'rgba(245,158,11,0.04)' }}
-              >
-                <span
-                  className="w-2 h-2 rounded-full shrink-0"
-                  style={{ backgroundColor: d.trafficLight === 'red' ? '#ef4444' : '#f59e0b' }}
-                />
-                <span className="text-sm text-ec-t1 font-medium flex-1">{d.documentName}</span>
-                <span className="text-xs text-ec-t3 tabular-nums">
-                  {d.daysLeft !== null
-                    ? d.daysLeft < 0 ? `Expired ${Math.abs(d.daysLeft)} days ago` : `${d.daysLeft} days remaining`
-                    : 'No date set'}
-                </span>
+            <div className="flex-1">
+              <span className="text-sm font-medium text-ec-t1">
+                {hasCritical
+                  ? `${critCount} document${critCount !== 1 ? 's' : ''} expired or expiring this week`
+                  : `${warnCount} document${warnCount !== 1 ? 's' : ''} expiring soon`}
+              </span>
+              <div className="flex flex-wrap gap-2 mt-1.5">
+                {docReminders.slice(0, 5).map(r => (
+                  <span
+                    key={r.id}
+                    className="text-[11px] px-2 py-0.5 rounded-full font-medium"
+                    style={{
+                      backgroundColor: r.type === 'critical' ? 'rgba(239,68,68,0.1)' : 'rgba(245,158,11,0.1)',
+                      color: r.type === 'critical' ? '#fca5a5' : '#fcd34d',
+                    }}
+                  >
+                    {r.docName} ({r.daysLeft <= 0 ? 'expired' : `${r.daysLeft}d`})
+                  </span>
+                ))}
+                {docReminders.length > 5 && (
+                  <span className="text-[11px] text-ec-t3">+{docReminders.length - 5} more</span>
+                )}
               </div>
-            ))}
+            </div>
           </div>
-        </div>
-      )}
+        )
+      })()}
 
       <div>
         <p className="text-sm text-ec-t3 mb-2">
