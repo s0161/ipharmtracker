@@ -1080,7 +1080,7 @@ export default function Dashboard() {
 
       {/* Footer */}
       <footer className="dash-footer no-print">
-        <span>iPharmacy Direct &middot; Compliance Tracker v3.1</span>
+        <span>Compliance Tracker v4.0 &middot; iPharmacy Direct</span>
       </footer>
 
       {/* Completion Modal */}

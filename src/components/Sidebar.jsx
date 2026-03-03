@@ -171,8 +171,8 @@ export default function Sidebar({ open, onClose }) {
           <svg className="sidebar-logo" viewBox="0 0 40 40">
             <defs>
               <linearGradient id="logo-grad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#22c55e" />
-                <stop offset="100%" stopColor="#16a34a" />
+                <stop offset="0%" stopColor="#3b82f6" />
+                <stop offset="100%" stopColor="#1d4ed8" />
               </linearGradient>
             </defs>
             <rect rx="10" width="40" height="40" fill="url(#logo-grad)" />
@@ -280,7 +280,7 @@ export default function Sidebar({ open, onClose }) {
         )}
 
         <div className="sidebar-footer">
-          <small>Compliance Tracker v3.0</small>
+          <small>Compliance Tracker v4.0</small>
           <small className="sidebar-synced">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="10" height="10">
               <polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
