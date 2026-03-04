@@ -50,11 +50,9 @@ export default function StickyKeys({ keys, onKeyPress, showFridge, fridgeVal, on
               minWidth: mob ? 'calc(33% - 8px)' : 0,
               height: 58,
               cursor: st?.d ? 'default' : 'pointer',
-              border: `1px solid ${st?.d ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)'}`,
-              backgroundColor: st?.d ? 'rgba(16,185,129,0.05)' : 'rgba(255,255,255,0.025)',
-              boxShadow: st?.d
-                ? '0 0 12px rgba(16,185,129,0.06)'
-                : 'inset 0 2px 4px rgba(0,0,0,0.3), inset 0 -1px 0 rgba(255,255,255,0.03)',
+              border: `1px solid ${st?.d ? 'rgba(16,185,129,0.15)' : 'var(--ec-border)'}`,
+              backgroundColor: st?.d ? 'var(--ec-em-faint)' : 'var(--ec-card)',
+              boxShadow: st?.d ? '0 0 12px var(--ec-em-faint)' : 'var(--shadow)',
               transform: pr ? 'scale(0.95)' : jc ? 'scale(1.02)' : 'scale(1)',
               transitionTimingFunction: 'cubic-bezier(0.34,1.56,0.64,1)',
             }}
@@ -74,7 +72,7 @@ export default function StickyKeys({ keys, onKeyPress, showFridge, fridgeVal, on
                   onChange={e => onFridgeChange(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') onFridgeSubmit() }}
                   placeholder="°C"
-                  className="w-11 px-1 py-0.5 rounded-[5px] border border-white/10 bg-white/[0.06] text-ec-t1 text-xs text-center outline-none font-sans"
+                  className="w-11 px-1 py-0.5 rounded-[5px] border border-ec-border bg-ec-card text-ec-t1 text-xs text-center outline-none font-sans"
                 />
                 <button
                   onClick={onFridgeSubmit}

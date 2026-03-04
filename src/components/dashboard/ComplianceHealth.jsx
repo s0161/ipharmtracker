@@ -31,12 +31,12 @@ export default function ComplianceHealth({ areas, overallScore, hovCard, onHover
       className="ec-fadeup rounded-2xl p-5 transition-all duration-250"
       style={{
         flex: '0 0 calc(42% - 16px)',
-        backgroundColor: isHov ? 'rgba(255,255,255,0.045)' : 'rgba(255,255,255,0.025)',
-        border: `1px solid ${isHov ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.06)'}`,
+        backgroundColor: isHov ? 'var(--ec-card-hover)' : 'var(--ec-card)',
+        border: `1px solid ${isHov ? 'var(--ec-t5)' : 'var(--ec-border)'}`,
         borderRadius: 16,
         boxShadow: isHov
-          ? '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06)'
-          : '0 1px 3px rgba(0,0,0,0.4)',
+          ? 'var(--shadow-md)'
+          : 'var(--shadow)',
         transform: isHov ? 'translateY(-3px)' : 'translateY(0)',
         transitionTimingFunction: 'cubic-bezier(0.34,1.56,0.64,1)',
         animationDelay: '0.25s',
@@ -61,10 +61,10 @@ export default function ComplianceHealth({ areas, overallScore, hovCard, onHover
               key={i}
               className={`p-3.5 rounded-xl flex flex-col items-center transition-all duration-200 ${c.alert ? 'ec-breath' : ''}`}
               style={{
-                backgroundColor: c.alert ? 'rgba(239,68,68,0.035)' : 'rgba(255,255,255,0.015)',
+                backgroundColor: c.alert ? 'rgba(239,68,68,0.035)' : 'var(--ec-card)',
                 border: `1px solid ${c.alert
                   ? (isH ? 'rgba(239,68,68,0.25)' : 'rgba(239,68,68,0.08)')
-                  : (isH ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)')
+                  : (isH ? 'var(--ec-t4)' : 'var(--ec-div)')
                 }`,
                 transform: isH ? 'translateY(-2px)' : 'translateY(0)',
               }}

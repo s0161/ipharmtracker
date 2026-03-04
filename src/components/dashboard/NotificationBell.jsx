@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 
-const BellIcon = ({ size = 16, color = 'rgba(255,255,255,0.5)' }) => (
+const BellIcon = ({ size = 16, color = 'var(--ec-t2)' }) => (
   <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
     <path d="M4 6a4 4 0 0 1 8 0c0 2.5 1 4 2 5H2c1-1 2-2.5 2-5z" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     <path d="M6.5 13a1.5 1.5 0 0 0 3 0" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
@@ -44,10 +44,10 @@ export default function NotificationBell({ notifications, onDismissNotification 
       <button
         onClick={() => setBellOpen(!bellOpen)}
         className={`bg-transparent border-none cursor-pointer p-1.5 rounded-lg flex relative
-          transition-colors duration-150 ${bellOpen ? 'bg-white/[0.06]' : ''}`}
+          transition-colors duration-150 ${bellOpen ? 'bg-ec-border' : ''}`}
       >
         <div className={bellShake ? 'ec-bellshake' : ''}>
-          <BellIcon size={18} color={bellOpen ? '#e4e4e7' : 'rgba(255,255,255,0.5)'} />
+          <BellIcon size={18} color={bellOpen ? 'var(--ec-t1)' : 'var(--ec-t2)'} />
         </div>
         {unreadCount > 0 && (
           <div className="absolute top-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-ec-crit flex items-center justify-center text-[8px] font-extrabold text-white border-2 border-ec-bg">
@@ -57,7 +57,7 @@ export default function NotificationBell({ notifications, onDismissNotification 
       </button>
 
       {bellOpen && (
-        <div className="ec-slidedown absolute top-full right-0 mt-2 w-80 rounded-xl bg-[rgba(15,15,15,0.97)] border border-white/[0.08] shadow-[0_12px_40px_rgba(0,0,0,0.7)] backdrop-blur-xl z-60 overflow-hidden">
+        <div className="ec-slidedown absolute top-full right-0 mt-2 w-80 rounded-xl border border-ec-border backdrop-blur-xl z-60 overflow-hidden" style={{ backgroundColor: 'var(--ec-sidebar)', boxShadow: 'var(--shadow-md)' }}>
           <div className="flex items-center justify-between px-4 py-3 border-b border-ec-div">
             <span className="text-[13px] font-bold text-ec-t1">Notifications</span>
             {unreadCount > 0 && (
@@ -78,7 +78,7 @@ export default function NotificationBell({ notifications, onDismissNotification 
                   key={n.id}
                   onClick={() => markNotifRead(n.id)}
                   className={`px-4 py-2.5 border-b border-ec-div cursor-pointer transition-colors duration-150
-                    hover:bg-white/[0.03] ${isRead ? 'bg-transparent' : 'bg-white/[0.015]'}`}
+                    hover:bg-ec-card ${isRead ? 'bg-transparent' : 'bg-ec-card'}`}
                 >
                   <div className="flex items-start gap-2.5">
                     <div

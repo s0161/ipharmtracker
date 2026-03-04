@@ -7,12 +7,12 @@ const Check = ({ s = 10, c = '#10b981' }) => (
 )
 
 const MiniBar = ({ done, total }) => (
-  <div className="w-[50px] h-[3px] rounded-sm bg-white/[0.06] overflow-hidden">
+  <div className="w-[50px] h-[3px] rounded-sm bg-ec-border overflow-hidden">
     <div
       className="h-full rounded-sm transition-all duration-400"
       style={{
         width: `${total ? (done / total) * 100 : 0}%`,
-        backgroundColor: done === total && total > 0 ? '#10b981' : 'rgba(16,185,129,0.6)',
+        backgroundColor: done === total && total > 0 ? 'var(--ec-em)' : 'color-mix(in srgb, var(--ec-em) 60%, transparent)',
         transitionTimingFunction: 'cubic-bezier(0.34,1.56,0.64,1)',
       }}
     />
@@ -41,12 +41,12 @@ export default function ShiftChecklist({
       className="ec-fadeup rounded-2xl p-5 transition-all duration-250"
       style={{
         flex: '0 0 58%',
-        backgroundColor: isHov ? 'rgba(255,255,255,0.045)' : 'rgba(255,255,255,0.025)',
-        border: `1px solid ${isHov ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.06)'}`,
+        backgroundColor: isHov ? 'var(--ec-card-hover)' : 'var(--ec-card)',
+        border: `1px solid ${isHov ? 'var(--ec-t5)' : 'var(--ec-border)'}`,
         borderRadius: 16,
         boxShadow: isHov
-          ? '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06)'
-          : '0 1px 3px rgba(0,0,0,0.4)',
+          ? 'var(--shadow-md)'
+          : 'var(--shadow)',
         transform: isHov ? 'translateY(-3px)' : 'translateY(0)',
         transitionTimingFunction: 'cubic-bezier(0.34,1.56,0.64,1)',
         animationDelay: '0.2s',
@@ -65,7 +65,7 @@ export default function ShiftChecklist({
         )}
         <span
           className="text-[11px] font-semibold tabular-nums transition-colors duration-300"
-          style={{ color: allDone ? '#10b981' : 'rgba(255,255,255,0.25)' }}
+          style={{ color: allDone ? 'var(--ec-em)' : 'var(--ec-t3)' }}
         >
           {todayChecked}/{todayTasks.length}
         </span>
@@ -126,7 +126,7 @@ export default function ShiftChecklist({
       )}
 
       {/* Streak footer */}
-      <div className="mt-[18px] pt-3 border-t border-ec-div text-[11px] text-white/[0.18] flex items-center gap-1">
+      <div className="mt-[18px] pt-3 border-t border-ec-div text-[11px] text-ec-t4 flex items-center gap-1">
         <span className="text-sm">🔥</span> {streakDays || 0} days fully completed
       </div>
     </div>

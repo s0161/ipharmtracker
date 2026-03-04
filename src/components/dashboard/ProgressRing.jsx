@@ -26,7 +26,7 @@ export default function ProgressRing({ pct, size = 52, sw = 4, delay = 0 }) {
       <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
         <circle
           cx={size / 2} cy={size / 2} r={r}
-          fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth={sw}
+          fill="none" stroke="var(--ec-div)" strokeWidth={sw}
         />
         <circle
           cx={size / 2} cy={size / 2} r={r}

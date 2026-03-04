@@ -6,17 +6,17 @@ const Chev = ({ open }) => (
     className="shrink-0 transition-transform duration-250"
     style={{ transform: open ? 'rotate(90deg)' : 'rotate(0)', transitionTimingFunction: 'cubic-bezier(0.34,1.56,0.64,1)' }}
   >
-    <path d="M4.5 2.5L8 6L4.5 9.5" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M4.5 2.5L8 6L4.5 9.5" stroke="var(--ec-t3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 )
 
 const MiniBar = ({ done, total }) => (
-  <div className="w-[50px] h-[3px] rounded-sm bg-white/[0.06] overflow-hidden">
+  <div className="w-[50px] h-[3px] rounded-sm bg-ec-border overflow-hidden">
     <div
       className="h-full rounded-sm transition-all duration-400"
       style={{
         width: `${total ? (done / total) * 100 : 0}%`,
-        backgroundColor: done === total && total > 0 ? '#10b981' : 'rgba(16,185,129,0.6)',
+        backgroundColor: done === total && total > 0 ? 'var(--ec-em)' : 'color-mix(in srgb, var(--ec-em) 60%, transparent)',
         transitionTimingFunction: 'cubic-bezier(0.34,1.56,0.64,1)',
       }}
     />
@@ -37,10 +37,10 @@ export default function AccPanel({
     <div
       className="ec-fadeup rounded-xl overflow-hidden"
       style={{
-        backgroundColor: 'rgba(255,255,255,0.015)',
-        border: '1px solid rgba(255,255,255,0.04)',
+        backgroundColor: 'var(--ec-card)',
+        border: '1px solid var(--ec-div)',
         ...(isToday ? {
-          borderLeft: '3px solid #10b981',
+          borderLeft: '3px solid var(--ec-em)',
           boxShadow: 'inset 3px 0 12px -4px rgba(16,185,129,0.08)',
         } : {}),
         animationDelay: isToday ? '0.4s' : '0.5s',
@@ -49,7 +49,7 @@ export default function AccPanel({
       {/* Header */}
       <div
         onClick={onToggle}
-        className="flex items-center gap-2 px-4 py-3 cursor-pointer transition-colors duration-150 hover:bg-white/[0.025]"
+        className="flex items-center gap-2 px-4 py-3 cursor-pointer transition-colors duration-150 hover:bg-ec-card"
       >
         <Chev open={open} />
         <span className="text-[13px] font-semibold text-ec-t1">{title}</span>
@@ -57,8 +57,8 @@ export default function AccPanel({
         <span
           className="text-[10px] font-semibold px-2 py-0.5 rounded-[10px] transition-all duration-300"
           style={{
-            color: done === total && total > 0 ? '#10b981' : 'rgba(255,255,255,0.35)',
-            backgroundColor: done === total && total > 0 ? 'rgba(16,185,129,0.06)' : 'rgba(255,255,255,0.05)',
+            color: done === total && total > 0 ? 'var(--ec-em)' : 'var(--ec-t3)',
+            backgroundColor: done === total && total > 0 ? 'var(--ec-em-faint)' : 'var(--ec-card-hover)',
             border: done === total && total > 0 ? '1px solid rgba(16,185,129,0.15)' : '1px solid transparent',
           }}
         >

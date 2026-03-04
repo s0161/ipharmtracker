@@ -49,7 +49,7 @@ export default function RPPresenceBar({
     <div
       className="ec-fadeup rounded-xl px-5 py-4 transition-all duration-500"
       style={{
-        backgroundColor: rpSignedIn ? 'rgba(16,185,129,0.035)' : 'rgba(239,68,68,0.05)',
+        backgroundColor: rpSignedIn ? 'var(--ec-em-faint)' : 'rgba(239,68,68,0.05)',
         border: `1px solid ${rpSignedIn ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.12)'}`,
         boxShadow: rpSignedIn
           ? '0 0 40px rgba(16,185,129,0.04), inset 0 1px 0 rgba(16,185,129,0.08)'
@@ -77,7 +77,7 @@ export default function RPPresenceBar({
           onClick={onToggleRP}
           className="rounded-lg border-none cursor-pointer text-[13px] font-semibold font-sans transition-all duration-200"
           style={rpSignedIn
-            ? { padding: '7px 16px', backgroundColor: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)' }
+            ? { padding: '7px 16px', backgroundColor: 'var(--ec-card-hover)', color: 'var(--ec-t2)' }
             : { padding: '8px 22px', backgroundColor: '#ef4444', color: 'white', boxShadow: '0 2px 12px rgba(239,68,68,0.3)' }
           }
         >
@@ -110,12 +110,12 @@ export default function RPPresenceBar({
             className="overflow-hidden transition-all duration-300"
             style={{ maxHeight: sessOpen ? 200 : 0, opacity: sessOpen ? 1 : 0 }}
           >
-            <div className="mt-1.5 px-3 py-2 rounded-lg bg-white/[0.015] border border-ec-div">
+            <div className="mt-1.5 px-3 py-2 rounded-lg bg-ec-card border border-ec-div">
               {sessions?.map((s, i) => (
                 <div
                   key={i}
                   className="flex gap-3 text-[11px] text-ec-t3 py-[5px]"
-                  style={{ borderBottom: i < sessions.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}
+                  style={{ borderBottom: i < sessions.length - 1 ? '1px solid var(--ec-div)' : 'none' }}
                 >
                   <span className="text-ec-t2 font-medium min-w-[100px] tabular-nums">
                     {s.start} – {s.end}

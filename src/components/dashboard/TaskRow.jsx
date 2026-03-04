@@ -20,14 +20,14 @@ const Clock = () => (
   </svg>
 )
 
-const NoteIcon = ({ size = 10, color = 'rgba(255,255,255,0.25)' }) => (
+const NoteIcon = ({ size = 10, color = 'var(--ec-t3)' }) => (
   <svg width={size} height={size} viewBox="0 0 12 12" fill="none">
     <path d="M2 2h8v8H6l-4-4V2z" stroke={color} strokeWidth="1.2" strokeLinejoin="round" />
     <path d="M4 5h4M4 7h2" stroke={color} strokeWidth="1" strokeLinecap="round" />
   </svg>
 )
 
-const Chev = ({ open, color = 'rgba(255,255,255,0.25)', size = 12 }) => (
+const Chev = ({ open, color = 'var(--ec-t3)', size = 12 }) => (
   <svg
     width={size} height={size} viewBox="0 0 12 12" fill="none"
     className="shrink-0 transition-transform duration-200"
@@ -61,7 +61,7 @@ export default function TaskRow({
   const avatarColor = getStaffColor(task.assigneeName || '')
 
   const borderCol = hov
-    ? (task.urgent === 'red' ? 'rgba(239,68,68,0.25)' : task.urgent === 'amber' ? 'rgba(245,158,11,0.25)' : 'rgba(255,255,255,0.08)')
+    ? (task.urgent === 'red' ? 'rgba(239,68,68,0.25)' : task.urgent === 'amber' ? 'rgba(245,158,11,0.25)' : 'var(--ec-t5)')
     : 'transparent'
 
   return (
@@ -72,7 +72,7 @@ export default function TaskRow({
         className="flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg transition-all duration-150"
         style={{
           borderLeft: `3px solid ${borderCol}`,
-          backgroundColor: hov ? 'rgba(255,255,255,0.02)' : 'transparent',
+          backgroundColor: hov ? 'var(--ec-card)' : 'transparent',
         }}
       >
         {/* Checkbox */}
@@ -80,8 +80,8 @@ export default function TaskRow({
           onClick={onToggle}
           className="w-[18px] h-[18px] rounded-[5px] shrink-0 cursor-pointer relative flex items-center justify-center transition-all duration-200"
           style={{
-            border: `2px solid ${isChecked ? '#10b981' : 'rgba(255,255,255,0.12)'}`,
-            backgroundColor: isChecked ? '#10b981' : 'transparent',
+            border: `2px solid ${isChecked ? 'var(--ec-em)' : 'var(--ec-t4)'}`,
+            backgroundColor: isChecked ? 'var(--ec-em)' : 'transparent',
             transitionTimingFunction: 'cubic-bezier(0.34,1.56,0.64,1)',
           }}
         >
@@ -90,7 +90,7 @@ export default function TaskRow({
             <div
               className="absolute -inset-1 rounded-lg pointer-events-none"
               style={{
-                border: '2px solid #10b981',
+                border: '2px solid var(--ec-em)',
                 opacity: 0,
                 animation: 'ecFadeUp 0.35s ease forwards',
               }}
@@ -129,7 +129,7 @@ export default function TaskRow({
             className={`bg-transparent border-none cursor-pointer p-0.5 flex transition-opacity duration-150
               ${isNoteOpen ? 'opacity-100' : 'opacity-40 hover:opacity-70'}`}
           >
-            <NoteIcon size={12} color={isNoteOpen ? '#10b981' : 'rgba(255,255,255,0.25)'} />
+            <NoteIcon size={12} color={isNoteOpen ? 'var(--ec-em)' : 'var(--ec-t3)'} />
           </button>
         )}
 
@@ -138,9 +138,9 @@ export default function TaskRow({
           <span
             className="text-[10px] px-2 py-0.5 rounded font-medium tracking-wide whitespace-nowrap"
             style={{
-              backgroundColor: task.tag === 'RP Check' ? 'rgba(99,102,241,0.1)' : '#18181b',
-              color: task.tag === 'RP Check' ? '#a5b4fc' : '#a1a1aa',
-              border: `1px solid ${task.tag === 'RP Check' ? 'rgba(99,102,241,0.12)' : 'rgba(255,255,255,0.06)'}`,
+              backgroundColor: task.tag === 'RP Check' ? 'rgba(99,102,241,0.1)' : 'var(--ec-card-hover)',
+              color: task.tag === 'RP Check' ? '#a5b4fc' : 'var(--ec-t3)',
+              border: `1px solid ${task.tag === 'RP Check' ? 'rgba(99,102,241,0.12)' : 'var(--ec-border)'}`,
             }}
           >
             {task.tag}
@@ -166,7 +166,7 @@ export default function TaskRow({
           className="w-[26px] h-[26px] rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0"
           style={{
             backgroundColor: avatarColor,
-            boxShadow: `0 0 0 2px #0a0a0a, 0 0 0 3px ${avatarColor}30`,
+            boxShadow: `0 0 0 2px var(--ec-bg), 0 0 0 3px ${avatarColor}30`,
           }}
         >
           {initials}
@@ -178,7 +178,7 @@ export default function TaskRow({
         className="overflow-hidden transition-all duration-250"
         style={{ maxHeight: isNoteOpen ? 120 : 0, opacity: isNoteOpen ? 1 : 0 }}
       >
-        <div className="ml-[41px] mb-1 px-3 py-2 rounded-md bg-white/[0.015] border border-ec-div text-xs text-ec-t2 leading-relaxed">
+        <div className="ml-[41px] mb-1 px-3 py-2 rounded-md bg-ec-card border border-ec-div text-xs text-ec-t2 leading-relaxed">
           {task.note}
         </div>
       </div>
@@ -201,13 +201,13 @@ export default function TaskRow({
               {RP_SUBCHECKS.map(sc => (
                 <div
                   key={sc.id}
-                  className="flex items-center gap-2 px-2 py-0.5 rounded-[5px] hover:bg-[rgba(99,102,241,0.03)] transition-colors"
+                  className="flex items-center gap-2 px-2 py-0.5 rounded-[5px] hover:bg-ec-card transition-colors"
                 >
                   <div
                     onClick={() => onToggleRpSub?.(sc.id)}
                     className="w-3.5 h-3.5 rounded-sm shrink-0 cursor-pointer flex items-center justify-center transition-all duration-150"
                     style={{
-                      border: `1.5px solid ${rpSubChecks?.has(sc.id) ? '#6366f1' : 'rgba(255,255,255,0.1)'}`,
+                      border: `1.5px solid ${rpSubChecks?.has(sc.id) ? '#6366f1' : 'var(--ec-t4)'}`,
                       backgroundColor: rpSubChecks?.has(sc.id) ? '#6366f1' : 'transparent',
                     }}
                   >

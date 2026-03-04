@@ -55,7 +55,7 @@ export default function TodoSection({ todos, onToggle, onAdd, onDelete, mob }) {
         <div className="flex-1 h-px bg-ec-div ml-2" />
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-3 py-1.5 bg-white/[0.05] text-ec-t2 rounded-lg text-xs border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] transition-colors font-sans flex items-center gap-1"
+          className="px-3 py-1.5 bg-ec-card-hover text-ec-t2 rounded-lg text-xs border border-ec-border cursor-pointer hover:bg-ec-t5 transition-colors font-sans flex items-center gap-1"
         >
           <PlusIcon s={12} />
           Add
@@ -71,7 +71,7 @@ export default function TodoSection({ todos, onToggle, onAdd, onDelete, mob }) {
               placeholder="Task title..."
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
-              className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+              className="w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
               autoFocus
             />
           </div>
@@ -80,7 +80,7 @@ export default function TodoSection({ todos, onToggle, onAdd, onDelete, mob }) {
               type="date"
               value={newDueDate}
               onChange={(e) => setNewDueDate(e.target.value)}
-              className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+              className="w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
             />
           </div>
           <button
@@ -92,7 +92,7 @@ export default function TodoSection({ todos, onToggle, onAdd, onDelete, mob }) {
           <button
             type="button"
             onClick={() => { setShowForm(false); setNewTitle(''); setNewDueDate('') }}
-            className="px-3 py-2 bg-white/[0.05] text-ec-t2 rounded-lg text-sm border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] transition-colors font-sans"
+            className="px-3 py-2 bg-ec-card-hover text-ec-t2 rounded-lg text-sm border border-ec-border cursor-pointer hover:bg-ec-t5 transition-colors font-sans"
           >
             Cancel
           </button>
@@ -107,15 +107,15 @@ export default function TodoSection({ todos, onToggle, onAdd, onDelete, mob }) {
         {todos && todos.map(td => (
           <div
             key={td.id}
-            className="group flex items-center gap-2 px-1 py-[7px] rounded-md hover:bg-white/[0.02] transition-colors"
+            className="group flex items-center gap-2 px-1 py-[7px] rounded-md hover:bg-ec-card transition-colors"
           >
             {/* Checkbox */}
             <div
               onClick={() => onToggle(td.id)}
               className="w-[18px] h-[18px] rounded-[5px] shrink-0 cursor-pointer flex items-center justify-center transition-all duration-200"
               style={{
-                border: `2px solid ${td.completed ? '#10b981' : 'rgba(255,255,255,0.12)'}`,
-                backgroundColor: td.completed ? '#10b981' : 'transparent',
+                border: `2px solid ${td.completed ? 'var(--ec-em)' : 'var(--ec-t4)'}`,
+                backgroundColor: td.completed ? 'var(--ec-em)' : 'transparent',
                 transitionTimingFunction: 'cubic-bezier(0.34,1.56,0.64,1)',
               }}
             >

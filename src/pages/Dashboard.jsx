@@ -576,7 +576,7 @@ export default function Dashboard() {
             <div className="text-[26px] font-extrabold text-ec-crit leading-none tracking-tighter">{overdueCount}</div>
             <div className="text-[9px] font-bold text-ec-t3 uppercase tracking-[1px] mt-0.5">Overdue</div>
             {hovStat === 'over' && (
-              <div className="ec-slidedown absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 rounded-lg bg-[rgba(15,15,15,0.95)] border border-white/[0.08] shadow-[0_8px_24px_rgba(0,0,0,0.6)] text-[11px] text-ec-t2 whitespace-nowrap z-10 backdrop-blur-lg">
+              <div className="ec-slidedown absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 rounded-lg border border-ec-border text-[11px] text-ec-t2 whitespace-nowrap z-10 backdrop-blur-lg" style={{ backgroundColor: 'var(--ec-sidebar)', boxShadow: 'var(--shadow-md)' }}>
                 {overdueCleaningTasks.length} cleaning tasks overdue
               </div>
             )}
@@ -591,7 +591,7 @@ export default function Dashboard() {
             <div className="text-[26px] font-extrabold text-ec-warn leading-none tracking-tighter">{dueTodayCount}</div>
             <div className="text-[9px] font-bold text-ec-t3 uppercase tracking-[1px] mt-0.5">Due Today</div>
             {hovStat === 'due' && (
-              <div className="ec-slidedown absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 rounded-lg bg-[rgba(15,15,15,0.95)] border border-white/[0.08] shadow-[0_8px_24px_rgba(0,0,0,0.6)] text-[11px] text-ec-t2 whitespace-nowrap z-10 backdrop-blur-lg">
+              <div className="ec-slidedown absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 rounded-lg border border-ec-border text-[11px] text-ec-t2 whitespace-nowrap z-10 backdrop-blur-lg" style={{ backgroundColor: 'var(--ec-sidebar)', boxShadow: 'var(--shadow-md)' }}>
                 {dueTodayCount} tasks due today
               </div>
             )}
@@ -600,7 +600,7 @@ export default function Dashboard() {
           <div className="w-px h-7 bg-ec-div" />
           <NotificationBell notifications={notifications} onDismissNotification={handleDismissNotification} />
 
-          <div className="text-[11px] text-ec-z6 px-3 py-1 rounded-[20px] bg-white/[0.03] border border-ec-border font-medium tracking-wide">
+          <div className="text-[11px] text-ec-z6 px-3 py-1 rounded-[20px] bg-ec-card border border-ec-border font-medium tracking-wide">
             {pharmacyConfig.gphcNumber || 'FED07'}
           </div>
         </div>
@@ -718,7 +718,7 @@ export default function Dashboard() {
         className="fixed bottom-0 right-0 h-12 pointer-events-none transition-opacity duration-400"
         style={{
           left: mob ? 0 : 220,
-          background: 'linear-gradient(to top, #0a0a0a, transparent)',
+          background: 'linear-gradient(to top, var(--ec-bg), transparent)',
           opacity: scrollFade ? 1 : 0,
         }}
       />
