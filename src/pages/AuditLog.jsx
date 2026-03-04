@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
 import { downloadCsv } from '../utils/exportCsv'
 import PageActions from '../components/PageActions'
@@ -34,6 +34,8 @@ function categoryBadge(page) {
   )
 }
 
+const PER_PAGE = 50
+
 export default function AuditLog() {
   const [logs, , loading] = useSupabase('audit_log', [])
   const [search, setSearch] = useState('')
@@ -43,6 +45,7 @@ export default function AuditLog() {
   const [dateTo, setDateTo] = useState('')
   const [sortField, setSortField] = useState('timestamp')
   const [sortDir, setSortDir] = useState('desc')
+  const [page, setPage] = useState(1)
 
   // Derive unique actions and users for dropdowns
   const { actions, users } = useMemo(() => {
@@ -90,8 +93,15 @@ export default function AuditLog() {
     })
   }, [filtered, sortField, sortDir])
 
-  // Limit to 100 rows
-  const displayed = sorted.slice(0, 100)
+  // Reset to page 1 when any filter changes
+  useEffect(() => {
+    setPage(1)
+  }, [search, filterAction, filterUser, dateFrom, dateTo])
+
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PER_PAGE))
+  const safePage = Math.min(page, totalPages)
+  const displayed = sorted.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE)
 
   const handleSort = (field) => {
     if (sortField === field) {
@@ -208,7 +218,6 @@ export default function AuditLog() {
         {filtered.length === logs.length
           ? `${logs.length} entries`
           : `${filtered.length} of ${logs.length} entries`}
-        {sorted.length > 100 && ' (showing first 100)'}
       </div>
 
       {/* Table */}
@@ -289,6 +298,39 @@ export default function AuditLog() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {sorted.length > PER_PAGE && (
+        <div className="flex justify-between items-center mt-4">
+          <button
+            className={`px-4 py-2 rounded-lg bg-ec-card border border-ec-border text-ec-t1 text-sm font-sans transition-colors ${
+              safePage <= 1
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:bg-ec-card-hover hover:border-ec-em/30 cursor-pointer'
+            }`}
+            disabled={safePage <= 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+          >
+            Prev
+          </button>
+
+          <span className="text-sm text-ec-t2">
+            Page {safePage} of {totalPages}
+          </span>
+
+          <button
+            className={`px-4 py-2 rounded-lg bg-ec-card border border-ec-border text-ec-t1 text-sm font-sans transition-colors ${
+              safePage >= totalPages
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:bg-ec-card-hover hover:border-ec-em/30 cursor-pointer'
+            }`}
+            disabled={safePage >= totalPages}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          >
+            Next
+          </button>
         </div>
       )}
     </div>
