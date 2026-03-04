@@ -16,6 +16,7 @@ import NearMissLog from './pages/NearMissLog'
 import Login, { isAuthenticated } from './pages/Login'
 import PinSelect from './pages/PinSelect'
 import { UserProvider, useUser } from './contexts/UserContext'
+import ErrorBoundary from './components/ErrorBoundary'
 
 function AuthedApp() {
   const { user } = useUser()
@@ -53,7 +54,9 @@ export default function App() {
 
   return (
     <UserProvider>
-      <AuthedApp />
+      <ErrorBoundary>
+        <AuthedApp />
+      </ErrorBoundary>
     </UserProvider>
   )
 }
