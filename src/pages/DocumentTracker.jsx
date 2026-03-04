@@ -15,6 +15,7 @@ import { useToast } from '../components/Toast'
 import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
 import SwipeRow from '../components/SwipeRow'
+import { useConfirm } from '../components/ConfirmDialog'
 
 const emptyForm = {
   documentName: '',
@@ -36,6 +37,7 @@ export default function DocumentTracker() {
   const { reminders: docReminders } = useDocumentReminders(documents)
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const showToast = useToast()
+  const { confirm, ConfirmDialog } = useConfirm()
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
@@ -105,13 +107,18 @@ export default function DocumentTracker() {
     setModalOpen(false)
   }
 
-  const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this document?')) {
-      const doc = documents.find((d) => d.id === id)
-      setDocuments(documents.filter((d) => d.id !== id))
-      logAudit('Deleted', `Document: ${doc?.documentName || id}`, 'Documents', user?.name)
-      showToast('Document deleted', 'info')
-    }
+  const handleDelete = async (id) => {
+    const ok = await confirm({
+      title: 'Delete document?',
+      message: 'Are you sure you want to delete this document? This action cannot be undone.',
+      confirmLabel: 'Delete',
+      variant: 'danger',
+    })
+    if (!ok) return
+    const doc = documents.find((d) => d.id === id)
+    setDocuments(documents.filter((d) => d.id !== id))
+    logAudit('Deleted', `Document: ${doc?.documentName || id}`, 'Documents', user?.name)
+    showToast('Document deleted', 'info')
   }
 
   const update = (field) => (e) => setForm({ ...form, [field]: e.target.value })
@@ -383,6 +390,7 @@ export default function DocumentTracker() {
           </div>
         </form>
       </Modal>
+      {ConfirmDialog}
     </div>
   )
 }

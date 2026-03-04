@@ -23,6 +23,7 @@ import { useToast } from '../components/Toast'
 import PageActions from '../components/PageActions'
 import { downloadCsv } from '../utils/exportCsv'
 import TemperatureChart from '../components/TemperatureChart'
+import { useConfirm } from '../components/ConfirmDialog'
 
 const emptyForm = {
   date: new Date().toISOString().slice(0, 10),
@@ -42,6 +43,7 @@ export default function TemperatureLog() {
   const [logs, setLogs, loading] = useSupabase('temperature_logs', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const showToast = useToast()
+  const { confirm, ConfirmDialog } = useConfirm()
   const [form, setForm] = useState(emptyForm)
 
   if (loading) {
@@ -104,13 +106,18 @@ export default function TemperatureLog() {
     setForm({ ...emptyForm, loggedBy: form.loggedBy })
   }
 
-  const handleDelete = (id) => {
-    if (window.confirm('Delete this reading?')) {
-      const log = logs.find(l => l.id === id)
-      setLogs(logs.filter(l => l.id !== id))
-      logAudit('Deleted', `Temperature reading: ${log?.temperature}°C`, 'Temperature Log', user?.name)
-      showToast('Reading deleted', 'info')
-    }
+  const handleDelete = async (id) => {
+    const ok = await confirm({
+      title: 'Delete reading?',
+      message: 'Are you sure you want to delete this temperature reading? This action cannot be undone.',
+      confirmLabel: 'Delete',
+      variant: 'danger',
+    })
+    if (!ok) return
+    const log = logs.find(l => l.id === id)
+    setLogs(logs.filter(l => l.id !== id))
+    logAudit('Deleted', `Temperature reading: ${log?.temperature}°C`, 'Temperature Log', user?.name)
+    showToast('Reading deleted', 'info')
   }
 
   const handleCsvDownload = () => {
@@ -248,6 +255,7 @@ export default function TemperatureLog() {
           </table>
         </div>
       )}
+      {ConfirmDialog}
     </div>
   )
 }

@@ -9,6 +9,7 @@ import { useToast } from '../components/Toast'
 import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
 import SwipeRow from '../components/SwipeRow'
+import { useConfirm } from '../components/ConfirmDialog'
 
 const DELIVERY_METHODS = ['Classroom', 'Online', 'On-the-job', 'Self-study', 'External Provider', 'Workshop']
 const OUTCOMES = ['Pass', 'Fail', 'Attended', 'Certificate Issued', 'Refresher Needed']
@@ -58,6 +59,7 @@ export default function TrainingLogs() {
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const [topics] = useSupabase('training_topics', [], { valueField: 'name' })
   const showToast = useToast()
+  const { confirm, ConfirmDialog } = useConfirm()
   const [searchParams, setSearchParams] = useSearchParams()
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
@@ -153,13 +155,18 @@ export default function TrainingLogs() {
     setModalOpen(false)
   }
 
-  const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this entry?')) {
-      const log = logs.find((l) => l.id === id)
-      setLogs(logs.filter((l) => l.id !== id))
-      logAudit('Deleted', `Training Log: ${log?.topic} for ${log?.staffName}`, 'Training Logs', user?.name)
-      showToast('Entry deleted', 'info')
-    }
+  const handleDelete = async (id) => {
+    const ok = await confirm({
+      title: 'Delete entry?',
+      message: 'Are you sure you want to delete this training log entry? This action cannot be undone.',
+      confirmLabel: 'Delete',
+      variant: 'danger',
+    })
+    if (!ok) return
+    const log = logs.find((l) => l.id === id)
+    setLogs(logs.filter((l) => l.id !== id))
+    logAudit('Deleted', `Training Log: ${log?.topic} for ${log?.staffName}`, 'Training Logs', user?.name)
+    showToast('Entry deleted', 'info')
   }
 
   const update = (field) => (e) => setForm({ ...form, [field]: e.target.value })
@@ -485,6 +492,7 @@ export default function TrainingLogs() {
           </div>
         </form>
       </Modal>
+      {ConfirmDialog}
     </div>
   )
 }

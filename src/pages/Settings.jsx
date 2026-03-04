@@ -9,6 +9,7 @@ import { useToast } from '../components/Toast'
 import { useUser } from '../contexts/UserContext'
 import { usePharmacyConfig } from '../hooks/usePharmacyConfig'
 import { logout } from './Login'
+import { useConfirm } from '../components/ConfirmDialog'
 
 const inputClass = "w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 placeholder:text-ec-t3 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
 
@@ -333,6 +334,7 @@ export default function Settings() {
   const [auditLogs] = useSupabase('audit_log', [])
   const [incidents] = useSupabase('incidents', [])
   const showToast = useToast()
+  const { confirm, ConfirmDialog } = useConfirm()
   const [importMsg, setImportMsg] = useState(null)
   const [showAudit, setShowAudit] = useState(false)
   const fileRef = useRef(null)
@@ -387,8 +389,13 @@ export default function Settings() {
   }
 
   const handleClear = async () => {
-    if (!window.confirm('Are you sure you want to delete ALL data? This cannot be undone.')) return
-    if (!window.confirm('This is your final warning. All compliance data will be permanently deleted. Continue?')) return
+    const ok = await confirm({
+      title: 'Delete all data?',
+      message: 'This will permanently delete ALL compliance data including documents, training records, cleaning logs, incidents, and more. This cannot be undone.',
+      confirmLabel: 'Delete Everything',
+      variant: 'danger',
+    })
+    if (!ok) return
     await clearAllData()
     logAudit('Deleted', 'All data cleared', 'Settings', user?.name)
     showToast('All data cleared', 'info')
@@ -733,6 +740,7 @@ export default function Settings() {
           </div>
         )}
       </div>
+      {ConfirmDialog}
     </div>
   )
 }

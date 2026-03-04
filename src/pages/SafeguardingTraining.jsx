@@ -8,6 +8,7 @@ import { useToast } from '../components/Toast'
 import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
 import SwipeRow from '../components/SwipeRow'
+import { useConfirm } from '../components/ConfirmDialog'
 
 const STATUS_LABELS = {
   current: 'Current',
@@ -48,6 +49,7 @@ export default function SafeguardingTraining() {
   const [records, setRecords, loading] = useSupabase('safeguarding_records', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const showToast = useToast()
+  const { confirm, ConfirmDialog } = useConfirm()
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
@@ -108,13 +110,18 @@ export default function SafeguardingTraining() {
     setModalOpen(false)
   }
 
-  const handleDelete = (id) => {
-    if (window.confirm('Delete this safeguarding record?')) {
-      const record = records.find((r) => r.id === id)
-      setRecords(records.filter((r) => r.id !== id))
-      logAudit('Deleted', `Safeguarding: ${record?.staffName}`, 'Safeguarding', user?.name)
-      showToast('Record deleted', 'info')
-    }
+  const handleDelete = async (id) => {
+    const ok = await confirm({
+      title: 'Delete safeguarding record?',
+      message: 'Are you sure you want to delete this safeguarding record? This action cannot be undone.',
+      confirmLabel: 'Delete',
+      variant: 'danger',
+    })
+    if (!ok) return
+    const record = records.find((r) => r.id === id)
+    setRecords(records.filter((r) => r.id !== id))
+    logAudit('Deleted', `Safeguarding: ${record?.staffName}`, 'Safeguarding', user?.name)
+    showToast('Record deleted', 'info')
   }
 
   const update = (field) => (e) => setForm({ ...form, [field]: e.target.value })
@@ -409,6 +416,7 @@ export default function SafeguardingTraining() {
           </div>
         </form>
       </Modal>
+      {ConfirmDialog}
     </div>
   )
 }

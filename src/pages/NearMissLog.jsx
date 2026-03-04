@@ -7,6 +7,7 @@ import { useToast } from '../components/Toast'
 import { useUser } from '../contexts/UserContext'
 import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
+import { useConfirm } from '../components/ConfirmDialog'
 
 const CATEGORIES = [
   'Dispensing Error',
@@ -86,6 +87,7 @@ export default function NearMissLog() {
   })
   const showToast = useToast()
   const { user } = useUser()
+  const { confirm, ConfirmDialog } = useConfirm()
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
@@ -181,12 +183,17 @@ export default function NearMissLog() {
     setModalOpen(false)
   }
 
-  const handleDelete = (entry) => {
-    if (window.confirm('Are you sure you want to delete this near miss?')) {
-      setEntries(entries.filter((e) => e.id !== entry.id))
-      logAudit('Deleted near miss', entry.category, 'Near Misses', user?.name)
-      showToast('Near miss deleted', 'info')
-    }
+  const handleDelete = async (entry) => {
+    const ok = await confirm({
+      title: 'Delete near miss?',
+      message: 'Are you sure you want to delete this near miss? This action cannot be undone.',
+      confirmLabel: 'Delete',
+      variant: 'danger',
+    })
+    if (!ok) return
+    setEntries(entries.filter((e) => e.id !== entry.id))
+    logAudit('Deleted near miss', entry.category, 'Near Misses', user?.name)
+    showToast('Near miss deleted', 'info')
   }
 
   const update = (field) => (e) => setForm({ ...form, [field]: e.target.value })
@@ -646,6 +653,7 @@ export default function NearMissLog() {
           </div>
         </form>
       </Modal>
+      {ConfirmDialog}
     </div>
   )
 }

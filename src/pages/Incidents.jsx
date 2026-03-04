@@ -7,6 +7,7 @@ import { useToast } from '../components/Toast'
 import { useUser } from '../contexts/UserContext'
 import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
+import { useConfirm } from '../components/ConfirmDialog'
 
 const TYPES = ['Near Miss', 'Dispensing Error', 'Complaint', 'Other']
 const SEVERITIES = ['Low', 'Medium', 'High']
@@ -57,6 +58,7 @@ export default function Incidents() {
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const showToast = useToast()
   const { user } = useUser()
+  const { confirm, ConfirmDialog } = useConfirm()
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
@@ -130,12 +132,17 @@ export default function Incidents() {
     setModalOpen(false)
   }
 
-  const handleDelete = (inc) => {
-    if (window.confirm('Are you sure you want to delete this incident?')) {
-      setIncidents(incidents.filter((i) => i.id !== inc.id))
-      logAudit('Deleted incident', inc.type, 'Incidents', user?.name)
-      showToast('Incident deleted', 'info')
-    }
+  const handleDelete = async (inc) => {
+    const ok = await confirm({
+      title: 'Delete incident?',
+      message: 'Are you sure you want to delete this incident? This action cannot be undone.',
+      confirmLabel: 'Delete',
+      variant: 'danger',
+    })
+    if (!ok) return
+    setIncidents(incidents.filter((i) => i.id !== inc.id))
+    logAudit('Deleted incident', inc.type, 'Incidents', user?.name)
+    showToast('Incident deleted', 'info')
   }
 
   const update = (field) => (e) => setForm({ ...form, [field]: e.target.value })
@@ -415,6 +422,7 @@ export default function Incidents() {
           </div>
         </form>
       </Modal>
+      {ConfirmDialog}
     </div>
   )
 }

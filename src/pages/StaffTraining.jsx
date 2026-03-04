@@ -8,6 +8,7 @@ import { useToast } from '../components/Toast'
 import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
 import SwipeRow from '../components/SwipeRow'
+import { useConfirm } from '../components/ConfirmDialog'
 
 const STATUS_CYCLE = ['Pending', 'In Progress', 'Complete']
 
@@ -45,6 +46,7 @@ export default function StaffTraining() {
   const [entries, setEntries, loading] = useSupabase('staff_training', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const showToast = useToast()
+  const { confirm, ConfirmDialog } = useConfirm()
   const [filterStaff, setFilterStaff] = useState('')
   const [filterRole, setFilterRole] = useState('')
   const [filterStatus, setFilterStatus] = useState('')
@@ -161,13 +163,18 @@ export default function StaffTraining() {
     setModalOpen(false)
   }
 
-  const handleDelete = (id) => {
-    if (window.confirm('Delete this training item?')) {
-      const entry = entries.find((e) => e.id === id)
-      setEntries(entries.filter((e) => e.id !== id))
-      logAudit('Deleted', `Training: ${entry?.trainingItem} for ${entry?.staffName}`, 'Staff Training', user?.name)
-      showToast('Training item deleted', 'info')
-    }
+  const handleDelete = async (id) => {
+    const ok = await confirm({
+      title: 'Delete training item?',
+      message: 'Are you sure you want to delete this training item? This action cannot be undone.',
+      confirmLabel: 'Delete',
+      variant: 'danger',
+    })
+    if (!ok) return
+    const entry = entries.find((e) => e.id === id)
+    setEntries(entries.filter((e) => e.id !== id))
+    logAudit('Deleted', `Training: ${entry?.trainingItem} for ${entry?.staffName}`, 'Staff Training', user?.name)
+    showToast('Training item deleted', 'info')
   }
 
   const update = (field) => (e) => setForm({ ...form, [field]: e.target.value })
@@ -497,6 +504,7 @@ export default function StaffTraining() {
           </div>
         </form>
       </Modal>
+      {ConfirmDialog}
     </div>
   )
 }

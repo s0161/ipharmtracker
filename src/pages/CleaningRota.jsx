@@ -9,6 +9,7 @@ import { useToast } from '../components/Toast'
 import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
 import SwipeRow from '../components/SwipeRow'
+import { useConfirm } from '../components/ConfirmDialog'
 
 const emptyForm = {
   taskName: '',
@@ -28,6 +29,7 @@ export default function CleaningRota() {
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
   const [cleaningTasks] = useSupabase('cleaning_tasks', DEFAULT_CLEANING_TASKS)
   const showToast = useToast()
+  const { confirm, ConfirmDialog } = useConfirm()
   const [searchParams, setSearchParams] = useSearchParams()
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
@@ -117,13 +119,18 @@ export default function CleaningRota() {
     setModalOpen(false)
   }
 
-  const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this entry?')) {
-      const entry = entries.find((e) => e.id === id)
-      setEntries(entries.filter((e) => e.id !== id))
-      logAudit('Deleted', `Cleaning: ${entry?.taskName}`, 'Cleaning Rota', user?.name)
-      showToast('Entry deleted', 'info')
-    }
+  const handleDelete = async (id) => {
+    const ok = await confirm({
+      title: 'Delete entry?',
+      message: 'Are you sure you want to delete this cleaning entry? This action cannot be undone.',
+      confirmLabel: 'Delete',
+      variant: 'danger',
+    })
+    if (!ok) return
+    const entry = entries.find((e) => e.id === id)
+    setEntries(entries.filter((e) => e.id !== id))
+    logAudit('Deleted', `Cleaning: ${entry?.taskName}`, 'Cleaning Rota', user?.name)
+    showToast('Entry deleted', 'info')
   }
 
   const update = (field) => (e) => setForm({ ...form, [field]: e.target.value })
@@ -331,6 +338,7 @@ export default function CleaningRota() {
           </div>
         </form>
       </Modal>
+      {ConfirmDialog}
     </div>
   )
 }
