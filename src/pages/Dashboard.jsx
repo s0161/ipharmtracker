@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useSupabase } from '../hooks/useSupabase'
 import {
   getTrafficLight,
@@ -275,8 +275,12 @@ export default function Dashboard() {
     const n = []
     if (prefs.cleaningOverdue !== false && cleaningScore === 0) n.push({ id: 'n1', type: 'critical', title: 'Cleaning at 0%', desc: `${overdueCleaningTasks.length} cleaning tasks are overdue`, time: '2h ago', read: false })
     if (prefs.temperatureMissing !== false && !tempLoggedToday) n.push({ id: 'n2', type: 'warning', title: 'Temperature log due', desc: 'Fridge temp not recorded today', time: '3h ago', read: false })
-    // GPhC notification always shown (not a preference category)
-    n.push({ id: 'n3', type: 'warning', title: 'GPhC inspection due', desc: 'Last inspection was 14 months ago', time: '1d ago', read: false })
+    // GPhC notification — dynamic from pharmacy config
+    if (pharmacyConfig.lastInspectionDate) {
+      const inspDate = new Date(pharmacyConfig.lastInspectionDate)
+      const monthsAgo = Math.floor((Date.now() - inspDate.getTime()) / (30.44 * 24 * 60 * 60 * 1000))
+      if (monthsAgo >= 12) n.push({ id: 'n3', type: 'warning', title: 'GPhC inspection due', desc: `Last inspection was ${monthsAgo} months ago`, time: '1d ago', read: false })
+    }
     if (prefs.trainingOverdue !== false && staffScore === 100) n.push({ id: 'n4', type: 'info', title: 'Training complete', desc: 'Safeguarding training 100% across all staff', time: '2d ago', read: true })
     if (prefs.documentExpiry !== false && docScore === 100) n.push({ id: 'n5', type: 'info', title: 'Documents updated', desc: 'All pharmacy documents are now current', time: '3d ago', read: true })
     // Document expiry reminders
@@ -289,7 +293,7 @@ export default function Dashboard() {
   // RP sessions (from rpLogs)
   const sessions = useMemo(() => {
     if (!todayRp?.sessions?.length) {
-      return [{ start: '09:02', end: 'ongoing', name: rpAssignee, dur: null }]
+      return []
     }
     return todayRp.sessions.map(s => ({
       start: s.signInAt ? new Date(s.signInAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '—',
@@ -648,6 +652,47 @@ export default function Dashboard() {
           onHoverCard={setHovCard}
         />
       </div>
+
+      {/* ═══ ANALYTICS SUMMARY ═══ */}
+      {scoreHistoryEntries.length >= 2 && (
+        <Link
+          to="/analytics"
+          className="ec-fadeup mt-5 flex items-center gap-4 px-5 py-3.5 rounded-xl no-underline transition-all hover:translate-y-[-2px]"
+          style={{
+            backgroundColor: 'var(--ec-card)',
+            border: '1px solid var(--ec-border)',
+            animationDelay: '0.35s',
+          }}
+        >
+          <div className="flex-1 min-w-0">
+            <div className="text-[11px] font-bold text-ec-t3 uppercase tracking-[1px] mb-1">Compliance Trend</div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-lg font-extrabold" style={{ color: overallScore >= 80 ? 'var(--ec-em)' : overallScore >= 50 ? 'var(--ec-warn)' : 'var(--ec-crit)' }}>{overallScore}%</span>
+              <span className="text-[11px] text-ec-t3">overall · {scoreHistoryEntries.length} day history</span>
+            </div>
+          </div>
+          {/* Mini sparkline */}
+          <svg viewBox="0 0 80 24" width="80" height="24" className="flex-shrink-0">
+            <polyline
+              fill="none"
+              stroke="var(--ec-em)"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              points={scoreHistoryEntries.slice(-7).map(([, v], i, arr) => {
+                const avg = ((v?.documents || 0) + (v?.training || 0) + (v?.cleaning || 0) + (v?.safeguarding || 0)) / 4
+                const x = arr.length > 1 ? (i / (arr.length - 1)) * 76 + 2 : 40
+                const y = 22 - (avg / 100) * 20
+                return `${x},${y}`
+              }).join(' ')}
+            />
+          </svg>
+          <div className="text-[11px] text-ec-t3 flex items-center gap-1">
+            View Analytics
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
+          </div>
+        </Link>
+      )}
 
       {/* ═══ ALERT BANNER ═══ */}
       <AlertBanner alerts={criticalAlerts} />
