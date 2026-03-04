@@ -12,6 +12,7 @@ import Settings from './pages/Settings'
 import TemperatureLog from './pages/TemperatureLog'
 import MyTasks from './pages/MyTasks'
 import Incidents from './pages/Incidents'
+import AuditLog from './pages/AuditLog'
 import NearMissLog from './pages/NearMissLog'
 import Login, { isAuthenticated } from './pages/Login'
 import PinSelect from './pages/PinSelect'
@@ -40,6 +41,7 @@ function AuthedApp() {
         <Route path="/incidents" element={<Incidents />} />
         <Route path="/near-misses" element={<NearMissLog />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/audit-log" element={<AuditLog />} />
       </Routes>
     </Layout>
   )

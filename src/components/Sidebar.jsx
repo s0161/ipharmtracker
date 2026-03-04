@@ -24,6 +24,7 @@ function NI({ name, color }) {
     gear: <><circle cx="8" cy="8" r="2.5" {...p} /><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4" {...p} /></>,
     sun: <><circle cx="8" cy="8" r="3" {...p} /><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.2 3.2l1.4 1.4M11.4 11.4l1.4 1.4M3.2 12.8l1.4-1.4M11.4 4.6l1.4-1.4" {...p} /></>,
     moon: <path d="M12 3a6 6 0 1 0 0 10A5 5 0 0 1 12 3z" {...p} />,
+    log: <><path d="M3 3h10a2 2 0 012 2v10a2 2 0 01-2 2H3V3z" {...p} /><path d="M6 7h4M6 10h6" {...p} /></>,
   }
   return <svg width="16" height="16" viewBox="0 0 16 16" fill="none">{m[name]}</svg>
 }
@@ -59,6 +60,7 @@ const sections = [
     label: 'SYSTEM',
     items: [
       { to: '/settings', label: 'Settings', icon: 'gear' },
+      { to: '/audit-log', label: 'Audit Log', icon: 'log' },
     ],
   },
 ]
