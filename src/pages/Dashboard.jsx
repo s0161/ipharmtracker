@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
 import {
   getTrafficLight,
@@ -21,11 +20,13 @@ import {
   Confetti,
   NotificationBell,
   RPPresenceBar,
-  ShiftChecklist,
   ComplianceHealth,
   AccPanel,
   TodoSection,
   FloatingActionButton,
+  DailyProgressBar,
+  ComplianceHeatmap,
+  RPTimeline,
 } from '../components/dashboard'
 
 // RP checklist items
@@ -54,7 +55,6 @@ function getGreeting() {
 }
 
 export default function Dashboard() {
-  const navigate = useNavigate()
   const showToast = useToast()
   const { user } = useUser()
   const [pharmacyConfig] = usePharmacyConfig()
@@ -74,7 +74,6 @@ export default function Dashboard() {
 
   // ─── LOCAL STATE ───
   const [mob, setMob] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [rpSignedIn, setRpSignedIn] = useState(false)
   const [liveTime, setLiveTime] = useState('')
   const [liveDate, setLiveDate] = useState('')
@@ -243,11 +242,44 @@ export default function Dashboard() {
     } catch (e) { console.warn('Score history write failed:', e) }
   }, [docsLoading, docScore, staffScore, cleaningScore, sgScore])
 
+  // Drill-down data for compliance tiles
+  const docDrilldown = documents
+    .filter(d => getTrafficLight(d.expiryDate) !== 'green')
+    .map(d => ({
+      name: d.name || d.title || 'Document',
+      detail: d.expiryDate ? new Date(d.expiryDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '',
+      severity: getTrafficLight(d.expiryDate) === 'red' ? 'red' : 'amber',
+    }))
+
+  const trainingDrilldown = staffTraining
+    .filter(e => e.status !== 'Complete')
+    .map(e => ({
+      name: `${e.staffName || 'Staff'} — ${e.topic || 'Topic'}`,
+      detail: e.status || 'Pending',
+      severity: 'amber',
+    }))
+
+  const cleaningDrilldown = taskStatuses
+    .filter(t => t.status === 'overdue')
+    .map(t => ({
+      name: t.name,
+      detail: 'Overdue',
+      severity: 'red',
+    }))
+
+  const sgDrilldown = safeguarding
+    .filter(r => getSafeguardingStatus(r.trainingDate) !== 'current')
+    .map(r => ({
+      name: r.staffName || 'Staff member',
+      detail: r.trainingDate ? new Date(r.trainingDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'No date',
+      severity: getSafeguardingStatus(r.trainingDate) === 'expired' ? 'red' : 'amber',
+    }))
+
   const complianceAreas = [
-    { label: 'DOCUMENTS', pct: docScore, detail: docScore === 100 ? 'All current' : `${documents.length - greenCount} expiring`, trend: getTrend('Documents', docScore), trendVal: getTrendVal('Documents', docScore), data: getSparklineData('Documents'), color: docScore >= 80 ? '#10b981' : docScore >= 50 ? '#f59e0b' : '#ef4444' },
-    { label: 'TRAINING', pct: staffScore, detail: staffScore === 100 ? 'All complete' : `${staffTraining.filter(e => e.status !== 'Complete').length} incomplete`, trend: getTrend('Training', staffScore), trendVal: getTrendVal('Training', staffScore), data: getSparklineData('Training'), color: staffScore >= 80 ? '#10b981' : staffScore >= 50 ? '#f59e0b' : '#ef4444' },
-    { label: 'CLEANING', pct: cleaningScore, detail: cleaningScore === 100 ? 'All clear' : `${taskStatuses.filter(t => t.status === 'overdue').length} overdue`, trend: getTrend('Cleaning', cleaningScore), trendVal: getTrendVal('Cleaning', cleaningScore), data: getSparklineData('Cleaning'), color: cleaningScore >= 80 ? '#10b981' : cleaningScore >= 50 ? '#f59e0b' : '#ef4444', alert: cleaningScore < 25 },
-    { label: 'SAFEGUARDING', pct: sgScore, detail: sgScore === 100 ? 'All current' : `${safeguarding.length - sgCurrent} due`, trend: getTrend('Safeguarding', sgScore), trendVal: getTrendVal('Safeguarding', sgScore), data: getSparklineData('Safeguarding'), color: sgScore >= 80 ? '#10b981' : sgScore >= 50 ? '#f59e0b' : '#ef4444' },
+    { label: 'DOCUMENTS', pct: docScore, detail: docScore === 100 ? 'All current' : `${documents.length - greenCount} expiring`, trend: getTrend('Documents', docScore), trendVal: getTrendVal('Documents', docScore), data: getSparklineData('Documents'), color: docScore >= 80 ? '#10b981' : docScore >= 50 ? '#f59e0b' : '#ef4444', current: greenCount, total: documents.length, drilldown: docDrilldown },
+    { label: 'TRAINING', pct: staffScore, detail: staffScore === 100 ? 'All complete' : `${staffTraining.filter(e => e.status !== 'Complete').length} incomplete`, trend: getTrend('Training', staffScore), trendVal: getTrendVal('Training', staffScore), data: getSparklineData('Training'), color: staffScore >= 80 ? '#10b981' : staffScore >= 50 ? '#f59e0b' : '#ef4444', current: staffTraining.filter(e => e.status === 'Complete').length, total: staffTraining.length, drilldown: trainingDrilldown },
+    { label: 'CLEANING', pct: cleaningScore, detail: cleaningScore === 100 ? 'All clear' : `${taskStatuses.filter(t => t.status === 'overdue').length} overdue`, trend: getTrend('Cleaning', cleaningScore), trendVal: getTrendVal('Cleaning', cleaningScore), data: getSparklineData('Cleaning'), color: cleaningScore >= 80 ? '#10b981' : cleaningScore >= 50 ? '#f59e0b' : '#ef4444', alert: cleaningScore < 25, current: cleaningUpToDate, total: taskStatuses.length, drilldown: cleaningDrilldown },
+    { label: 'SAFEGUARDING', pct: sgScore, detail: sgScore === 100 ? 'All current' : `${safeguarding.length - sgCurrent} due`, trend: getTrend('Safeguarding', sgScore), trendVal: getTrendVal('Safeguarding', sgScore), data: getSparklineData('Safeguarding'), color: sgScore >= 80 ? '#10b981' : sgScore >= 50 ? '#f59e0b' : '#ef4444', current: sgCurrent, total: safeguarding.length, drilldown: sgDrilldown },
   ]
 
   // Critical alerts
@@ -557,17 +589,7 @@ export default function Dashboard() {
       <div
         className={`ec-fadeup flex ${mob ? 'flex-col' : 'items-center'} justify-between gap-4 pt-7 pb-5`}
       >
-        <div className="flex items-center gap-3">
-          {mob && (
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="bg-transparent border-none text-ec-t3 cursor-pointer p-1 flex flex-col gap-[3.5px] lg:hidden"
-            >
-              <div className="w-[18px] h-[1.5px] bg-current rounded-sm" />
-              <div className="w-[18px] h-[1.5px] bg-current rounded-sm" />
-              <div className="w-[13px] h-[1.5px] bg-current rounded-sm" />
-            </button>
-          )}
+        <div>
           <div>
             <div className="text-[28px] font-extrabold text-ec-t1 leading-tight tracking-tight">
               {getGreeting()}, {firstName}
@@ -579,7 +601,7 @@ export default function Dashboard() {
         </div>
 
         <div className={`flex items-center gap-4 ${mob ? 'w-full justify-between' : ''}`}>
-          <ProgressRing pct={overallScore} size={52} delay={200} />
+          <DailyProgressBar done={todayChecked} total={todayTasks.length} />
           <div className="w-px h-7 bg-ec-div" />
 
           {/* Overdue stat */}
@@ -638,71 +660,34 @@ export default function Dashboard() {
         mob={mob}
       />
 
-      {/* ═══ ZONE 2: TWO-COLUMN STRIP ═══ */}
+      {/* ═══ ZONE 2: COMPLIANCE + HEATMAP ═══ */}
       <div className={`flex gap-4 mt-5 ${mob ? 'flex-col' : ''}`}>
-        <ShiftChecklist
-          todayTasks={todayTasks}
-          checked={checked}
-          onToggleCheck={toggleCheck}
-          justChecked={justChecked}
-          rpSubChecks={rpSubChecks}
-          onToggleRpSub={toggleRpSub}
-          expandedNote={expandedNote}
-          onToggleNote={toggleNote}
-          expandedSubchecks={expandedSubchecks}
-          onToggleSubchecks={toggleSubchecks}
-          hovCard={hovCard}
-          onHoverCard={setHovCard}
-          streakDays={streakDays}
-        />
         <ComplianceHealth
           areas={complianceAreas}
           overallScore={overallScore}
           hovCard={hovCard}
           onHoverCard={setHovCard}
         />
-      </div>
-
-      {/* ═══ ANALYTICS SUMMARY ═══ */}
-      {scoreHistoryEntries.length >= 2 && (
-        <Link
-          to="/analytics"
-          className="ec-fadeup mt-5 flex items-center gap-4 px-5 py-3.5 rounded-xl no-underline transition-all hover:translate-y-[-2px]"
+        <div
+          className="ec-fadeup rounded-2xl p-5 w-full md:w-[40%] flex-shrink-0"
           style={{
+            minWidth: 0,
             backgroundColor: 'var(--ec-card)',
             border: '1px solid var(--ec-border)',
-            animationDelay: '0.35s',
+            borderRadius: 16,
+            boxShadow: 'var(--shadow)',
+            animationDelay: '0.3s',
           }}
         >
-          <div className="flex-1 min-w-0">
-            <div className="text-[11px] font-bold text-ec-t3 uppercase tracking-[1px] mb-1">Compliance Trend</div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-lg font-extrabold" style={{ color: overallScore >= 80 ? 'var(--ec-em)' : overallScore >= 50 ? 'var(--ec-warn)' : 'var(--ec-crit)' }}>{overallScore}%</span>
-              <span className="text-[11px] text-ec-t3">overall · {scoreHistoryEntries.length} day history</span>
-            </div>
-          </div>
-          {/* Mini sparkline */}
-          <svg viewBox="0 0 80 24" width="80" height="24" className="flex-shrink-0">
-            <polyline
-              fill="none"
-              stroke="var(--ec-em)"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              points={scoreHistoryEntries.slice(-7).map(([, v], i, arr) => {
-                const avg = ((v?.documents || 0) + (v?.training || 0) + (v?.cleaning || 0) + (v?.safeguarding || 0)) / 4
-                const x = arr.length > 1 ? (i / (arr.length - 1)) * 76 + 2 : 40
-                const y = 22 - (avg / 100) * 20
-                return `${x},${y}`
-              }).join(' ')}
-            />
-          </svg>
-          <div className="text-[11px] text-ec-t3 flex items-center gap-1">
-            View Analytics
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
-          </div>
-        </Link>
-      )}
+          <ComplianceHeatmap
+            scoreHistory={scoreHistoryEntries}
+            todayScore={overallScore}
+          />
+        </div>
+      </div>
+
+      {/* ═══ RP TIMELINE ═══ */}
+      <RPTimeline sessions={sessions} rpName={rpAssignee} />
 
       {/* ═══ ALERT BANNER ═══ */}
       <AlertBanner alerts={criticalAlerts} />
@@ -724,6 +709,7 @@ export default function Dashboard() {
             rpSubChecks={rpSubChecks} onToggleRpSub={toggleRpSub}
             expandedNote={expandedNote} onToggleNote={toggleNote}
             expandedSubchecks={expandedSubchecks} onToggleSubchecks={toggleSubchecks}
+            streakDays={streakDays}
           />
           <AccPanel
             id="weekly" title="Weekly" tasks={weeklyTasks}

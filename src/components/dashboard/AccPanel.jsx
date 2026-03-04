@@ -23,15 +23,43 @@ const MiniBar = ({ done, total }) => (
   </div>
 )
 
+const TaskGroup = ({ tasks, checked, onToggleCheck, justChecked, rpSubChecks, onToggleRpSub, expandedNote, onToggleNote, expandedSubchecks, onToggleSubchecks }) => (
+  <>
+    {tasks.map(t => (
+      <TaskRow
+        key={t.id}
+        task={{ ...t, tag: t.tag || 'Cleaning' }}
+        isChecked={checked.has(t.id)}
+        onToggle={() => onToggleCheck(t.id)}
+        justChecked={justChecked}
+        rpSubChecks={rpSubChecks}
+        onToggleRpSub={onToggleRpSub}
+        expandedNote={expandedNote}
+        onToggleNote={onToggleNote}
+        expandedSubchecks={expandedSubchecks}
+        onToggleSubchecks={onToggleSubchecks}
+        showTag={!!t.tag}
+      />
+    ))}
+  </>
+)
+
 export default function AccPanel({
   id, title, tasks, isToday, open, onToggle,
   checked, onToggleCheck, justChecked,
   rpSubChecks, onToggleRpSub,
   expandedNote, onToggleNote,
   expandedSubchecks, onToggleSubchecks,
+  streakDays,
 }) {
   const total = tasks.length
   const done = tasks.filter(t => checked.has(t.id)).length
+
+  // Split for Today variant
+  const timeSensitive = isToday ? tasks.filter(t => t.time) : []
+  const anytime = isToday ? tasks.filter(t => !t.time) : []
+
+  const sharedProps = { checked, onToggleCheck, justChecked, rpSubChecks, onToggleRpSub, expandedNote, onToggleNote, expandedSubchecks, onToggleSubchecks }
 
   return (
     <div
@@ -77,22 +105,42 @@ export default function AccPanel({
         }}
       >
         <div className="border-t border-ec-div px-3 pt-1.5 pb-3">
-          {tasks.map(t => (
-            <TaskRow
-              key={t.id}
-              task={{ ...t, tag: t.tag || 'Cleaning' }}
-              isChecked={checked.has(t.id)}
-              onToggle={() => onToggleCheck(t.id)}
-              justChecked={justChecked}
-              rpSubChecks={rpSubChecks}
-              onToggleRpSub={onToggleRpSub}
-              expandedNote={expandedNote}
-              onToggleNote={onToggleNote}
-              expandedSubchecks={expandedSubchecks}
-              onToggleSubchecks={onToggleSubchecks}
-              showTag={!!t.tag}
-            />
-          ))}
+          {isToday ? (
+            <>
+              {/* TIME-SENSITIVE group */}
+              {timeSensitive.length > 0 && (
+                <>
+                  <div className="flex items-center gap-1.5 mb-1.5 mt-1 text-[9px] font-bold text-ec-crit tracking-[1.2px] uppercase">
+                    <div className="w-1 h-1 rounded-full bg-ec-crit" />
+                    TIME-SENSITIVE
+                  </div>
+                  <TaskGroup tasks={timeSensitive} {...sharedProps} />
+                  <div className="h-px bg-ec-div my-2" />
+                </>
+              )}
+
+              {/* ANYTIME group */}
+              {anytime.length > 0 && (
+                <>
+                  <div className="flex items-center gap-1.5 mb-1.5 text-[9px] font-bold text-ec-t3 tracking-[1.2px] uppercase">
+                    <div className="w-1 h-1 rounded-full bg-ec-t3" />
+                    ANYTIME
+                  </div>
+                  <TaskGroup tasks={anytime} {...sharedProps} />
+                </>
+              )}
+
+              {/* Streak footer */}
+              {streakDays !== undefined && (
+                <div className="mt-3 pt-2.5 border-t border-ec-div text-[11px] text-ec-t4 flex items-center gap-1">
+                  <span className="text-sm">🔥</span> {streakDays || 0} days fully completed
+                </div>
+              )}
+            </>
+          ) : (
+            /* Non-today: flat list (unchanged) */
+            <TaskGroup tasks={tasks} {...sharedProps} />
+          )}
         </div>
       </div>
     </div>
