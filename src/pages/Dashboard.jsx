@@ -24,6 +24,7 @@ import {
   ComplianceHealth,
   AccPanel,
   TodoSection,
+  FloatingActionButton,
 } from '../components/dashboard'
 
 // RP checklist items
@@ -712,6 +713,18 @@ export default function Dashboard() {
       >
         <span className="text-[11px] text-ec-t5 tracking-wide">Compliance Tracker v4.0 · {pharmacyConfig.pharmacyName || 'iPharmacy Direct'}</span>
       </div>
+
+      {/* ═══ FAB ═══ */}
+      <FloatingActionButton
+        keys={keys}
+        rpSignedIn={rpSignedIn}
+        onKeyPress={handleKeyPress}
+        onRpToggle={handleRpToggle}
+        showFridge={showFridge}
+        fridgeVal={fridgeVal}
+        onFridgeChange={setFridgeVal}
+        onFridgeSubmit={submitFridge}
+      />
 
       {/* SCROLL FADE */}
       <div
