@@ -16,6 +16,8 @@ import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
 import SwipeRow from '../components/SwipeRow'
 import { useConfirm } from '../components/ConfirmDialog'
+import EmptyState from '../components/EmptyState'
+import SkeletonLoader from '../components/SkeletonLoader'
 
 const emptyForm = {
   documentName: '',
@@ -42,9 +44,10 @@ export default function DocumentTracker() {
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
   const [filterCategory, setFilterCategory] = useState('')
+  const [errors, setErrors] = useState({})
 
   if (loading) {
-    return <div className="flex items-center justify-center py-20 text-sm text-ec-t3">Loading…</div>
+    return <div className="py-4"><SkeletonLoader variant="table" /></div>
   }
 
   // Deduplicate by document name (keep most recent by createdAt)
@@ -70,6 +73,7 @@ export default function DocumentTracker() {
   const openAdd = () => {
     setForm(emptyForm)
     setEditingId(null)
+    setErrors({})
     setModalOpen(true)
   }
 
@@ -83,12 +87,22 @@ export default function DocumentTracker() {
       notes: doc.notes,
     })
     setEditingId(doc.id)
+    setErrors({})
     setModalOpen(true)
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (!form.documentName || !form.category) return
+
+    const newErrors = {}
+    if (!form.documentName.trim()) newErrors.documentName = 'Document name is required'
+    if (!form.category) newErrors.category = 'Category is required'
+    if (!form.expiryDate) newErrors.expiryDate = 'Expiry date is required'
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
+      return
+    }
+    setErrors({})
 
     if (editingId) {
       setDocuments(
@@ -211,13 +225,17 @@ export default function DocumentTracker() {
       </div>
 
       {sorted.length === 0 ? (
-        <div className="text-center py-10 text-ec-t3 text-sm">
-          <p>
-            {filterCategory
-              ? `No documents in "${filterCategory}" category.`
-              : 'No documents yet. Add your first document to get started.'}
-          </p>
-        </div>
+        filterCategory ? (
+          <div className="text-center py-10 text-ec-t3 text-sm">
+            No documents in &ldquo;{filterCategory}&rdquo; category.
+          </div>
+        ) : (
+          <EmptyState
+            icon={<svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>}
+            title="No documents tracked"
+            description="Add pharmacy documents to track their expiry dates and maintain compliance."
+          />
+        )
       ) : (
         <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--ec-border)' }}>
           <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
@@ -225,7 +243,7 @@ export default function DocumentTracker() {
               <tr>
                 <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Status</th>
                 <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Document Name</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Category</th>
+                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Category</th>
                 <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Owner</th>
                 <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Issue Date</th>
                 <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Expiry / Review</th>
@@ -249,7 +267,7 @@ export default function DocumentTracker() {
                       </span>
                     </td>
                     <td className="px-4 py-2.5 text-ec-t1 font-medium border-b border-ec-div">{doc.documentName}</td>
-                    <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">
+                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-ec-div">
                       <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-ec-border text-ec-t2">{doc.category}</span>
                     </td>
                     <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-ec-div">{doc.owner || '—'}</td>
@@ -290,20 +308,21 @@ export default function DocumentTracker() {
             <label className="text-xs font-semibold text-ec-t2 mb-1 block">Document Name *</label>
             <input
               type="text"
-              className={inputClass}
+              className={`${inputClass} ${errors.documentName ? 'border-ec-crit focus:border-ec-crit focus:ring-ec-crit/20' : ''}`}
               placeholder="e.g. GPhC Registration"
               value={form.documentName}
-              onChange={update('documentName')}
+              onChange={(e) => { update('documentName')(e); setErrors((prev) => ({ ...prev, documentName: undefined })) }}
               required
             />
+            {errors.documentName && <p className="text-xs text-ec-crit-light mt-1">{errors.documentName}</p>}
           </div>
 
           <div>
             <label className="text-xs font-semibold text-ec-t2 mb-1 block">Category *</label>
             <select
-              className={inputClass}
+              className={`${inputClass} ${errors.category ? 'border-ec-crit focus:border-ec-crit focus:ring-ec-crit/20' : ''}`}
               value={form.category}
-              onChange={update('category')}
+              onChange={(e) => { update('category')(e); setErrors((prev) => ({ ...prev, category: undefined })) }}
               required
             >
               <option value="">Select category...</option>
@@ -313,6 +332,7 @@ export default function DocumentTracker() {
                 </option>
               ))}
             </select>
+            {errors.category && <p className="text-xs text-ec-crit-light mt-1">{errors.category}</p>}
           </div>
 
           <div>
@@ -352,16 +372,15 @@ export default function DocumentTracker() {
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-ec-t2 mb-1 block">Expiry / Review Date</label>
+              <label className="text-xs font-semibold text-ec-t2 mb-1 block">Expiry / Review Date *</label>
               <input
                 type="date"
-                className={inputClass}
+                className={`${inputClass} ${errors.expiryDate ? 'border-ec-crit focus:border-ec-crit focus:ring-ec-crit/20' : ''}`}
                 value={form.expiryDate}
-                onChange={update('expiryDate')}
+                onChange={(e) => { update('expiryDate')(e); setErrors((prev) => ({ ...prev, expiryDate: undefined })) }}
+                required
               />
-              <p className="text-xs text-ec-t3 mt-1">
-                Leave blank to flag as red (no date set).
-              </p>
+              {errors.expiryDate && <p className="text-xs text-ec-crit-light mt-1">{errors.expiryDate}</p>}
             </div>
           </div>
 

@@ -8,6 +8,8 @@ import { useUser } from '../contexts/UserContext'
 import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
 import { useConfirm } from '../components/ConfirmDialog'
+import EmptyState from '../components/EmptyState'
+import SkeletonLoader from '../components/SkeletonLoader'
 
 const TYPES = ['Near Miss', 'Dispensing Error', 'Complaint', 'Other']
 const SEVERITIES = ['Low', 'Medium', 'High']
@@ -22,6 +24,9 @@ const emptyForm = {
 
 const inputClass =
   'w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans'
+
+const inputErrorClass =
+  'w-full bg-ec-card border border-red-500 rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-500/20 transition-colors font-sans'
 
 const severityBadge = (sev) => {
   const cls =
@@ -65,34 +70,12 @@ export default function Incidents() {
   const [filterType, setFilterType] = useState('')
   const [filterSeverity, setFilterSeverity] = useState('')
   const [search, setSearch] = useState('')
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20 text-sm text-ec-t3">
-        Loading...
-      </div>
-    )
-  }
-
-  const filtered = incidents.filter((inc) => {
-    if (filterType && inc.type !== filterType) return false
-    if (filterSeverity && inc.severity !== filterSeverity) return false
-    if (search) {
-      const q = search.toLowerCase()
-      const matchDesc = (inc.description || '').toLowerCase().includes(q)
-      const matchReported = (inc.reportedBy || '').toLowerCase().includes(q)
-      if (!matchDesc && !matchReported) return false
-    }
-    return true
-  })
-
-  const sorted = [...filtered].sort(
-    (a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date)
-  )
+  const [formErrors, setFormErrors] = useState({})
 
   const openAdd = () => {
     setForm(emptyForm)
     setEditingId(null)
+    setFormErrors({})
     setModalOpen(true)
   }
 
@@ -106,12 +89,20 @@ export default function Incidents() {
       actionTaken: inc.actionTaken || '',
     })
     setEditingId(inc.id)
+    setFormErrors({})
     setModalOpen(true)
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (!form.type || !form.description) return
+    const errors = {}
+    if (!form.type) errors.type = 'Type is required'
+    if (!form.description) errors.description = 'Description is required'
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors)
+      return
+    }
+    setFormErrors({})
 
     if (editingId) {
       setIncidents(
@@ -145,7 +136,12 @@ export default function Incidents() {
     showToast('Incident deleted', 'info')
   }
 
-  const update = (field) => (e) => setForm({ ...form, [field]: e.target.value })
+  const update = (field) => (e) => {
+    setForm({ ...form, [field]: e.target.value })
+    if (formErrors[field]) {
+      setFormErrors({ ...formErrors, [field]: undefined })
+    }
+  }
 
   const handleCsvDownload = () => {
     const headers = [
@@ -165,6 +161,190 @@ export default function Incidents() {
       inc.actionTaken || '',
     ])
     downloadCsv('incidents', headers, rows)
+  }
+
+  const renderForm = () => (
+    <form className="space-y-4" onSubmit={handleSubmit}>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="text-xs font-semibold text-ec-t2 mb-1 block">
+            Type *
+          </label>
+          <select
+            className={formErrors.type ? inputErrorClass : inputClass}
+            value={form.type}
+            onChange={update('type')}
+            required
+          >
+            <option value="">Select type...</option>
+            {TYPES.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
+          {formErrors.type && (
+            <p className="text-xs text-red-500 mt-1">{formErrors.type}</p>
+          )}
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-ec-t2 mb-1 block">
+            Date *
+          </label>
+          <input
+            type="date"
+            className={inputClass}
+            value={form.date}
+            onChange={update('date')}
+            required
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="text-xs font-semibold text-ec-t2 mb-1 block">
+            Severity *
+          </label>
+          <select
+            className={inputClass}
+            value={form.severity}
+            onChange={update('severity')}
+            required
+          >
+            {SEVERITIES.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-ec-t2 mb-1 block">
+            Reported By
+          </label>
+          {staffMembers.length === 0 ? (
+            <input
+              type="text"
+              className={inputClass}
+              placeholder="Enter name"
+              value={form.reportedBy}
+              onChange={update('reportedBy')}
+            />
+          ) : (
+            <select
+              className={inputClass}
+              value={form.reportedBy}
+              onChange={update('reportedBy')}
+            >
+              <option value="">Select person...</option>
+              {staffMembers.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+      </div>
+
+      <div>
+        <label className="text-xs font-semibold text-ec-t2 mb-1 block">
+          Description *
+        </label>
+        <textarea
+          className={(formErrors.description ? inputErrorClass : inputClass) + ' resize-none'}
+          placeholder="Describe the incident..."
+          value={form.description}
+          onChange={update('description')}
+          rows={3}
+          required
+        />
+        {formErrors.description && (
+          <p className="text-xs text-red-500 mt-1">{formErrors.description}</p>
+        )}
+      </div>
+
+      <div>
+        <label className="text-xs font-semibold text-ec-t2 mb-1 block">
+          Action Taken
+        </label>
+        <textarea
+          className={inputClass + ' resize-none'}
+          placeholder="What action was taken?"
+          value={form.actionTaken}
+          onChange={update('actionTaken')}
+          rows={3}
+        />
+      </div>
+
+      <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-ec-div">
+        <button
+          type="button"
+          className="px-4 py-2 bg-ec-card-hover text-ec-t2 rounded-lg text-sm border border-ec-border cursor-pointer hover:bg-ec-t5 transition-colors font-sans"
+          onClick={() => setModalOpen(false)}
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors font-sans"
+        >
+          {editingId ? 'Save Changes' : 'Record Incident'}
+        </button>
+      </div>
+    </form>
+  )
+
+  if (loading) {
+    return <SkeletonLoader variant="table" />
+  }
+
+  const filtered = incidents.filter((inc) => {
+    if (filterType && inc.type !== filterType) return false
+    if (filterSeverity && inc.severity !== filterSeverity) return false
+    if (search) {
+      const q = search.toLowerCase()
+      const matchDesc = (inc.description || '').toLowerCase().includes(q)
+      const matchReported = (inc.reportedBy || '').toLowerCase().includes(q)
+      if (!matchDesc && !matchReported) return false
+    }
+    return true
+  })
+
+  const sorted = [...filtered].sort(
+    (a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date)
+  )
+
+  if (incidents.length === 0) {
+    return (
+      <div>
+        <p className="text-sm text-ec-t3 mb-2">
+          Record and track pharmacy incidents, complaints, and near misses.
+        </p>
+        <div className="flex items-center gap-2 flex-wrap mb-4">
+          <button
+            className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors flex items-center gap-1.5 font-sans"
+            onClick={openAdd}
+          >
+            + Add Incident
+          </button>
+        </div>
+        <EmptyState
+          icon={<svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>}
+          title="No incidents recorded"
+          description="Incidents will appear here once logged. Use the button above to record one."
+        />
+        <Modal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          title="Record Incident"
+        >
+          {renderForm()}
+        </Modal>
+        {ConfirmDialog}
+      </div>
+    )
   }
 
   return (
@@ -216,7 +396,7 @@ export default function Incidents() {
 
       {sorted.length === 0 ? (
         <div className="text-center py-10 text-ec-t3 text-sm">
-          <p>No incidents recorded.</p>
+          <p>No incidents match the current filters.</p>
         </div>
       ) : (
         <div
@@ -297,130 +477,7 @@ export default function Incidents() {
         onClose={() => setModalOpen(false)}
         title={editingId ? 'Edit Incident' : 'Record Incident'}
       >
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-semibold text-ec-t2 mb-1 block">
-                Type *
-              </label>
-              <select
-                className={inputClass}
-                value={form.type}
-                onChange={update('type')}
-                required
-              >
-                <option value="">Select type...</option>
-                {TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-ec-t2 mb-1 block">
-                Date *
-              </label>
-              <input
-                type="date"
-                className={inputClass}
-                value={form.date}
-                onChange={update('date')}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-semibold text-ec-t2 mb-1 block">
-                Severity *
-              </label>
-              <select
-                className={inputClass}
-                value={form.severity}
-                onChange={update('severity')}
-                required
-              >
-                {SEVERITIES.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-ec-t2 mb-1 block">
-                Reported By
-              </label>
-              {staffMembers.length === 0 ? (
-                <input
-                  type="text"
-                  className={inputClass}
-                  placeholder="Enter name"
-                  value={form.reportedBy}
-                  onChange={update('reportedBy')}
-                />
-              ) : (
-                <select
-                  className={inputClass}
-                  value={form.reportedBy}
-                  onChange={update('reportedBy')}
-                >
-                  <option value="">Select person...</option>
-                  {staffMembers.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-ec-t2 mb-1 block">
-              Description *
-            </label>
-            <textarea
-              className={inputClass + ' resize-none'}
-              placeholder="Describe the incident..."
-              value={form.description}
-              onChange={update('description')}
-              rows={3}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-ec-t2 mb-1 block">
-              Action Taken
-            </label>
-            <textarea
-              className={inputClass + ' resize-none'}
-              placeholder="What action was taken?"
-              value={form.actionTaken}
-              onChange={update('actionTaken')}
-              rows={3}
-            />
-          </div>
-
-          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-ec-div">
-            <button
-              type="button"
-              className="px-4 py-2 bg-ec-card-hover text-ec-t2 rounded-lg text-sm border border-ec-border cursor-pointer hover:bg-ec-t5 transition-colors font-sans"
-              onClick={() => setModalOpen(false)}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors font-sans"
-            >
-              {editingId ? 'Save Changes' : 'Record Incident'}
-            </button>
-          </div>
-        </form>
+        {renderForm()}
       </Modal>
       {ConfirmDialog}
     </div>

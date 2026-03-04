@@ -10,6 +10,8 @@ import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
 import SwipeRow from '../components/SwipeRow'
 import { useConfirm } from '../components/ConfirmDialog'
+import EmptyState from '../components/EmptyState'
+import SkeletonLoader from '../components/SkeletonLoader'
 
 const DELIVERY_METHODS = ['Classroom', 'Online', 'On-the-job', 'Self-study', 'External Provider', 'Workshop']
 const OUTCOMES = ['Pass', 'Fail', 'Attended', 'Certificate Issued', 'Refresher Needed']
@@ -67,6 +69,7 @@ export default function TrainingLogs() {
   const [filterStaff, setFilterStaff] = useState('')
   const [filterTopic, setFilterTopic] = useState('')
   const [search, setSearch] = useState('')
+  const [formErrors, setFormErrors] = useState({})
 
   useEffect(() => {
     if (searchParams.get('add') === 'true' && !loading) {
@@ -78,7 +81,7 @@ export default function TrainingLogs() {
   }, [loading, searchParams, setSearchParams])
 
   if (loading) {
-    return <div className="flex items-center justify-center py-20 text-sm text-ec-t3">Loading…</div>
+    return <SkeletonLoader variant="table" />
   }
 
   // Stats
@@ -112,6 +115,7 @@ export default function TrainingLogs() {
   const openAdd = () => {
     setForm(emptyForm)
     setEditingId(null)
+    setFormErrors({})
     setModalOpen(true)
   }
 
@@ -129,12 +133,21 @@ export default function TrainingLogs() {
       notes: log.notes,
     })
     setEditingId(log.id)
+    setFormErrors({})
     setModalOpen(true)
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (!form.staffName || !form.dateCompleted || !form.topic) return
+    const errors = {}
+    if (!form.staffName) errors.staffName = 'Staff member is required'
+    if (!form.topic) errors.topic = 'Training topic is required'
+    if (!form.dateCompleted) errors.dateCompleted = 'Date completed is required'
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors)
+      return
+    }
+    setFormErrors({})
 
     if (editingId) {
       setLogs(
@@ -257,13 +270,15 @@ export default function TrainingLogs() {
         Showing {sorted.length} of {logs.length} entries
       </p>
 
-      {sorted.length === 0 ? (
+      {logs.length === 0 ? (
+        <EmptyState
+          icon={<svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" /></svg>}
+          title="No training logs"
+          description="Training session logs will appear here as they are recorded."
+        />
+      ) : sorted.length === 0 ? (
         <div className="text-center py-10 text-ec-t3 text-sm">
-          <p>
-            {logs.length === 0
-              ? 'No training logs yet. Add your first entry to get started.'
-              : 'No entries match your filters.'}
-          </p>
+          No entries match your filters.
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--ec-border)' }}>
@@ -339,9 +354,12 @@ export default function TrainingLogs() {
               </p>
             ) : (
               <select
-                className={inputClass}
+                className={`${inputClass}${formErrors.staffName ? ' !border-ec-crit/60 !ring-1 !ring-ec-crit/20' : ''}`}
                 value={form.staffName}
-                onChange={update('staffName')}
+                onChange={(e) => {
+                  setForm({ ...form, staffName: e.target.value })
+                  if (e.target.value) setFormErrors((prev) => { const { staffName, ...rest } = prev; return rest })
+                }}
                 required
               >
                 <option value="">Select staff member...</option>
@@ -352,6 +370,7 @@ export default function TrainingLogs() {
                 ))}
               </select>
             )}
+            {formErrors.staffName && <p className="text-xs text-ec-crit-light mt-1">{formErrors.staffName}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -359,11 +378,15 @@ export default function TrainingLogs() {
               <label className="text-xs font-semibold text-ec-t2 mb-1 block">Date Completed *</label>
               <input
                 type="date"
-                className={inputClass}
+                className={`${inputClass}${formErrors.dateCompleted ? ' !border-ec-crit/60 !ring-1 !ring-ec-crit/20' : ''}`}
                 value={form.dateCompleted}
-                onChange={update('dateCompleted')}
+                onChange={(e) => {
+                  setForm({ ...form, dateCompleted: e.target.value })
+                  if (e.target.value) setFormErrors((prev) => { const { dateCompleted, ...rest } = prev; return rest })
+                }}
                 required
               />
+              {formErrors.dateCompleted && <p className="text-xs text-ec-crit-light mt-1">{formErrors.dateCompleted}</p>}
             </div>
             <div>
               <label className="text-xs font-semibold text-ec-t2 mb-1 block">Duration</label>
@@ -382,17 +405,23 @@ export default function TrainingLogs() {
             {topics.length === 0 ? (
               <input
                 type="text"
-                className={inputClass}
+                className={`${inputClass}${formErrors.topic ? ' !border-ec-crit/60 !ring-1 !ring-ec-crit/20' : ''}`}
                 placeholder="Enter training topic..."
                 value={form.topic}
-                onChange={update('topic')}
+                onChange={(e) => {
+                  setForm({ ...form, topic: e.target.value })
+                  if (e.target.value) setFormErrors((prev) => { const { topic, ...rest } = prev; return rest })
+                }}
                 required
               />
             ) : (
               <select
-                className={inputClass}
+                className={`${inputClass}${formErrors.topic ? ' !border-ec-crit/60 !ring-1 !ring-ec-crit/20' : ''}`}
                 value={form.topic}
-                onChange={update('topic')}
+                onChange={(e) => {
+                  setForm({ ...form, topic: e.target.value })
+                  if (e.target.value) setFormErrors((prev) => { const { topic, ...rest } = prev; return rest })
+                }}
                 required
               >
                 <option value="">Select topic...</option>
@@ -403,6 +432,7 @@ export default function TrainingLogs() {
                 ))}
               </select>
             )}
+            {formErrors.topic && <p className="text-xs text-ec-crit-light mt-1">{formErrors.topic}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">

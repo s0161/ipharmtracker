@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
 import { downloadCsv } from '../utils/exportCsv'
 import PageActions from '../components/PageActions'
+import SkeletonLoader from '../components/SkeletonLoader'
 
 const selectClass =
   'bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans'
@@ -140,11 +141,7 @@ export default function AuditLog() {
   const hasFilters = search || filterAction || filterUser || dateFrom || dateTo
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20 text-sm text-ec-t3">
-        Loading...
-      </div>
-    )
+    return <SkeletonLoader variant="table" />
   }
 
   return (

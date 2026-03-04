@@ -7,6 +7,7 @@ import {
   DEFAULT_CLEANING_TASKS,
 } from '../utils/helpers'
 import { downloadCsv } from '../utils/exportCsv'
+import SkeletonLoader from '../components/SkeletonLoader'
 
 // ─── HELPERS ───
 
@@ -104,10 +105,10 @@ function TrendChart({ history, days }) {
 
   return (
     <div className="rounded-xl bg-ec-card border border-ec-border p-4 ec-fadeup">
+      <div className="w-full overflow-x-auto">
       <svg
         viewBox={`0 0 ${CHART_W} ${CHART_H}`}
-        className="w-full"
-        style={{ maxHeight: '300px' }}
+        className="w-full h-[300px]"
         preserveAspectRatio="xMidYMid meet"
       >
         {/* Grid lines */}
@@ -177,6 +178,7 @@ function TrendChart({ history, days }) {
           strokeDasharray="6,3"
         />
       </svg>
+      </div>
 
       {/* Legend */}
       <div className="flex flex-wrap items-center gap-4 mt-3 px-2">
@@ -255,13 +257,15 @@ function RiskCard({ icon, title, description, severity }) {
 // ─── MAIN COMPONENT ───
 
 export default function Analytics() {
-  const [documents] = useSupabase('documents', [])
-  const [staffTraining] = useSupabase('staff_training', [])
-  const [cleaningEntries] = useSupabase('cleaning_entries', [])
+  const [documents, , docsLoading] = useSupabase('documents', [])
+  const [staffTraining, , trainingLoading] = useSupabase('staff_training', [])
+  const [cleaningEntries, , cleaningLoading] = useSupabase('cleaning_entries', [])
   const [safeguarding] = useSupabase('safeguarding_records', [])
   const [rpLogs] = useSupabase('rp_log', [])
   const [staff] = useSupabase('staff_members', [])
   const [cleaningTasks] = useSupabase('cleaning_tasks', DEFAULT_CLEANING_TASKS)
+
+  const isLoading = docsLoading || trainingLoading || cleaningLoading
 
   const days = useMemo(() => getLast30Days(), [])
   const history = useMemo(() => getScoreHistory(), [])
@@ -496,6 +500,20 @@ export default function Analytics() {
         return [d, h.documents ?? '', h.training ?? '', h.cleaning ?? '', h.safeguarding ?? '', overall]
       })
     downloadCsv('compliance-analytics', headers, rows)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-extrabold text-ec-t1">Analytics</h1>
+            <p className="text-sm text-ec-t3 mt-0.5">Loading compliance data...</p>
+          </div>
+        </div>
+        <SkeletonLoader variant="cards" />
+      </div>
+    )
   }
 
   return (

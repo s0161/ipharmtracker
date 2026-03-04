@@ -10,6 +10,8 @@ import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
 import SwipeRow from '../components/SwipeRow'
 import { useConfirm } from '../components/ConfirmDialog'
+import EmptyState from '../components/EmptyState'
+import SkeletonLoader from '../components/SkeletonLoader'
 
 const emptyForm = {
   taskName: '',
@@ -44,8 +46,10 @@ export default function CleaningRota() {
     }
   }, [loading, searchParams, setSearchParams])
 
+  const [errors, setErrors] = useState({})
+
   if (loading) {
-    return <div className="flex items-center justify-center py-20 text-sm text-ec-t3">Loading…</div>
+    return <div className="py-4"><SkeletonLoader variant="table" /></div>
   }
 
   const taskNames = cleaningTasks.map((t) => t.name)
@@ -73,6 +77,7 @@ export default function CleaningRota() {
       dateTime: new Date().toISOString().slice(0, 16),
     })
     setEditingId(null)
+    setErrors({})
     setModalOpen(true)
   }
 
@@ -87,6 +92,7 @@ export default function CleaningRota() {
       notes: entry.notes,
     })
     setEditingId(entry.id)
+    setErrors({})
     setModalOpen(true)
   }
 
@@ -94,7 +100,16 @@ export default function CleaningRota() {
     e.preventDefault()
     const taskName =
       form.taskName === '__other__' ? form.customTask.trim() : form.taskName
-    if (!taskName || !form.dateTime || !form.staffMember || !form.result) return
+
+    const newErrors = {}
+    if (!taskName) newErrors.taskName = 'Task is required'
+    if (!form.staffMember) newErrors.staffMember = 'Staff member is required'
+    if (!form.result) newErrors.result = 'Result is required'
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
+      return
+    }
+    setErrors({})
 
     const data = {
       taskName,
@@ -172,9 +187,11 @@ export default function CleaningRota() {
       </div>
 
       {sorted.length === 0 ? (
-        <div className="text-center py-10 text-ec-t3 text-sm">
-          No cleaning entries yet. Add your first entry to get started.
-        </div>
+        <EmptyState
+          icon={<svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /><path d="M9 14l2 2 4-4" /></svg>}
+          title="No cleaning entries yet"
+          description="Cleaning tasks will be recorded here as staff complete them."
+        />
       ) : (
         <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--ec-border)' }}>
           <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
@@ -232,9 +249,9 @@ export default function CleaningRota() {
           <div>
             <label className="text-xs font-semibold text-ec-t2 mb-1 block">Task *</label>
             <select
-              className={inputClass}
+              className={`${inputClass} ${errors.taskName ? 'border-ec-crit focus:border-ec-crit focus:ring-ec-crit/20' : ''}`}
               value={form.taskName}
-              onChange={update('taskName')}
+              onChange={(e) => { update('taskName')(e); setErrors((prev) => ({ ...prev, taskName: undefined })) }}
               required
             >
               <option value="">Select task...</option>
@@ -245,6 +262,7 @@ export default function CleaningRota() {
               ))}
               <option value="__other__">Other (specify)</option>
             </select>
+            {errors.taskName && <p className="text-xs text-ec-crit-light mt-1">{errors.taskName}</p>}
           </div>
 
           {form.taskName === '__other__' && (
@@ -281,9 +299,9 @@ export default function CleaningRota() {
               </p>
             ) : (
               <select
-                className={inputClass}
+                className={`${inputClass} ${errors.staffMember ? 'border-ec-crit focus:border-ec-crit focus:ring-ec-crit/20' : ''}`}
                 value={form.staffMember}
-                onChange={update('staffMember')}
+                onChange={(e) => { update('staffMember')(e); setErrors((prev) => ({ ...prev, staffMember: undefined })) }}
                 required
               >
                 <option value="">Select staff member...</option>
@@ -294,20 +312,22 @@ export default function CleaningRota() {
                 ))}
               </select>
             )}
+            {errors.staffMember && <p className="text-xs text-ec-crit-light mt-1">{errors.staffMember}</p>}
           </div>
 
           <div>
             <label className="text-xs font-semibold text-ec-t2 mb-1 block">Result *</label>
             <select
-              className={inputClass}
+              className={`${inputClass} ${errors.result ? 'border-ec-crit focus:border-ec-crit focus:ring-ec-crit/20' : ''}`}
               value={form.result}
-              onChange={update('result')}
+              onChange={(e) => { update('result')(e); setErrors((prev) => ({ ...prev, result: undefined })) }}
               required
             >
               <option value="">Select result...</option>
               <option value="Pass">Pass</option>
               <option value="Action Taken">Action Taken</option>
             </select>
+            {errors.result && <p className="text-xs text-ec-crit-light mt-1">{errors.result}</p>}
           </div>
 
           <div>

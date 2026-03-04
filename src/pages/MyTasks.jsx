@@ -7,6 +7,8 @@ import { getTasksForStaff, getTaskAssignee, getStaffInitials, getRotationList } 
 import { generateId } from '../utils/helpers'
 import { useToast } from '../components/Toast'
 import Modal from '../components/Modal'
+import EmptyState from '../components/EmptyState'
+import SkeletonLoader from '../components/SkeletonLoader'
 
 function getGreeting() {
   const h = new Date().getHours()
@@ -21,14 +23,15 @@ function todayStr() {
 
 export default function MyTasks() {
   const { user } = useUser()
-  const [cleaningTasks] = useSupabase('cleaning_tasks', [])
+  const [cleaningTasks, , loadingTasks] = useSupabase('cleaning_tasks', [])
   const [cleaningEntries, setCleaningEntries] = useSupabase('cleaning_entries', [])
-  const [assignedTasks, setAssignedTasks] = useSupabase('assigned_tasks', [])
+  const [assignedTasks, setAssignedTasks, loadingAssigned] = useSupabase('assigned_tasks', [])
   const [staffMembers] = useSupabase('staff_members', [])
   const showToast = useToast()
   const [assignModal, setAssignModal] = useState(false)
   const [assignName, setAssignName] = useState('')
   const [assignTitle, setAssignTitle] = useState('')
+  const [assignError, setAssignError] = useState('')
   const [teamOpen, setTeamOpen] = useState(true)
 
   const today = todayStr()
@@ -90,7 +93,12 @@ export default function MyTasks() {
   // Assign a new task (manager)
   function handleAssign(e) {
     e.preventDefault()
-    if (!assignName || !assignTitle.trim()) return
+    if (!assignTitle.trim()) {
+      setAssignError('Please enter a task title')
+      return
+    }
+    if (!assignName) return
+    setAssignError('')
     const newTask = {
       id: generateId(),
       staffName: assignName,
@@ -109,6 +117,7 @@ export default function MyTasks() {
     setAssignModal(false)
     setAssignName('')
     setAssignTitle('')
+    setAssignError('')
   }
 
   // --- Manager: team progress ---
@@ -132,6 +141,18 @@ export default function MyTasks() {
     myRotationTasks.filter((t) => isRotationDone(t.name)).length +
     myAssigned.filter((t) => t.completed).length
   const totalCount = myRotationTasks.length + myAssigned.length
+
+  if (loadingTasks || loadingAssigned) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <div className="h-6 w-48 rounded animate-pulse" style={{ backgroundColor: 'var(--ec-t5)' }} />
+          <div className="h-4 w-32 rounded animate-pulse mt-2" style={{ backgroundColor: 'var(--ec-t5)' }} />
+        </div>
+        <SkeletonLoader variant="list" />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -165,21 +186,11 @@ export default function MyTasks() {
         </h2>
 
         {myRotationTasks.length === 0 && myAssigned.length === 0 ? (
-          <div className="text-center py-10 text-ec-t3 text-sm">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              width="40"
-              height="40"
-              className="mx-auto mb-3 opacity-40"
-            >
-              <path d="M9 11l3 3L22 4" />
-              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
-            </svg>
-            <p>No tasks assigned to you today</p>
-          </div>
+          <EmptyState
+            icon={<svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>}
+            title="All caught up!"
+            description="You have no tasks assigned right now. Check back later or ask your manager."
+          />
         ) : (
           <ul className="space-y-1">
             {myRotationTasks.map((task) => {
@@ -357,11 +368,12 @@ export default function MyTasks() {
                   </label>
                   <input
                     type="text"
-                    className="w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+                    className={`w-full bg-ec-card border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans ${assignError ? 'border-ec-crit' : 'border-ec-border'}`}
                     placeholder="e.g. Restock fridge"
                     value={assignTitle}
-                    onChange={(e) => setAssignTitle(e.target.value)}
+                    onChange={(e) => { setAssignTitle(e.target.value); if (assignError) setAssignError('') }}
                   />
+                  {assignError && <p className="text-[11px] text-ec-crit mt-1">{assignError}</p>}
                 </div>
                 <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-ec-div">
                   <button

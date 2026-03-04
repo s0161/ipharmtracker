@@ -9,6 +9,8 @@ import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
 import SwipeRow from '../components/SwipeRow'
 import { useConfirm } from '../components/ConfirmDialog'
+import EmptyState from '../components/EmptyState'
+import SkeletonLoader from '../components/SkeletonLoader'
 
 const STATUS_LABELS = {
   current: 'Current',
@@ -54,9 +56,10 @@ export default function SafeguardingTraining() {
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
   const [docsOpen, setDocsOpen] = useState(false)
+  const [formErrors, setFormErrors] = useState({})
 
   if (loading) {
-    return <div className="flex items-center justify-center py-20 text-sm text-ec-t3">Loading…</div>
+    return <SkeletonLoader variant="table" />
   }
 
   const sorted = [...records].sort((a, b) => a.staffName.localeCompare(b.staffName))
@@ -77,6 +80,7 @@ export default function SafeguardingTraining() {
   const openAdd = () => {
     setForm(emptyForm)
     setEditingId(null)
+    setFormErrors({})
     setModalOpen(true)
   }
 
@@ -91,12 +95,20 @@ export default function SafeguardingTraining() {
       signedOff: record.signedOff,
     })
     setEditingId(record.id)
+    setFormErrors({})
     setModalOpen(true)
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (!form.staffName || !form.jobTitle) return
+    const errors = {}
+    if (!form.staffName) errors.staffName = 'Staff name is required'
+    if (!form.trainingDate) errors.trainingDate = 'Training date is required'
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors)
+      return
+    }
+    setFormErrors({})
 
     if (editingId) {
       setRecords(records.map((r) => (r.id === editingId ? { ...r, ...form } : r)))
@@ -184,9 +196,15 @@ export default function SafeguardingTraining() {
       </div>
 
       {/* Training Records Table */}
-      {sorted.length === 0 ? (
+      {records.length === 0 ? (
+        <EmptyState
+          icon={<svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>}
+          title="No safeguarding records"
+          description="Safeguarding training records will appear here once added."
+        />
+      ) : sorted.length === 0 ? (
         <div className="text-center py-10 text-ec-t3 text-sm">
-          No safeguarding records yet. Add your first record.
+          No safeguarding records match your filters.
         </div>
       ) : (
         <div
@@ -322,9 +340,12 @@ export default function SafeguardingTraining() {
           <div>
             <label className="text-xs font-semibold text-ec-t2 mb-1 block">Staff Name *</label>
             <select
-              className={inputClass}
+              className={`${inputClass}${formErrors.staffName ? ' !border-ec-crit/60 !ring-1 !ring-ec-crit/20' : ''}`}
               value={form.staffName}
-              onChange={update('staffName')}
+              onChange={(e) => {
+                setForm({ ...form, staffName: e.target.value })
+                if (e.target.value) setFormErrors((prev) => { const { staffName, ...rest } = prev; return rest })
+              }}
               required
             >
               <option value="">Select staff member...</option>
@@ -332,28 +353,33 @@ export default function SafeguardingTraining() {
                 <option key={s} value={s}>{s}</option>
               ))}
             </select>
+            {formErrors.staffName && <p className="text-xs text-ec-crit-light mt-1">{formErrors.staffName}</p>}
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Job Title *</label>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Job Title</label>
             <input
               type="text"
               className={inputClass}
               placeholder="e.g. Dispenser"
               value={form.jobTitle}
               onChange={update('jobTitle')}
-              required
             />
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Training Date</label>
+            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Training Date *</label>
             <input
               type="date"
-              className={inputClass}
+              className={`${inputClass}${formErrors.trainingDate ? ' !border-ec-crit/60 !ring-1 !ring-ec-crit/20' : ''}`}
               value={form.trainingDate}
-              onChange={update('trainingDate')}
+              onChange={(e) => {
+                setForm({ ...form, trainingDate: e.target.value })
+                if (e.target.value) setFormErrors((prev) => { const { trainingDate, ...rest } = prev; return rest })
+              }}
+              required
             />
+            {formErrors.trainingDate && <p className="text-xs text-ec-crit-light mt-1">{formErrors.trainingDate}</p>}
           </div>
 
           <div>

@@ -14,6 +14,7 @@ import { useUser } from '../contexts/UserContext'
 import { usePharmacyConfig } from '../hooks/usePharmacyConfig'
 import { useDocumentReminders } from '../hooks/useDocumentReminders'
 import { useToast } from '../components/Toast'
+import { useConfirm } from '../components/ConfirmDialog'
 import {
   AlertBanner,
   ProgressRing,
@@ -57,6 +58,7 @@ export default function Dashboard() {
   const showToast = useToast()
   const { user } = useUser()
   const [pharmacyConfig] = usePharmacyConfig()
+  const { confirm, ConfirmDialog: TodoConfirmDialog } = useConfirm()
 
   // ─── SUPABASE DATA ───
   const [documents, , docsLoading] = useSupabase('documents', [])
@@ -132,7 +134,7 @@ export default function Dashboard() {
   }, [onScroll])
 
   // ─── DERIVED DATA ───
-  const rpAssignee = getRPAssignee()
+  const rpAssignee = getRPAssignee() || 'No RP assigned'
   const todayISO = new Date().toISOString().slice(0, 10)
   const todayRp = rpLogs.find(l => l.date === todayISO)
   const rpChecklist = todayRp?.checklist || {}
@@ -437,6 +439,7 @@ export default function Dashboard() {
   }
 
   const handleAddTodo = (title, dueDate) => {
+    if (!title || !title.trim()) return
     const newItem = {
       id: generateId(),
       title,
@@ -448,8 +451,15 @@ export default function Dashboard() {
     logAudit('Created', `Action item: ${title}`, 'Dashboard', user?.name)
   }
 
-  const handleDeleteTodo = (id) => {
+  const handleDeleteTodo = async (id) => {
     const item = actionItems.find(a => a.id === id)
+    const ok = await confirm({
+      title: 'Delete action item?',
+      message: `Remove "${item?.title || 'this item'}" from your to-do list?`,
+      confirmLabel: 'Delete',
+      variant: 'danger',
+    })
+    if (!ok) return
     setActionItems(actionItems.filter(a => a.id !== id))
     if (item) logAudit('Deleted', `Action item: ${item.title}`, 'Dashboard', user?.name)
   }
@@ -770,6 +780,8 @@ export default function Dashboard() {
         onFridgeChange={setFridgeVal}
         onFridgeSubmit={submitFridge}
       />
+
+      {TodoConfirmDialog}
 
       {/* SCROLL FADE */}
       <div

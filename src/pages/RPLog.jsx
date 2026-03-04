@@ -6,6 +6,8 @@ import { downloadCsv } from '../utils/exportCsv'
 import { logAudit } from '../utils/auditLog'
 import { useUser } from '../contexts/UserContext'
 import PageActions from '../components/PageActions'
+import EmptyState from '../components/EmptyState'
+import SkeletonLoader from '../components/SkeletonLoader'
 
 const DAILY_ITEMS = [
   'RP notice displayed',
@@ -102,7 +104,7 @@ export default function RPLog() {
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center py-20 text-ec-t3 text-sm">Loading…</div>
+    return <SkeletonLoader variant="list" />
   }
 
   const checkedCount = (items) => items.filter(i => checklist[i]).length
@@ -240,6 +242,7 @@ export default function RPLog() {
               value={rpName}
               readOnly
             />
+            <p className="text-[11px] text-ec-t3 mt-1">RP is auto-assigned based on rotation schedule</p>
           </div>
         </div>
 
@@ -275,9 +278,11 @@ export default function RPLog() {
       <div>
         <h2 className="text-sm font-bold text-ec-t1 mb-3">Recent Checklists</h2>
         {sorted.length === 0 ? (
-          <div className="text-center py-8 text-ec-t3 text-sm">
-            No RP checklists recorded yet.
-          </div>
+          <EmptyState
+            icon={<svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>}
+            title="No RP sessions recorded"
+            description="RP sign-in and sign-out sessions will be tracked here."
+          />
         ) : (
           <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--ec-border)' }}>
             <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>

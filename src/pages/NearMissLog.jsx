@@ -8,6 +8,8 @@ import { useUser } from '../contexts/UserContext'
 import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
 import { useConfirm } from '../components/ConfirmDialog'
+import EmptyState from '../components/EmptyState'
+import SkeletonLoader from '../components/SkeletonLoader'
 
 const CATEGORIES = [
   'Dispensing Error',
@@ -37,6 +39,9 @@ const emptyForm = {
 
 const inputClass =
   'w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans'
+
+const inputErrorClass =
+  'w-full bg-ec-card border border-red-500 rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-500/20 transition-colors font-sans'
 
 const severityBadge = (sev) => {
   const cls =
@@ -95,13 +100,320 @@ export default function NearMissLog() {
   const [filterStatus, setFilterStatus] = useState('')
   const [search, setSearch] = useState('')
   const [expandedId, setExpandedId] = useState(null)
+  const [formErrors, setFormErrors] = useState({})
+
+  const openAdd = () => {
+    setForm(emptyForm)
+    setEditingId(null)
+    setFormErrors({})
+    setModalOpen(true)
+  }
+
+  const openEdit = (entry) => {
+    setForm({
+      date: entry.date || '',
+      description: entry.description || '',
+      whoInvolved: entry.whoInvolved || '',
+      category: entry.category || '',
+      severity: entry.severity || 'Low',
+      rootCause: entry.rootCause || '',
+      learningAction: entry.learningAction || '',
+      actionTakenBy: entry.actionTakenBy || '',
+      actionDate: entry.actionDate || '',
+      status: entry.status || 'Open',
+    })
+    setEditingId(entry.id)
+    setFormErrors({})
+    setModalOpen(true)
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    const errors = {}
+    if (!form.category) errors.category = 'Category is required'
+    if (!form.description) errors.description = 'Description is required'
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors)
+      return
+    }
+    setFormErrors({})
+
+    if (editingId) {
+      setEntries(
+        entries.map((entry) =>
+          entry.id === editingId ? { ...entry, ...form } : entry
+        )
+      )
+      logAudit('Updated near miss', form.category, 'Near Misses', user?.name)
+      showToast('Near miss updated')
+    } else {
+      setEntries([
+        ...entries,
+        { id: generateId(), ...form, createdAt: new Date().toISOString() },
+      ])
+      logAudit('Created near miss', form.category, 'Near Misses', user?.name)
+      showToast('Near miss recorded')
+    }
+    setModalOpen(false)
+  }
+
+  const handleDelete = async (entry) => {
+    const ok = await confirm({
+      title: 'Delete near miss?',
+      message: 'Are you sure you want to delete this near miss? This action cannot be undone.',
+      confirmLabel: 'Delete',
+      variant: 'danger',
+    })
+    if (!ok) return
+    setEntries(entries.filter((e) => e.id !== entry.id))
+    logAudit('Deleted near miss', entry.category, 'Near Misses', user?.name)
+    showToast('Near miss deleted', 'info')
+  }
+
+  const update = (field) => (e) => {
+    setForm({ ...form, [field]: e.target.value })
+    if (formErrors[field]) {
+      setFormErrors({ ...formErrors, [field]: undefined })
+    }
+  }
+
+  const handleCsvDownload = () => {
+    const headers = [
+      'Date',
+      'Category',
+      'Severity',
+      'Description',
+      'Who Involved',
+      'Root Cause',
+      'Learning Action',
+      'Action Taken By',
+      'Action Date',
+      'Status',
+    ]
+    const rows = sorted.map((e) => [
+      e.date || '',
+      e.category || '',
+      e.severity || '',
+      e.description || '',
+      e.whoInvolved || '',
+      e.rootCause || '',
+      e.learningAction || '',
+      e.actionTakenBy || '',
+      e.actionDate || '',
+      e.status || '',
+    ])
+    downloadCsv('near-misses', headers, rows)
+  }
+
+  const renderForm = () => (
+    <form
+      className="space-y-4 max-h-[70vh] overflow-y-auto"
+      onSubmit={handleSubmit}
+    >
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="text-xs font-semibold text-ec-t2 mb-1 block">
+            Date *
+          </label>
+          <input
+            type="date"
+            className={inputClass}
+            value={form.date}
+            onChange={update('date')}
+            required
+          />
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-ec-t2 mb-1 block">
+            Category *
+          </label>
+          <select
+            className={formErrors.category ? inputErrorClass : inputClass}
+            value={form.category}
+            onChange={update('category')}
+            required
+          >
+            <option value="">Select category...</option>
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+          {formErrors.category && (
+            <p className="text-xs text-red-500 mt-1">{formErrors.category}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="text-xs font-semibold text-ec-t2 mb-1 block">
+            Severity *
+          </label>
+          <select
+            className={inputClass}
+            value={form.severity}
+            onChange={update('severity')}
+            required
+          >
+            {SEVERITIES.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-ec-t2 mb-1 block">
+            Who Involved
+          </label>
+          {staffMembers.length === 0 ? (
+            <input
+              type="text"
+              className={inputClass}
+              placeholder="Enter name"
+              value={form.whoInvolved}
+              onChange={update('whoInvolved')}
+            />
+          ) : (
+            <select
+              className={inputClass}
+              value={form.whoInvolved}
+              onChange={update('whoInvolved')}
+            >
+              <option value="">Select person...</option>
+              {staffMembers.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+      </div>
+
+      <div>
+        <label className="text-xs font-semibold text-ec-t2 mb-1 block">
+          Description *
+        </label>
+        <textarea
+          className={(formErrors.description ? inputErrorClass : inputClass) + ' resize-none'}
+          placeholder="Describe the near miss..."
+          value={form.description}
+          onChange={update('description')}
+          rows={3}
+          required
+        />
+        {formErrors.description && (
+          <p className="text-xs text-red-500 mt-1">{formErrors.description}</p>
+        )}
+      </div>
+
+      <div>
+        <label className="text-xs font-semibold text-ec-t2 mb-1 block">
+          Root Cause
+        </label>
+        <textarea
+          className={inputClass + ' resize-none'}
+          placeholder="What caused this near miss?"
+          value={form.rootCause}
+          onChange={update('rootCause')}
+          rows={2}
+        />
+      </div>
+
+      <div>
+        <label className="text-xs font-semibold text-ec-t2 mb-1 block">
+          Learning Action
+        </label>
+        <textarea
+          className={inputClass + ' resize-none'}
+          placeholder="What was learned? What changes were made?"
+          value={form.learningAction}
+          onChange={update('learningAction')}
+          rows={2}
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="text-xs font-semibold text-ec-t2 mb-1 block">
+            Action Taken By
+          </label>
+          {staffMembers.length === 0 ? (
+            <input
+              type="text"
+              className={inputClass}
+              placeholder="Enter name"
+              value={form.actionTakenBy}
+              onChange={update('actionTakenBy')}
+            />
+          ) : (
+            <select
+              className={inputClass}
+              value={form.actionTakenBy}
+              onChange={update('actionTakenBy')}
+            >
+              <option value="">Select person...</option>
+              {staffMembers.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-ec-t2 mb-1 block">
+            Action Date
+          </label>
+          <input
+            type="date"
+            className={inputClass}
+            value={form.actionDate}
+            onChange={update('actionDate')}
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="text-xs font-semibold text-ec-t2 mb-1 block">
+          Status
+        </label>
+        <select
+          className={inputClass}
+          value={form.status}
+          onChange={update('status')}
+        >
+          {STATUSES.map((s) => (
+            <option key={s} value={s}>
+              {s}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-ec-div">
+        <button
+          type="button"
+          className="px-4 py-2 bg-ec-card-hover text-ec-t2 rounded-lg text-sm border border-ec-border cursor-pointer hover:bg-ec-t5 transition-colors font-sans"
+          onClick={() => setModalOpen(false)}
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors font-sans"
+        >
+          {editingId ? 'Save Changes' : 'Record Near Miss'}
+        </button>
+      </div>
+    </form>
+  )
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20 text-sm text-ec-t3">
-        Loading...
-      </div>
-    )
+    return <SkeletonLoader variant="table" />
   }
 
   // Stats
@@ -137,93 +449,35 @@ export default function NearMissLog() {
     (a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date)
   )
 
-  const openAdd = () => {
-    setForm(emptyForm)
-    setEditingId(null)
-    setModalOpen(true)
-  }
-
-  const openEdit = (entry) => {
-    setForm({
-      date: entry.date || '',
-      description: entry.description || '',
-      whoInvolved: entry.whoInvolved || '',
-      category: entry.category || '',
-      severity: entry.severity || 'Low',
-      rootCause: entry.rootCause || '',
-      learningAction: entry.learningAction || '',
-      actionTakenBy: entry.actionTakenBy || '',
-      actionDate: entry.actionDate || '',
-      status: entry.status || 'Open',
-    })
-    setEditingId(entry.id)
-    setModalOpen(true)
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (!form.category || !form.description) return
-
-    if (editingId) {
-      setEntries(
-        entries.map((entry) =>
-          entry.id === editingId ? { ...entry, ...form } : entry
-        )
-      )
-      logAudit('Updated near miss', form.category, 'Near Misses', user?.name)
-      showToast('Near miss updated')
-    } else {
-      setEntries([
-        ...entries,
-        { id: generateId(), ...form, createdAt: new Date().toISOString() },
-      ])
-      logAudit('Created near miss', form.category, 'Near Misses', user?.name)
-      showToast('Near miss recorded')
-    }
-    setModalOpen(false)
-  }
-
-  const handleDelete = async (entry) => {
-    const ok = await confirm({
-      title: 'Delete near miss?',
-      message: 'Are you sure you want to delete this near miss? This action cannot be undone.',
-      confirmLabel: 'Delete',
-      variant: 'danger',
-    })
-    if (!ok) return
-    setEntries(entries.filter((e) => e.id !== entry.id))
-    logAudit('Deleted near miss', entry.category, 'Near Misses', user?.name)
-    showToast('Near miss deleted', 'info')
-  }
-
-  const update = (field) => (e) => setForm({ ...form, [field]: e.target.value })
-
-  const handleCsvDownload = () => {
-    const headers = [
-      'Date',
-      'Category',
-      'Severity',
-      'Description',
-      'Who Involved',
-      'Root Cause',
-      'Learning Action',
-      'Action Taken By',
-      'Action Date',
-      'Status',
-    ]
-    const rows = sorted.map((e) => [
-      e.date || '',
-      e.category || '',
-      e.severity || '',
-      e.description || '',
-      e.whoInvolved || '',
-      e.rootCause || '',
-      e.learningAction || '',
-      e.actionTakenBy || '',
-      e.actionDate || '',
-      e.status || '',
-    ])
-    downloadCsv('near-misses', headers, rows)
+  if (entries.length === 0) {
+    return (
+      <div>
+        <p className="text-sm text-ec-t3 mb-2">
+          Track near misses, identify root causes, and record learning actions.
+        </p>
+        <div className="flex items-center gap-2 flex-wrap mb-4">
+          <button
+            className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors flex items-center gap-1.5 font-sans"
+            onClick={openAdd}
+          >
+            + Add Near Miss
+          </button>
+        </div>
+        <EmptyState
+          icon={<svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>}
+          title="No near misses logged"
+          description="Near miss reports will appear here. Recording near misses helps prevent future incidents."
+        />
+        <Modal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          title="Record Near Miss"
+        >
+          {renderForm()}
+        </Modal>
+        {ConfirmDialog}
+      </div>
+    )
   }
 
   return (
@@ -311,7 +565,7 @@ export default function NearMissLog() {
       {/* Table */}
       {sorted.length === 0 ? (
         <div className="text-center py-10 text-ec-t3 text-sm">
-          <p>No near misses recorded.</p>
+          <p>No near misses match the current filters.</p>
         </div>
       ) : (
         <div
@@ -454,204 +708,7 @@ export default function NearMissLog() {
         onClose={() => setModalOpen(false)}
         title={editingId ? 'Edit Near Miss' : 'Record Near Miss'}
       >
-        <form
-          className="space-y-4 max-h-[70vh] overflow-y-auto"
-          onSubmit={handleSubmit}
-        >
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-semibold text-ec-t2 mb-1 block">
-                Date *
-              </label>
-              <input
-                type="date"
-                className={inputClass}
-                value={form.date}
-                onChange={update('date')}
-                required
-              />
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-ec-t2 mb-1 block">
-                Category *
-              </label>
-              <select
-                className={inputClass}
-                value={form.category}
-                onChange={update('category')}
-                required
-              >
-                <option value="">Select category...</option>
-                {CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-semibold text-ec-t2 mb-1 block">
-                Severity *
-              </label>
-              <select
-                className={inputClass}
-                value={form.severity}
-                onChange={update('severity')}
-                required
-              >
-                {SEVERITIES.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-ec-t2 mb-1 block">
-                Who Involved
-              </label>
-              {staffMembers.length === 0 ? (
-                <input
-                  type="text"
-                  className={inputClass}
-                  placeholder="Enter name"
-                  value={form.whoInvolved}
-                  onChange={update('whoInvolved')}
-                />
-              ) : (
-                <select
-                  className={inputClass}
-                  value={form.whoInvolved}
-                  onChange={update('whoInvolved')}
-                >
-                  <option value="">Select person...</option>
-                  {staffMembers.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-ec-t2 mb-1 block">
-              Description *
-            </label>
-            <textarea
-              className={inputClass + ' resize-none'}
-              placeholder="Describe the near miss..."
-              value={form.description}
-              onChange={update('description')}
-              rows={3}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-ec-t2 mb-1 block">
-              Root Cause
-            </label>
-            <textarea
-              className={inputClass + ' resize-none'}
-              placeholder="What caused this near miss?"
-              value={form.rootCause}
-              onChange={update('rootCause')}
-              rows={2}
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-ec-t2 mb-1 block">
-              Learning Action
-            </label>
-            <textarea
-              className={inputClass + ' resize-none'}
-              placeholder="What was learned? What changes were made?"
-              value={form.learningAction}
-              onChange={update('learningAction')}
-              rows={2}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-semibold text-ec-t2 mb-1 block">
-                Action Taken By
-              </label>
-              {staffMembers.length === 0 ? (
-                <input
-                  type="text"
-                  className={inputClass}
-                  placeholder="Enter name"
-                  value={form.actionTakenBy}
-                  onChange={update('actionTakenBy')}
-                />
-              ) : (
-                <select
-                  className={inputClass}
-                  value={form.actionTakenBy}
-                  onChange={update('actionTakenBy')}
-                >
-                  <option value="">Select person...</option>
-                  {staffMembers.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-ec-t2 mb-1 block">
-                Action Date
-              </label>
-              <input
-                type="date"
-                className={inputClass}
-                value={form.actionDate}
-                onChange={update('actionDate')}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-ec-t2 mb-1 block">
-              Status
-            </label>
-            <select
-              className={inputClass}
-              value={form.status}
-              onChange={update('status')}
-            >
-              {STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-ec-div">
-            <button
-              type="button"
-              className="px-4 py-2 bg-ec-card-hover text-ec-t2 rounded-lg text-sm border border-ec-border cursor-pointer hover:bg-ec-t5 transition-colors font-sans"
-              onClick={() => setModalOpen(false)}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors font-sans"
-            >
-              {editingId ? 'Save Changes' : 'Record Near Miss'}
-            </button>
-          </div>
-        </form>
+        {renderForm()}
       </Modal>
       {ConfirmDialog}
     </div>

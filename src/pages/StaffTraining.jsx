@@ -9,6 +9,8 @@ import Modal from '../components/Modal'
 import PageActions from '../components/PageActions'
 import SwipeRow from '../components/SwipeRow'
 import { useConfirm } from '../components/ConfirmDialog'
+import EmptyState from '../components/EmptyState'
+import SkeletonLoader from '../components/SkeletonLoader'
 
 const STATUS_CYCLE = ['Pending', 'In Progress', 'Complete']
 
@@ -56,9 +58,10 @@ export default function StaffTraining() {
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
+  const [formErrors, setFormErrors] = useState({})
 
   if (loading) {
-    return <div className="flex items-center justify-center py-20 text-sm text-ec-t3">Loading…</div>
+    return <SkeletonLoader variant="table" />
   }
 
   // Deduplicate: one row per staff per training item (keep most recent by id)
@@ -132,6 +135,7 @@ export default function StaffTraining() {
   const openAdd = () => {
     setForm(emptyForm)
     setEditingId(null)
+    setFormErrors({})
     setModalOpen(true)
   }
 
@@ -144,12 +148,20 @@ export default function StaffTraining() {
       status: entry.status,
     })
     setEditingId(entry.id)
+    setFormErrors({})
     setModalOpen(true)
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (!form.staffName || !form.trainingItem) return
+    const errors = {}
+    if (!form.staffName) errors.staffName = 'Staff name is required'
+    if (!form.trainingItem) errors.trainingItem = 'Training course is required'
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors)
+      return
+    }
+    setFormErrors({})
 
     if (editingId) {
       setEntries(entries.map((e) => (e.id === editingId ? { ...e, ...form } : e)))
@@ -253,6 +265,14 @@ export default function StaffTraining() {
         </div>
       </div>
 
+      {uniqueEntries.length === 0 ? (
+        <EmptyState
+          icon={<svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" /></svg>}
+          title="No training records"
+          description="Staff training records will appear here once added."
+        />
+      ) : (
+      <>
       {/* Staff Progress Bars */}
       <div className="mb-6">
         <h3 className="text-sm font-bold text-ec-t1 mb-3">Staff Progress</h3>
@@ -408,6 +428,8 @@ export default function StaffTraining() {
           </table>
         </div>
       )}
+      </>
+      )}
 
       {/* Add/Edit Modal */}
       <Modal
@@ -419,7 +441,7 @@ export default function StaffTraining() {
           <div>
             <label className="text-xs font-semibold text-ec-t2 mb-1 block">Staff Member *</label>
             <select
-              className={inputClass}
+              className={`${inputClass}${formErrors.staffName ? ' !border-ec-crit/60 !ring-1 !ring-ec-crit/20' : ''}`}
               value={form.staffName}
               onChange={(e) => {
                 const name = e.target.value
@@ -430,6 +452,7 @@ export default function StaffTraining() {
                   staffName: name,
                   role: existing ? existing.role : form.role,
                 })
+                if (name) setFormErrors((prev) => { const { staffName, ...rest } = prev; return rest })
               }}
               required
             >
@@ -438,6 +461,7 @@ export default function StaffTraining() {
                 <option key={s} value={s}>{s}</option>
               ))}
             </select>
+            {formErrors.staffName && <p className="text-xs text-ec-crit-light mt-1">{formErrors.staffName}</p>}
           </div>
 
           <div>
@@ -456,12 +480,16 @@ export default function StaffTraining() {
             <label className="text-xs font-semibold text-ec-t2 mb-1 block">Training Item *</label>
             <input
               type="text"
-              className={inputClass}
+              className={`${inputClass}${formErrors.trainingItem ? ' !border-ec-crit/60 !ring-1 !ring-ec-crit/20' : ''}`}
               placeholder="e.g. Safeguarding Awareness"
               value={form.trainingItem}
-              onChange={update('trainingItem')}
+              onChange={(e) => {
+                setForm({ ...form, trainingItem: e.target.value })
+                if (e.target.value) setFormErrors((prev) => { const { trainingItem, ...rest } = prev; return rest })
+              }}
               required
             />
+            {formErrors.trainingItem && <p className="text-xs text-ec-crit-light mt-1">{formErrors.trainingItem}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">

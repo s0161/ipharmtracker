@@ -24,6 +24,8 @@ import PageActions from '../components/PageActions'
 import { downloadCsv } from '../utils/exportCsv'
 import TemperatureChart from '../components/TemperatureChart'
 import { useConfirm } from '../components/ConfirmDialog'
+import SkeletonLoader from '../components/SkeletonLoader'
+import EmptyState from '../components/EmptyState'
 
 const emptyForm = {
   date: new Date().toISOString().slice(0, 10),
@@ -45,9 +47,19 @@ export default function TemperatureLog() {
   const showToast = useToast()
   const { confirm, ConfirmDialog } = useConfirm()
   const [form, setForm] = useState(emptyForm)
+  const [formError, setFormError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
-  if (loading) {
-    return <div className="flex items-center justify-center py-20 text-sm text-ec-t3">Loading…</div>
+  if (loading) return <SkeletonLoader variant="table" />
+
+  if (logs.length === 0) {
+    return (
+      <EmptyState
+        icon={<svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z" /></svg>}
+        title="No temperature readings yet"
+        description="Record fridge temperatures to track compliance and maintain safe storage conditions."
+      />
+    )
   }
 
   const sorted = [...logs].sort((a, b) => {
@@ -78,32 +90,56 @@ export default function TemperatureLog() {
       }))
   }, [logs])
 
-  const update = (field) => (e) => setForm({ ...form, [field]: e.target.value })
+  const update = (field) => (e) => {
+    const val = e.target.value
+    setForm({ ...form, [field]: val })
+    if (field === 'temperature') {
+      setFormError('')
+      const num = parseFloat(val)
+      if (val !== '' && !isNaN(num) && (num < IN_RANGE_MIN || num > IN_RANGE_MAX)) {
+        setFormError(`Advisory: ${num}°C is outside the safe range (${IN_RANGE_MIN}–${IN_RANGE_MAX}°C).`)
+      }
+    }
+  }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.temperature) return
+    setFormError('')
+
+    if (!form.temperature || form.temperature.toString().trim() === '') {
+      setFormError('Please enter a temperature value.')
+      return
+    }
 
     const temp = parseFloat(form.temperature)
-    if (isNaN(temp)) return
+    if (isNaN(temp)) {
+      setFormError('Please enter a valid number for temperature.')
+      return
+    }
 
-    setLogs([...logs, {
-      id: generateId(),
-      date: form.date,
-      time: form.time,
-      temperature: temp,
-      loggedBy: form.loggedBy,
-      notes: form.notes,
-      createdAt: new Date().toISOString(),
-    }])
-    logAudit('Created', `Temperature reading: ${temp}°C`, 'Temperature Log', user?.name)
+    setSubmitting(true)
+    try {
+      setLogs([...logs, {
+        id: generateId(),
+        date: form.date,
+        time: form.time,
+        temperature: temp,
+        loggedBy: form.loggedBy,
+        notes: form.notes,
+        createdAt: new Date().toISOString(),
+      }])
+      logAudit('Created', `Temperature reading: ${temp}°C`, 'Temperature Log', user?.name)
 
-    const inRange = temp >= IN_RANGE_MIN && temp <= IN_RANGE_MAX
-    showToast(
-      inRange ? 'Temperature logged' : `Warning: ${temp}°C is outside safe range (${IN_RANGE_MIN}–${IN_RANGE_MAX}°C)`,
-      inRange ? 'success' : 'error'
-    )
-    setForm({ ...emptyForm, loggedBy: form.loggedBy })
+      const inRange = temp >= IN_RANGE_MIN && temp <= IN_RANGE_MAX
+      showToast(
+        inRange ? 'Temperature logged' : `Warning: ${temp}°C is outside safe range (${IN_RANGE_MIN}–${IN_RANGE_MAX}°C)`,
+        inRange ? 'success' : 'error'
+      )
+      setForm({ ...emptyForm, loggedBy: form.loggedBy })
+      setFormError('')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const handleDelete = async (id) => {
@@ -180,6 +216,16 @@ export default function TemperatureLog() {
               onChange={update('temperature')}
               required
             />
+            {formError && (
+              <p className="mt-1.5 text-xs flex items-center gap-1" style={{ color: '#f59e0b' }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13" className="shrink-0">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                {formError}
+              </p>
+            )}
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
@@ -199,8 +245,12 @@ export default function TemperatureLog() {
             <input type="text" className={inputClass} placeholder="Optional notes..." value={form.notes} onChange={update('notes')} />
           </div>
         </div>
-        <button type="submit" className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors flex items-center gap-1.5 font-sans mt-2">
-          Log Temperature
+        <button
+          type="submit"
+          disabled={submitting}
+          className={`px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors flex items-center gap-1.5 font-sans mt-2${submitting ? ' opacity-50 cursor-not-allowed' : ''}`}
+        >
+          {submitting ? 'Saving...' : 'Log Temperature'}
         </button>
       </form>
 
