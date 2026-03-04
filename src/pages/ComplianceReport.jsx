@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
 import { usePharmacyConfig } from '../hooks/usePharmacyConfig'
 import { getTrafficLight, getSafeguardingStatus, getTaskStatus, DEFAULT_CLEANING_TASKS } from '../utils/helpers'
+import generateComplianceReport from '../utils/generateReport'
 
 function ScoreCard({ label, score, items }) {
   const color = score >= 80 ? 'var(--ec-em)' : score >= 50 ? 'var(--ec-warn)' : 'var(--ec-crit)'
@@ -22,6 +23,7 @@ export default function ComplianceReport() {
   const [cleaningTasks] = useSupabase('cleaning_tasks', DEFAULT_CLEANING_TASKS)
   const [cleaningEntries] = useSupabase('cleaning_entries', [])
   const [rpLogs] = useSupabase('rp_log', [])
+  const [incidents] = useSupabase('incidents', [])
 
   // Document score
   const docStatuses = documents.map(d => getTrafficLight(d.expiryDate))
@@ -63,10 +65,97 @@ export default function ComplianceReport() {
 
   const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
 
+  const handleDownloadPdf = () => {
+    // Map documents
+    const docData = documents.map(d => ({
+      name: d.documentName,
+      category: d.category || '',
+      expiryDate: d.expiryDate || '',
+      status: getTrafficLight(d.expiryDate),
+    }))
+
+    // Map training
+    const trainingData = staffTraining.map(t => ({
+      staffName: t.staffName || '',
+      trainingItem: t.trainingItem || t.topicName || '',
+      targetDate: t.targetDate || '',
+      status: t.status || '',
+    }))
+
+    // Map cleaning (deduplicated, reuse taskStatuses already computed)
+    const cleaningData = taskStatuses.map(t => ({
+      name: t.name,
+      frequency: t.frequency || '',
+      status: t.status,
+    }))
+
+    // Map safeguarding
+    const safeguardingData = safeguarding.map(r => ({
+      staffName: r.staffName || '',
+      trainingDate: r.trainingDate || '',
+      deliveredBy: r.deliveredBy || '',
+      status: getSafeguardingStatus(r.trainingDate),
+    }))
+
+    // RP coverage with the property names generateReport expects
+    const rpData = {
+      daysCovered: rpCoverage.covered,
+      totalDays: rpCoverage.total,
+      gapDays: rpCoverage.gaps,
+    }
+
+    // Filter incidents to last 90 days
+    const now90 = new Date()
+    now90.setDate(now90.getDate() - 90)
+    const recentIncidents = incidents
+      .filter(inc => inc.date && new Date(inc.date) >= now90)
+      .map(inc => ({
+        date: inc.date || '',
+        type: inc.type || '',
+        severity: inc.severity || '',
+        description: inc.description || '',
+        actionTaken: inc.actionTaken || '',
+      }))
+
+    generateComplianceReport({
+      config: {
+        pharmacyName: pharmacyConfig.pharmacyName || '',
+        address: pharmacyConfig.address || '',
+        gphcNumber: pharmacyConfig.gphcNumber || '',
+        superintendent: pharmacyConfig.superintendent || '',
+      },
+      scores: {
+        overall: overallScore,
+        documents: docScore,
+        training: staffScore,
+        cleaning: cleaningScore,
+        safeguarding: sgScore,
+      },
+      documents: docData,
+      training: trainingData,
+      cleaning: cleaningData,
+      safeguarding: safeguardingData,
+      rpCoverage: rpData,
+      incidents: recentIncidents,
+    })
+  }
+
   return (
     <div className="space-y-6 compliance-report">
-      {/* Print button */}
-      <div className="flex justify-end no-print">
+      {/* Action buttons */}
+      <div className="flex justify-end gap-3 no-print">
+        <button
+          onClick={handleDownloadPdf}
+          className="px-4 py-2 rounded-lg bg-transparent font-semibold text-sm cursor-pointer transition-colors flex items-center gap-2"
+          style={{ border: '1.5px solid var(--ec-em)', color: 'var(--ec-em)' }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'var(--ec-em)'; e.currentTarget.style.color = '#fff' }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--ec-em)' }}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 1v9m0 0L5 7m3 3l3-3M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Download PDF
+        </button>
         <button
           onClick={() => window.print()}
           className="px-4 py-2 rounded-lg bg-ec-em text-white font-semibold text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors"
