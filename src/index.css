@@ -7645,3 +7645,13 @@ select.input {
   border-color: #fecaca;
   color: #991b1b;
 }
+
+/* ── Print styles ── */
+@media print {
+  body { background: white !important; color: #0f172a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .no-print, aside, .main-header, [class*="fixed"], nav { display: none !important; }
+  main { margin-left: 0 !important; padding: 0 !important; }
+  .compliance-report { padding: 20px; }
+  .compliance-report * { border-color: #e2e8f0 !important; }
+  table { border: 1px solid #e2e8f0 !important; }
+}
