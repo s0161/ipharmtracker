@@ -7562,3 +7562,86 @@ select.input {
 [data-theme="light"] aside {
   box-shadow: 1px 0 0 #e2e8f0, 2px 0 8px rgba(0,0,0,0.04);
 }
+
+/* ── Light mode polish ── */
+
+/* Card shadows for white-on-light-gray */
+[data-theme="light"] .rounded-2xl,
+[data-theme="light"] .rounded-xl {
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+/* Tables */
+[data-theme="light"] table {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+[data-theme="light"] table thead {
+  background: #f8fafc;
+}
+
+[data-theme="light"] table thead th {
+  color: #475569;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+[data-theme="light"] table tbody tr {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+[data-theme="light"] table tbody tr:hover {
+  background: #f8fafc;
+}
+
+/* Inputs */
+[data-theme="light"] input,
+[data-theme="light"] textarea,
+[data-theme="light"] select {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f172a;
+}
+
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: #94a3b8;
+}
+
+[data-theme="light"] input:focus,
+[data-theme="light"] textarea:focus,
+[data-theme="light"] select:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.15);
+}
+
+/* Buttons — emerald primary */
+[data-theme="light"] button.bg-ec-em {
+  box-shadow: 0 1px 2px rgba(5, 150, 105, 0.2);
+}
+
+/* Scroll indicators */
+[data-theme="light"] .overflow-x-auto::-webkit-scrollbar {
+  height: 6px;
+}
+[data-theme="light"] .overflow-x-auto::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+[data-theme="light"] .overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+/* Toast overrides for light mode */
+[data-theme="light"] .toast-success {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #065f46;
+}
+[data-theme="light"] .toast-error {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
