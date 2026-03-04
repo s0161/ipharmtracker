@@ -1,6 +1,6 @@
 export default function PageActions({ onDownloadCsv }) {
   const btn =
-    'px-3 py-1.5 bg-white/[0.05] text-ec-t2 rounded-lg text-xs border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors flex items-center gap-1.5 font-sans'
+    'px-3 py-1.5 bg-ec-card-hover text-ec-t2 rounded-lg text-xs border border-ec-border cursor-pointer hover:bg-ec-t5 hover:text-ec-t1 transition-colors flex items-center gap-1.5 font-sans'
 
   return (
     <div className="flex gap-2 no-print">

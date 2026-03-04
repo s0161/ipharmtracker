@@ -28,15 +28,15 @@ export default function Modal({ open, onClose, title, children }) {
       <div
         className="w-full max-w-lg rounded-2xl p-6 ec-fadeup"
         style={{
-          backgroundColor: '#141414',
-          border: '1px solid rgba(255,255,255,0.08)',
-          boxShadow: '0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)',
+          backgroundColor: 'var(--ec-sidebar)',
+          border: '1px solid var(--ec-t5)',
+          boxShadow: 'var(--shadow-lg)',
         }}
       >
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-base font-bold text-ec-t1">{title}</h2>
           <button
-            className="w-7 h-7 rounded-lg flex items-center justify-center bg-white/[0.05] text-ec-t3 hover:bg-white/[0.1] hover:text-ec-t1 transition-colors border-none cursor-pointer"
+            className="w-7 h-7 rounded-lg flex items-center justify-center bg-ec-card-hover text-ec-t3 hover:bg-ec-t5 hover:text-ec-t1 transition-colors border-none cursor-pointer"
             onClick={onClose}
             aria-label="Close"
           >

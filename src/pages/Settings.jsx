@@ -10,7 +10,7 @@ import { useUser } from '../contexts/UserContext'
 import { usePharmacyConfig } from '../hooks/usePharmacyConfig'
 import { logout } from './Login'
 
-const inputClass = "w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 placeholder:text-ec-t3 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+const inputClass = "w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 placeholder:text-ec-t3 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
 
 function ListManager({ title, description, items, onUpdate, userName }) {
   const [value, setValue] = useState('')
@@ -32,7 +32,7 @@ function ListManager({ title, description, items, onUpdate, userName }) {
   return (
     <div
       className="rounded-2xl p-5 mb-4"
-      style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+      style={{ backgroundColor: 'var(--ec-card)', border: '1px solid var(--ec-border)' }}
     >
       <h2 className="text-base font-bold text-ec-t1 mb-1">{title}</h2>
       <p className="text-sm text-ec-t3 mb-4">{description}</p>
@@ -53,10 +53,10 @@ function ListManager({ title, description, items, onUpdate, userName }) {
       ) : (
         <ul className="space-y-1">
           {items.map((item) => (
-            <li key={item} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg hover:bg-white/[0.03] transition-colors">
+            <li key={item} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg hover:bg-ec-card transition-colors">
               <span className="text-sm text-ec-t1">{item}</span>
               <button
-                className="w-7 h-7 rounded-lg flex items-center justify-center bg-white/[0.05] text-ec-t3 hover:bg-ec-crit/10 hover:text-ec-crit-light transition-colors border-none cursor-pointer shrink-0"
+                className="w-7 h-7 rounded-lg flex items-center justify-center bg-ec-card-hover text-ec-t3 hover:bg-ec-crit/10 hover:text-ec-crit-light transition-colors border-none cursor-pointer shrink-0"
                 onClick={() => handleRemove(item)}
                 aria-label={`Remove ${item}`}
               >
@@ -117,7 +117,7 @@ function StaffManager({ staff, onUpdate, showToast, userName }) {
   return (
     <div
       className="rounded-2xl p-5 mb-4"
-      style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+      style={{ backgroundColor: 'var(--ec-card)', border: '1px solid var(--ec-border)' }}
     >
       <h2 className="text-base font-bold text-ec-t1 mb-1">Staff Members</h2>
       <p className="text-sm text-ec-t3 mb-4">
@@ -138,14 +138,14 @@ function StaffManager({ staff, onUpdate, showToast, userName }) {
       ) : (
         <ul className="space-y-1">
           {staff.map((s) => (
-            <li key={s.id} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg hover:bg-white/[0.03] transition-colors">
+            <li key={s.id} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg hover:bg-ec-card transition-colors">
               <div className="flex-1 min-w-0">
                 <span className="text-sm text-ec-t1 font-medium block">{s.name}</span>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
                   <label className="flex items-center gap-1.5 text-xs text-ec-t2 cursor-pointer">
                     <input
                       type="checkbox"
-                      className="accent-[#10b981]"
+                      className="accent-ec-em"
                       checked={!!s.isManager}
                       onChange={() => toggleManager(s.id)}
                     />
@@ -155,7 +155,7 @@ function StaffManager({ staff, onUpdate, showToast, userName }) {
                     <div className="flex items-center gap-1.5">
                       <input
                         type="text"
-                        className="w-20 bg-white/[0.04] border border-white/[0.06] rounded-lg px-2 py-1 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 transition-colors font-sans text-center"
+                        className="w-20 bg-ec-card border border-ec-border rounded-lg px-2 py-1 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 transition-colors font-sans text-center"
                         maxLength={4}
                         pattern="[0-9]*"
                         inputMode="numeric"
@@ -174,7 +174,7 @@ function StaffManager({ staff, onUpdate, showToast, userName }) {
                         Save
                       </button>
                       <button
-                        className="px-2.5 py-1 bg-white/[0.05] text-ec-t2 rounded-lg text-xs border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors font-sans"
+                        className="px-2.5 py-1 bg-ec-card-hover text-ec-t2 rounded-lg text-xs border border-ec-border cursor-pointer hover:bg-ec-t5 hover:text-ec-t1 transition-colors font-sans"
                         onClick={() => setEditPin(null)}
                       >
                         Cancel
@@ -182,7 +182,7 @@ function StaffManager({ staff, onUpdate, showToast, userName }) {
                     </div>
                   ) : (
                     <button
-                      className="px-2.5 py-1 bg-white/[0.05] text-ec-t2 rounded-lg text-xs border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors font-sans"
+                      className="px-2.5 py-1 bg-ec-card-hover text-ec-t2 rounded-lg text-xs border border-ec-border cursor-pointer hover:bg-ec-t5 hover:text-ec-t1 transition-colors font-sans"
                       onClick={() => setEditPin({ id: s.id, pin: s.pin || '' })}
                     >
                       {s.pin ? 'Change PIN' : 'Set PIN'}
@@ -191,7 +191,7 @@ function StaffManager({ staff, onUpdate, showToast, userName }) {
                 </div>
               </div>
               <button
-                className="w-7 h-7 rounded-lg flex items-center justify-center bg-white/[0.05] text-ec-t3 hover:bg-ec-crit/10 hover:text-ec-crit-light transition-colors border-none cursor-pointer shrink-0"
+                className="w-7 h-7 rounded-lg flex items-center justify-center bg-ec-card-hover text-ec-t3 hover:bg-ec-crit/10 hover:text-ec-crit-light transition-colors border-none cursor-pointer shrink-0"
                 onClick={() => handleRemove(s.id)}
                 aria-label={`Remove ${s.name}`}
               >
@@ -234,7 +234,7 @@ function TaskManager({ tasks, onUpdate, userName }) {
   return (
     <div
       className="rounded-2xl p-5 mb-4"
-      style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+      style={{ backgroundColor: 'var(--ec-card)', border: '1px solid var(--ec-border)' }}
     >
       <h2 className="text-base font-bold text-ec-t1 mb-1">Cleaning Tasks</h2>
       <p className="text-sm text-ec-t3 mb-4">
@@ -249,7 +249,7 @@ function TaskManager({ tasks, onUpdate, userName }) {
           onChange={(e) => setName(e.target.value)}
         />
         <select
-          className="bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none transition-colors font-sans"
+          className="bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none transition-colors font-sans"
           value={frequency}
           onChange={(e) => setFrequency(e.target.value)}
         >
@@ -268,11 +268,11 @@ function TaskManager({ tasks, onUpdate, userName }) {
       ) : (
         <ul className="space-y-1">
           {tasks.map((task) => (
-            <li key={task.name} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg hover:bg-white/[0.03] transition-colors">
+            <li key={task.name} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg hover:bg-ec-card transition-colors">
               <span className="text-sm text-ec-t1">{task.name}</span>
               <div className="flex items-center gap-2">
                 <select
-                  className="bg-white/[0.04] border border-white/[0.06] rounded-lg px-2 py-1 text-xs text-ec-t1 focus:outline-none transition-colors font-sans"
+                  className="bg-ec-card border border-ec-border rounded-lg px-2 py-1 text-xs text-ec-t1 focus:outline-none transition-colors font-sans"
                   value={task.frequency}
                   onChange={(e) => handleFreqChange(task.name, e.target.value)}
                 >
@@ -283,7 +283,7 @@ function TaskManager({ tasks, onUpdate, userName }) {
                   ))}
                 </select>
                 <button
-                  className="w-7 h-7 rounded-lg flex items-center justify-center bg-white/[0.05] text-ec-t3 hover:bg-ec-crit/10 hover:text-ec-crit-light transition-colors border-none cursor-pointer shrink-0"
+                  className="w-7 h-7 rounded-lg flex items-center justify-center bg-ec-card-hover text-ec-t3 hover:bg-ec-crit/10 hover:text-ec-crit-light transition-colors border-none cursor-pointer shrink-0"
                   onClick={() => handleRemove(task.name)}
                   aria-label={`Remove ${task.name}`}
                 >
@@ -415,7 +415,7 @@ export default function Settings() {
       {/* Pharmacy Details */}
       <div
         className="rounded-2xl p-5 mb-4"
-        style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ backgroundColor: 'var(--ec-card)', border: '1px solid var(--ec-border)' }}
       >
         <h2 className="text-base font-bold text-ec-t1 mb-1">Pharmacy Details</h2>
         <p className="text-sm text-ec-t3 mb-4">
@@ -475,7 +475,7 @@ export default function Settings() {
       {/* Notification Preferences */}
       <div
         className="rounded-2xl p-5 mb-4"
-        style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ backgroundColor: 'var(--ec-card)', border: '1px solid var(--ec-border)' }}
       >
         <h2 className="text-base font-bold text-ec-t1 mb-1">Notification Preferences</h2>
         <p className="text-sm text-ec-t3 mb-4">
@@ -489,10 +489,10 @@ export default function Settings() {
             { key: 'safeguardingDue', label: 'Safeguarding due alerts' },
             { key: 'temperatureMissing', label: 'Temperature log reminders' },
           ].map(({ key, label }) => (
-            <label key={key} className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/[0.03] transition-colors cursor-pointer">
+            <label key={key} className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-ec-card transition-colors cursor-pointer">
               <input
                 type="checkbox"
-                className="accent-[#10b981]"
+                className="accent-ec-em"
                 checked={!!notifPrefs[key]}
                 onChange={() => {
                   const updated = { ...notifPrefs, [key]: !notifPrefs[key] }
@@ -510,7 +510,7 @@ export default function Settings() {
       {/* Data Management */}
       <div
         className="rounded-2xl p-5 mb-4"
-        style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ backgroundColor: 'var(--ec-card)', border: '1px solid var(--ec-border)' }}
       >
         <h2 className="text-base font-bold text-ec-t1 mb-1">Data Management</h2>
         <p className="text-sm text-ec-t3 mb-4">
@@ -520,7 +520,7 @@ export default function Settings() {
         <div className="flex items-center gap-2 mb-4">
           <span
             className="w-2.5 h-2.5 rounded-full"
-            style={{ backgroundColor: backendStatus.checking ? '#71717a' : backendStatus.ok ? '#10b981' : '#ef4444' }}
+            style={{ backgroundColor: backendStatus.checking ? '#71717a' : backendStatus.ok ? 'var(--ec-em)' : '#ef4444' }}
           />
           <span className="text-sm text-ec-t2">
             {backendStatus.checking
@@ -532,7 +532,7 @@ export default function Settings() {
         </div>
 
         <div className="flex flex-wrap gap-2 mb-3">
-          <button className="px-4 py-2 bg-white/[0.05] text-ec-t2 rounded-lg text-sm border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors flex items-center gap-1.5 font-sans" onClick={() => {
+          <button className="px-4 py-2 bg-ec-card-hover text-ec-t2 rounded-lg text-sm border border-ec-border cursor-pointer hover:bg-ec-t5 hover:text-ec-t1 transition-colors flex items-center gap-1.5 font-sans" onClick={() => {
             // Deduplicate cleaning entries
             const cleanMap = new Map()
             cleaningEntries.forEach(e => {
@@ -594,7 +594,7 @@ export default function Settings() {
             </svg>
             Export Backup
           </button>
-          <button className="px-4 py-2 bg-white/[0.05] text-ec-t2 rounded-lg text-sm border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors flex items-center gap-1.5 font-sans" onClick={() => fileRef.current?.click()}>
+          <button className="px-4 py-2 bg-ec-card-hover text-ec-t2 rounded-lg text-sm border border-ec-border cursor-pointer hover:bg-ec-t5 hover:text-ec-t1 transition-colors flex items-center gap-1.5 font-sans" onClick={() => fileRef.current?.click()}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
               <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
               <polyline points="17 8 12 3 7 8" />
@@ -624,8 +624,8 @@ export default function Settings() {
           </p>
         )}
 
-        <div className="mt-6 pt-4 border-t border-white/[0.04]">
-          <button className="px-4 py-2 bg-white/[0.05] text-ec-t2 rounded-lg text-sm border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors flex items-center gap-1.5 font-sans" onClick={() => { logoutUser(); logout(); window.location.reload() }}>
+        <div className="mt-6 pt-4 border-t border-ec-div">
+          <button className="px-4 py-2 bg-ec-card-hover text-ec-t2 rounded-lg text-sm border border-ec-border cursor-pointer hover:bg-ec-t5 hover:text-ec-t1 transition-colors flex items-center gap-1.5 font-sans" onClick={() => { logoutUser(); logout(); window.location.reload() }}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
               <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
               <polyline points="16 17 21 12 16 7" />
@@ -639,7 +639,7 @@ export default function Settings() {
       {/* Weekly Compliance Report */}
       <div
         className="rounded-2xl p-5 mb-4"
-        style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ backgroundColor: 'var(--ec-card)', border: '1px solid var(--ec-border)' }}
       >
         <h2 className="text-base font-bold text-ec-t1 mb-1">Weekly Compliance Report</h2>
         <p className="text-sm text-ec-t3 mb-4">
@@ -693,38 +693,38 @@ export default function Settings() {
       {/* Audit Trail */}
       <div
         className="rounded-2xl p-5 mb-4"
-        style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ backgroundColor: 'var(--ec-card)', border: '1px solid var(--ec-border)' }}
       >
         <h2 className="text-base font-bold text-ec-t1 mb-1">Audit Trail</h2>
         <p className="text-sm text-ec-t3 mb-4">
           View a log of all actions performed in the system.
         </p>
-        <button className="px-4 py-2 bg-white/[0.05] text-ec-t2 rounded-lg text-sm border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors flex items-center gap-1.5 font-sans" onClick={() => setShowAudit(!showAudit)}>
+        <button className="px-4 py-2 bg-ec-card-hover text-ec-t2 rounded-lg text-sm border border-ec-border cursor-pointer hover:bg-ec-t5 hover:text-ec-t1 transition-colors flex items-center gap-1.5 font-sans" onClick={() => setShowAudit(!showAudit)}>
           {showAudit ? 'Hide Audit Trail' : 'Show Audit Trail'}
         </button>
         {showAudit && (
-          <div className="overflow-x-auto rounded-xl mt-4" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="overflow-x-auto rounded-xl mt-4" style={{ border: '1px solid var(--ec-border)' }}>
             {auditLogs.length === 0 ? (
               <p className="text-sm text-ec-t3 py-4">No audit entries yet.</p>
             ) : (
               <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
                 <thead>
                   <tr>
-                    <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Timestamp</th>
-                    <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Action</th>
-                    <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Item</th>
-                    <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">User</th>
-                    <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Page</th>
+                    <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Timestamp</th>
+                    <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Action</th>
+                    <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Item</th>
+                    <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">User</th>
+                    <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Page</th>
                   </tr>
                 </thead>
                 <tbody>
                   {[...auditLogs].sort((a, b) => new Date(b.timestamp || b.createdAt) - new Date(a.timestamp || a.createdAt)).map(log => (
                     <tr key={log.id}>
-                      <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{new Date(log.timestamp || log.createdAt).toLocaleString('en-GB')}</td>
-                      <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{log.action}</td>
-                      <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{log.itemName}</td>
-                      <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{log.userName || '—'}</td>
-                      <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{log.page || '—'}</td>
+                      <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">{new Date(log.timestamp || log.createdAt).toLocaleString('en-GB')}</td>
+                      <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">{log.action}</td>
+                      <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">{log.itemName}</td>
+                      <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-ec-div">{log.userName || '—'}</td>
+                      <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-ec-div">{log.page || '—'}</td>
                     </tr>
                   ))}
                 </tbody>

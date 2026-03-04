@@ -151,7 +151,7 @@ export default function MyTasks() {
       {/* My task list */}
       <div
         className="rounded-2xl p-5"
-        style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ backgroundColor: 'var(--ec-card)', border: '1px solid var(--ec-border)' }}
       >
         <h2 className="text-sm font-bold text-ec-t1 flex items-center gap-2 mb-3">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
@@ -187,13 +187,13 @@ export default function MyTasks() {
               return (
                 <li
                   key={task.name}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors hover:bg-white/[0.03] ${done ? 'opacity-50' : ''}`}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors hover:bg-ec-card ${done ? 'opacity-50' : ''}`}
                 >
                   <button
                     className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-all cursor-pointer ${
                       done
                         ? 'border-ec-em bg-ec-em'
-                        : 'border-white/[0.15] bg-transparent'
+                        : 'border-ec-border bg-transparent'
                     }`}
                     onClick={() => !done && completeRotation(task.name)}
                     disabled={done}
@@ -223,13 +223,13 @@ export default function MyTasks() {
             {myAssigned.map((task) => (
               <li
                 key={task.id}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors hover:bg-white/[0.03] ${task.completed ? 'opacity-50' : ''}`}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors hover:bg-ec-card ${task.completed ? 'opacity-50' : ''}`}
               >
                 <button
                   className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-all cursor-pointer ${
                     task.completed
                       ? 'border-ec-em bg-ec-em'
-                      : 'border-white/[0.15] bg-transparent'
+                      : 'border-ec-border bg-transparent'
                   }`}
                   onClick={() => toggleAssigned(task)}
                   aria-label={task.completed ? 'Completed' : 'Mark done'}
@@ -256,7 +256,7 @@ export default function MyTasks() {
       {user?.isManager && (
         <div
           className="rounded-2xl p-5"
-          style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+          style={{ backgroundColor: 'var(--ec-card)', border: '1px solid var(--ec-border)' }}
         >
           <button
             className="w-full flex items-center gap-2 text-sm font-bold text-ec-t1 bg-transparent border-none cursor-pointer p-0 font-sans"
@@ -289,11 +289,11 @@ export default function MyTasks() {
                   <div
                     key={row.name}
                     className="flex items-center gap-2.5 p-3 rounded-xl"
-                    style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+                    style={{ backgroundColor: 'var(--ec-card)', border: '1px solid var(--ec-border)' }}
                   >
                     <span
                       className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
-                      style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
+                      style={{ background: 'linear-gradient(135deg, var(--ec-em), var(--ec-em-dark))' }}
                     >
                       {getStaffInitials(row.name)}
                     </span>
@@ -339,7 +339,7 @@ export default function MyTasks() {
                     Staff member
                   </label>
                   <select
-                    className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+                    className="w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
                     value={assignName}
                     onChange={(e) => setAssignName(e.target.value)}
                   >
@@ -357,16 +357,16 @@ export default function MyTasks() {
                   </label>
                   <input
                     type="text"
-                    className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+                    className="w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
                     placeholder="e.g. Restock fridge"
                     value={assignTitle}
                     onChange={(e) => setAssignTitle(e.target.value)}
                   />
                 </div>
-                <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-white/[0.04]">
+                <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-ec-div">
                   <button
                     type="button"
-                    className="px-4 py-2 bg-white/[0.05] text-ec-t2 rounded-lg text-sm border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] transition-colors font-sans"
+                    className="px-4 py-2 bg-ec-card-hover text-ec-t2 rounded-lg text-sm border border-ec-border cursor-pointer hover:bg-ec-t5 transition-colors font-sans"
                     onClick={() => setAssignModal(false)}
                   >
                     Cancel

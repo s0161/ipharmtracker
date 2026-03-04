@@ -20,7 +20,7 @@ const emptyForm = {
 }
 
 const inputClass =
-  'w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans'
+  'w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans'
 
 export default function CleaningRota() {
   const { user } = useUser()
@@ -169,34 +169,34 @@ export default function CleaningRota() {
           No cleaning entries yet. Add your first entry to get started.
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--ec-border)' }}>
           <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Task</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Date / Time</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Staff Member</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Result</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Notes</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06] hidden md:table-cell">Actions</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Task</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Date / Time</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Staff Member</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Result</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Notes</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border hidden md:table-cell">Actions</th>
               </tr>
             </thead>
             <tbody>
               {sorted.map((entry) => (
                 <SwipeRow key={entry.id} onEdit={() => openEdit(entry)} onDelete={() => handleDelete(entry.id)}>
-                  <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04] font-medium">{entry.taskName}</td>
-                  <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{formatDateTime(entry.dateTime)}</td>
-                  <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{entry.staffMember}</td>
-                  <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
+                  <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div font-medium">{entry.taskName}</td>
+                  <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">{formatDateTime(entry.dateTime)}</td>
+                  <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">{entry.staffMember}</td>
+                  <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">
                     <span className={resultBadgeClass(entry.result)}>
                       {entry.result}
                     </span>
                   </td>
-                  <td className="px-4 py-2.5 text-ec-t3 border-b border-white/[0.04] max-w-[200px] truncate">{entry.notes || '—'}</td>
-                  <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04] hidden md:table-cell">
+                  <td className="px-4 py-2.5 text-ec-t3 border-b border-ec-div max-w-[200px] truncate">{entry.notes || '—'}</td>
+                  <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div hidden md:table-cell">
                     <div className="flex gap-1">
                       <button
-                        className="px-2.5 py-1 bg-white/[0.05] text-ec-t2 rounded-lg text-xs border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors font-sans"
+                        className="px-2.5 py-1 bg-ec-card-hover text-ec-t2 rounded-lg text-xs border border-ec-border cursor-pointer hover:bg-ec-t5 hover:text-ec-t1 transition-colors font-sans"
                         onClick={() => openEdit(entry)}
                       >
                         Edit
@@ -314,10 +314,10 @@ export default function CleaningRota() {
             />
           </div>
 
-          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-white/[0.04]">
+          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-ec-div">
             <button
               type="button"
-              className="px-4 py-2 bg-white/[0.05] text-ec-t2 rounded-lg text-sm border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] transition-colors font-sans"
+              className="px-4 py-2 bg-ec-card-hover text-ec-t2 rounded-lg text-sm border border-ec-border cursor-pointer hover:bg-ec-t5 transition-colors font-sans"
               onClick={() => setModalOpen(false)}
             >
               Cancel

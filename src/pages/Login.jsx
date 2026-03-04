@@ -33,13 +33,13 @@ export default function Login({ onLogin }) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#0a0a0a' }}>
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: 'var(--ec-bg)' }}>
       <div
         className="w-full max-w-sm rounded-2xl p-8 ec-fadeup"
         style={{
-          backgroundColor: 'rgba(255,255,255,0.025)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          boxShadow: '0 24px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04)',
+          backgroundColor: 'var(--ec-card)',
+          border: '1px solid var(--ec-t5)',
+          boxShadow: 'var(--shadow-lg)',
         }}
       >
         <div className="flex flex-col items-center mb-8">
@@ -60,7 +60,7 @@ export default function Login({ onLogin }) {
         <form onSubmit={handleSubmit}>
           <input
             type="password"
-            className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-4 py-3 text-sm text-ec-t1 placeholder:text-ec-t3 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+            className="w-full bg-ec-card border border-ec-border rounded-lg px-4 py-3 text-sm text-ec-t1 placeholder:text-ec-t3 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
             placeholder="Enter password"
             value={password}
             onChange={(e) => { setPassword(e.target.value); setError(false) }}

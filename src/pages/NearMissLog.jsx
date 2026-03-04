@@ -35,7 +35,7 @@ const emptyForm = {
 }
 
 const inputClass =
-  'w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans'
+  'w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans'
 
 const severityBadge = (sev) => {
   const cls =
@@ -57,7 +57,7 @@ const categoryBadge = (cat) => {
       ? 'bg-ec-crit/10 text-ec-crit-light'
       : cat === 'Dispensing Error'
         ? 'bg-ec-warn/10 text-ec-warn'
-        : 'bg-white/[0.06] text-ec-t2'
+        : 'bg-ec-border text-ec-t2'
   return (
     <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${cls}`}>
       {cat}
@@ -230,8 +230,8 @@ export default function NearMissLog() {
         <div
           className="rounded-xl p-4"
           style={{
-            backgroundColor: 'rgba(255,255,255,0.025)',
-            border: '1px solid rgba(255,255,255,0.06)',
+            backgroundColor: 'var(--ec-card)',
+            border: '1px solid var(--ec-border)',
           }}
         >
           <div className="text-2xl font-bold text-ec-t1">{totalThisMonth}</div>
@@ -240,8 +240,8 @@ export default function NearMissLog() {
         <div
           className="rounded-xl p-4"
           style={{
-            backgroundColor: 'rgba(255,255,255,0.025)',
-            border: '1px solid rgba(255,255,255,0.06)',
+            backgroundColor: 'var(--ec-card)',
+            border: '1px solid var(--ec-border)',
           }}
         >
           <div className="text-2xl font-bold text-ec-t1">{resolvedPct}%</div>
@@ -250,8 +250,8 @@ export default function NearMissLog() {
         <div
           className="rounded-xl p-4"
           style={{
-            backgroundColor: 'rgba(255,255,255,0.025)',
-            border: '1px solid rgba(255,255,255,0.06)',
+            backgroundColor: 'var(--ec-card)',
+            border: '1px solid var(--ec-border)',
           }}
         >
           <div className="text-2xl font-bold text-ec-t1">{openCount}</div>
@@ -263,7 +263,7 @@ export default function NearMissLog() {
       <div className="flex items-center gap-2 flex-wrap mb-4">
         <PageActions onDownloadCsv={handleCsvDownload} />
         <select
-          className="bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+          className="bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
           value={filterCategory}
           onChange={(e) => setFilterCategory(e.target.value)}
         >
@@ -275,7 +275,7 @@ export default function NearMissLog() {
           ))}
         </select>
         <select
-          className="bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+          className="bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
         >
@@ -288,7 +288,7 @@ export default function NearMissLog() {
         </select>
         <input
           type="text"
-          className="bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+          className="bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
           placeholder="Search..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -309,7 +309,7 @@ export default function NearMissLog() {
       ) : (
         <div
           className="overflow-x-auto rounded-xl"
-          style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+          style={{ border: '1px solid var(--ec-border)' }}
         >
           <table
             className="w-full text-sm"
@@ -317,22 +317,22 @@ export default function NearMissLog() {
           >
             <thead>
               <tr>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">
                   Date
                 </th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">
                   Category
                 </th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">
                   Severity
                 </th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">
                   Description
                 </th>
-                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">
+                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">
                   Status
                 </th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">
                   Actions
                 </th>
               </tr>
@@ -342,37 +342,37 @@ export default function NearMissLog() {
                 <>
                   <tr
                     key={entry.id}
-                    className="cursor-pointer hover:bg-white/[0.02] transition-colors"
+                    className="cursor-pointer hover:bg-ec-card transition-colors"
                     onClick={() =>
                       setExpandedId(
                         expandedId === entry.id ? null : entry.id
                       )
                     }
                   >
-                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">
                       {formatDate(entry.date)}
                     </td>
-                    <td className="px-4 py-2.5 border-b border-white/[0.04]">
+                    <td className="px-4 py-2.5 border-b border-ec-div">
                       {categoryBadge(entry.category)}
                     </td>
-                    <td className="px-4 py-2.5 border-b border-white/[0.04]">
+                    <td className="px-4 py-2.5 border-b border-ec-div">
                       {severityBadge(entry.severity)}
                     </td>
-                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04] max-w-[250px] truncate">
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div max-w-[250px] truncate">
                       {(entry.description || '').length > 60
                         ? entry.description.slice(0, 60) + '...'
                         : entry.description || ''}
                     </td>
-                    <td className="hidden md:table-cell px-4 py-2.5 border-b border-white/[0.04]">
+                    <td className="hidden md:table-cell px-4 py-2.5 border-b border-ec-div">
                       {statusBadge(entry.status)}
                     </td>
-                    <td className="px-4 py-2.5 border-b border-white/[0.04]">
+                    <td className="px-4 py-2.5 border-b border-ec-div">
                       <div
                         className="flex gap-1"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <button
-                          className="px-2.5 py-1 bg-white/[0.05] text-ec-t2 rounded-lg text-xs border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors font-sans"
+                          className="px-2.5 py-1 bg-ec-card-hover text-ec-t2 rounded-lg text-xs border border-ec-border cursor-pointer hover:bg-ec-t5 hover:text-ec-t1 transition-colors font-sans"
                           onClick={() => openEdit(entry)}
                         >
                           Edit
@@ -390,9 +390,9 @@ export default function NearMissLog() {
                     <tr key={entry.id + '-detail'}>
                       <td
                         colSpan={6}
-                        className="px-4 py-4 border-b border-white/[0.04]"
+                        className="px-4 py-4 border-b border-ec-div"
                         style={{
-                          backgroundColor: 'rgba(255,255,255,0.015)',
+                          backgroundColor: 'var(--ec-card)',
                         }}
                       >
                         <div className="pl-4 space-y-2">
@@ -629,10 +629,10 @@ export default function NearMissLog() {
             </select>
           </div>
 
-          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-white/[0.04]">
+          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-ec-div">
             <button
               type="button"
-              className="px-4 py-2 bg-white/[0.05] text-ec-t2 rounded-lg text-sm border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] transition-colors font-sans"
+              className="px-4 py-2 bg-ec-card-hover text-ec-t2 rounded-lg text-sm border border-ec-border cursor-pointer hover:bg-ec-t5 transition-colors font-sans"
               onClick={() => setModalOpen(false)}
             >
               Cancel

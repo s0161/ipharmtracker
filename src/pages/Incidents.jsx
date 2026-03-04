@@ -20,7 +20,7 @@ const emptyForm = {
 }
 
 const inputClass =
-  'w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans'
+  'w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans'
 
 const severityBadge = (sev) => {
   const cls =
@@ -44,7 +44,7 @@ const typeBadge = (type) => {
         ? 'bg-ec-crit/10 text-ec-crit-light'
         : type === 'Complaint'
           ? 'bg-ec-info/10 text-ec-info-light'
-          : 'bg-white/[0.06] text-ec-t2'
+          : 'bg-ec-border text-ec-t2'
   return (
     <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${cls}`}>
       {type}
@@ -169,7 +169,7 @@ export default function Incidents() {
       <div className="flex items-center gap-2 flex-wrap mb-4">
         <PageActions onDownloadCsv={handleCsvDownload} />
         <select
-          className="bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+          className="bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
           value={filterType}
           onChange={(e) => setFilterType(e.target.value)}
         >
@@ -181,7 +181,7 @@ export default function Incidents() {
           ))}
         </select>
         <select
-          className="bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+          className="bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
           value={filterSeverity}
           onChange={(e) => setFilterSeverity(e.target.value)}
         >
@@ -194,7 +194,7 @@ export default function Incidents() {
         </select>
         <input
           type="text"
-          className="bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+          className="bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
           placeholder="Search..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -214,7 +214,7 @@ export default function Incidents() {
       ) : (
         <div
           className="overflow-x-auto rounded-xl"
-          style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+          style={{ border: '1px solid var(--ec-border)' }}
         >
           <table
             className="w-full text-sm"
@@ -222,22 +222,22 @@ export default function Incidents() {
           >
             <thead>
               <tr>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">
                   Date
                 </th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">
                   Type
                 </th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">
                   Severity
                 </th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">
                   Description
                 </th>
-                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">
+                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">
                   Reported By
                 </th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">
                   Actions
                 </th>
               </tr>
@@ -245,27 +245,27 @@ export default function Incidents() {
             <tbody>
               {sorted.map((inc) => (
                 <tr key={inc.id}>
-                  <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
+                  <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">
                     {formatDate(inc.date)}
                   </td>
-                  <td className="px-4 py-2.5 border-b border-white/[0.04]">
+                  <td className="px-4 py-2.5 border-b border-ec-div">
                     {typeBadge(inc.type)}
                   </td>
-                  <td className="px-4 py-2.5 border-b border-white/[0.04]">
+                  <td className="px-4 py-2.5 border-b border-ec-div">
                     {severityBadge(inc.severity)}
                   </td>
-                  <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04] max-w-[250px] truncate">
+                  <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div max-w-[250px] truncate">
                     {(inc.description || '').length > 60
                       ? inc.description.slice(0, 60) + '...'
                       : inc.description || ''}
                   </td>
-                  <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
+                  <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-ec-div">
                     {inc.reportedBy || '\u2014'}
                   </td>
-                  <td className="px-4 py-2.5 border-b border-white/[0.04]">
+                  <td className="px-4 py-2.5 border-b border-ec-div">
                     <div className="flex gap-1">
                       <button
-                        className="px-2.5 py-1 bg-white/[0.05] text-ec-t2 rounded-lg text-xs border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors font-sans"
+                        className="px-2.5 py-1 bg-ec-card-hover text-ec-t2 rounded-lg text-xs border border-ec-border cursor-pointer hover:bg-ec-t5 hover:text-ec-t1 transition-colors font-sans"
                         onClick={() => openEdit(inc)}
                       >
                         Edit
@@ -398,10 +398,10 @@ export default function Incidents() {
             />
           </div>
 
-          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-white/[0.04]">
+          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-ec-div">
             <button
               type="button"
-              className="px-4 py-2 bg-white/[0.05] text-ec-t2 rounded-lg text-sm border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] transition-colors font-sans"
+              className="px-4 py-2 bg-ec-card-hover text-ec-t2 rounded-lg text-sm border border-ec-border cursor-pointer hover:bg-ec-t5 transition-colors font-sans"
               onClick={() => setModalOpen(false)}
             >
               Cancel

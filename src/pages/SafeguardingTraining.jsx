@@ -32,14 +32,14 @@ const emptyForm = {
   signedOff: false,
 }
 
-const inputClass = "w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+const inputClass = "w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
 
 const statusStyle = (status) => {
   switch (status) {
-    case 'current': return { bg: 'rgba(16,185,129,0.1)', color: '#10b981', dot: '#10b981' }
+    case 'current': return { bg: 'rgba(16,185,129,0.1)', color: 'var(--ec-em)', dot: 'var(--ec-em)' }
     case 'due-soon': return { bg: 'rgba(245,158,11,0.1)', color: '#f59e0b', dot: '#f59e0b' }
     case 'overdue': return { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', dot: '#ef4444' }
-    default: return { bg: 'transparent', color: '#e4e4e7', dot: '#e4e4e7' }
+    default: return { bg: 'transparent', color: 'var(--ec-t1)', dot: 'var(--ec-t1)' }
   }
 }
 
@@ -156,21 +156,21 @@ export default function SafeguardingTraining() {
       {/* Summary Banner */}
       <div
         className="grid grid-cols-4 gap-px rounded-xl overflow-hidden mb-6"
-        style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ border: '1px solid var(--ec-border)' }}
       >
-        <div className="p-4 text-center" style={{ backgroundColor: 'rgba(255,255,255,0.025)' }}>
+        <div className="p-4 text-center" style={{ backgroundColor: 'var(--ec-card)' }}>
           <span className="text-2xl font-bold text-ec-t1 block">{totalTrained}</span>
           <span className="text-xs text-ec-t3 mt-1 block">Staff Trained</span>
         </div>
-        <div className="p-4 text-center" style={{ backgroundColor: 'rgba(255,255,255,0.025)' }}>
+        <div className="p-4 text-center" style={{ backgroundColor: 'var(--ec-card)' }}>
           <span className="text-2xl font-bold text-ec-em block">{currentCount}</span>
           <span className="text-xs text-ec-t3 mt-1 block">Current</span>
         </div>
-        <div className="p-4 text-center" style={{ backgroundColor: 'rgba(255,255,255,0.025)' }}>
+        <div className="p-4 text-center" style={{ backgroundColor: 'var(--ec-card)' }}>
           <span className="text-2xl font-bold text-ec-warn block">{dueSoonCount}</span>
           <span className="text-xs text-ec-t3 mt-1 block">Due Soon</span>
         </div>
-        <div className="p-4 text-center" style={{ backgroundColor: 'rgba(255,255,255,0.025)' }}>
+        <div className="p-4 text-center" style={{ backgroundColor: 'var(--ec-card)' }}>
           <span className="text-2xl font-bold text-ec-crit-light block">{overdueCount}</span>
           <span className="text-xs text-ec-t3 mt-1 block">Overdue</span>
         </div>
@@ -184,21 +184,21 @@ export default function SafeguardingTraining() {
       ) : (
         <div
           className="overflow-x-auto rounded-xl"
-          style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+          style={{ border: '1px solid var(--ec-border)' }}
         >
           <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Staff Name</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Job Title</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Training Date</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06] hidden md:table-cell">Delivered By</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06] hidden md:table-cell">Method</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06] hidden md:table-cell">Handbook</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Signed Off</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Next Refresher</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Status</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06] hidden md:table-cell">Actions</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Staff Name</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Job Title</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Training Date</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border hidden md:table-cell">Delivered By</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border hidden md:table-cell">Method</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border hidden md:table-cell">Handbook</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Signed Off</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Next Refresher</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Status</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border hidden md:table-cell">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -206,19 +206,19 @@ export default function SafeguardingTraining() {
                 const status = getSafeguardingStatus(record.trainingDate)
                 const refresher = getRefresherDate(record.trainingDate)
                 return (
-                  <SwipeRow key={record.id} className="hover:bg-white/[0.03] transition-colors" onEdit={() => openEdit(record)} onDelete={() => handleDelete(record.id)}>
-                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04] font-medium">{record.staffName}</td>
-                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{record.jobTitle}</td>
-                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{formatDate(record.trainingDate)}</td>
-                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t3 border-b border-white/[0.04]">{record.deliveredBy}</td>
-                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t3 border-b border-white/[0.04]">{record.trainingMethod}</td>
-                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t3 border-b border-white/[0.04]">{record.handbookVersion}</td>
-                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
+                  <SwipeRow key={record.id} className="hover:bg-ec-card transition-colors" onEdit={() => openEdit(record)} onDelete={() => handleDelete(record.id)}>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div font-medium">{record.staffName}</td>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">{record.jobTitle}</td>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">{formatDate(record.trainingDate)}</td>
+                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t3 border-b border-ec-div">{record.deliveredBy}</td>
+                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t3 border-b border-ec-div">{record.trainingMethod}</td>
+                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t3 border-b border-ec-div">{record.handbookVersion}</td>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">
                       <button
                         className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border-none cursor-pointer transition-colors font-sans ${
                           record.signedOff
                             ? 'bg-ec-em/10 text-ec-em hover:bg-ec-em/20'
-                            : 'bg-white/[0.06] text-ec-t3 hover:bg-white/[0.1]'
+                            : 'bg-ec-border text-ec-t3 hover:bg-ec-t5'
                         }`}
                         onClick={() => toggleSignedOff(record.id)}
                         title="Click to toggle"
@@ -226,8 +226,8 @@ export default function SafeguardingTraining() {
                         {record.signedOff ? 'Yes' : 'No'}
                       </button>
                     </td>
-                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{refresher ? formatDate(refresher) : '—'}</td>
-                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">{refresher ? formatDate(refresher) : '—'}</td>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">
                       <span
                         className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold"
                         style={{ backgroundColor: statusStyle(status).bg, color: statusStyle(status).color }}
@@ -236,10 +236,10 @@ export default function SafeguardingTraining() {
                         {STATUS_LABELS[status]}
                       </span>
                     </td>
-                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
+                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-ec-div">
                       <div className="flex gap-1">
                         <button
-                          className="px-2.5 py-1 bg-white/[0.05] text-ec-t2 rounded-lg text-xs border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors font-sans"
+                          className="px-2.5 py-1 bg-ec-card-hover text-ec-t2 rounded-lg text-xs border border-ec-border cursor-pointer hover:bg-ec-t5 hover:text-ec-t1 transition-colors font-sans"
                           onClick={() => openEdit(record)}
                         >
                           Edit
@@ -261,7 +261,7 @@ export default function SafeguardingTraining() {
       )}
 
       {/* Reference Documents — Collapsible */}
-      <div className="mt-6 rounded-2xl p-5" style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
+      <div className="mt-6 rounded-2xl p-5" style={{ backgroundColor: 'var(--ec-card)', border: '1px solid var(--ec-border)' }}>
         <button
           onClick={() => setDocsOpen(!docsOpen)}
           className="w-full flex items-center justify-between text-sm font-bold text-ec-t1 bg-transparent border-none cursor-pointer p-0 font-sans"
@@ -289,7 +289,7 @@ export default function SafeguardingTraining() {
         {docsOpen && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
             {REFERENCE_DOCS.map((doc) => (
-              <div key={doc.name} className="flex items-start gap-3 p-3 rounded-lg" style={{ backgroundColor: 'rgba(255,255,255,0.025)' }}>
+              <div key={doc.name} className="flex items-start gap-3 p-3 rounded-lg" style={{ backgroundColor: 'var(--ec-card)' }}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20" className="text-ec-t3 shrink-0 mt-0.5">
                   <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                   <polyline points="14 2 14 8 20 8" />
@@ -384,7 +384,7 @@ export default function SafeguardingTraining() {
             <label className="flex items-center gap-2 text-sm text-ec-t1 cursor-pointer">
               <input
                 type="checkbox"
-                className="accent-[#10b981]"
+                className="accent-ec-em"
                 checked={form.signedOff}
                 onChange={(e) => setForm({ ...form, signedOff: e.target.checked })}
               />
@@ -392,10 +392,10 @@ export default function SafeguardingTraining() {
             </label>
           </div>
 
-          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-white/[0.04]">
+          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-ec-div">
             <button
               type="button"
-              className="px-4 py-2 bg-white/[0.05] text-ec-t2 rounded-lg text-sm border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] transition-colors font-sans"
+              className="px-4 py-2 bg-ec-card-hover text-ec-t2 rounded-lg text-sm border border-ec-border cursor-pointer hover:bg-ec-t5 transition-colors font-sans"
               onClick={() => setModalOpen(false)}
             >
               Cancel

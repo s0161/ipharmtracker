@@ -35,7 +35,7 @@ const emptyForm = {
 const IN_RANGE_MIN = 2
 const IN_RANGE_MAX = 8
 
-const inputClass = "w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+const inputClass = "w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
 
 export default function TemperatureLog() {
   const { user } = useUser()
@@ -151,7 +151,7 @@ export default function TemperatureLog() {
       )}
 
       <form className="rounded-2xl p-5 space-y-4"
-        style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ backgroundColor: 'var(--ec-card)', border: '1px solid var(--ec-border)' }}
         onSubmit={handleSubmit}>
         <div className="grid grid-cols-3 gap-4">
           <div>
@@ -204,16 +204,16 @@ export default function TemperatureLog() {
           No temperature readings yet.
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl mt-6" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="overflow-x-auto rounded-xl mt-6" style={{ border: '1px solid var(--ec-border)' }}>
           <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Date</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Time</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Temperature</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Logged By</th>
-                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Notes</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Actions</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Date</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Time</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Temperature</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Logged By</th>
+                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Notes</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -222,9 +222,9 @@ export default function TemperatureLog() {
                 const inRange = temp >= IN_RANGE_MIN && temp <= IN_RANGE_MAX
                 return (
                   <tr key={log.id} style={!inRange ? { backgroundColor: 'rgba(239,68,68,0.04)' } : undefined}>
-                    <td className="px-4 py-2.5 text-ec-t1 font-medium border-b border-white/[0.04]">{formatDate(log.date)}</td>
-                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{log.time || '—'}</td>
-                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
+                    <td className="px-4 py-2.5 text-ec-t1 font-medium border-b border-ec-div">{formatDate(log.date)}</td>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">{log.time || '—'}</td>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">
                       <span className={inRange ? "inline-flex items-center text-ec-em font-semibold" : "inline-flex items-center text-ec-crit-light font-semibold"}>
                         {!inRange && (
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14" className="mr-1">
@@ -236,9 +236,9 @@ export default function TemperatureLog() {
                         {temp.toFixed(1)}°C
                       </span>
                     </td>
-                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{log.loggedBy || '—'}</td>
-                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t3 border-b border-white/[0.04]">{log.notes || '—'}</td>
-                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">{log.loggedBy || '—'}</td>
+                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t3 border-b border-ec-div">{log.notes || '—'}</td>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">
                       <button className="px-2.5 py-1 bg-ec-crit/10 text-ec-crit-light rounded-lg text-xs border border-ec-crit/20 cursor-pointer hover:bg-ec-crit/20 transition-colors font-sans" onClick={() => handleDelete(log.id)}>Delete</button>
                     </td>
                   </tr>

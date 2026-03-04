@@ -8,27 +8,27 @@ export function useToast() {
 
 const TOAST_STYLES = {
   success: {
-    backgroundColor: '#141414',
-    borderLeft: '3px solid #10b981',
-    color: '#e4e4e7',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+    backgroundColor: 'var(--ec-sidebar)',
+    borderLeft: '3px solid var(--ec-em)',
+    color: 'var(--ec-t1)',
+    boxShadow: 'var(--shadow-md)',
   },
   error: {
-    backgroundColor: '#141414',
+    backgroundColor: 'var(--ec-sidebar)',
     borderLeft: '3px solid #ef4444',
     color: '#fca5a5',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+    boxShadow: 'var(--shadow-md)',
   },
   info: {
-    backgroundColor: '#141414',
+    backgroundColor: 'var(--ec-sidebar)',
     borderLeft: '3px solid #6366f1',
     color: '#a5b4fc',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+    boxShadow: 'var(--shadow-md)',
   },
 }
 
 const ICON_COLORS = {
-  success: '#10b981',
+  success: 'var(--ec-em)',
   error: '#ef4444',
   info: '#6366f1',
 }

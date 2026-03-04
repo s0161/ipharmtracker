@@ -38,7 +38,7 @@ const statusBadgeClass = (status) => {
   }
 }
 
-const inputClass = "w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+const inputClass = "w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
 
 export default function StaffTraining() {
   const { user } = useUser()
@@ -255,15 +255,15 @@ export default function StaffTraining() {
             return (
               <div
                 key={sp.name}
-                className="rounded-xl p-3 cursor-pointer transition-colors hover:bg-white/[0.04]"
-                style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+                className="rounded-xl p-3 cursor-pointer transition-colors hover:bg-ec-card"
+                style={{ backgroundColor: 'var(--ec-card)', border: '1px solid var(--ec-border)' }}
                 onClick={() => setFilterStaff(filterStaff === sp.name ? '' : sp.name)}
               >
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-sm text-ec-t1 font-medium truncate">{sp.name}</span>
                   <span className="text-xs text-ec-t3 tabular-nums">{sp.complete}/{sp.total}</span>
                 </div>
-                <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                <div className="h-1.5 rounded-full bg-ec-border overflow-hidden">
                   <div
                     className="h-full rounded-full bg-ec-em transition-all"
                     style={{ width: `${pct}%` }}
@@ -284,14 +284,14 @@ export default function StaffTraining() {
           </svg>
           <input
             type="text"
-            className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg pl-9 pr-3 py-2 text-sm text-ec-t1 placeholder:text-ec-t3 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+            className="w-full bg-ec-card border border-ec-border rounded-lg pl-9 pr-3 py-2 text-sm text-ec-t1 placeholder:text-ec-t3 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
             placeholder="Search staff, role, or training..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <select
-          className="bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+          className="bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
           value={filterStaff}
           onChange={(e) => setFilterStaff(e.target.value)}
         >
@@ -301,7 +301,7 @@ export default function StaffTraining() {
           ))}
         </select>
         <select
-          className="bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+          className="bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
           value={filterRole}
           onChange={(e) => setFilterRole(e.target.value)}
         >
@@ -311,7 +311,7 @@ export default function StaffTraining() {
           ))}
         </select>
         <select
-          className="bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+          className="bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
         >
@@ -322,7 +322,7 @@ export default function StaffTraining() {
         </select>
         {(filterStaff || filterRole || filterStatus || search) && (
           <button
-            className="px-3 py-1.5 bg-white/[0.05] text-ec-t2 rounded-lg text-xs border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors font-sans"
+            className="px-3 py-1.5 bg-ec-card-hover text-ec-t2 rounded-lg text-xs border border-ec-border cursor-pointer hover:bg-ec-t5 hover:text-ec-t1 transition-colors font-sans"
             onClick={() => {
               setFilterStaff('')
               setFilterRole('')
@@ -344,14 +344,14 @@ export default function StaffTraining() {
       {sorted.length === 0 ? (
         <div className="text-center py-10 text-ec-t3 text-sm">No training items match your filters.</div>
       ) : (
-        <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--ec-border)' }}>
           <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
             <thead>
               <tr>
                 {SORT_FIELDS.map((field) => (
                   <th
                     key={field}
-                    className={`text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06] cursor-pointer hover:text-ec-t2 transition-colors select-none${field === 'role' ? ' hidden md:table-cell' : ''}`}
+                    className={`text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border cursor-pointer hover:text-ec-t2 transition-colors select-none${field === 'role' ? ' hidden md:table-cell' : ''}`}
                     onClick={() => handleSort(field)}
                   >
                     {SORT_LABELS[field]}
@@ -360,17 +360,17 @@ export default function StaffTraining() {
                     </span>
                   </th>
                 ))}
-                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06] select-none">Actions</th>
+                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border select-none">Actions</th>
               </tr>
             </thead>
             <tbody>
               {sorted.map((entry) => (
-                <SwipeRow key={entry.id} className="hover:bg-white/[0.03] transition-colors" onEdit={() => openEdit(entry)} onDelete={() => handleDelete(entry.id)}>
-                  <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04] font-medium">{entry.staffName}</td>
-                  <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{entry.role}</td>
-                  <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{entry.trainingItem}</td>
-                  <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{entry.targetDate ? formatDate(entry.targetDate) : 'Ongoing'}</td>
-                  <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
+                <SwipeRow key={entry.id} className="hover:bg-ec-card transition-colors" onEdit={() => openEdit(entry)} onDelete={() => handleDelete(entry.id)}>
+                  <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div font-medium">{entry.staffName}</td>
+                  <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-ec-div">{entry.role}</td>
+                  <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">{entry.trainingItem}</td>
+                  <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">{entry.targetDate ? formatDate(entry.targetDate) : 'Ongoing'}</td>
+                  <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">
                     <button
                       className={statusBadgeClass(entry.status)}
                       onClick={() => cycleStatus(entry.id)}
@@ -379,10 +379,10 @@ export default function StaffTraining() {
                       {entry.status}
                     </button>
                   </td>
-                  <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
+                  <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-ec-div">
                     <div className="flex gap-1">
                       <button
-                        className="px-2.5 py-1 bg-white/[0.05] text-ec-t2 rounded-lg text-xs border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors font-sans"
+                        className="px-2.5 py-1 bg-ec-card-hover text-ec-t2 rounded-lg text-xs border border-ec-border cursor-pointer hover:bg-ec-t5 hover:text-ec-t1 transition-colors font-sans"
                         onClick={() => openEdit(entry)}
                       >
                         Edit
@@ -483,10 +483,10 @@ export default function StaffTraining() {
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-white/[0.04]">
+          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-ec-div">
             <button
               type="button"
-              className="px-4 py-2 bg-white/[0.05] text-ec-t2 rounded-lg text-sm border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] transition-colors font-sans"
+              className="px-4 py-2 bg-ec-card-hover text-ec-t2 rounded-lg text-sm border border-ec-border cursor-pointer hover:bg-ec-t5 transition-colors font-sans"
               onClick={() => setModalOpen(false)}
             >
               Cancel

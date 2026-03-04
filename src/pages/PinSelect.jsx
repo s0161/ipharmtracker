@@ -78,7 +78,7 @@ export default function PinSelect() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0a0a0a' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--ec-bg)' }}>
         <p className="text-sm text-ec-t3">Loading staff...</p>
       </div>
     )
@@ -86,11 +86,11 @@ export default function PinSelect() {
 
   if (selected) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#0a0a0a' }}>
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: 'var(--ec-bg)' }}>
         <div className="w-full max-w-xs flex flex-col items-center ec-fadeup">
           <button
             onClick={handleBack}
-            className="self-start mb-6 w-8 h-8 rounded-lg flex items-center justify-center bg-white/[0.05] text-ec-t3 hover:bg-white/[0.08] hover:text-ec-t1 transition-colors border-none cursor-pointer"
+            className="self-start mb-6 w-8 h-8 rounded-lg flex items-center justify-center bg-ec-card-hover text-ec-t3 hover:bg-ec-t5 hover:text-ec-t1 transition-colors border-none cursor-pointer"
             aria-label="Back"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
@@ -100,7 +100,7 @@ export default function PinSelect() {
 
           <div
             className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-lg mb-3"
-            style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
+            style={{ background: 'linear-gradient(135deg, var(--ec-em), var(--ec-em-dark))' }}
           >
             {getStaffInitials(selected.name)}
           </div>
@@ -115,7 +115,7 @@ export default function PinSelect() {
                 key={i}
                 className="w-3 h-3 rounded-full transition-all duration-200"
                 style={{
-                  backgroundColor: i < pin.length ? '#10b981' : 'rgba(255,255,255,0.1)',
+                  backgroundColor: i < pin.length ? 'var(--ec-em)' : 'var(--ec-t5)',
                   boxShadow: i < pin.length ? '0 0 8px rgba(16,185,129,0.4)' : 'none',
                 }}
               />
@@ -131,7 +131,7 @@ export default function PinSelect() {
                 <button
                   key={i}
                   onClick={handleBackspace}
-                  className="h-14 rounded-xl flex items-center justify-center bg-white/[0.04] text-ec-t3 hover:bg-white/[0.08] transition-colors border-none cursor-pointer"
+                  className="h-14 rounded-xl flex items-center justify-center bg-ec-card text-ec-t3 hover:bg-ec-t5 transition-colors border-none cursor-pointer"
                   aria-label="Delete"
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
@@ -144,7 +144,7 @@ export default function PinSelect() {
                 <button
                   key={i}
                   onClick={() => handleDigit(String(key))}
-                  className="h-14 rounded-xl flex items-center justify-center bg-white/[0.04] text-ec-t1 text-lg font-semibold hover:bg-white/[0.08] active:scale-95 transition-all border-none cursor-pointer font-sans"
+                  className="h-14 rounded-xl flex items-center justify-center bg-ec-card text-ec-t1 text-lg font-semibold hover:bg-ec-t5 active:scale-95 transition-all border-none cursor-pointer font-sans"
                 >
                   {key}
                 </button>
@@ -157,7 +157,7 @@ export default function PinSelect() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#0a0a0a' }}>
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: 'var(--ec-bg)' }}>
       <div className="w-full max-w-2xl ec-fadeup">
         <div className="flex flex-col items-center mb-8">
           <svg viewBox="0 0 40 40" width="44" height="44" className="mb-3">
@@ -181,13 +181,13 @@ export default function PinSelect() {
               onClick={() => setSelected(s)}
               className="flex flex-col items-center gap-2 p-4 rounded-xl border-none cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] font-sans"
               style={{
-                backgroundColor: 'rgba(255,255,255,0.025)',
-                border: '1px solid rgba(255,255,255,0.06)',
+                backgroundColor: 'var(--ec-card)',
+                border: '1px solid var(--ec-border)',
               }}
             >
               <div
                 className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
-                style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
+                style={{ background: 'linear-gradient(135deg, var(--ec-em), var(--ec-em-dark))' }}
               >
                 {getStaffInitials(s.name)}
               </div>

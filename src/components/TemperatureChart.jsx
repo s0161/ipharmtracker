@@ -19,7 +19,7 @@ export default function TemperatureChart({ readings, minRange = 2, maxRange = 8 
   const bandBot = toY(minRange)
 
   return (
-    <div className="rounded-xl p-4 mb-6" style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
+    <div className="rounded-xl p-4 mb-6" style={{ backgroundColor: 'var(--ec-card)', border: '1px solid var(--ec-border)' }}>
       <h3 className="text-sm font-bold text-ec-t1 mb-3">14-Day Temperature Trend</h3>
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ maxHeight: 180 }}>
         {/* Safe range band */}
@@ -51,10 +51,10 @@ export default function TemperatureChart({ readings, minRange = 2, maxRange = 8 
         })}
 
         {/* Date labels (first and last) */}
-        <text x={PAD.l} y={H - 5} textAnchor="start" fill="rgba(255,255,255,0.25)" fontSize="10">
+        <text x={PAD.l} y={H - 5} textAnchor="start" fill="var(--ec-t4)" fontSize="10">
           {readings[0].date}
         </text>
-        <text x={W - PAD.r} y={H - 5} textAnchor="end" fill="rgba(255,255,255,0.25)" fontSize="10">
+        <text x={W - PAD.r} y={H - 5} textAnchor="end" fill="var(--ec-t4)" fontSize="10">
           {readings[readings.length - 1].date}
         </text>
       </svg>

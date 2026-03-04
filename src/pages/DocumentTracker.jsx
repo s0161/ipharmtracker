@@ -28,7 +28,7 @@ const emptyForm = {
 const statusColors = { green: '#10b981', amber: '#f59e0b', red: '#ef4444' }
 const statusBg = { green: 'rgba(16,185,129,0.1)', amber: 'rgba(245,158,11,0.1)', red: 'rgba(239,68,68,0.1)' }
 
-const inputClass = "w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+const inputClass = "w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
 
 export default function DocumentTracker() {
   const { user } = useUser()
@@ -186,7 +186,7 @@ export default function DocumentTracker() {
         <div className="flex items-center gap-2 flex-wrap mb-4">
           <PageActions onDownloadCsv={handleCsvDownload} />
           <select
-            className="bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+            className="bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
           >
@@ -212,18 +212,18 @@ export default function DocumentTracker() {
           </p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--ec-border)' }}>
           <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Status</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Document Name</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Category</th>
-                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Owner</th>
-                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Issue Date</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Expiry / Review</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Notes</th>
-                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Actions</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Status</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Document Name</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Category</th>
+                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Owner</th>
+                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Issue Date</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Expiry / Review</th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Notes</th>
+                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -231,7 +231,7 @@ export default function DocumentTracker() {
                 const status = getTrafficLight(doc.expiryDate)
                 return (
                   <SwipeRow key={doc.id} onEdit={() => openEdit(doc)} onDelete={() => handleDelete(doc.id)}>
-                    <td className="px-4 py-2.5 border-b border-white/[0.04]">
+                    <td className="px-4 py-2.5 border-b border-ec-div">
                       <span
                         className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold"
                         style={{ backgroundColor: statusBg[status], color: statusColors[status] }}
@@ -241,18 +241,18 @@ export default function DocumentTracker() {
                         {getTrafficLightLabel(status)}
                       </span>
                     </td>
-                    <td className="px-4 py-2.5 text-ec-t1 font-medium border-b border-white/[0.04]">{doc.documentName}</td>
-                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
-                      <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-white/[0.06] text-ec-t2">{doc.category}</span>
+                    <td className="px-4 py-2.5 text-ec-t1 font-medium border-b border-ec-div">{doc.documentName}</td>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-ec-border text-ec-t2">{doc.category}</span>
                     </td>
-                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{doc.owner || '—'}</td>
-                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{formatDate(doc.issueDate)}</td>
-                    <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{formatDate(doc.expiryDate)}</td>
-                    <td className="px-4 py-2.5 text-ec-t3 border-b border-white/[0.04] max-w-[200px] truncate">{doc.notes || '—'}</td>
-                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
+                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-ec-div">{doc.owner || '—'}</td>
+                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-ec-div">{formatDate(doc.issueDate)}</td>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">{formatDate(doc.expiryDate)}</td>
+                    <td className="px-4 py-2.5 text-ec-t3 border-b border-ec-div max-w-[200px] truncate">{doc.notes || '—'}</td>
+                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-ec-div">
                       <div className="flex gap-1">
                         <button
-                          className="px-2.5 py-1 bg-white/[0.05] text-ec-t2 rounded-lg text-xs border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] hover:text-ec-t1 transition-colors font-sans"
+                          className="px-2.5 py-1 bg-ec-card-hover text-ec-t2 rounded-lg text-xs border border-ec-border cursor-pointer hover:bg-ec-t5 hover:text-ec-t1 transition-colors font-sans"
                           onClick={() => openEdit(doc)}
                         >
                           Edit
@@ -369,10 +369,10 @@ export default function DocumentTracker() {
             />
           </div>
 
-          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-white/[0.04]">
+          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-ec-div">
             <button
               type="button"
-              className="px-4 py-2 bg-white/[0.05] text-ec-t2 rounded-lg text-sm border border-white/[0.06] cursor-pointer hover:bg-white/[0.08] transition-colors font-sans"
+              className="px-4 py-2 bg-ec-card-hover text-ec-t2 rounded-lg text-sm border border-ec-border cursor-pointer hover:bg-ec-t5 transition-colors font-sans"
               onClick={() => setModalOpen(false)}
             >
               Cancel

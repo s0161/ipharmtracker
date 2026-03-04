@@ -124,7 +124,7 @@ export default function RPLog() {
   function getProgressColor() {
     if (totalChecked === ALL_ITEMS.length) return 'bg-ec-em'
     if (totalChecked > 0) return 'bg-ec-warn'
-    return 'bg-white/[0.08]'
+    return 'bg-ec-t5'
   }
 
   const renderChecklist = (title, items) => (
@@ -139,7 +139,7 @@ export default function RPLog() {
         {items.map(item => (
           <label
             key={item}
-            className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-colors hover:bg-white/[0.03] ${checklist[item] ? 'bg-white/[0.02]' : ''}`}
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-colors hover:bg-ec-card ${checklist[item] ? 'bg-ec-card' : ''}`}
           >
             <input
               type="checkbox"
@@ -151,7 +151,7 @@ export default function RPLog() {
               className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-all ${
                 checklist[item]
                   ? 'border-ec-em bg-ec-em'
-                  : 'border-white/[0.15]'
+                  : 'border-ec-border'
               }`}
             >
               {checklist[item] && (
@@ -220,14 +220,14 @@ export default function RPLog() {
       {/* Form Section */}
       <div
         className="rounded-2xl p-5"
-        style={{ backgroundColor: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ backgroundColor: 'var(--ec-card)', border: '1px solid var(--ec-border)' }}
       >
         <div className="flex gap-4 flex-wrap mb-4">
           <div>
             <label className="text-xs font-semibold text-ec-t2 mb-1 block">Date</label>
             <input
               type="date"
-              className="bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+              className="bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
               value={selectedDate}
               onChange={(e) => loadEntry(e.target.value)}
             />
@@ -236,7 +236,7 @@ export default function RPLog() {
             <label className="text-xs font-semibold text-ec-t2 mb-1 block">Responsible Pharmacist</label>
             <input
               type="text"
-              className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans cursor-default"
+              className="w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans cursor-default"
               value={rpName}
               readOnly
             />
@@ -247,7 +247,7 @@ export default function RPLog() {
           <span className="text-sm text-ec-t2">
             Completion: {totalChecked}/{ALL_ITEMS.length}
           </span>
-          <div className="flex-1 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+          <div className="flex-1 h-1.5 rounded-full bg-ec-border overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-300 ${getProgressColor()}`}
               style={{ width: `${pctComplete}%` }}
@@ -262,7 +262,7 @@ export default function RPLog() {
         <div className="mt-4">
           <label className="text-xs font-semibold text-ec-t2 mb-1 block">Notes</label>
           <textarea
-            className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans resize-none"
+            className="w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans resize-none"
             placeholder="Any issues, observations, or actions taken..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
@@ -279,14 +279,14 @@ export default function RPLog() {
             No RP checklists recorded yet.
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--ec-border)' }}>
             <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
               <thead className="text-left">
                 <tr>
-                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Date</th>
-                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">RP Name</th>
-                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06]">Completion</th>
-                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-white/[0.06] hidden md:table-cell">Notes</th>
+                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Date</th>
+                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">RP Name</th>
+                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Completion</th>
+                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border hidden md:table-cell">Notes</th>
                 </tr>
               </thead>
               <tbody>
@@ -297,12 +297,12 @@ export default function RPLog() {
                   return (
                     <tr
                       key={log.id}
-                      className="cursor-pointer hover:bg-white/[0.03] transition-colors"
+                      className="cursor-pointer hover:bg-ec-card transition-colors"
                       onClick={() => loadEntry(log.date)}
                     >
-                      <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04] font-medium">{formatDate(log.date)}</td>
-                      <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">{log.rpName}</td>
-                      <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04]">
+                      <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div font-medium">{formatDate(log.date)}</td>
+                      <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">{log.rpName}</td>
+                      <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">
                         <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
                           pct === 100
                             ? 'bg-ec-em/10 text-ec-em'
@@ -311,7 +311,7 @@ export default function RPLog() {
                           {completed}/{ALL_ITEMS.length}
                         </span>
                       </td>
-                      <td className="px-4 py-2.5 text-ec-t1 border-b border-white/[0.04] hidden md:table-cell">{log.notes || '—'}</td>
+                      <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div hidden md:table-cell">{log.notes || '—'}</td>
                     </tr>
                   )
                 })}
