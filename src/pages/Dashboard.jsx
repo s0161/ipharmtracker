@@ -121,6 +121,87 @@ function getGreeting() {
   return 'Good evening'
 }
 
+function Avatar({ initials, size = 24 }) {
+  const cfg = STAFF_INITIALS[initials] || { bg: "#94a3b8", label: initials };
+  return (
+    <div title={cfg.label} style={{ width: size, height: size, borderRadius: "50%", background: cfg.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.36, fontWeight: 700, color: "#fff", flexShrink: 0 }}>{initials}</div>
+  );
+}
+
+function PriorityBadge({ level }) {
+  const cfg = { HIGH: { bg: "#fef2f2", color: "#dc2626", border: "#fecaca" }, MED: { bg: "#fffbeb", color: "#d97706", border: "#fde68a" }, LOW: { bg: "#f0fdf4", color: "#16a34a", border: "#bbf7d0" } }[level] || { bg: "#f8fafc", color: "#64748b", border: "#e2e8f0" };
+  return <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 6px", borderRadius: 20, background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`, letterSpacing: "0.05em", fontFamily: "'DM Mono', monospace" }}>{level}</span>;
+}
+
+function CategoryTag({ label }) {
+  const cfg = { "Cleaning": { bg: "#eff6ff", color: "#2563eb", border: "#bfdbfe" }, "RP Check": { bg: "#fdf4ff", color: "#9333ea", border: "#e9d5ff" }, "CD Check": { bg: "#fff7ed", color: "#c2410c", border: "#fed7aa" }, "Compliance": { bg: "#f0fdf4", color: "#16a34a", border: "#bbf7d0" }, "H&S": { bg: "#fef9c3", color: "#a16207", border: "#fde68a" }, "Waste": { bg: "#f1f5f9", color: "#475569", border: "#cbd5e1" } }[label] || { bg: "#f1f5f9", color: "#475569", border: "#e2e8f0" };
+  return <span style={{ fontSize: 9, fontWeight: 600, padding: "1px 7px", borderRadius: 20, background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}` }}>{label}</span>;
+}
+
+function CircleProgress({ pct, color, size = 52 }) {
+  const r = (size - 10) / 2;
+  const circ = 2 * Math.PI * r;
+  const fill = (pct / 100) * circ;
+  const pctColor = pct >= 80 ? "#059669" : pct >= 50 ? "#f59e0b" : "#ef4444";
+  return (
+    <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
+      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#e8f5e9" strokeWidth={6} />
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={6} strokeDasharray={`${fill} ${circ}`} strokeLinecap="round" />
+      </svg>
+      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: pctColor, fontFamily: "'DM Mono', monospace" }}>{pct}%</div>
+    </div>
+  );
+}
+
+function DashCardHeader({ gradient, icon, title, right }) {
+  return (
+    <div style={{ margin: "-14px -16px 12px", padding: "9px 16px", background: gradient, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 7, color: "white", fontSize: 13, fontWeight: 700 }}><span>{icon}</span>{title}</div>
+      {right && <div style={{ color: "rgba(255,255,255,0.9)" }}>{right}</div>}
+    </div>
+  );
+}
+
+function TaskRow({ task, onToggle }) {
+  return (
+    <div onClick={() => onToggle && onToggle(task.id)} style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 10px", borderRadius: 8, cursor: "pointer", background: task.done ? "#f0fdf4" : "white", border: `1px solid ${task.done ? "#6ee7b7" : "#e2e8f0"}`, marginBottom: 4, transition: "background 0.12s" }}>
+      <div style={{ width: 17, height: 17, borderRadius: 5, flexShrink: 0, border: task.done ? "none" : "2px solid #d1d5db", background: task.done ? "#059669" : "white", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        {task.done && <span style={{ color: "white", fontSize: 10, fontWeight: 700 }}>✓</span>}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 12, fontWeight: 500, color: task.done ? "#6ee7b7" : "#1e293b", textDecoration: task.done ? "line-through" : "none" }}>{task.label}</div>
+        {task.sub && !task.done && <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 1 }}>› {task.sub}</div>}
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
+        <PriorityBadge level={task.priority} />
+        <CategoryTag label={task.category} />
+        {task.byTime && <span style={{ fontSize: 9, color: "#94a3b8", fontFamily: "'DM Mono', monospace" }}>⏱{task.byTime}</span>}
+        <Avatar initials={task.assignee} size={22} />
+      </div>
+    </div>
+  );
+}
+
+function ComplianceCardItem({ item, expanded, onToggle }) {
+  return (
+    <div onClick={onToggle} style={{ background: "white", borderRadius: 10, padding: "10px 12px", border: "1px solid #d1fae5", cursor: "pointer", boxShadow: expanded ? "0 2px 10px rgba(0,0,0,0.06)" : "none", transition: "all 0.2s", position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 3, background: item.color, borderRadius: "10px 0 0 10px" }} />
+      <div style={{ display: "flex", alignItems: "center", gap: 10, paddingLeft: 6 }}>
+        <CircleProgress pct={item.pct} color={item.color} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#064e3b", marginBottom: 2 }}>{item.icon} {item.label}</div>
+          <div style={{ fontSize: 10, color: item.subColor, fontWeight: 600 }}>{item.sub}</div>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 3, marginTop: 3, fontSize: 9, fontWeight: 600, padding: "1px 6px", borderRadius: 20, background: item.trend === "Needs attention" ? "#fef2f2" : "#f0fdf4", color: item.trend === "Needs attention" ? "#dc2626" : "#059669", border: `1px solid ${item.trend === "Needs attention" ? "#fecaca" : "#6ee7b7"}` }}>
+            {item.trend === "Needs attention" ? "⚠" : "✓"} {item.trend}
+          </span>
+        </div>
+      </div>
+      {expanded && <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid #f0fdf4", fontSize: 11, color: "#64748b", paddingLeft: 6, lineHeight: 1.6 }}>{item.detail}</div>}
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const showToast = useToast()
   const { user } = useUser()

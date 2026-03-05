@@ -5,6 +5,8 @@ fontLink.rel = "stylesheet";
 fontLink.href = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap";
 document.head.appendChild(fontLink);
 
+// ── Data ───────────────────────────────────────────────────────────────────
+
 const STAFF_INITIALS = {
   SS: { bg: "#6366f1", label: "Salma Shakoor" },
   AS: { bg: "#059669", label: "Amjid Shakoor" },
@@ -48,11 +50,11 @@ const COMPLIANCE_HEALTH = [
 ];
 
 const ALERTS = [
-  { level: "red", msg: "Training completion rate critically low — 483 modules outstanding" },
-  { level: "red", msg: "Cleaning at 42% — 19 tasks overdue across Daily & Weekly rota" },
-  { level: "amber", msg: "32 documents expiring within 90 days" },
-  { level: "amber", msg: "No RP signed in — Daily RP Checks not started (0/5)" },
-  { level: "yellow", msg: "Last GPhC inspection was 14 months ago — consider mock inspection" },
+  { level: "red", msg: "Training completion rate critically low — 483 modules outstanding", action: "Review Training" },
+  { level: "red", msg: "Cleaning at 42% — 19 tasks overdue across Daily & Weekly rota", action: "Review Cleaning" },
+  { level: "amber", msg: "32 documents expiring within 90 days", action: "View Documents" },
+  { level: "amber", msg: "No RP signed in — Daily RP Checks not started (0/5)", action: "Sign In as RP" },
+  { level: "yellow", msg: "Last GPhC inspection was 14 months ago — consider mock inspection", action: "View Report" },
 ];
 
 const CD_ENTRIES = [
@@ -85,12 +87,14 @@ const NAV_ITEMS = [
 ];
 
 const EXPIRING_DOCS = [
-  { name: "Fire Risk Assessment", days: -5, owner: "AS" },
   { name: "Safeguarding Policy", days: 6, owner: "JA" },
   { name: "CD SOP", days: 12, owner: "AS" },
+  { name: "Fire Risk Assessment", days: -5, owner: "AS" },
   { name: "GPhC Registration", days: 45, owner: "AS" },
   { name: "Waste Contract (Shred-it)", days: 60, owner: "MH" },
-];
+].sort((a, b) => a.days - b.days);
+
+// ── Helpers ────────────────────────────────────────────────────────────────
 
 function getGreeting() {
   const h = new Date().getHours();
@@ -241,6 +245,8 @@ function ComplianceCard({ item, expanded, onToggle }) {
   );
 }
 
+// ── App ────────────────────────────────────────────────────────────────────
+
 export default function ComplianceDashboard() {
   const [shiftTasks, setShiftTasks] = useState(SHIFT_TASKS);
   const [scheduleTasks, setScheduleTasks] = useState({ weekly: WEEKLY_TASKS, fortnightly: FORTNIGHTLY_TASKS, monthly: MONTHLY_TASKS });
@@ -263,27 +269,32 @@ export default function ComplianceDashboard() {
   const shiftPct = Math.round((shiftDone / shiftTotal) * 100);
 
   const toggleShift = (id) => setShiftTasks(ts => ts.map(t => t.id === id ? { ...t, done: !t.done } : t));
+  const toggleSchedule = (grp, id) => setScheduleTasks(prev => ({ ...prev, [grp]: prev[grp].map(t => t.id === id ? { ...t, done: !t.done } : t) }));
 
+  // #9 — derived from COMPLIANCE_HEALTH data, not hardcoded
+  const overallPct = Math.round(COMPLIANCE_HEALTH.reduce((s, i) => s + i.pct, 0) / COMPLIANCE_HEALTH.length);
+  const redAlerts = ALERTS.filter(a => a.level === "red").length;
+  const cdOverdue = CD_ENTRIES.filter(e => e.status === "overdue").length;
+  const cdDue = CD_ENTRIES.filter(e => e.status === "due").length;
+  // #1 — overdue KPI reflects real combined count
+  const totalOverdue = cdOverdue + 19;
+  // #2 — streak: 1 if all today's tasks done, else 0
+  const streakDays = shiftTasks.every(t => t.done) ? 1 : 0;
+
+  const TABS = [
+    { key: "time",        label: "Time-Sensitive",  tasks: shiftTasks.filter(t => t.section === "time") },
+    { key: "anytime",     label: "Anytime",          tasks: shiftTasks.filter(t => t.section === "anytime") },
+    { key: "weekly",      label: "Weekly",           tasks: scheduleTasks.weekly },
+    { key: "fortnightly", label: "Fortnightly",      tasks: scheduleTasks.fortnightly },
+    { key: "monthly",     label: "Monthly",          tasks: scheduleTasks.monthly },
+  ];
+
+  // #4 — safe schedule toggle with group key guard
   const SCHEDULE_KEYS = ["weekly", "fortnightly", "monthly"];
   const safeToggleSchedule = (grp, id) => {
     if (!SCHEDULE_KEYS.includes(grp)) return;
     setScheduleTasks(prev => ({ ...prev, [grp]: prev[grp].map(t => t.id === id ? { ...t, done: !t.done } : t) }));
   };
-
-  const overallPct = Math.round(COMPLIANCE_HEALTH.reduce((s, i) => s + i.pct, 0) / COMPLIANCE_HEALTH.length);
-  const redAlerts = ALERTS.filter(a => a.level === "red").length;
-  const cdOverdue = CD_ENTRIES.filter(e => e.status === "overdue").length;
-  const cdDue = CD_ENTRIES.filter(e => e.status === "due").length;
-  const totalOverdue = cdOverdue + 19;
-  const streakDays = shiftTasks.every(t => t.done) ? 1 : 0;
-
-  const TABS = [
-    { key: "time",        label: "Time-Sensitive", tasks: shiftTasks.filter(t => t.section === "time") },
-    { key: "anytime",     label: "Anytime",         tasks: shiftTasks.filter(t => t.section === "anytime") },
-    { key: "weekly",      label: "Weekly",           tasks: scheduleTasks.weekly },
-    { key: "fortnightly", label: "Fortnightly",      tasks: scheduleTasks.fortnightly },
-    { key: "monthly",     label: "Monthly",          tasks: scheduleTasks.monthly },
-  ];
 
   const card = {
     background: "white", borderRadius: 12, padding: "14px 16px",
@@ -293,6 +304,7 @@ export default function ComplianceDashboard() {
   return (
     <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", background: "#f0faf4" }}>
 
+      {/* ── Sidebar ── */}
       <aside style={{
         width: 214, flexShrink: 0,
         background: "linear-gradient(180deg, #064e3b 0%, #065f46 100%)",
@@ -308,6 +320,7 @@ export default function ComplianceDashboard() {
             </div>
           </div>
         </div>
+
         {NAV_ITEMS.map(group => (
           <div key={group.section} style={{ padding: "12px 10px 4px" }}>
             <div style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.35)", letterSpacing: "0.12em", textTransform: "uppercase", padding: "0 6px", marginBottom: 3 }}>{group.section}</div>
@@ -327,6 +340,7 @@ export default function ComplianceDashboard() {
             ))}
           </div>
         ))}
+
         <div style={{ marginTop: "auto", padding: "12px 16px", borderTop: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", gap: 8 }}>
           <Avatar initials="SS" size={28} />
           <div>
@@ -336,7 +350,10 @@ export default function ComplianceDashboard() {
         </div>
       </aside>
 
+      {/* ── Main ── */}
       <main style={{ flex: 1, overflowY: "auto" }}>
+
+        {/* Topbar */}
         <div style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
           padding: "11px 22px",
@@ -368,6 +385,7 @@ export default function ComplianceDashboard() {
 
         <div style={{ padding: "14px 20px", maxWidth: 1100, margin: "0 auto" }}>
 
+          {/* ── RP Banner ── */}
           <div style={{
             display: "flex", alignItems: "center", gap: 10, padding: "8px 14px",
             borderRadius: 10, marginBottom: 10,
@@ -387,6 +405,7 @@ export default function ComplianceDashboard() {
             </button>
           </div>
 
+          {/* ── Collapsed Alert Banner ── */}
           {!alertsDismissed && (
             <div style={{
               display: "flex", alignItems: "center", gap: 10, padding: "8px 14px",
@@ -414,6 +433,7 @@ export default function ComplianceDashboard() {
             </div>
           )}
 
+          {/* ── To Do ── */}
           <div style={{ ...card, marginBottom: 12, overflow: "hidden" }}>
             <CardHeader
               gradient="linear-gradient(90deg, #b45309, #d97706)"
@@ -447,10 +467,13 @@ export default function ComplianceDashboard() {
             }
           </div>
 
+          {/* ── Two-col grid ── */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 292px", gap: 12, alignItems: "start" }}>
 
+            {/* LEFT */}
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
 
+              {/* ── Shift Checklist (merged with schedule tabs) ── */}
               <div style={{ ...card, overflow: "hidden" }}>
                 <CardHeader
                   gradient="linear-gradient(90deg, #064e3b, #059669)"
@@ -464,6 +487,8 @@ export default function ComplianceDashboard() {
                     </div>
                   }
                 />
+
+                {/* Section tabs */}
                 <div style={{ display: "flex", gap: 4, marginBottom: 10, flexWrap: "wrap" }}>
                   {TABS.map(tab => {
                     const done = tab.tasks.filter(t => t.done).length;
@@ -485,11 +510,14 @@ export default function ComplianceDashboard() {
                     );
                   })}
                 </div>
+
+                {/* Active tab tasks */}
                 {(() => {
                   const active = TABS.find(t => t.key === openSection);
                   if (!active) return null;
                   if (openSection === "time" || openSection === "anytime") {
                     return active.tasks.map(t => {
+                      // #7 — reactive RP sub text
                       const enriched = t.id === 2
                         ? { ...t, sub: rpSigned ? "RP signed in — checks in progress" : "0/5 RP checks complete — no RP signed in" }
                         : t;
@@ -498,6 +526,7 @@ export default function ComplianceDashboard() {
                   }
                   return active.tasks.map(t => <TaskRow key={t.id} task={t} onToggle={(id) => safeToggleSchedule(openSection, id)} />);
                 })()}
+
                 <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid #d1fae5", fontSize: 10, color: "#6b7280", display: "flex", alignItems: "center", gap: 5 }}>
                   🔥 <span style={{ fontWeight: 500 }}>{streakDays} day{streakDays !== 1 ? "s" : ""} fully completed this week</span>
                   {streakDays === 0 && <span style={{ marginLeft: "auto", fontSize: 9, color: "#9ca3af" }}>Complete all tasks to build your streak</span>}
@@ -505,6 +534,7 @@ export default function ComplianceDashboard() {
                 </div>
               </div>
 
+              {/* ── CD Balance Check ── */}
               <div style={{ ...card, overflow: "hidden" }}>
                 <CardHeader
                   gradient="linear-gradient(90deg, #064e3b, #0f766e)"
@@ -519,7 +549,7 @@ export default function ComplianceDashboard() {
                 <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                   {CD_ENTRIES.map((e, i) => {
                     const s = {
-                      ok:      { dot: "#059669", bg: "white",   border: "#e2e8f0", label: "✓ Checked", lc: "#059669" },
+                      ok:      { dot: "#059669", bg: "white",   border: "#e2e8f0", label: "✓ Checked",  lc: "#059669" },
                       due:     { dot: "#f59e0b", bg: "#fffbeb", border: "#fde68a", label: "Due today",  lc: "#d97706" },
                       overdue: { dot: "#ef4444", bg: "#fef2f2", border: "#fecaca", label: "Overdue",    lc: "#dc2626" },
                     }[e.status];
@@ -550,8 +580,10 @@ export default function ComplianceDashboard() {
               </div>
             </div>
 
+            {/* RIGHT */}
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
 
+              {/* Compliance Health */}
               <div style={{ ...card, overflow: "hidden" }}>
                 <CardHeader
                   gradient="linear-gradient(90deg, #064e3b, #047857)"
@@ -572,6 +604,7 @@ export default function ComplianceDashboard() {
                 </div>
               </div>
 
+              {/* Expiring Soon (replaced Quick Stats) */}
               <div style={{ ...card, overflow: "hidden" }}>
                 <CardHeader gradient="linear-gradient(90deg, #166534, #16a34a)" icon="📅" title="Expiring Soon" />
                 {EXPIRING_DOCS.map((doc, i) => {
