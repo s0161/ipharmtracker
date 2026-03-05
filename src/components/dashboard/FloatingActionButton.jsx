@@ -4,7 +4,7 @@ const ACTIONS = [
   { id: 'rpToggle', label: 'RP Sign In', labelAlt: 'RP Sign Out', icon: 'shield', color: '#6366f1' },
   { id: 'fridgeTemp', label: 'Fridge Temp', icon: 'therm', color: '#10b981' },
   { id: 'cdCheck', label: 'CD Check', icon: 'pill', color: '#f59e0b' },
-  { id: 'rpNotice', label: 'RP Notice', icon: 'clip', color: '#3b82f6' },
+  { id: 'rpNotice', label: 'RP Notice', icon: 'clip', color: '#6366f1' },
   { id: 'opening', label: 'Open/Close', icon: 'door', color: '#8b5cf6' },
 ]
 

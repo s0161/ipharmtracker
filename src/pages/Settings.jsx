@@ -13,6 +13,13 @@ import { useConfirm } from '../components/ConfirmDialog'
 
 const inputClass = "w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 placeholder:text-ec-t3 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
 
+const TABS = [
+  { id: 'staff', label: 'Staff & Tasks' },
+  { id: 'pharmacy', label: 'Pharmacy' },
+  { id: 'notifications', label: 'Notifications' },
+  { id: 'data', label: 'Data & Reports' },
+]
+
 function ListManager({ title, description, items, onUpdate, userName }) {
   const [value, setValue] = useState('')
 
@@ -338,6 +345,7 @@ export default function Settings() {
   const [importMsg, setImportMsg] = useState(null)
   const [showAudit, setShowAudit] = useState(false)
   const fileRef = useRef(null)
+  const [activeTab, setActiveTab] = useState('staff')
   const [backendStatus, setBackendStatus] = useState({ checking: true })
   const [notifPrefs, setNotifPrefs] = useState(() => {
     try {
@@ -404,22 +412,47 @@ export default function Settings() {
 
   return (
     <div className="space-y-4">
-      <StaffManager
-        staff={staffMembers}
-        onUpdate={setStaffMembers}
-        showToast={showToast}
-        userName={user?.name}
-      />
-      <ListManager
-        title="Training Topics"
-        description="Manage the list of training topics available when logging training entries."
-        items={trainingTopics}
-        onUpdate={setTrainingTopics}
-        userName={user?.name}
-      />
-      <TaskManager tasks={cleaningTasks} onUpdate={setCleaningTasks} userName={user?.name} />
+      {/* Tab bar */}
+      <div className="sticky top-[53px] lg:top-0 z-20 -mx-4 lg:-mx-9 px-4 lg:px-9 py-2 bg-ec-bg/80 backdrop-blur-md border-b border-ec-div">
+        <div className="flex gap-1 overflow-x-auto no-scrollbar">
+          {TABS.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-3.5 py-1.5 rounded-lg text-[13px] font-medium border-none cursor-pointer transition-all duration-150 whitespace-nowrap font-sans
+                ${activeTab === tab.id
+                  ? 'bg-ec-em text-white shadow-sm'
+                  : 'bg-transparent text-ec-t3 hover:text-ec-t1 hover:bg-ec-card-hover'
+                }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Staff & Tasks */}
+      {activeTab === 'staff' && (
+        <>
+          <StaffManager
+            staff={staffMembers}
+            onUpdate={setStaffMembers}
+            showToast={showToast}
+            userName={user?.name}
+          />
+          <ListManager
+            title="Training Topics"
+            description="Manage the list of training topics available when logging training entries."
+            items={trainingTopics}
+            onUpdate={setTrainingTopics}
+            userName={user?.name}
+          />
+          <TaskManager tasks={cleaningTasks} onUpdate={setCleaningTasks} userName={user?.name} />
+        </>
+      )}
 
       {/* Pharmacy Details */}
+      {activeTab === 'pharmacy' && (
       <div
         className="rounded-2xl p-5 mb-4"
         style={{ backgroundColor: 'var(--ec-card)', border: '1px solid var(--ec-border)' }}
@@ -478,8 +511,10 @@ export default function Settings() {
           </div>
         )}
       </div>
+      )}
 
       {/* Notification Preferences */}
+      {activeTab === 'notifications' && (
       <div
         className="rounded-2xl p-5 mb-4"
         style={{ backgroundColor: 'var(--ec-card)', border: '1px solid var(--ec-border)' }}
@@ -513,8 +548,11 @@ export default function Settings() {
           ))}
         </div>
       </div>
+      )}
 
       {/* Data Management */}
+      {activeTab === 'data' && (
+      <>
       <div
         className="rounded-2xl p-5 mb-4"
         style={{ backgroundColor: 'var(--ec-card)', border: '1px solid var(--ec-border)' }}
@@ -740,6 +778,8 @@ export default function Settings() {
           </div>
         )}
       </div>
+      </>
+      )}
       {ConfirmDialog}
     </div>
   )

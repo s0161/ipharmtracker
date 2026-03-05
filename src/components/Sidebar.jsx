@@ -28,7 +28,7 @@ function NI({ name, color }) {
     log: <><path d="M3 3h10a2 2 0 012 2v10a2 2 0 01-2 2H3V3z" {...p} /><path d="M6 7h4M6 10h6" {...p} /></>,
     barChart: <><rect x="2" y="9" width="3" height="5" rx="0.5" {...p} /><rect x="6.5" y="5" width="3" height="9" rx="0.5" {...p} /><rect x="11" y="2" width="3" height="12" rx="0.5" {...p} /></>,
   }
-  return <svg width="16" height="16" viewBox="0 0 16 16" fill="none">{m[name]}</svg>
+  return <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">{m[name]}</svg>
 }
 
 const sections = [
@@ -58,6 +58,7 @@ const sections = [
       { to: '/near-misses', label: 'Near Misses', icon: 'shieldAlert' },
       { to: '/compliance-report', label: 'Compliance Report', icon: 'report' },
       { to: '/analytics', label: 'Analytics', icon: 'barChart' },
+      { to: '/compliance-dashboard', label: 'Live Dashboard', icon: 'grid' },
     ],
   },
   {

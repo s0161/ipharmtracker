@@ -99,7 +99,7 @@ export function getRotationList() {
 }
 
 const STAFF_COLORS = {
-  'Amjid Shakoor': '#3b82f6',
+  'Amjid Shakoor': '#10b981',
   'Salma Shakoor': '#a78bfa',
   'Umama Khan': '#0ea5e9',
   'Urooj Khan': '#0ea5e9',

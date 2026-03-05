@@ -35,22 +35,22 @@ const SHORTCUTS = {
 const bottomNav = [
   {
     to: '/',
-    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></svg>,
+    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></svg>,
     label: 'Home',
   },
   {
     to: '/rp-log',
-    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /><path d="M9 14l2 2 4-4" /></svg>,
+    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20" aria-hidden="true"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /><path d="M9 14l2 2 4-4" /></svg>,
     label: 'RP',
   },
   {
     to: '/cleaning',
-    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /><path d="M9 14l2 2 4-4" /><path d="M9 10h6" /></svg>,
+    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20" aria-hidden="true"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /><path d="M9 14l2 2 4-4" /><path d="M9 10h6" /></svg>,
     label: 'Clean',
   },
   {
     to: '/temperature',
-    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20"><path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z" /></svg>,
+    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20" aria-hidden="true"><path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z" /></svg>,
     label: 'Temp',
   },
 ]
@@ -90,9 +90,21 @@ const MoreIcon = ({ icon }) => {
   )
 }
 
+const SHORTCUT_LIST = [
+  { key: 'D', label: 'Dashboard' },
+  { key: 'M', label: 'My Tasks' },
+  { key: 'R', label: 'RP Log' },
+  { key: 'T', label: 'Training Logs' },
+  { key: 'C', label: 'Cleaning Rota' },
+  { key: 'S', label: 'Staff Training' },
+  { key: '/', label: 'Search' },
+  { key: '?', label: 'Show shortcuts' },
+]
+
 export default function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
+  const [showShortcuts, setShowShortcuts] = useState(false)
   const moreRef = useRef(null)
   const location = useLocation()
   const navigate = useNavigate()
@@ -118,12 +130,14 @@ export default function Layout({ children }) {
       const tag = e.target.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return
       if (e.metaKey || e.ctrlKey || e.altKey) return
+      if (e.key === '?') { e.preventDefault(); setShowShortcuts(v => !v); return }
+      if (e.key === 'Escape' && showShortcuts) { setShowShortcuts(false); return }
       const route = SHORTCUTS[e.key.toLowerCase()]
       if (route) { e.preventDefault(); navigate(route) }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [navigate])
+  }, [navigate, showShortcuts])
 
   return (
     <div
@@ -143,9 +157,9 @@ export default function Layout({ children }) {
               onClick={() => setSidebarOpen(true)}
               aria-label="Open menu"
             >
-              <div className="w-[18px] h-[1.5px] bg-current rounded-sm" />
-              <div className="w-[18px] h-[1.5px] bg-current rounded-sm" />
-              <div className="w-[13px] h-[1.5px] bg-current rounded-sm" />
+              <div className="w-[18px] h-[1.5px] bg-current rounded-sm" aria-hidden="true" />
+              <div className="w-[18px] h-[1.5px] bg-current rounded-sm" aria-hidden="true" />
+              <div className="w-[13px] h-[1.5px] bg-current rounded-sm" aria-hidden="true" />
             </button>
             <nav className="flex items-center gap-1.5 text-xs">
               <NavLink to="/" className="text-ec-t3 hover:text-ec-t1 no-underline transition-colors">Dashboard</NavLink>
@@ -228,6 +242,56 @@ export default function Layout({ children }) {
 
       <IncidentQuickAdd />
       <Onboarding />
+
+      {/* Keyboard shortcut overlay */}
+      {showShortcuts && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={() => setShowShortcuts(false)}
+        >
+          <div
+            className="ec-fadeup rounded-2xl p-6 w-[340px] max-w-[90vw]"
+            style={{
+              backgroundColor: 'var(--ec-card-solid, var(--ec-bg))',
+              border: '1px solid var(--ec-border)',
+              boxShadow: '0 16px 48px rgba(0,0,0,0.4)',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-bold text-ec-t1">Keyboard Shortcuts</h2>
+              <button
+                onClick={() => setShowShortcuts(false)}
+                className="bg-transparent border-none text-ec-t3 cursor-pointer p-1 hover:text-ec-t1 transition-colors"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+            <div className="space-y-1.5">
+              {SHORTCUT_LIST.map(({ key, label }) => (
+                <div key={key} className="flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-ec-card-hover transition-colors">
+                  <span className="text-[13px] text-ec-t2">{label}</span>
+                  <kbd
+                    className="inline-flex items-center justify-center min-w-[28px] h-[26px] px-1.5 rounded-md text-[11px] font-bold text-ec-t1"
+                    style={{
+                      backgroundColor: 'var(--ec-card-hover)',
+                      border: '1px solid var(--ec-border)',
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
+                    }}
+                  >
+                    {key}
+                  </kbd>
+                </div>
+              ))}
+            </div>
+            <p className="text-[10px] text-ec-t4 mt-4 text-center">
+              Press <kbd className="inline px-1 py-0.5 rounded text-[10px] font-bold" style={{ backgroundColor: 'var(--ec-card-hover)', border: '1px solid var(--ec-border)' }}>Esc</kbd> or <kbd className="inline px-1 py-0.5 rounded text-[10px] font-bold" style={{ backgroundColor: 'var(--ec-card-hover)', border: '1px solid var(--ec-border)' }}>?</kbd> to close
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

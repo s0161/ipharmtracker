@@ -75,9 +75,10 @@ export default function AccPanel({
       }}
     >
       {/* Header */}
-      <div
+      <button
         onClick={onToggle}
-        className="flex items-center gap-2 px-4 py-3 cursor-pointer transition-colors duration-150 hover:bg-ec-card"
+        aria-expanded={open}
+        className="flex items-center gap-2 px-4 py-3 w-full cursor-pointer transition-colors duration-150 hover:bg-ec-card bg-transparent border-none text-left font-sans"
       >
         <Chev open={open} />
         <span className="text-[13px] font-semibold text-ec-t1">{title}</span>
@@ -93,10 +94,12 @@ export default function AccPanel({
           {done}/{total}
         </span>
         <MiniBar done={done} total={total} />
-      </div>
+      </button>
 
       {/* Collapsible body */}
       <div
+        role="region"
+        aria-hidden={!open}
         className="overflow-hidden transition-all duration-350"
         style={{
           maxHeight: open ? 3000 : 0,

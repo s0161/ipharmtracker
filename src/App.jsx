@@ -16,6 +16,7 @@ import AuditLog from './pages/AuditLog'
 import NearMissLog from './pages/NearMissLog'
 import ComplianceReport from './pages/ComplianceReport'
 import Analytics from './pages/Analytics'
+import ComplianceDashboard from './pages/ComplianceDashboard'
 import Login, { isAuthenticated } from './pages/Login'
 import PinSelect from './pages/PinSelect'
 import { UserProvider, useUser } from './contexts/UserContext'
@@ -29,25 +30,30 @@ function AuthedApp() {
   }
 
   return (
-    <Layout>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/my-tasks" element={<MyTasks />} />
-        <Route path="/rp-log" element={<RPLog />} />
-        <Route path="/training" element={<TrainingLogs />} />
-        <Route path="/cleaning" element={<CleaningRota />} />
-        <Route path="/documents" element={<DocumentTracker />} />
-        <Route path="/staff-training" element={<StaffTraining />} />
-        <Route path="/safeguarding" element={<SafeguardingTraining />} />
-        <Route path="/temperature" element={<TemperatureLog />} />
-        <Route path="/incidents" element={<Incidents />} />
-        <Route path="/near-misses" element={<NearMissLog />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/compliance-report" element={<ComplianceReport />} />
-        <Route path="/analytics" element={<Analytics />} />
-        <Route path="/audit-log" element={<AuditLog />} />
-      </Routes>
-    </Layout>
+    <Routes>
+      <Route path="/compliance-dashboard" element={<ComplianceDashboard />} />
+      <Route path="*" element={
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/my-tasks" element={<MyTasks />} />
+            <Route path="/rp-log" element={<RPLog />} />
+            <Route path="/training" element={<TrainingLogs />} />
+            <Route path="/cleaning" element={<CleaningRota />} />
+            <Route path="/documents" element={<DocumentTracker />} />
+            <Route path="/staff-training" element={<StaffTraining />} />
+            <Route path="/safeguarding" element={<SafeguardingTraining />} />
+            <Route path="/temperature" element={<TemperatureLog />} />
+            <Route path="/incidents" element={<Incidents />} />
+            <Route path="/near-misses" element={<NearMissLog />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/compliance-report" element={<ComplianceReport />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/audit-log" element={<AuditLog />} />
+          </Routes>
+        </Layout>
+      } />
+    </Routes>
   )
 }
 

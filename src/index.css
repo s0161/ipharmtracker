@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Accessibility ─────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--ec-em);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+:focus:not(:focus-visible) { outline: none; }
+
 /* Emerald Command animation utility classes */
 @layer utilities {
   .ec-ring-anim { animation: ecRingFill 1s cubic-bezier(0.4,0,0.2,1) forwards; }
@@ -381,8 +397,8 @@ a:hover {
 }
 
 .sidebar-link--active {
-  color: #60a5fa;
-  background: rgba(59, 130, 246, 0.1);
+  color: var(--ec-t1);
+  background: rgba(16, 185, 129, 0.08);
   border-left: none;
   font-weight: 600;
 }
@@ -1139,7 +1155,7 @@ a:hover {
   background: rgba(255, 255, 255, 0.04);
 }
 .task-accordion-section:first-child {
-  border-left: 2px solid #3b82f6;
+  border-left: 2px solid var(--ec-em);
 }
 .task-accordion-chevron {
   transform: rotate(-90deg);
@@ -1184,7 +1200,7 @@ a:hover {
   transition: background var(--transition);
 }
 .task-accordion-markall:hover {
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(16, 185, 129, 0.1);
 }
 .task-accordion-body {
   padding: 0 1rem 1rem;
@@ -4553,7 +4569,7 @@ select.input {
   transition: all var(--transition);
 }
 .dash-search-input:focus {
-  border-color: rgba(59, 130, 246, 0.5);
+  border-color: rgba(16, 185, 129, 0.5);
   background: rgba(255, 255, 255, 0.05);
 }
 .dash-search-input::placeholder {
@@ -4787,13 +4803,13 @@ select.input {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
   z-index: 40;
   transition: all var(--transition);
 }
 .fab-incident:hover {
   transform: scale(1.1);
-  box-shadow: 0 6px 24px rgba(59, 130, 246, 0.45);
+  box-shadow: 0 6px 24px rgba(16, 185, 129, 0.45);
 }
 
 /* ── Temperature Log ──────────────────────── */
@@ -5019,7 +5035,7 @@ select.input {
   text-decoration: none;
 }
 .breadcrumb-link:hover {
-  color: #60a5fa;
+  color: var(--ec-em);
   text-decoration: none;
 }
 
@@ -5181,8 +5197,8 @@ select.input {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: rgba(59, 130, 246, 0.2);
-  color: #60a5fa;
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--ec-em);
   font-size: 0.58rem;
   font-weight: 700;
   flex-shrink: 0;
@@ -5207,8 +5223,8 @@ select.input {
 /* ── Category Pill Colours ───────────────── */
 
 .kanban-card-pill--clean {
-  background: rgba(59, 130, 246, 0.12) !important;
-  color: #60a5fa !important;
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: var(--ec-em) !important;
 }
 
 .kanban-card-pill--rp {
@@ -5658,7 +5674,7 @@ select.input {
 
 .pin-staff-btn:hover {
   border-color: var(--primary);
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
   transform: translateY(-1px);
 }
 
@@ -5697,8 +5713,8 @@ select.input {
 .pin-manager-badge {
   font-size: 10px;
   font-weight: 600;
-  color: #60a5fa;
-  background: rgba(59, 130, 246, 0.1);
+  color: var(--ec-em);
+  background: rgba(16, 185, 129, 0.1);
   padding: 2px 6px;
   border-radius: 99px;
   text-transform: uppercase;
@@ -6006,8 +6022,8 @@ select.input {
 }
 
 .my-task-freq--weekly {
-  background: rgba(59, 130, 246, 0.15);
-  color: #93c5fd;
+  background: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
 }
 
 .my-task-freq--fortnightly {
@@ -6171,7 +6187,7 @@ select.input {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  background: linear-gradient(135deg, var(--ec-em), var(--ec-em-dark));
   color: white;
   display: flex;
   align-items: center;
@@ -6204,8 +6220,8 @@ select.input {
 }
 
 .sidebar-user-switch:hover {
-  color: #60a5fa;
-  background: rgba(59, 130, 246, 0.1);
+  color: var(--ec-t1);
+  background: rgba(16, 185, 129, 0.08);
 }
 
 /* Settings: Staff manager rows */
@@ -6545,7 +6561,7 @@ select.input {
   box-shadow: var(--shadow);
 }
 .dash-focus-card--rp {
-  border-left: 3px solid #3b82f6;
+  border-left: 3px solid #6366f1;
 }
 .dash-focus-header {
   display: flex;
@@ -6645,8 +6661,8 @@ select.input {
   flex-shrink: 0;
 }
 .dash-focus-pill--cleaning {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--ec-em);
 }
 .dash-focus-pill--rp {
   background: rgba(139, 92, 246, 0.1);
@@ -6666,13 +6682,13 @@ select.input {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: rgba(59, 130, 246, 0.2);
+  background: rgba(16, 185, 129, 0.2);
   font-size: 0.55rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #60a5fa;
+  color: var(--ec-em);
   flex-shrink: 0;
 }
 
@@ -7194,8 +7210,8 @@ select.input {
   color: #4ade80;
 }
 .shift-checklist-pill--rp {
-  background: rgba(59, 130, 246, 0.12);
-  color: #60a5fa;
+  background: rgba(99, 102, 241, 0.12);
+  color: #818cf8;
 }
 
 .shift-checklist-time {
@@ -7213,8 +7229,8 @@ select.input {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--ec-em);
   font-size: 0.6rem;
   font-weight: 700;
   display: flex;
@@ -7227,7 +7243,7 @@ select.input {
 .compliance-health {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.015) 100%);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-top: 2px solid rgba(59, 130, 246, 0.5);
+  border-top: 2px solid rgba(16, 185, 129, 0.5);
   border-radius: 12px;
   padding: 1.25rem;
   box-shadow: var(--shadow-md);
@@ -7252,7 +7268,7 @@ select.input {
 }
 .compliance-health-title svg {
   opacity: 0.6;
-  color: #60a5fa;
+  color: var(--ec-em);
 }
 .compliance-health-overall {
   display: flex;
@@ -7502,14 +7518,14 @@ select.input {
 [data-theme="light"] .compliance-health {
   background: linear-gradient(180deg, #ffffff, #fafbfc);
   border-color: var(--border);
-  border-top-color: rgba(59, 130, 246, 0.5);
+  border-top-color: rgba(16, 185, 129, 0.5);
   box-shadow: var(--shadow-md);
 }
 [data-theme="light"] .shift-checklist-title svg {
   color: #16a34a;
 }
 [data-theme="light"] .compliance-health-title svg {
-  color: #2563eb;
+  color: var(--ec-em);
 }
 [data-theme="light"] .shift-checklist-count {
   color: var(--text-muted);
@@ -7525,15 +7541,15 @@ select.input {
   color: #16a34a;
 }
 [data-theme="light"] .shift-checklist-pill--rp {
-  background: rgba(59, 130, 246, 0.1);
-  color: #2563eb;
+  background: rgba(99, 102, 241, 0.1);
+  color: #4f46e5;
 }
 [data-theme="light"] .shift-checklist-time {
   color: var(--text-muted);
 }
 [data-theme="light"] .shift-checklist-avatar {
-  background: rgba(59, 130, 246, 0.1);
-  color: #2563eb;
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
 }
 
 [data-theme="light"] .compliance-health-tile {
@@ -7648,10 +7664,81 @@ select.input {
 
 /* ── Print styles ── */
 @media print {
-  body { background: white !important; color: #0f172a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .no-print, aside, .main-header, [class*="fixed"], nav { display: none !important; }
-  main { margin-left: 0 !important; padding: 0 !important; }
-  .compliance-report { padding: 20px; }
-  .compliance-report * { border-color: #e2e8f0 !important; }
-  table { border: 1px solid #e2e8f0 !important; }
+  @page { margin: 1.5cm; size: A4; }
+
+  /* Force light background */
+  *, *::before, *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  body {
+    background: white !important;
+    color: #0f172a !important;
+    font-size: 11pt !important;
+  }
+
+  /* Hide chrome */
+  aside, nav, header, footer,
+  .no-print,
+  [class*="fixed"],
+  [class*="sticky"],
+  [class*="fab-"],
+  [class*="FloatingAction"],
+  [class*="bottom-0"],
+  [class*="Onboarding"],
+  [class*="IncidentQuick"],
+  button:not(.print-keep) {
+    display: none !important;
+  }
+
+  /* Reset layout */
+  main, .lg\:ml-\[220px\] {
+    margin-left: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Cards */
+  [class*="rounded-2xl"],
+  [class*="rounded-xl"],
+  .compliance-report > div {
+    background: white !important;
+    border: 1px solid #d1d5db !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    margin-bottom: 12pt;
+  }
+
+  /* Tables */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 10pt !important;
+  }
+  th, td {
+    border: 1px solid #d1d5db !important;
+    padding: 6px 8px !important;
+    color: #0f172a !important;
+  }
+  thead tr, th {
+    background: #f1f5f9 !important;
+    font-weight: 600 !important;
+  }
+  tr {
+    page-break-inside: avoid;
+  }
+
+  /* Preserve status colors */
+  [class*="text-green"], [class*="text-ec-em"], .text-emerald-400 { color: #059669 !important; }
+  [class*="text-amber"], [class*="text-ec-warn"] { color: #d97706 !important; }
+  [class*="text-red"], [class*="text-ec-crit"] { color: #dc2626 !important; }
+  [class*="bg-green"], [class*="bg-ec-em"], .bg-emerald-500 { background: #059669 !important; color: white !important; }
+  [class*="bg-amber"], [class*="bg-ec-warn"] { background: #d97706 !important; color: white !important; }
+  [class*="bg-red"], [class*="bg-ec-crit"] { background: #dc2626 !important; color: white !important; }
+
+  /* Links */
+  a { color: #0f172a !important; text-decoration: none !important; }
+
+  /* Headings */
+  h1, h2, h3 { color: #0f172a !important; page-break-after: avoid; }
 }
