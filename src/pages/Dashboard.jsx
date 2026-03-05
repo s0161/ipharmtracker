@@ -29,6 +29,73 @@ import {
   RPTimeline,
 } from '../components/dashboard'
 
+// ─── STATIC FALLBACK CONSTANTS (used when live data isn't available yet) ───
+const STAFF_INITIALS = {
+  SS: { bg: "#6366f1", label: "Salma Shakoor" },
+  AS: { bg: "#059669", label: "Amjid Shakoor" },
+  JA: { bg: "#0ea5e9", label: "Jamila Adwan" },
+  MH: { bg: "#f59e0b", label: "Marian Hadaway" },
+  UK: { bg: "#8b5cf6", label: "Unknown" },
+};
+
+const SHIFT_TASKS_DEFAULT = [
+  { id: 1, label: "Temperature Log", priority: "HIGH", category: "Cleaning", byTime: "09:00", assignee: "SS", section: "time", done: false },
+  { id: 2, label: "Daily RP Checks", priority: "HIGH", category: "RP Check", byTime: "10:00", assignee: "AS", section: "time", done: false },
+  { id: 3, label: "Dispensary Clean", priority: "MED", category: "Cleaning", assignee: "UK", section: "anytime", done: false },
+  { id: 4, label: "Counter & Surfaces Wipe", priority: "MED", category: "Cleaning", assignee: "SS", section: "anytime", done: false },
+];
+
+const WEEKLY_TASKS_DEFAULT = [
+  { id: 5, label: "CD Register Balance Check", priority: "HIGH", category: "CD Check", assignee: "AS", done: false },
+  { id: 6, label: "Fridge Temperature Review", priority: "HIGH", category: "Cleaning", assignee: "JA", done: false },
+  { id: 7, label: "Near Miss Log Review", priority: "MED", category: "Compliance", assignee: "AS", done: false },
+  { id: 8, label: "Robot Dispenser Wipe-Down", priority: "MED", category: "Cleaning", assignee: "MH", done: false },
+  { id: 9, label: "Waste Disposal Check", priority: "LOW", category: "Waste", assignee: "MH", done: false },
+  { id: 10, label: "PPE Stock Check", priority: "MED", category: "H&S", assignee: "MH", done: false },
+];
+
+const FORTNIGHTLY_TASKS_DEFAULT = [
+  { id: 11, label: "SOP Review Sign-off", priority: "HIGH", category: "Compliance", assignee: "AS", done: false },
+  { id: 12, label: "Sharps Bin Check", priority: "MED", category: "H&S", assignee: "MH", done: false },
+];
+
+const MONTHLY_TASKS_DEFAULT = [
+  { id: 13, label: "Controlled Drug Audit", priority: "HIGH", category: "CD Check", assignee: "AS", done: false },
+  { id: 14, label: "Staff Training Records Review", priority: "MED", category: "Compliance", assignee: "AS", done: false },
+  { id: 15, label: "Complaint & Incident Summary", priority: "MED", category: "Compliance", assignee: "AS", done: false },
+];
+
+const CD_ENTRIES_DEFAULT = [
+  { drug: "Morphine Sulfate 10mg/5ml", form: "Oral Solution", balance: 1240, unit: "ml", lastCheck: "04/03/2026", checker: "AS", status: "ok" },
+  { drug: "Oxycodone 5mg", form: "Capsules", balance: 84, unit: "caps", lastCheck: "04/03/2026", checker: "AS", status: "ok" },
+  { drug: "Methadone 1mg/ml", form: "Oral Solution", balance: 2800, unit: "ml", lastCheck: "03/03/2026", checker: "AS", status: "due" },
+  { drug: "Diazepam 5mg", form: "Tablets", balance: 210, unit: "tabs", lastCheck: "04/03/2026", checker: "AS", status: "ok" },
+  { drug: "Buprenorphine 8mg", form: "Sublingual", balance: 16, unit: "tabs", lastCheck: "01/03/2026", checker: "AS", status: "overdue" },
+];
+
+const EXPIRING_DOCS_DEFAULT = [
+  { name: "Fire Risk Assessment", days: -5, owner: "AS" },
+  { name: "Safeguarding Policy", days: 6, owner: "JA" },
+  { name: "CD SOP", days: 12, owner: "AS" },
+  { name: "GPhC Registration", days: 45, owner: "AS" },
+  { name: "Waste Contract (Shred-it)", days: 60, owner: "MH" },
+];
+
+const COMPLIANCE_HEALTH_DEFAULT = [
+  { key: "documents", label: "Documents", pct: 87, trend: "Stable", sub: "32 expiring", subColor: "#d97706", icon: "📄", detail: "4 expired · 28 due within 90 days", color: "#059669" },
+  { key: "training", label: "Training", pct: 68, trend: "Needs attention", sub: "483 modules outstanding", subColor: "#ef4444", icon: "📚", detail: "14 staff tracked — bulk import incomplete", color: "#047857" },
+  { key: "cleaning", label: "Cleaning", pct: 42, trend: "Needs attention", sub: "19 overdue tasks", subColor: "#ef4444", icon: "🧹", detail: "Daily & weekly rotas not being marked complete", color: "#f59e0b" },
+  { key: "safeguarding", label: "Safeguarding", pct: 100, trend: "All current", sub: "All current", subColor: "#059669", icon: "🛡️", detail: "All staff certificates valid", color: "#16a34a" },
+];
+
+const ALERTS_DEFAULT = [
+  { level: "red", msg: "Training completion rate critically low — 483 modules outstanding" },
+  { level: "red", msg: "Cleaning at 42% — 19 tasks overdue across Daily & Weekly rota" },
+  { level: "amber", msg: "32 documents expiring within 90 days" },
+  { level: "amber", msg: "No RP signed in — Daily RP Checks not started (0/5)" },
+  { level: "yellow", msg: "Last GPhC inspection was 14 months ago — consider mock inspection" },
+];
+
 // RP checklist items
 const RP_DAILY = [
   'RP notice displayed',
