@@ -5,9 +5,17 @@ import { generateId, formatDate } from '../utils/helpers'
 import { downloadCsv } from '../utils/exportCsv'
 import { logAudit } from '../utils/auditLog'
 import { useUser } from '../contexts/UserContext'
-import PageActions from '../components/PageActions'
-import EmptyState from '../components/EmptyState'
 import SkeletonLoader from '../components/SkeletonLoader'
+import DashCardHeader from '../components/DashCardHeader'
+
+// ── Font injection ──
+if (!document.getElementById('rp-fonts')) {
+  const fl = document.createElement('link')
+  fl.id = 'rp-fonts'
+  fl.rel = 'stylesheet'
+  fl.href = 'https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap'
+  document.head.appendChild(fl)
+}
 
 const DAILY_ITEMS = [
   'RP notice displayed',
@@ -34,6 +42,67 @@ const FORTNIGHTLY_ITEMS = [
 
 const ALL_ITEMS = [...DAILY_ITEMS, ...WEEKLY_ITEMS, ...FORTNIGHTLY_ITEMS]
 
+// ── Shared styles ──
+const sans = { fontFamily: "'DM Sans', sans-serif" }
+const mono = { fontFamily: "'DM Mono', monospace" }
+const card = {
+  background: 'var(--bg-card)',
+  borderRadius: 12,
+  padding: '14px 16px',
+  border: '1px solid var(--border-card)',
+  boxShadow: 'var(--shadow-card)',
+  marginBottom: 12,
+}
+const inputStyle = {
+  ...sans,
+  width: '100%',
+  background: 'var(--input-bg)',
+  border: '1px solid var(--input-border)',
+  borderRadius: 8,
+  padding: '8px 12px',
+  fontSize: 12,
+  color: 'var(--text-primary)',
+  outline: 'none',
+  boxSizing: 'border-box',
+}
+
+const SvgCheck = ({ size = 10, color = 'white' }) => (
+  <svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8.5l3.5 3.5 6.5-7"/></svg>
+)
+
+const SvgCsv = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13">
+    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+  </svg>
+)
+
+const SvgPrint = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13">
+    <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+  </svg>
+)
+
+// ── RP Sign-in localStorage helpers ──
+const RP_SIGN_KEY = 'ipd_rp_sign'
+
+function getRpSign() {
+  try {
+    const raw = localStorage.getItem(RP_SIGN_KEY)
+    if (!raw) return null
+    const d = JSON.parse(raw)
+    if (d.date !== new Date().toISOString().slice(0, 10)) return null
+    return d
+  } catch { return null }
+}
+
+function setRpSign(data) {
+  localStorage.setItem(RP_SIGN_KEY, JSON.stringify({ ...data, date: new Date().toISOString().slice(0, 10) }))
+}
+
+function clearRpSign() {
+  localStorage.removeItem(RP_SIGN_KEY)
+}
+
 export default function RPLog() {
   const { user } = useUser()
   const [logs, setLogs, loading] = useSupabase('rp_log', [])
@@ -48,6 +117,11 @@ export default function RPLog() {
   const [editingId, setEditingId] = useState(null)
   const saveTimerRef = useRef(null)
 
+  // RP Presence state
+  const [rpSign, setRpSignState] = useState(() => getRpSign())
+  const [elapsed, setElapsed] = useState('')
+  const [elapsedMin, setElapsedMin] = useState(0)
+
   const existingEntry = useMemo(() => {
     return logs.find(l => l.date === selectedDate)
   }, [logs, selectedDate])
@@ -61,11 +135,11 @@ export default function RPLog() {
     }
   }, [existingEntry])
 
-  // Sync default RP name when config loads (only if no existing entry)
   useEffect(() => {
     if (!existingEntry && defaultRp) setRpName(defaultRp)
   }, [defaultRp])
 
+  // Autosave
   useEffect(() => {
     if (!rpName) return
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
@@ -82,6 +156,23 @@ export default function RPLog() {
     }, 500)
     return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current) }
   }, [checklist, notes, rpName, selectedDate])
+
+  // Elapsed timer
+  useEffect(() => {
+    if (!rpSign?.signedIn || !rpSign?.time) { setElapsed(''); setElapsedMin(0); return }
+    const calc = () => {
+      const [h, m] = rpSign.time.split(':').map(Number)
+      const start = new Date()
+      start.setHours(h, m, 0, 0)
+      const d = Math.max(0, Date.now() - start.getTime())
+      const mins = Math.floor(d / 60000)
+      setElapsedMin(mins)
+      setElapsed(`${Math.floor(mins / 60)}h ${mins % 60}m`)
+    }
+    calc()
+    const id = setInterval(calc, 60000)
+    return () => clearInterval(id)
+  }, [rpSign?.signedIn, rpSign?.time])
 
   const loadEntry = (date) => {
     setSelectedDate(date)
@@ -103,15 +194,38 @@ export default function RPLog() {
     setChecklist(prev => ({ ...prev, [item]: !prev[item] }))
   }
 
+  const handleSignIn = () => {
+    const now = new Date()
+    const time = now.toTimeString().slice(0, 5)
+    const data = { signedIn: true, time, rpName: rpName || defaultRp }
+    setRpSign(data)
+    setRpSignState(data)
+  }
+
+  const handleSignOut = () => {
+    clearRpSign()
+    setRpSignState(null)
+  }
+
   if (loading) {
     return <SkeletonLoader variant="list" />
   }
 
   const checkedCount = (items) => items.filter(i => checklist[i]).length
   const totalChecked = ALL_ITEMS.filter(i => checklist[i]).length
-  const pctComplete = ALL_ITEMS.length > 0 ? (totalChecked / ALL_ITEMS.length) * 100 : 0
+  const pctComplete = ALL_ITEMS.length > 0 ? Math.round((totalChecked / ALL_ITEMS.length) * 100) : 0
 
-  const sorted = [...logs].sort((a, b) => b.date.localeCompare(a.date))
+  const sorted = [...logs].sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+  const recentLogs = sorted.slice(0, 7)
+
+  const pctColor = pctComplete < 50 ? '#ef4444' : pctComplete < 80 ? '#f59e0b' : '#059669'
+
+  // Status pill
+  const statusPill = totalChecked === ALL_ITEMS.length
+    ? { label: '\u2713 Completed', bg: '#f0fdf4', color: '#059669', border: '#6ee7b7' }
+    : totalChecked > 0
+    ? { label: 'In Progress', bg: '#fffbeb', color: '#d97706', border: '#fde68a' }
+    : { label: 'Not Started', bg: '#fef2f2', color: '#dc2626', border: '#fecaca' }
 
   const handleCsvDownload = () => {
     const headers = ['Date', 'RP Name', 'Completed', 'Total Items', 'Notes']
@@ -123,208 +237,330 @@ export default function RPLog() {
     downloadCsv('rp-log', headers, rows)
   }
 
-  function getProgressColor() {
-    if (totalChecked === ALL_ITEMS.length) return 'bg-ec-em'
-    if (totalChecked > 0) return 'bg-ec-warn'
-    return 'bg-ec-t5'
-  }
-
-  const renderChecklist = (title, items) => (
-    <div className="mb-5">
-      <h3 className="text-xs font-bold text-ec-t2 tracking-wide uppercase flex items-center justify-between mb-2">
-        {title}
-        <span className="text-xs text-ec-t3 font-normal normal-case tracking-normal">
-          {checkedCount(items)}/{items.length}
-        </span>
-      </h3>
-      <div className="space-y-1">
-        {items.map(item => (
-          <label
-            key={item}
-            className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-colors hover:bg-ec-card ${checklist[item] ? 'bg-ec-card' : ''}`}
-          >
-            <input
-              type="checkbox"
-              checked={!!checklist[item]}
-              onChange={() => toggleItem(item)}
-              className="hidden"
-            />
-            <span
-              className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-all ${
-                checklist[item]
-                  ? 'border-ec-em bg-ec-em'
-                  : 'border-ec-border'
-              }`}
-            >
-              {checklist[item] && (
-                <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" width="12" height="12">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-              )}
-            </span>
-            <span className={`text-sm ${checklist[item] ? 'line-through text-ec-t3' : 'text-ec-t1'}`}>
-              {item}
-            </span>
-          </label>
-        ))}
-      </div>
-    </div>
-  )
-
-  const todayHasEntry = !!existingEntry && existingEntry.date === today
-  const todayLabel = new Date().toLocaleDateString('en-GB', {
+  const todayFormatted = new Date().toLocaleDateString('en-GB', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   })
 
+  const actionBtn = {
+    ...sans,
+    display: 'inline-flex', alignItems: 'center', gap: 5,
+    border: '1px solid var(--border-card)',
+    background: 'var(--bg-card)',
+    color: 'var(--text-secondary)',
+    borderRadius: 8, padding: '6px 14px', fontSize: 12,
+    cursor: 'pointer', fontWeight: 500,
+  }
+
+  // ── Checklist section renderer ──
+  const renderChecklistCard = (title, items, gradient, icon) => {
+    const done = checkedCount(items)
+    return (
+      <div style={card}>
+        <DashCardHeader
+          gradient={gradient}
+          icon={icon}
+          title={title}
+          right={<span style={{ ...mono, fontSize: 12, fontWeight: 600 }}>{done}/{items.length}</span>}
+        />
+        <div>
+          {items.map(item => {
+            const checked = !!checklist[item]
+            return (
+              <div
+                key={item}
+                onClick={() => toggleItem(item)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '8px 12px', borderRadius: 8, marginBottom: 4,
+                  cursor: 'pointer', transition: 'background 0.12s',
+                  background: checked ? 'var(--task-done-bg)' : 'var(--bg-card)',
+                  border: `1px solid ${checked ? 'var(--task-done-border)' : 'var(--border-card)'}`,
+                }}
+              >
+                <div style={{
+                  width: 17, height: 17, borderRadius: 5, flexShrink: 0,
+                  border: checked ? 'none' : '2px solid #d1d5db',
+                  background: checked ? '#059669' : 'var(--bg-card)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  {checked && <span style={{ fontSize: 10, fontWeight: 700, color: 'white', lineHeight: 1 }}>{'\u2713'}</span>}
+                </div>
+                <span style={{
+                  ...sans, fontSize: 12, fontWeight: 500,
+                  color: checked ? '#6ee7b7' : 'var(--text-primary)',
+                  textDecoration: checked ? 'line-through' : 'none',
+                }}>{item}</span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="space-y-6">
-      {/* Sticky date banner */}
-      {todayHasEntry ? (
-        <div
-          className="rounded-xl px-4 py-3 flex items-center justify-between flex-wrap gap-2 mb-4"
-          style={{ backgroundColor: 'rgba(16,185,129,0.04)', border: '1px solid rgba(16,185,129,0.1)' }}
-        >
-          <span className="text-sm font-medium text-ec-t1">{todayLabel}</span>
-          <span className="text-xs text-ec-em flex items-center gap-1.5">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16">
-              <path d="M20 6L9 17l-5-5" />
-            </svg>
-            Completed
-          </span>
+    <div style={{ ...sans }}>
+      {/* ── Page Header ── */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 6 }}>Dashboard / RP Log</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 4 }}>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>RP Log</h1>
+          <span style={{ ...mono, fontSize: 13, color: 'var(--text-muted)' }}>{todayFormatted}</span>
         </div>
-      ) : (
-        <div
-          className="rounded-xl px-4 py-3 flex items-center justify-between flex-wrap gap-2 mb-4"
-          style={{ backgroundColor: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)' }}
-        >
-          <span className="text-sm font-medium text-ec-t1">{todayLabel}</span>
-          <span className="text-xs text-ec-warn flex items-center gap-1.5">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
-              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-            Today&apos;s RP log not yet completed
-          </span>
-        </div>
-      )}
-
-      <div>
-        <p className="text-sm text-ec-t3 mb-2">
+        <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '0 0 10px' }}>
           Daily Responsible Pharmacist checklist — GPhC compliance requirement.
-          Record RP duties and checks for each day.
         </p>
-        <div className="flex items-center gap-2 mb-4">
-          <PageActions onDownloadCsv={handleCsvDownload} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <span style={{
+            ...sans, display: 'inline-block', fontSize: 11, fontWeight: 600,
+            padding: '3px 10px', borderRadius: 20,
+            background: statusPill.bg, color: statusPill.color,
+            border: `1px solid ${statusPill.border}`,
+          }}>{statusPill.label}</span>
+          <div style={{ flex: 1 }} />
+          <button style={actionBtn} onClick={handleCsvDownload}><SvgCsv /> CSV</button>
+          <button style={actionBtn} onClick={() => window.print()}><SvgPrint /> Print</button>
         </div>
       </div>
 
-      {/* Form Section */}
-      <div
-        className="rounded-2xl p-5"
-        style={{ backgroundColor: 'var(--ec-card)', border: '1px solid var(--ec-border)' }}
-      >
-        <div className="flex gap-4 flex-wrap mb-4">
-          <div>
-            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Date</label>
-            <input
-              type="date"
-              className="bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
-              value={selectedDate}
-              onChange={(e) => loadEntry(e.target.value)}
-            />
+      {/* ── Two-column layout ── */}
+      <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+
+        {/* ── Left column ── */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+
+          {/* RP Details Card */}
+          <div style={card}>
+            <DashCardHeader gradient="linear-gradient(90deg, #064e3b, #059669)" icon={'\u2695'} title="Today's RP" />
+            <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ ...sans, display: 'block', fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>Date</label>
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => loadEntry(e.target.value)}
+                  style={{ ...inputStyle, ...mono }}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ ...sans, display: 'block', fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>Responsible Pharmacist</label>
+                <input
+                  type="text"
+                  value={rpName}
+                  readOnly
+                  style={{ ...inputStyle, cursor: 'default' }}
+                />
+              </div>
+            </div>
+            <p style={{ fontSize: 10, color: 'var(--text-muted)', fontStyle: 'italic', margin: '0 0 14px' }}>
+              RP is auto-assigned based on rotation schedule
+            </p>
+
+            {/* Completion bar */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                <span style={{ ...sans, fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>
+                  Completion: {totalChecked}/{ALL_ITEMS.length}
+                </span>
+                <span style={{ ...mono, fontSize: 12, fontWeight: 700, color: pctColor }}>
+                  {pctComplete}%
+                </span>
+              </div>
+              <div style={{ height: 8, borderRadius: 99, background: 'var(--border-card)', overflow: 'hidden' }}>
+                <div style={{
+                  height: '100%', borderRadius: 99,
+                  background: pctColor,
+                  width: `${pctComplete}%`,
+                  transition: 'width 0.4s',
+                }} />
+              </div>
+            </div>
           </div>
-          <div className="flex-1">
-            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Responsible Pharmacist</label>
-            <input
-              type="text"
-              className="w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans cursor-default"
-              value={rpName}
-              readOnly
+
+          {/* Checklist sections */}
+          {renderChecklistCard('Daily Checks', DAILY_ITEMS, 'linear-gradient(90deg, #064e3b, #059669)', '\uD83D\uDCCB')}
+          {renderChecklistCard('Weekly Checks', WEEKLY_ITEMS, 'linear-gradient(90deg, #0f766e, #14b8a6)', '\uD83D\uDCC5')}
+          {renderChecklistCard('Fortnightly Checks', FORTNIGHTLY_ITEMS, 'linear-gradient(90deg, #1e40af, #3b82f6)', '\uD83D\uDDD3')}
+
+          {/* Notes Card */}
+          <div style={card}>
+            <DashCardHeader gradient="linear-gradient(90deg, #475569, #64748b)" icon={'\uD83D\uDCDD'} title="Notes" />
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Any issues, observations, or actions taken\u2026"
+              style={{
+                ...inputStyle,
+                minHeight: 80,
+                resize: 'vertical',
+              }}
             />
-            <p className="text-[11px] text-ec-t3 mt-1">RP is auto-assigned based on rotation schedule</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 mb-4">
-          <span className="text-sm text-ec-t2">
-            Completion: {totalChecked}/{ALL_ITEMS.length}
-          </span>
-          <div className="flex-1 h-1.5 rounded-full bg-ec-border overflow-hidden">
-            <div
-              className={`h-full rounded-full transition-all duration-300 ${getProgressColor()}`}
-              style={{ width: `${pctComplete}%` }}
-            />
+        {/* ── Right column ── */}
+        <div style={{ width: 280, flexShrink: 0 }}>
+
+          {/* RP Presence Card */}
+          <div style={card}>
+            <DashCardHeader gradient="linear-gradient(90deg, #064e3b, #059669)" icon={'\uD83D\uDD50'} title="RP Presence" />
+
+            {rpSign?.signedIn ? (
+              <div>
+                {/* Signed in state */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <div style={{
+                    width: 8, height: 8, borderRadius: '50%',
+                    background: '#059669', boxShadow: '0 0 0 3px #a7f3d0',
+                    animation: 'ecPulse 2s ease-in-out infinite',
+                  }} />
+                  <span style={{ ...sans, fontSize: 13, fontWeight: 500, color: '#166534' }}>
+                    Signed in — {rpSign.rpName || rpName}
+                  </span>
+                </div>
+                <div style={{ ...mono, fontSize: 10, color: 'var(--text-muted)', marginBottom: 6 }}>
+                  Signed in at {rpSign.time}
+                </div>
+                <div style={{ ...sans, fontSize: 12, fontWeight: 600, color: '#059669', marginBottom: 10 }}>
+                  On duty: {elapsed}
+                </div>
+
+                {/* 90-minute warning */}
+                {elapsedMin > 90 && (
+                  <div style={{
+                    background: '#fffbeb', border: '1px solid #fde68a',
+                    borderRadius: 8, padding: '8px 10px', marginBottom: 10,
+                    fontSize: 11, color: '#92400e', lineHeight: 1.4,
+                  }}>
+                    {'\u26A0'} RP has been on duty for over 90 minutes — log any absence periods
+                  </div>
+                )}
+
+                <button
+                  onClick={handleSignOut}
+                  style={{
+                    ...sans, width: '100%', padding: 8,
+                    background: '#dc2626', color: 'white',
+                    borderRadius: 8, border: 'none', fontSize: 13,
+                    fontWeight: 700, cursor: 'pointer',
+                  }}
+                >Sign Out</button>
+              </div>
+            ) : (
+              <div>
+                {/* Signed out state */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <div style={{
+                    width: 8, height: 8, borderRadius: '50%',
+                    background: '#ef4444', boxShadow: '0 0 0 3px #fee2e2',
+                    animation: 'ecPulse 2s ease-in-out infinite',
+                  }} />
+                  <span style={{ ...sans, fontSize: 13, fontWeight: 500, color: '#991b1b' }}>
+                    No RP signed in
+                  </span>
+                </div>
+                <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 10 }}>
+                  Last: {rpName || defaultRp}
+                </div>
+                <button
+                  onClick={handleSignIn}
+                  style={{
+                    ...sans, width: '100%', padding: 8,
+                    background: '#059669', color: 'white',
+                    borderRadius: 8, border: 'none', fontSize: 13,
+                    fontWeight: 700, cursor: 'pointer',
+                  }}
+                >Sign In as RP {'\u2192'}</button>
+              </div>
+            )}
           </div>
-        </div>
 
-        {renderChecklist('Daily Checks', DAILY_ITEMS)}
-        {renderChecklist('Weekly Checks', WEEKLY_ITEMS)}
-        {renderChecklist('Fortnightly Checks', FORTNIGHTLY_ITEMS)}
-
-        <div className="mt-4">
-          <label className="text-xs font-semibold text-ec-t2 mb-1 block">Notes</label>
-          <textarea
-            className="w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans resize-none"
-            placeholder="Any issues, observations, or actions taken..."
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            rows={3}
-          />
-        </div>
-      </div>
-
-      {/* History Table */}
-      <div>
-        <h2 className="text-sm font-bold text-ec-t1 mb-3">Recent Checklists</h2>
-        {sorted.length === 0 ? (
-          <EmptyState
-            icon={<svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>}
-            title="No RP sessions recorded"
-            description="RP sign-in and sign-out sessions will be tracked here."
-          />
-        ) : (
-          <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--ec-border)' }}>
-            <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
-              <thead className="text-left">
-                <tr>
-                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Date</th>
-                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">RP Name</th>
-                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Completion</th>
-                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border hidden md:table-cell">Notes</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sorted.map(log => {
-                  const c = log.checklist || {}
-                  const completed = ALL_ITEMS.filter(i => c[i]).length
-                  const pct = Math.round((completed / ALL_ITEMS.length) * 100)
-                  return (
-                    <tr
-                      key={log.id}
-                      className="cursor-pointer hover:bg-ec-card transition-colors"
-                      onClick={() => loadEntry(log.date)}
-                    >
-                      <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div font-medium">{formatDate(log.date)}</td>
-                      <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">{log.rpName}</td>
-                      <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                          pct === 100
-                            ? 'bg-ec-em/10 text-ec-em'
-                            : 'bg-ec-warn/10 text-ec-warn'
-                        }`}>
-                          {completed}/{ALL_ITEMS.length}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div hidden md:table-cell">{log.notes || '—'}</td>
+          {/* Recent Checklists Card */}
+          <div style={card}>
+            <DashCardHeader gradient="linear-gradient(90deg, #475569, #64748b)" icon={'\uD83D\uDDC2'} title="Recent Checklists" />
+            {recentLogs.length === 0 ? (
+              <p style={{ fontSize: 12, color: 'var(--text-muted)', fontStyle: 'italic', textAlign: 'center', padding: '16px 0' }}>
+                No previous checklists found.
+              </p>
+            ) : (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr>
+                      {['Date', 'RP', 'Done', 'Notes'].map(h => (
+                        <th key={h} style={{
+                          ...sans, fontSize: 9, fontWeight: 600, color: 'var(--text-muted)',
+                          textAlign: 'left', padding: '4px 6px',
+                          borderBottom: '1px solid var(--border-card)',
+                          textTransform: 'uppercase', letterSpacing: 0.5,
+                        }}>{h}</th>
+                      ))}
                     </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+                  </thead>
+                  <tbody>
+                    {recentLogs.map(log => {
+                      const c = log.checklist || {}
+                      const completed = ALL_ITEMS.filter(i => c[i]).length
+                      const pct = Math.round((completed / ALL_ITEMS.length) * 100)
+                      const isToday = log.date === today
+                      const pillColor = pct === 100 ? { bg: '#f0fdf4', color: '#059669', border: '#6ee7b7' }
+                        : pct > 0 ? { bg: '#fffbeb', color: '#d97706', border: '#fde68a' }
+                        : { bg: '#fef2f2', color: '#dc2626', border: '#fecaca' }
+
+                      return (
+                        <tr
+                          key={log.id}
+                          onClick={() => loadEntry(log.date)}
+                          style={{
+                            cursor: 'pointer',
+                            background: isToday ? 'var(--task-done-bg)' : 'transparent',
+                            fontWeight: isToday ? 600 : 400,
+                          }}
+                        >
+                          <td style={{ ...mono, fontSize: 11, padding: '6px', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-card)' }}>
+                            {formatDate(log.date)}
+                          </td>
+                          <td style={{ ...sans, fontSize: 11, padding: '6px', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-card)', maxWidth: 60, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {(log.rpName || '').split(' ')[0]}
+                          </td>
+                          <td style={{ padding: '6px', borderBottom: '1px solid var(--border-card)' }}>
+                            <span style={{
+                              ...mono, display: 'inline-block', fontSize: 10, fontWeight: 600,
+                              padding: '1px 6px', borderRadius: 20,
+                              background: pillColor.bg, color: pillColor.color,
+                              border: `1px solid ${pillColor.border}`,
+                            }}>{completed}/{ALL_ITEMS.length}</span>
+                          </td>
+                          <td style={{
+                            ...sans, fontSize: 10, padding: '6px',
+                            color: 'var(--text-muted)',
+                            borderBottom: '1px solid var(--border-card)',
+                            maxWidth: 80, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                          }}>
+                            {(log.notes || '').slice(0, 30) || '\u2014'}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
+
+      {/* ── Responsive: stack columns on mobile ── */}
+      <style>{`
+        @media (max-width: 768px) {
+          div[style*="width: 280px"] {
+            width: 100% !important;
+          }
+          div[style*="display: flex"][style*="gap: 16px"][style*="align-items: flex-start"] {
+            flex-direction: column !important;
+          }
+        }
+      `}</style>
     </div>
   )
 }
