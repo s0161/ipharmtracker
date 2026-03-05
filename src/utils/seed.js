@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { generateId } from './helpers'
 
-const SEED_KEY = 'ipd_seeded_v27'
+const SEED_KEY = 'ipd_seeded_v28'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -11,7 +11,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
   'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13', 'ipd_seeded_v14', 'ipd_seeded_v15', 'ipd_seeded_v16',
   'ipd_seeded_v17', 'ipd_seeded_v18', 'ipd_seeded_v19', 'ipd_seeded_v20', 'ipd_seeded_v21', 'ipd_seeded_v22',
-  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26',
+  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27',
 ]
 
 export function cleanupOldLocalStorage() {
@@ -565,21 +565,23 @@ export async function seedIfNeeded() {
   }))
 
   // Clear old seed data before re-inserting
+  // Use .not('id','is',null) instead of .neq('id','') — the latter fails for UUID columns
+  const delFilter = (q) => q.not('id', 'is', null)
   await Promise.allSettled([
-    supabase.from('cleaning_tasks').delete().neq('name', ''),
-    supabase.from('cleaning_entries').delete().neq('id', ''),
-    supabase.from('staff_members').delete().neq('name', ''),
-    supabase.from('documents').delete().neq('id', ''),
-    supabase.from('staff_training').delete().neq('id', ''),
-    supabase.from('safeguarding_records').delete().neq('id', ''),
-    supabase.from('rp_log').delete().neq('id', ''),
+    delFilter(supabase.from('cleaning_tasks').delete()),
+    delFilter(supabase.from('cleaning_entries').delete()),
+    delFilter(supabase.from('staff_members').delete()),
+    delFilter(supabase.from('documents').delete()),
+    delFilter(supabase.from('staff_training').delete()),
+    delFilter(supabase.from('safeguarding_records').delete()),
+    delFilter(supabase.from('rp_log').delete()),
     supabase.from('training_topics').delete().neq('name', ''),
-    supabase.from('training_logs').delete().neq('id', ''),
-    supabase.from('action_items').delete().neq('id', ''),
-    supabase.from('assigned_tasks').delete().neq('id', ''),
-    supabase.from('staff_tasks').delete().neq('id', ''),
-    supabase.from('near_misses').delete().neq('id', ''),
-    supabase.from('pharmacy_config').delete().neq('id', '00000000-0000-0000-0000-000000000000'),
+    delFilter(supabase.from('training_logs').delete()),
+    delFilter(supabase.from('action_items').delete()),
+    delFilter(supabase.from('assigned_tasks').delete()),
+    delFilter(supabase.from('staff_tasks').delete()),
+    delFilter(supabase.from('near_misses').delete()),
+    delFilter(supabase.from('pharmacy_config').delete()),
   ])
 
   // Insert into Supabase tables
