@@ -1,25 +1,9 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 
 const fontLink = document.createElement("link");
 fontLink.rel = "stylesheet";
 fontLink.href = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap";
 document.head.appendChild(fontLink);
-
-const NAV_ROUTES = {
-  dashboard: "/",
-  tasks: "/my-tasks",
-  rp: "/rp-log",
-  temp: "/temperature",
-  training: "/training",
-  cleaning: "/cleaning",
-  documents: "/documents",
-  incidents: "/incidents",
-  safeguarding: "/safeguarding",
-  stafftraining: "/staff-training",
-  nearmisses: "/near-misses",
-  report: "/compliance-report",
-};
 
 const STAFF_INITIALS = {
   SS: { bg: "#6366f1", label: "Salma Shakoor" },
@@ -258,7 +242,6 @@ function ComplianceCard({ item, expanded, onToggle }) {
 }
 
 export default function ComplianceDashboard() {
-  const navigate = useNavigate();
   const [shiftTasks, setShiftTasks] = useState(SHIFT_TASKS);
   const [scheduleTasks, setScheduleTasks] = useState({ weekly: WEEKLY_TASKS, fortnightly: FORTNIGHTLY_TASKS, monthly: MONTHLY_TASKS });
   const [openSection, setOpenSection] = useState("time");
@@ -329,7 +312,7 @@ export default function ComplianceDashboard() {
           <div key={group.section} style={{ padding: "12px 10px 4px" }}>
             <div style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.35)", letterSpacing: "0.12em", textTransform: "uppercase", padding: "0 6px", marginBottom: 3 }}>{group.section}</div>
             {group.items.map(item => (
-              <button key={item.id} onClick={() => { setActiveNav(item.id); navigate(NAV_ROUTES[item.id] || "/"); }} style={{
+              <button key={item.id} onClick={() => setActiveNav(item.id)} style={{
                 display: "flex", alignItems: "center", gap: 8, padding: "7px 10px",
                 borderRadius: 8, cursor: "pointer", marginBottom: 1, width: "100%", textAlign: "left",
                 background: activeNav === item.id ? "rgba(255,255,255,0.18)" : "transparent",
