@@ -23,16 +23,6 @@ fontLink.rel = "stylesheet";
 fontLink.href = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap";
 document.head.appendChild(fontLink);
 
-// ── Static Data (no Supabase table) ──────────────────────────────────────
-
-const CD_ENTRIES = [
-  { drug: "Morphine Sulfate 10mg/5ml", form: "Oral Solution", balance: 1240, unit: "ml", lastCheck: "04/03/2026", checker: "Amjid Shakoor", status: "ok" },
-  { drug: "Oxycodone 5mg", form: "Capsules", balance: 84, unit: "caps", lastCheck: "04/03/2026", checker: "Amjid Shakoor", status: "ok" },
-  { drug: "Methadone 1mg/ml", form: "Oral Solution", balance: 2800, unit: "ml", lastCheck: "03/03/2026", checker: "Amjid Shakoor", status: "due" },
-  { drug: "Diazepam 5mg", form: "Tablets", balance: 210, unit: "tabs", lastCheck: "04/03/2026", checker: "Amjid Shakoor", status: "ok" },
-  { drug: "Buprenorphine 8mg", form: "Sublingual", balance: 16, unit: "tabs", lastCheck: "01/03/2026", checker: "Amjid Shakoor", status: "overdue" },
-];
-
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function getGreeting() {
@@ -397,6 +387,21 @@ export default function Dashboard() {
     setCleaningEntries(prev => [...prev, entry]);
   }
 
+  function handleCDCheck() {
+    if (cdCheckStatus.isDone) return;
+    const now = new Date().toISOString();
+    const entry = {
+      id: generateId(),
+      taskName: "CD Balance Check",
+      dateTime: now.slice(0, 16),
+      staffMember: user?.name || "Unknown",
+      result: "Pass",
+      notes: "",
+      createdAt: now,
+    };
+    setCleaningEntries(prev => [...prev, entry]);
+  }
+
   // ── Tabs ──
   const TABS = useMemo(() => [
     { key: "daily",       label: "Daily",        tasks: shiftTaskGroups.daily },
@@ -445,9 +450,16 @@ export default function Dashboard() {
       .sort((a, b) => a.days - b.days);
   }, [documents]);
 
-  // ── CD stats ──
-  const cdOverdue = CD_ENTRIES.filter(e => e.status === "overdue").length;
-  const cdDue = CD_ENTRIES.filter(e => e.status === "due").length;
+  // ── CD Balance Check status ──
+  const cdCheckStatus = useMemo(() => {
+    const cdEntries = cleaningEntries
+      .filter(e => e.taskName === "CD Balance Check")
+      .sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
+    const status = getTaskStatus("CD Balance Check", "weekly", cleaningEntries);
+    const latest = cdEntries[0] || null;
+    const isDone = status === "done" || status === "upcoming";
+    return { status, isDone, latest, recentChecks: cdEntries.slice(0, 5) };
+  }, [cleaningEntries]);
 
   const redAlerts = alerts.filter(a => a.level === "red").length;
 
@@ -667,40 +679,55 @@ export default function Dashboard() {
                 gradient="linear-gradient(90deg, #064e3b, #0f766e)"
                 icon="💊" title="CD Balance Check"
                 right={
-                  <div style={{ display: "flex", gap: 5 }}>
-                    {cdOverdue > 0 && <span style={{ fontSize: 10, fontWeight: 700, background: "#fef2f2", color: "#dc2626", padding: "1px 8px", borderRadius: 20, border: "1px solid #fecaca" }}>{cdOverdue} overdue</span>}
-                    {cdDue > 0 && <span style={{ fontSize: 10, fontWeight: 700, background: "#fffbeb", color: "#d97706", padding: "1px 8px", borderRadius: 20, border: "1px solid #fde68a" }}>{cdDue} due today</span>}
-                  </div>
+                  cdCheckStatus.isDone
+                    ? <span style={{ fontSize: 10, fontWeight: 700, background: "#ecfdf5", color: "#059669", padding: "1px 8px", borderRadius: 20, border: "1px solid #a7f3d0" }}>✓ Done</span>
+                    : cdCheckStatus.status === "overdue"
+                      ? <span style={{ fontSize: 10, fontWeight: 700, background: "#fef2f2", color: "#dc2626", padding: "1px 8px", borderRadius: 20, border: "1px solid #fecaca" }}>Overdue</span>
+                      : <span style={{ fontSize: 10, fontWeight: 700, background: "#fffbeb", color: "#d97706", padding: "1px 8px", borderRadius: 20, border: "1px solid #fde68a" }}>Due</span>
                 }
               />
-              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                {CD_ENTRIES.map((e, i) => {
-                  const s = {
-                    ok:      { dot: "#059669", bg: "white",   border: "#e2e8f0", label: "✓ Checked",  lc: "#059669" },
-                    due:     { dot: "#f59e0b", bg: "#fffbeb", border: "#fde68a", label: "Due today",  lc: "#d97706" },
-                    overdue: { dot: "#ef4444", bg: "#fef2f2", border: "#fecaca", label: "Overdue",    lc: "#dc2626" },
-                  }[e.status];
-                  return (
-                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", borderRadius: 9, background: s.bg, border: `1px solid ${s.border}` }}>
-                      <div style={{ width: 7, height: 7, borderRadius: "50%", background: s.dot, flexShrink: 0 }} />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 12, fontWeight: 600, color: "#1e293b" }}>{e.drug}</div>
-                        <div style={{ fontSize: 10, color: "#94a3b8" }}>{e.form}</div>
-                      </div>
-                      <div style={{ textAlign: "right", flexShrink: 0 }}>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: "#1e293b", fontFamily: "'DM Mono', monospace" }}>
-                          {e.balance} <span style={{ fontSize: 9, fontWeight: 400, color: "#94a3b8" }}>{e.unit}</span>
-                        </div>
-                        <div style={{ fontSize: 10, fontWeight: 600, color: s.lc }}>{s.label}</div>
-                      </div>
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3, flexShrink: 0 }}>
-                        <div style={{ fontSize: 9, color: "#94a3b8", fontFamily: "'DM Mono', monospace" }}>{e.lastCheck}</div>
-                        <Avatar name={e.checker} size={20} />
-                      </div>
+              {/* Status */}
+              {cdCheckStatus.isDone ? (
+                <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 9, background: "#ecfdf5", border: "1px solid #a7f3d0" }}>
+                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#059669", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 15, flexShrink: 0 }}>✓</div>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: "#065f46" }}>Balance check completed</div>
+                    <div style={{ fontSize: 11, color: "#047857", marginTop: 2 }}>
+                      {cdCheckStatus.latest?.staffMember} · {new Date(cdCheckStatus.latest?.dateTime).toLocaleDateString("en-GB", { day: "numeric", month: "short" })} at {new Date(cdCheckStatus.latest?.dateTime).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
                     </div>
-                  );
-                })}
-              </div>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 9, background: cdCheckStatus.status === "overdue" ? "#fef2f2" : "#fffbeb", border: `1px solid ${cdCheckStatus.status === "overdue" ? "#fecaca" : "#fde68a"}` }}>
+                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: cdCheckStatus.status === "overdue" ? "#dc2626" : "#d97706", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 14, flexShrink: 0 }}>!</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: cdCheckStatus.status === "overdue" ? "#991b1b" : "#92400e" }}>
+                      Balance check {cdCheckStatus.status === "overdue" ? "overdue" : "due this week"}
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleCDCheck}
+                    style={{ fontSize: 11, fontWeight: 600, padding: "5px 14px", borderRadius: 8, border: "none", background: "#059669", color: "white", cursor: "pointer" }}
+                  >
+                    Mark Complete
+                  </button>
+                </div>
+              )}
+              {/* Recent checks */}
+              {cdCheckStatus.recentChecks.length > 0 && (
+                <div style={{ marginTop: 8 }}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>Recent checks</div>
+                  {cdCheckStatus.recentChecks.map((e, i) => (
+                    <div key={e.id || i} style={{ fontSize: 11, color: "#64748b", padding: "3px 0", display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ color: "#a7f3d0" }}>●</span>
+                      <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 10 }}>{new Date(e.dateTime).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>
+                      <span>—</span>
+                      <span>{e.staffMember}</span>
+                      <span style={{ color: "#94a3b8", fontSize: 10 }}>at {new Date(e.dateTime).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
               <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid #d1fae5", fontSize: 10, color: "#9ca3af", display: "flex", alignItems: "center", gap: 4 }}>
                 <span style={{ color: "#6ee7b7" }}>●</span> Register maintained in PharmSmart · Physical register in CD cabinet
               </div>
