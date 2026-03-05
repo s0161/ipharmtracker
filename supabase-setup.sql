@@ -105,3 +105,43 @@ create policy "Allow all" on staff_training for all using (true) with check (tru
 
 alter table rp_log enable row level security;
 create policy "Allow all" on rp_log for all using (true) with check (true);
+
+-- Staff Tasks (manager/RP-assigned tasks with progress tracking)
+create table staff_tasks (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  assigned_to text not null,
+  assigned_by text not null,
+  role_required text default 'any',
+  priority text default 'MED',
+  status text default 'pending',
+  due_date date,
+  notes text,
+  created_at timestamptz default now()
+);
+
+alter table staff_tasks enable row level security;
+create policy "Allow all" on staff_tasks for all using (true) with check (true);
+
+-- Care Homes
+create table care_homes (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  created_at timestamptz default now()
+);
+
+alter table care_homes enable row level security;
+create policy "Allow all" on care_homes for all using (true) with check (true);
+
+-- Care Home Deliveries
+create table care_home_deliveries (
+  id uuid primary key default gen_random_uuid(),
+  care_home_id uuid references care_homes(id),
+  delivery_date date not null,
+  status text default 'pending',
+  notes text,
+  created_at timestamptz default now()
+);
+
+alter table care_home_deliveries enable row level security;
+create policy "Allow all" on care_home_deliveries for all using (true) with check (true);

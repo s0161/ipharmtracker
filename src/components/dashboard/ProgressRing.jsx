@@ -9,16 +9,17 @@ export default function ProgressRing({ pct, size = 52, sw = 4, delay = 0 }) {
 
   useEffect(() => {
     let frame = 0
+    let id
     const total = Math.max(1, Math.round(pct))
     const step = 800 / total
     const t = setTimeout(() => {
-      const id = setInterval(() => {
+      id = setInterval(() => {
         frame++
         setCounting(frame)
         if (frame >= total) clearInterval(id)
       }, step)
     }, delay + 300)
-    return () => clearTimeout(t)
+    return () => { clearTimeout(t); clearInterval(id) }
   }, [pct, delay])
 
   return (

@@ -7,7 +7,7 @@ const ALL_STAFF = [
 ]
 
 // Completion modal for ticking off tasks
-export default function CompletionModal({ open, taskName, assignedTo, onSubmit, onClose }) {
+export default function CompletionModal({ open, taskName, assignedTo, onSubmit, onClose, staffList }) {
   const [completedBy, setCompletedBy] = useState(assignedTo || '')
   const [notes, setNotes] = useState('')
 
@@ -35,7 +35,7 @@ export default function CompletionModal({ open, taskName, assignedTo, onSubmit, 
           <label className="label">Completed by *</label>
           <select className="input" value={completedBy} onChange={(e) => setCompletedBy(e.target.value)} required>
             <option value="">Select staff...</option>
-            {ALL_STAFF.map(s => <option key={s} value={s}>{s}</option>)}
+            {(staffList?.length ? staffList : ALL_STAFF).map(s => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
         <div className="form-group">
