@@ -1012,8 +1012,11 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* ── Side-by-side: Care Homes + Staff Tasks ── */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, alignItems: "start", marginTop: 12 }}>
+
         {/* ── Care Home Deliveries ── */}
-        <div style={{ ...card, overflow: "hidden", marginTop: 12 }}>
+        <div style={{ ...card, overflow: "hidden" }}>
           <CardHeader
             gradient="linear-gradient(90deg, #0f766e, #14b8a6)"
             icon={<SvgVan size={14} />}
@@ -1032,8 +1035,8 @@ export default function Dashboard() {
           {/* Inline add form */}
           {chFormOpen && (
             <div style={{ background: "#f0fdf9", border: "1px solid #99f6e4", borderRadius: 10, padding: 12, marginBottom: 12 }}>
-              <div style={{ display: "flex", gap: 8, marginBottom: 8, alignItems: "flex-end" }}>
-                <div style={{ flex: 1 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 8 }}>
+                <div>
                   <label style={{ fontSize: 10, fontWeight: 600, color: "#64748b", marginBottom: 2, display: "block" }}>Care home *</label>
                   <div style={{ display: "flex", gap: 4 }}>
                     {!chAddingHome ? (
@@ -1066,12 +1069,12 @@ export default function Dashboard() {
                 <div>
                   <label style={{ fontSize: 10, fontWeight: 600, color: "#64748b", marginBottom: 2, display: "block" }}>Date *</label>
                   <input type="date" value={chDate} onChange={e => setChDate(e.target.value)}
-                    style={{ fontSize: 12, padding: "6px 10px", borderRadius: 8, border: "1px solid #d1fae5", background: "white", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }}
+                    style={{ width: "100%", fontSize: 12, padding: "6px 10px", borderRadius: 8, border: "1px solid #d1fae5", background: "white", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }}
                   />
                 </div>
               </div>
-              <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
-                <div style={{ flex: 1 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <div>
                   <label style={{ fontSize: 10, fontWeight: 600, color: "#64748b", marginBottom: 2, display: "block" }}>Notes</label>
                   <input value={chNotes} onChange={e => setChNotes(e.target.value)} placeholder="Special instructions…"
                     style={{ width: "100%", fontSize: 12, padding: "6px 10px", borderRadius: 8, border: "1px solid #d1fae5", background: "white", outline: "none", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }}
@@ -1091,7 +1094,7 @@ export default function Dashboard() {
             <>
               {Object.entries(chByWeek).map(([weekLabel, dels]) => (
                 <div key={weekLabel}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.08em", marginTop: 8, marginBottom: 4 }}>{weekLabel}</div>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.08em", marginTop: 8, marginBottom: 4 }}>{weekLabel}</div>
                   {dels.map(d => {
                     const isToday = d.deliveryDate === today;
                     const isPastUndelivered = d.deliveryDate < today && d.status !== "delivered";
@@ -1139,7 +1142,7 @@ export default function Dashboard() {
         </div>
 
         {/* ── Staff Task Progress ── */}
-        <div style={{ ...card, overflow: "hidden", marginTop: 12 }}>
+        <div style={{ ...card, overflow: "hidden" }}>
           <CardHeader
             gradient="linear-gradient(90deg, #064e3b, #059669)"
             icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 14l2 2 4-4"/></svg>}
@@ -1149,7 +1152,7 @@ export default function Dashboard() {
                 onClick={() => setStFormOpen(o => !o)}
                 style={{ fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.4)", background: "rgba(255,255,255,0.15)", color: "white", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}
               >
-                {stFormOpen ? "Cancel" : "+ Assign Task"}
+                {stFormOpen ? "Cancel" : "+ Assign"}
               </button>
             ) : null}
           />
@@ -1167,7 +1170,7 @@ export default function Dashboard() {
           {/* Inline assign form (rp/manager only) */}
           {stFormOpen && canAssign && (
             <div style={{ background: "#f0fdf4", border: "1px solid #d1fae5", borderRadius: 10, padding: 12, marginBottom: 12 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 8, marginBottom: 8 }}>
                 <div style={{ gridColumn: "1 / -1" }}>
                   <label style={{ fontSize: 10, fontWeight: 600, color: "#64748b", marginBottom: 2, display: "block" }}>Task title *</label>
                   <input value={stTitle} onChange={e => setStTitle(e.target.value)} placeholder="Enter task title…"
@@ -1244,11 +1247,6 @@ export default function Dashboard() {
                             {task.notes && <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 1 }}>{task.notes}</div>}
                           </div>
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 3, flexShrink: 0 }}>
-                          <Avatar name={initialsToName(task.assignedBy)} size={16} />
-                          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M6 3l2 2-2 2" stroke="#94a3b8" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                          <Avatar name={initialsToName(task.assignedTo)} size={22} />
-                        </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
                           {task.dueDate && <span style={{ fontSize: 9, fontFamily: "'DM Mono', monospace", color: isOverdue ? "#dc2626" : "#94a3b8" }}>{new Date(task.dueDate + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>}
                           <select value={task.status} onChange={e => handleStStatusChange(task.id, e.target.value)} disabled={!canModifyTask(task)}
@@ -1288,11 +1286,6 @@ export default function Dashboard() {
                             <div style={{ fontSize: 12, fontWeight: 600, color: "#1e293b" }}>{task.title}</div>
                             {task.notes && <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 1 }}>{task.notes}</div>}
                           </div>
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 3, flexShrink: 0 }}>
-                          <Avatar name={initialsToName(task.assignedBy)} size={16} />
-                          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M6 3l2 2-2 2" stroke="#94a3b8" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                          <Avatar name={initialsToName(task.assignedTo)} size={22} />
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
                           {task.dueDate && <span style={{ fontSize: 9, fontFamily: "'DM Mono', monospace", color: isOverdue ? "#dc2626" : "#94a3b8" }}>{new Date(task.dueDate + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>}
@@ -1353,6 +1346,8 @@ export default function Dashboard() {
             </>
           )}
         </div>
+
+        </div>{/* end side-by-side grid */}
 
       </div>
     </div>
