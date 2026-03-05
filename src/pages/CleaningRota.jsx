@@ -155,6 +155,10 @@ export default function CleaningRota() {
   const [page, setPage] = useState(0)
   const [markingTask, setMarkingTask] = useState(null)
   const [markForm, setMarkForm] = useState({ result: 'Pass', notes: '' })
+  const [todayFilter, setTodayFilter] = useState(false)
+  const [calMonth, setCalMonth] = useState(new Date().getMonth())
+  const [calYear, setCalYear] = useState(new Date().getFullYear())
+  const [selectedDay, setSelectedDay] = useState(null)
 
   useEffect(() => {
     if (searchParams.get('add') === 'true' && !loading) {
@@ -206,6 +210,38 @@ export default function CleaningRota() {
   // ─── Rota statuses ───
   const rotaStatuses = useMemo(() => ROTA.map(r => ({ ...r, status: getRotaStatus(r, deduped), lastPass: lastPassDate(r.name, deduped) })), [deduped])
 
+  // ─── Today filter count ───
+  const todayDueCount = useMemo(() => rotaStatuses.filter(r => r.status === 'overdue' || r.status === 'due-soon' || (r.frequency === 'daily' && r.status !== 'done')).length, [rotaStatuses])
+
+  // ─── Calendar day statuses ───
+  const calendarDays = useMemo(() => {
+    const firstDay = new Date(calYear, calMonth, 1)
+    const lastDay = new Date(calYear, calMonth + 1, 0)
+    const today = new Date(); today.setHours(0,0,0,0)
+    const days = []
+    // Pad start to Monday
+    let startPad = (firstDay.getDay() + 6) % 7 // 0=Mon
+    for (let i = 0; i < startPad; i++) days.push(null)
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+      const date = new Date(calYear, calMonth, d)
+      date.setHours(0,0,0,0)
+      const nextDate = new Date(date); nextDate.setDate(nextDate.getDate() + 1)
+      if (date > today) { days.push({ day: d, date, status: 'future' }); continue }
+      const dayEntries = deduped.filter(e => { const ed = new Date(e.dateTime); return ed >= date && ed < nextDate })
+      const passes = dayEntries.filter(e => e.result === 'Pass').length
+      const total = dayEntries.length
+      const dailyTasks = ROTA.filter(r => r.frequency === 'daily').length
+      let status = 'missed'
+      if (total === 0) status = 'missed'
+      else if (passes >= dailyTasks) status = 'complete'
+      else if (passes > 0) status = 'partial'
+      days.push({ day: d, date, status, passes, total })
+    }
+    return days
+  }, [calMonth, calYear, deduped])
+
+  const calMonthLabel = new Date(calYear, calMonth).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
+
   // ─── Filtered history ───
   const filteredHistory = useMemo(() => {
     return sorted.filter(e => {
@@ -215,7 +251,6 @@ export default function CleaningRota() {
       if (filterResult === 'Overdue') {
         const task = cleaningTasks.find(t => t.name === e.taskName)
         if (!task) return false
-        // Check if this entry's task was overdue at time of entry
       }
       if (filterFreq) {
         const task = cleaningTasks.find(t => t.name === e.taskName)
@@ -223,9 +258,14 @@ export default function CleaningRota() {
       }
       if (dateFrom && (e.dateTime || '') < dateFrom) return false
       if (dateTo && (e.dateTime || '') > dateTo + 'T23:59') return false
+      // Calendar day filter
+      if (selectedDay) {
+        const ed = new Date(e.dateTime)
+        if (ed.getFullYear() !== selectedDay.getFullYear() || ed.getMonth() !== selectedDay.getMonth() || ed.getDate() !== selectedDay.getDate()) return false
+      }
       return true
     })
-  }, [sorted, filterStaff, filterResult, filterFreq, dateFrom, dateTo, cleaningTasks])
+  }, [sorted, filterStaff, filterResult, filterFreq, dateFrom, dateTo, cleaningTasks, selectedDay])
 
   // ─── Filtered schedule ───
   const filteredSchedule = useMemo(() => {
@@ -234,9 +274,10 @@ export default function CleaningRota() {
       if (filterFreq && r.frequency !== filterFreq) return false
       if (filterResult === 'Overdue' && r.status !== 'overdue') return false
       if (filterResult === 'Pass' && r.status !== 'done') return false
+      if (todayFilter && r.status === 'done') return false
       return true
     })
-  }, [rotaStatuses, filterStaff, filterFreq, filterResult])
+  }, [rotaStatuses, filterStaff, filterFreq, filterResult, todayFilter])
 
   // ─── Chart data ───
   const weeklyChartData = useMemo(() => {
@@ -348,8 +389,8 @@ export default function CleaningRota() {
     downloadCsv('cleaning-rota', headers, rows)
   }
 
-  const hasFilters = filterStaff || filterResult || filterFreq || dateFrom || dateTo
-  const clearFilters = () => { setFilterStaff(''); setFilterResult(''); setFilterFreq(''); setDateFrom(''); setDateTo(''); setPage(0) }
+  const hasFilters = filterStaff || filterResult || filterFreq || dateFrom || dateTo || todayFilter || selectedDay
+  const clearFilters = () => { setFilterStaff(''); setFilterResult(''); setFilterFreq(''); setDateFrom(''); setDateTo(''); setTodayFilter(false); setSelectedDay(null); setPage(0) }
   const pagedHistory = filteredHistory.slice(page * PER_PAGE, (page + 1) * PER_PAGE)
   const totalPages = Math.ceil(filteredHistory.length / PER_PAGE)
 
@@ -383,7 +424,6 @@ export default function CleaningRota() {
     <div style={{ fontFamily: DM }}>
       {/* ─── PAGE HEADER ─── */}
       <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>Dashboard / Cleaning Rota</div>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', margin: 0, lineHeight: 1.2 }}>Cleaning Rota</h1>
@@ -422,8 +462,87 @@ export default function CleaningRota() {
         ))}
       </div>
 
+      {/* ─── MINI CALENDAR ─── */}
+      <div style={{ ...CARD, padding: 0, marginBottom: 14, overflow: 'hidden' }}>
+        <DashCardHeader gradient="linear-gradient(90deg, #064e3b, #047857)" icon="📅" title="Calendar" right={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <button onClick={() => { if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1) } else setCalMonth(m => m - 1) }} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 14, padding: '0 4px', opacity: 0.8 }}>‹</button>
+            <span style={{ fontSize: 11, fontFamily: MONO, color: '#fff', minWidth: 110, textAlign: 'center' }}>{calMonthLabel}</span>
+            <button onClick={() => { if (calMonth === 11) { setCalMonth(0); setCalYear(y => y + 1) } else setCalMonth(m => m + 1) }} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 14, padding: '0 4px', opacity: 0.8 }}>›</button>
+          </div>
+        } />
+        <div style={{ padding: '10px 16px 12px' }}>
+          {/* Day headers */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2, marginBottom: 4 }}>
+            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => (
+              <div key={d} style={{ textAlign: 'center', fontSize: 9, fontWeight: 600, color: 'var(--text-muted)', padding: '2px 0', fontFamily: MONO }}>{d}</div>
+            ))}
+          </div>
+          {/* Day cells */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2 }}>
+            {calendarDays.map((cell, i) => {
+              if (!cell) return <div key={`pad-${i}`} />
+              const dotColors = { complete: '#059669', partial: '#f59e0b', missed: '#ef4444', future: '#d4d4d8' }
+              const isToday = cell.date.getTime() === new Date(new Date().setHours(0,0,0,0)).getTime()
+              const isSelected = selectedDay && cell.date.getTime() === selectedDay.getTime()
+              return (
+                <button key={cell.day} onClick={() => {
+                  if (cell.status === 'future') return
+                  setSelectedDay(prev => prev && prev.getTime() === cell.date.getTime() ? null : cell.date)
+                  setPage(0)
+                }} style={{
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+                  padding: '4px 2px', borderRadius: 6, border: isSelected ? '1.5px solid #059669' : isToday ? '1px solid var(--border-card)' : '1px solid transparent',
+                  background: isSelected ? 'rgba(5,150,105,0.08)' : isToday ? 'var(--bg-card)' : 'transparent',
+                  cursor: cell.status === 'future' ? 'default' : 'pointer', transition: 'all 0.12s',
+                }}>
+                  <span style={{ fontSize: 11, fontWeight: isToday ? 700 : 400, color: isToday ? 'var(--text-primary)' : 'var(--text-secondary)', fontFamily: MONO }}>{cell.day}</span>
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: dotColors[cell.status] }} />
+                </button>
+              )
+            })}
+          </div>
+          {/* Legend */}
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 8, paddingTop: 6, borderTop: '1px solid var(--border-card)' }}>
+            {[['#059669', 'Complete'], ['#f59e0b', 'Partial'], ['#ef4444', 'Missed'], ['#d4d4d8', 'Upcoming']].map(([c, l]) => (
+              <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ width: 6, height: 6, borderRadius: '50%', background: c }} />
+                <span style={{ fontSize: 9, color: 'var(--text-muted)', fontFamily: DM }}>{l}</span>
+              </div>
+            ))}
+          </div>
+          {selectedDay && (
+            <div style={{ textAlign: 'center', marginTop: 6 }}>
+              <button onClick={() => setSelectedDay(null)} style={{ fontSize: 10, color: '#059669', background: 'none', border: 'none', cursor: 'pointer', fontFamily: DM, fontWeight: 600 }}>
+                Clear day filter ({selectedDay.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })})
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* ─── FILTERS BAR ─── */}
       <div style={{ ...CARD, padding: '10px 16px', display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center', marginBottom: 14 }}>
+        {/* Today's Tasks quick filter */}
+        <button onClick={() => { setTodayFilter(!todayFilter); setTab('schedule'); setPage(0) }} style={{
+          padding: '5px 14px', borderRadius: 20, fontSize: 11, fontWeight: 600, fontFamily: DM,
+          border: todayFilter ? '1.5px solid #059669' : '1.5px solid #d1fae5',
+          background: todayFilter ? '#059669' : '#f0fdf4',
+          color: todayFilter ? '#fff' : '#059669',
+          cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, transition: 'all 0.15s',
+        }}>
+          <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="3" width="12" height="11" rx="1.5" /><path d="M2 6h12M5 1v3M11 1v3" /></svg>
+          Today's Tasks
+          {todayDueCount > 0 && (
+            <span style={{
+              fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 10, marginLeft: 2,
+              background: todayFilter ? 'rgba(255,255,255,0.25)' : '#059669', color: '#fff',
+            }}>{todayDueCount}</span>
+          )}
+        </button>
+
+        <div style={{ width: 1, height: 20, background: 'var(--border-card)' }} />
+
         <select value={filterStaff} onChange={e => { setFilterStaff(e.target.value); setPage(0) }} style={{
           padding: '5px 10px', borderRadius: 8, fontSize: 11, fontFamily: DM,
           background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)', cursor: 'pointer',
