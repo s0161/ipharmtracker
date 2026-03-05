@@ -90,9 +90,9 @@ export default function StaffTraining() {
       if (filterStatus && e.status !== filterStatus) return false
       if (
         q &&
-        !e.staffName.toLowerCase().includes(q) &&
-        !e.role.toLowerCase().includes(q) &&
-        !e.trainingItem.toLowerCase().includes(q)
+        !(e.staffName || '').toLowerCase().includes(q) &&
+        !(e.role || '').toLowerCase().includes(q) &&
+        !(e.trainingItem || '').toLowerCase().includes(q)
       )
         return false
       return true

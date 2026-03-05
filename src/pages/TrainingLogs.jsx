@@ -100,7 +100,7 @@ export default function TrainingLogs() {
     return logs.filter(l => {
       if (filterStaff && l.staffName !== filterStaff) return false
       if (filterTopic && l.topic !== filterTopic) return false
-      if (q && !l.staffName.toLowerCase().includes(q) && !l.topic.toLowerCase().includes(q) && !(l.trainerName || '').toLowerCase().includes(q)) return false
+      if (q && !(l.staffName || '').toLowerCase().includes(q) && !(l.topic || '').toLowerCase().includes(q) && !(l.trainerName || '').toLowerCase().includes(q)) return false
       return true
     })
   }, [logs, filterStaff, filterTopic, search])

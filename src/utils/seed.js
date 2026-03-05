@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { generateId } from './helpers'
 
-const SEED_KEY = 'ipd_seeded_v26'
+const SEED_KEY = 'ipd_seeded_v27'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -11,7 +11,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
   'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13', 'ipd_seeded_v14', 'ipd_seeded_v15', 'ipd_seeded_v16',
   'ipd_seeded_v17', 'ipd_seeded_v18', 'ipd_seeded_v19', 'ipd_seeded_v20', 'ipd_seeded_v21', 'ipd_seeded_v22',
-  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25',
+  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26',
 ]
 
 export function cleanupOldLocalStorage() {
@@ -527,34 +527,34 @@ export async function seedIfNeeded() {
 
   const staffTaskSamples = [
     // CD Check (4)
-    { title: 'Weekly CD balance check', category: 'CD Check', priority: 'HIGH', status: 'pending', due_date: dayStr(2), notes: 'Count all Schedule 2 & 3 CDs against register' },
-    { title: 'CD register reconciliation', category: 'CD Check', priority: 'HIGH', status: 'pending', due_date: dayStr(5), notes: 'Cross-check register entries with running balances' },
-    { title: 'CD cabinet key audit', category: 'CD Check', priority: 'MED', status: 'in_progress', due_date: dayStr(1), notes: 'Verify key holder log is up to date' },
-    { title: 'Return expired CDs to supplier', category: 'CD Check', priority: 'HIGH', status: 'pending', due_date: dayStr(-2), notes: 'T2 denaturing kit required — overdue' },
+    { title: 'Weekly CD balance check', priority: 'HIGH', status: 'pending', due_date: dayStr(2), notes: 'Count all Schedule 2 & 3 CDs against register' },
+    { title: 'CD register reconciliation', priority: 'HIGH', status: 'pending', due_date: dayStr(5), notes: 'Cross-check register entries with running balances' },
+    { title: 'CD cabinet key audit', priority: 'MED', status: 'in_progress', due_date: dayStr(1), notes: 'Verify key holder log is up to date' },
+    { title: 'Return expired CDs to supplier', priority: 'HIGH', status: 'pending', due_date: dayStr(-2), notes: 'T2 denaturing kit required — overdue' },
 
     // Compliance (5)
-    { title: 'Update dispensary SOPs', category: 'Compliance', priority: 'MED', status: 'pending', due_date: dayStr(7), notes: 'Annual SOP review — check GPhC updates' },
-    { title: 'GPhC inspection checklist review', category: 'Compliance', priority: 'HIGH', status: 'pending', due_date: dayStr(10), notes: 'Ensure all 5 standards evidenced' },
-    { title: 'Audit prescription exemption records', category: 'Compliance', priority: 'MED', status: 'pending', due_date: dayStr(4), notes: 'Random sample of 20 scripts from last month' },
-    { title: 'Stock rotation — short-dated items', category: 'Compliance', priority: 'LOW', status: 'done', due_date: dayStr(-1), notes: 'Completed — all short-dated moved to front' },
-    { title: 'Fridge temperature logger download', category: 'Compliance', priority: 'MED', status: 'done', due_date: dayStr(-3), notes: 'Data exported and filed' },
+    { title: 'Update dispensary SOPs', priority: 'MED', status: 'pending', due_date: dayStr(7), notes: 'Annual SOP review — check GPhC updates' },
+    { title: 'GPhC inspection checklist review', priority: 'HIGH', status: 'pending', due_date: dayStr(10), notes: 'Ensure all 5 standards evidenced' },
+    { title: 'Audit prescription exemption records', priority: 'MED', status: 'pending', due_date: dayStr(4), notes: 'Random sample of 20 scripts from last month' },
+    { title: 'Stock rotation — short-dated items', priority: 'LOW', status: 'done', due_date: dayStr(-1), notes: 'Completed — all short-dated moved to front' },
+    { title: 'Fridge temperature logger download', priority: 'MED', status: 'done', due_date: dayStr(-3), notes: 'Data exported and filed' },
 
     // Cleaning (2)
-    { title: 'Deep clean dispensary benches', category: 'Cleaning', priority: 'MED', status: 'pending', due_date: dayStr(3), notes: 'Use approved cleaning solution — log in cleaning record' },
-    { title: 'Organise returns shelf', category: 'Cleaning', priority: 'LOW', status: 'pending', due_date: dayStr(6), notes: 'Sort by supplier, prepare returns notes' },
+    { title: 'Deep clean dispensary benches', priority: 'MED', status: 'pending', due_date: dayStr(3), notes: 'Use approved cleaning solution — log in cleaning record' },
+    { title: 'Organise returns shelf', priority: 'LOW', status: 'pending', due_date: dayStr(6), notes: 'Sort by supplier, prepare returns notes' },
 
     // H&S (3)
-    { title: 'Fire exits & signage check', category: 'H&S', priority: 'HIGH', status: 'pending', due_date: dayStr(8), notes: 'Monthly fire safety walk — check all exits unobstructed' },
-    { title: 'First aid kit stock check', category: 'H&S', priority: 'MED', status: 'in_progress', due_date: dayStr(0), notes: 'Reorder any expired or missing items' },
-    { title: 'PAT testing — portable appliances', category: 'H&S', priority: 'LOW', status: 'pending', due_date: dayStr(14), notes: 'Annual PAT test due — book contractor' },
+    { title: 'Fire exits & signage check', priority: 'HIGH', status: 'pending', due_date: dayStr(8), notes: 'Monthly fire safety walk — check all exits unobstructed' },
+    { title: 'First aid kit stock check', priority: 'MED', status: 'in_progress', due_date: dayStr(0), notes: 'Reorder any expired or missing items' },
+    { title: 'PAT testing — portable appliances', priority: 'LOW', status: 'pending', due_date: dayStr(14), notes: 'Annual PAT test due — book contractor' },
 
     // Waste (2)
-    { title: 'DOOP bin collection booked', category: 'Waste', priority: 'MED', status: 'pending', due_date: dayStr(9), notes: 'Contact waste contractor for next pickup' },
-    { title: 'Sharps bin replacement', category: 'Waste', priority: 'HIGH', status: 'pending', due_date: dayStr(1), notes: 'Current bin ¾ full — swap and seal' },
+    { title: 'DOOP bin collection booked', priority: 'MED', status: 'pending', due_date: dayStr(9), notes: 'Contact waste contractor for next pickup' },
+    { title: 'Sharps bin replacement', priority: 'HIGH', status: 'pending', due_date: dayStr(1), notes: 'Current bin ¾ full — swap and seal' },
 
     // RP Check (2)
-    { title: 'RP notice board check', category: 'RP Check', priority: 'LOW', status: 'done', due_date: dayStr(-4), notes: 'Notice displayed, RP name correct' },
-    { title: 'RP absence cover plan', category: 'RP Check', priority: 'MED', status: 'pending', due_date: dayStr(12), notes: 'Confirm locum availability for upcoming leave' },
+    { title: 'RP notice board check', priority: 'LOW', status: 'done', due_date: dayStr(-4), notes: 'Notice displayed, RP name correct' },
+    { title: 'RP absence cover plan', priority: 'MED', status: 'pending', due_date: dayStr(12), notes: 'Confirm locum availability for upcoming leave' },
   ].map((task, i) => ({
     id: generateId(),
     ...task,
