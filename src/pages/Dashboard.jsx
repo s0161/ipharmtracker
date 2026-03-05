@@ -201,6 +201,7 @@ export default function Dashboard() {
   const [expandedCard, setExpandedCard] = useState(null);
   const [todoInput, setTodoInput] = useState("");
   const [alertsDismissed, setAlertsDismissed] = useState(false);
+  const [expiringExpanded, setExpiringExpanded] = useState(false);
   const [now, setNow] = useState(new Date());
 
   useEffect(() => { const t = setInterval(() => setNow(new Date()), 30000); return () => clearInterval(t); }, []);
@@ -763,24 +764,34 @@ export default function Dashboard() {
               <CardHeader gradient="linear-gradient(90deg, #166534, #16a34a)" icon="📅" title="Expiring Soon" />
               {expiringDocs.length === 0
                 ? <div style={{ fontSize: 11, color: "#9ca3af", textAlign: "center", padding: "8px 0", fontStyle: "italic" }}>No documents expiring within 90 days</div>
-                : expiringDocs.map((doc, i) => {
-                  const r = doc.days < 0
-                    ? { bg: "#fef2f2", border: "#fecaca", text: "#dc2626", label: "EXPIRED", sublabel: `${Math.abs(doc.days)}d ago` }
-                    : doc.days <= 14
-                    ? { bg: "#fef2f2", border: "#fecaca", text: "#dc2626", label: `in ${doc.days}d`, sublabel: "Urgent" }
-                    : doc.days <= 30
-                    ? { bg: "#fffbeb", border: "#fde68a", text: "#d97706", label: `in ${doc.days}d`, sublabel: "Soon" }
-                    : { bg: "white", border: "#d1fae5", text: "#059669", label: `in ${doc.days}d`, sublabel: "OK" };
-                  return (
-                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 10px", borderRadius: 8, marginBottom: 4, background: r.bg, border: `1px solid ${r.border}` }}>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 11, fontWeight: 600, color: "#1e293b" }}>{doc.name}</div>
-                        <div style={{ fontSize: 9, color: "#9ca3af", marginTop: 1 }}>{r.sublabel}</div>
+                : <>
+                  {(expiringExpanded ? expiringDocs : expiringDocs.slice(0, 3)).map((doc, i) => {
+                    const r = doc.days < 0
+                      ? { bg: "#fef2f2", border: "#fecaca", text: "#dc2626", label: "EXPIRED", sublabel: `${Math.abs(doc.days)}d ago` }
+                      : doc.days <= 14
+                      ? { bg: "#fef2f2", border: "#fecaca", text: "#dc2626", label: `in ${doc.days}d`, sublabel: "Urgent" }
+                      : doc.days <= 30
+                      ? { bg: "#fffbeb", border: "#fde68a", text: "#d97706", label: `in ${doc.days}d`, sublabel: "Soon" }
+                      : { bg: "white", border: "#d1fae5", text: "#059669", label: `in ${doc.days}d`, sublabel: "OK" };
+                    return (
+                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 10px", borderRadius: 8, marginBottom: 4, background: r.bg, border: `1px solid ${r.border}` }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: "#1e293b" }}>{doc.name}</div>
+                          <div style={{ fontSize: 9, color: "#9ca3af", marginTop: 1 }}>{r.sublabel}</div>
+                        </div>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: r.text, fontFamily: "'DM Mono', monospace", minWidth: 54, textAlign: "right" }}>{r.label}</span>
                       </div>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: r.text, fontFamily: "'DM Mono', monospace", minWidth: 54, textAlign: "right" }}>{r.label}</span>
-                    </div>
-                  );
-                })
+                    );
+                  })}
+                  {expiringDocs.length > 3 && (
+                    <button
+                      onClick={() => setExpiringExpanded(e => !e)}
+                      style={{ background: "none", border: "none", cursor: "pointer", fontSize: 10, color: "#16a34a", fontWeight: 600, padding: "4px 0 2px", width: "100%", textAlign: "center" }}
+                    >
+                      {expiringExpanded ? "Show less" : `View all ${expiringDocs.length} expiring`}
+                    </button>
+                  )}
+                </>
               }
             </div>
 
