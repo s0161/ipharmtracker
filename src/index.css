@@ -36,8 +36,69 @@
    Design System & Styles
    ═══════════════════════════════════════════════ */
 
-/* ── Emerald Command Dark (default) ── */
+/* ── Emerald Mint Light (default) ── */
 :root {
+  --primary: #059669;
+  --primary-dark: #047857;
+  --primary-light: #10b981;
+  --primary-fade: rgba(5, 150, 105, 0.08);
+  --accent: #10b981;
+  --accent-light: #34d399;
+  --success: #059669;
+  --success-bg: rgba(5, 150, 105, 0.1);
+  --warning: #d97706;
+  --warning-bg: rgba(217, 119, 6, 0.1);
+  --danger: #dc2626;
+  --danger-bg: rgba(220, 38, 38, 0.1);
+  --info: #4f46e5;
+  --info-bg: rgba(79, 70, 229, 0.08);
+  --bg: #f0faf4;
+  --bg-secondary: #f0fdf4;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f0fdf4;
+  --text: #1e293b;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --border: #d1fae5;
+  --border-light: #ecfdf5;
+  --sidebar-w: 220px;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 4px rgba(5, 150, 105, 0.06);
+  --shadow-md: 0 4px 12px rgba(5, 150, 105, 0.08), 0 2px 4px rgba(5, 150, 105, 0.04);
+  --shadow-lg: 0 12px 32px rgba(5, 150, 105, 0.1), 0 4px 8px rgba(5, 150, 105, 0.06);
+  --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --mono-font: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+  --heading-font: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  /* Emerald Command token variables — light */
+  --ec-bg: #f0faf4;
+  --ec-sidebar: #ffffff;
+  --ec-card: #ffffff;
+  --ec-card-solid: #ffffff;
+  --ec-card-hover: #f0fdf4;
+  --ec-border: #d1fae5;
+  --ec-div: #d1fae5;
+  --ec-t1: #1e293b;
+  --ec-t2: #64748b;
+  --ec-t3: #94a3b8;
+  --ec-t4: #cbd5e1;
+  --ec-t5: #e2e8f0;
+  --ec-em: #059669;
+  --ec-em-dark: #047857;
+  --ec-em-faint: rgba(5,150,105,0.06);
+  --ec-warn: #d97706;
+  --ec-warn-light: #b45309;
+  --ec-warn-faint: rgba(217,119,6,0.08);
+  --ec-crit: #dc2626;
+  --ec-crit-light: #b91c1c;
+  --ec-crit-faint: rgba(220,38,38,0.06);
+  --ec-info: #4f46e5;
+  --ec-info-light: #4338ca;
+  --ec-z6: #6b7280;
+}
+
+/* ── Dark theme (toggle) ── */
+[data-theme="dark"] {
   --primary: #10b981;
   --primary-dark: #059669;
   --primary-light: #34d399;
@@ -61,19 +122,14 @@
   --text-muted: rgba(255, 255, 255, 0.25);
   --border: rgba(255, 255, 255, 0.06);
   --border-light: rgba(255, 255, 255, 0.04);
-  --sidebar-w: 220px;
-  --radius: 10px;
-  --radius-sm: 6px;
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 0 1px rgba(255, 255, 255, 0.04);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6), 0 4px 8px rgba(0, 0, 0, 0.4);
-  --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
-  --mono-font: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
-  --heading-font: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-  /* Emerald Command token variables */
+  /* Emerald Command token variables — dark */
   --ec-bg: #0a0a0a;
   --ec-sidebar: #070707;
   --ec-card: rgba(255,255,255,0.025);
+  --ec-card-solid: #111111;
   --ec-card-hover: rgba(255,255,255,0.045);
   --ec-border: rgba(255,255,255,0.06);
   --ec-div: rgba(255,255,255,0.04);
@@ -94,65 +150,6 @@
   --ec-info: #6366f1;
   --ec-info-light: #a5b4fc;
   --ec-z6: #52525b;
-}
-
-/* ── Light theme (toggle) ── */
-[data-theme="light"] {
-  --primary: #059669;
-  --primary-dark: #047857;
-  --primary-light: #10b981;
-  --primary-fade: rgba(5, 150, 105, 0.08);
-  --accent: #10b981;
-  --accent-light: #34d399;
-  --success: #059669;
-  --success-bg: rgba(5, 150, 105, 0.1);
-  --warning: #d97706;
-  --warning-bg: rgba(217, 119, 6, 0.1);
-  --danger: #dc2626;
-  --danger-bg: rgba(220, 38, 38, 0.1);
-  --info: #4f46e5;
-  --info-bg: rgba(79, 70, 229, 0.08);
-  --bg: #f8fafc;
-  --bg-secondary: #f1f5f9;
-  --bg-card: #FFFFFF;
-  --bg-card-hover: #f8fafc;
-  --text: #0F172A;
-  --text-secondary: #475569;
-  --text-muted: #94A3B8;
-  --border: #E2E8F0;
-  --border-light: #F1F5F9;
-  --shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
-  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08), 0 2px 4px rgba(15, 23, 42, 0.04);
-  --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.12), 0 4px 8px rgba(15, 23, 42, 0.06);
-  /* Emerald Command light overrides */
-  --ec-bg: #f8fafc;
-  --ec-sidebar: #ffffff;
-  --ec-card: #ffffff;
-  --ec-card-hover: #f8fafc;
-  --ec-border: #e2e8f0;
-  --ec-div: #f1f5f9;
-  --ec-t1: #0f172a;
-  --ec-t2: #475569;
-  --ec-t3: #94a3b8;
-  --ec-t4: #cbd5e1;
-  --ec-t5: #e2e8f0;
-  --ec-em: #059669;
-  --ec-em-dark: #047857;
-  --ec-em-faint: rgba(5,150,105,0.06);
-  --ec-warn: #d97706;
-  --ec-warn-light: #b45309;
-  --ec-warn-faint: rgba(217,119,6,0.08);
-  --ec-crit: #dc2626;
-  --ec-crit-light: #b91c1c;
-  --ec-crit-faint: rgba(220,38,38,0.06);
-  --ec-info: #4f46e5;
-  --ec-info-light: #4338ca;
-  --ec-z6: #64748b;
-}
-
-/* Light mode header */
-[data-theme="light"] .main-header {
-  background: rgba(248, 250, 252, 0.85);
 }
 
 /* Dark-first card gradients (base = dark) */

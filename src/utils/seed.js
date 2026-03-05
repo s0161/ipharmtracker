@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { generateId } from './helpers'
 
-const SEED_KEY = 'ipd_seeded_v25'
+const SEED_KEY = 'ipd_seeded_v26'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -11,11 +11,15 @@ const ORPHANED_KEYS = [
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
   'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13', 'ipd_seeded_v14', 'ipd_seeded_v15', 'ipd_seeded_v16',
   'ipd_seeded_v17', 'ipd_seeded_v18', 'ipd_seeded_v19', 'ipd_seeded_v20', 'ipd_seeded_v21', 'ipd_seeded_v22',
-  'ipd_seeded_v23', 'ipd_seeded_v24',
+  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25',
 ]
 
 export function cleanupOldLocalStorage() {
   ORPHANED_KEYS.forEach((k) => localStorage.removeItem(k))
+  // Reset theme to light if stuck on old dark default
+  if (localStorage.getItem('ipd_theme') === 'dark') {
+    localStorage.removeItem('ipd_theme')
+  }
 }
 
 // Remove renamed/stale tasks that may linger from broken earlier seeds
@@ -508,6 +512,58 @@ export async function seedIfNeeded() {
     },
   ]
 
+  // Staff Tasks — 18 sample tasks round-robin assigned across staff
+  const today = new Date()
+  const dayStr = (offset) => {
+    const d = new Date(today)
+    d.setDate(d.getDate() + offset)
+    return d.toISOString().slice(0, 10)
+  }
+
+  // Initials must match STAFF_ASSIGNEES in MyTasks.jsx
+  const ASSIGNEE_POOL = [
+    'SS', 'AS', 'JA', 'MH', 'MJ', 'UK', 'SuS', 'UKh', 'SN',
+  ]
+
+  const staffTaskSamples = [
+    // CD Check (4)
+    { title: 'Weekly CD balance check', category: 'CD Check', priority: 'HIGH', status: 'pending', due_date: dayStr(2), notes: 'Count all Schedule 2 & 3 CDs against register' },
+    { title: 'CD register reconciliation', category: 'CD Check', priority: 'HIGH', status: 'pending', due_date: dayStr(5), notes: 'Cross-check register entries with running balances' },
+    { title: 'CD cabinet key audit', category: 'CD Check', priority: 'MED', status: 'in_progress', due_date: dayStr(1), notes: 'Verify key holder log is up to date' },
+    { title: 'Return expired CDs to supplier', category: 'CD Check', priority: 'HIGH', status: 'pending', due_date: dayStr(-2), notes: 'T2 denaturing kit required — overdue' },
+
+    // Compliance (5)
+    { title: 'Update dispensary SOPs', category: 'Compliance', priority: 'MED', status: 'pending', due_date: dayStr(7), notes: 'Annual SOP review — check GPhC updates' },
+    { title: 'GPhC inspection checklist review', category: 'Compliance', priority: 'HIGH', status: 'pending', due_date: dayStr(10), notes: 'Ensure all 5 standards evidenced' },
+    { title: 'Audit prescription exemption records', category: 'Compliance', priority: 'MED', status: 'pending', due_date: dayStr(4), notes: 'Random sample of 20 scripts from last month' },
+    { title: 'Stock rotation — short-dated items', category: 'Compliance', priority: 'LOW', status: 'done', due_date: dayStr(-1), notes: 'Completed — all short-dated moved to front' },
+    { title: 'Fridge temperature logger download', category: 'Compliance', priority: 'MED', status: 'done', due_date: dayStr(-3), notes: 'Data exported and filed' },
+
+    // Cleaning (2)
+    { title: 'Deep clean dispensary benches', category: 'Cleaning', priority: 'MED', status: 'pending', due_date: dayStr(3), notes: 'Use approved cleaning solution — log in cleaning record' },
+    { title: 'Organise returns shelf', category: 'Cleaning', priority: 'LOW', status: 'pending', due_date: dayStr(6), notes: 'Sort by supplier, prepare returns notes' },
+
+    // H&S (3)
+    { title: 'Fire exits & signage check', category: 'H&S', priority: 'HIGH', status: 'pending', due_date: dayStr(8), notes: 'Monthly fire safety walk — check all exits unobstructed' },
+    { title: 'First aid kit stock check', category: 'H&S', priority: 'MED', status: 'in_progress', due_date: dayStr(0), notes: 'Reorder any expired or missing items' },
+    { title: 'PAT testing — portable appliances', category: 'H&S', priority: 'LOW', status: 'pending', due_date: dayStr(14), notes: 'Annual PAT test due — book contractor' },
+
+    // Waste (2)
+    { title: 'DOOP bin collection booked', category: 'Waste', priority: 'MED', status: 'pending', due_date: dayStr(9), notes: 'Contact waste contractor for next pickup' },
+    { title: 'Sharps bin replacement', category: 'Waste', priority: 'HIGH', status: 'pending', due_date: dayStr(1), notes: 'Current bin ¾ full — swap and seal' },
+
+    // RP Check (2)
+    { title: 'RP notice board check', category: 'RP Check', priority: 'LOW', status: 'done', due_date: dayStr(-4), notes: 'Notice displayed, RP name correct' },
+    { title: 'RP absence cover plan', category: 'RP Check', priority: 'MED', status: 'pending', due_date: dayStr(12), notes: 'Confirm locum availability for upcoming leave' },
+  ].map((task, i) => ({
+    id: generateId(),
+    ...task,
+    assigned_to: ASSIGNEE_POOL[i % ASSIGNEE_POOL.length],
+    assigned_by: 'AS',
+    role_required: 'any',
+    created_at: new Date().toISOString(),
+  }))
+
   // Clear old seed data before re-inserting
   await Promise.allSettled([
     supabase.from('cleaning_tasks').delete().neq('name', ''),
@@ -521,6 +577,7 @@ export async function seedIfNeeded() {
     supabase.from('training_logs').delete().neq('id', ''),
     supabase.from('action_items').delete().neq('id', ''),
     supabase.from('assigned_tasks').delete().neq('id', ''),
+    supabase.from('staff_tasks').delete().neq('id', ''),
     supabase.from('near_misses').delete().neq('id', ''),
     supabase.from('pharmacy_config').delete().neq('id', '00000000-0000-0000-0000-000000000000'),
   ])
@@ -536,6 +593,7 @@ export async function seedIfNeeded() {
     supabase.from('training_topics').insert(trainingTopics.map((name) => ({ name }))),
     supabase.from('training_logs').insert(trainingLogs),
     supabase.from('action_items').insert(actionItems),
+    supabase.from('staff_tasks').insert(staffTaskSamples),
     supabase.from('pharmacy_config').insert({
       pharmacy_name: 'iPharmacy Direct',
       address: 'Manchester, UK',

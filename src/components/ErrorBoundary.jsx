@@ -24,7 +24,7 @@ export default class ErrorBoundary extends Component {
         alignItems: 'center',
         justifyContent: 'center',
         padding: 24,
-        backgroundColor: 'var(--bg, #0a0a0a)',
+        backgroundColor: 'var(--bg, #f0faf4)',
         fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif',
       }}>
         <div style={{ maxWidth: 400, textAlign: 'center', color: 'var(--text, #e4e4e7)' }}>

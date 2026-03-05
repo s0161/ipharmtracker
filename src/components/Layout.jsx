@@ -142,9 +142,6 @@ export default function Layout({ children }) {
   return (
     <div
       className="min-h-screen bg-ec-bg font-sans"
-      style={{
-        backgroundImage: 'radial-gradient(ellipse at 25% -5%, rgba(16,185,129,0.035), transparent 50%), radial-gradient(ellipse at 80% 100%, rgba(99,102,241,0.02), transparent 50%)',
-      }}
     >
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
@@ -212,7 +209,7 @@ export default function Layout({ children }) {
               style={{
                 backgroundColor: 'var(--ec-card-solid, var(--ec-bg))',
                 border: '1px solid var(--ec-border)',
-                boxShadow: '0 -8px 30px rgba(0,0,0,0.3)',
+                boxShadow: '0 -8px 30px rgba(5,150,105,0.12)',
               }}
             >
               <div className="py-2 max-h-[60vh] overflow-y-auto">
@@ -254,7 +251,7 @@ export default function Layout({ children }) {
             style={{
               backgroundColor: 'var(--ec-card-solid, var(--ec-bg))',
               border: '1px solid var(--ec-border)',
-              boxShadow: '0 16px 48px rgba(0,0,0,0.4)',
+              boxShadow: '0 16px 48px rgba(5,150,105,0.12)',
             }}
             onClick={e => e.stopPropagation()}
           >

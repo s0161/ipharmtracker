@@ -95,17 +95,17 @@ export default function Sidebar({ open, onClose }) {
         className={`fixed left-0 top-0 h-screen w-[220px] bg-ec-sidebar z-50 flex flex-col
           border-r border-ec-div font-sans
           transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
-          lg:translate-x-0 ${open ? 'translate-x-0 shadow-[8px_0_32px_rgba(0,0,0,0.5)]' : '-translate-x-full'}`}
+          lg:translate-x-0 ${open ? 'translate-x-0 shadow-[8px_0_32px_rgba(5,150,105,0.1)]' : '-translate-x-full'}`}
       >
         {/* Emerald gradient edge */}
         <div
-          className="absolute left-0 top-0 w-px h-1/2 pointer-events-none"
-          style={{ background: 'linear-gradient(to bottom, var(--ec-em) 0%, rgba(16,185,129,0.2) 40%, transparent 100%)' }}
+          className="absolute left-0 top-0 w-[2px] h-1/2 pointer-events-none"
+          style={{ background: 'linear-gradient(to bottom, var(--ec-em) 0%, rgba(5,150,105,0.3) 40%, transparent 100%)' }}
         />
         {/* Emerald radial glow */}
         <div
           className="absolute left-0 top-0 w-full h-[120px] pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse at 0% 0%, rgba(16,185,129,0.04), transparent 70%)' }}
+          style={{ background: 'radial-gradient(ellipse at 0% 0%, rgba(5,150,105,0.06), transparent 70%)' }}
         />
 
         {/* Brand */}
@@ -114,7 +114,7 @@ export default function Sidebar({ open, onClose }) {
             className="w-[30px] h-[30px] rounded-lg flex items-center justify-center text-[9px] font-extrabold text-white tracking-tighter"
             style={{
               background: 'linear-gradient(135deg, var(--ec-em), var(--ec-em-dark))',
-              boxShadow: '0 2px 8px rgba(16,185,129,0.3)',
+              boxShadow: '0 2px 8px rgba(5,150,105,0.25)',
             }}
           >
             {brandInitials}
@@ -195,8 +195,8 @@ export default function Sidebar({ open, onClose }) {
               bg-transparent text-ec-z6 hover:bg-ec-card-hover hover:text-ec-t2
               transition-all duration-150 ease-in-out font-sans"
           >
-            <NI name={theme === 'dark' ? 'sun' : 'moon'} color="var(--ec-z6)" />
-            <span className="flex-1">{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+            <NI name={theme === 'light' ? 'moon' : 'sun'} color="var(--ec-z6)" />
+            <span className="flex-1">{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
           </button>
         </nav>
 
