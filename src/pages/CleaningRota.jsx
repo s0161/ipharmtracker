@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useSupabase } from '../hooks/useSupabase'
 import { logAudit } from '../utils/auditLog'
@@ -159,6 +159,8 @@ export default function CleaningRota() {
   const [calMonth, setCalMonth] = useState(new Date().getMonth())
   const [calYear, setCalYear] = useState(new Date().getFullYear())
   const [selectedDay, setSelectedDay] = useState(null)
+  const [filterPopoverOpen, setFilterPopoverOpen] = useState(false)
+  const filterRef = useRef(null)
 
   useEffect(() => {
     if (searchParams.get('add') === 'true' && !loading) {
@@ -168,6 +170,14 @@ export default function CleaningRota() {
       setSearchParams({}, { replace: true })
     }
   }, [loading, searchParams, setSearchParams])
+
+  // Close filter popover on outside click
+  useEffect(() => {
+    if (!filterPopoverOpen) return
+    const handler = (e) => { if (filterRef.current && !filterRef.current.contains(e.target)) setFilterPopoverOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [filterPopoverOpen])
 
   const taskNames = cleaningTasks.map(t => t.name)
 
@@ -390,6 +400,7 @@ export default function CleaningRota() {
   }
 
   const hasFilters = filterStaff || filterResult || filterFreq || dateFrom || dateTo || todayFilter || selectedDay
+  const activeFilterCount = [filterStaff, filterResult, filterFreq, dateFrom || dateTo].filter(Boolean).length
   const clearFilters = () => { setFilterStaff(''); setFilterResult(''); setFilterFreq(''); setDateFrom(''); setDateTo(''); setTodayFilter(false); setSelectedDay(null); setPage(0) }
   const pagedHistory = filteredHistory.slice(page * PER_PAGE, (page + 1) * PER_PAGE)
   const totalPages = Math.ceil(filteredHistory.length / PER_PAGE)
@@ -448,81 +459,22 @@ export default function CleaningRota() {
       </div>
 
       {/* ─── STATS BAR ─── */}
-      <div style={{ ...CARD, padding: '12px 16px', display: 'flex', gap: 0, marginBottom: 14 }}>
+      <div style={{ ...CARD, padding: '8px 16px', display: 'flex', gap: 0, marginBottom: 14 }}>
         {[
-          { label: 'Done this week', value: `${stats.weekPass}/${stats.weekScheduled}`, color: 'var(--text-primary)' },
-          { label: 'Done this month', value: `${stats.monthPass}/${stats.monthScheduled}`, color: 'var(--text-primary)' },
-          { label: 'Overdue', value: stats.overdue, color: stats.overdue > 0 ? '#ef4444' : 'var(--text-primary)' },
-          { label: 'Compliance rate', value: `${stats.complianceRate}%`, color: stats.complianceRate >= 80 ? '#059669' : stats.complianceRate >= 50 ? '#f59e0b' : '#ef4444' },
+          { label: 'Done this week', value: `${stats.weekPass}/${stats.weekScheduled}`, color: 'var(--text-primary)', accent: '#059669' },
+          { label: 'Done this month', value: `${stats.monthPass}/${stats.monthScheduled}`, color: 'var(--text-primary)', accent: '#3b82f6' },
+          { label: 'Overdue', value: stats.overdue, color: stats.overdue > 0 ? '#ef4444' : 'var(--text-primary)', accent: '#ef4444' },
+          { label: 'Compliance rate', value: `${stats.complianceRate}%`, color: stats.complianceRate >= 80 ? '#059669' : stats.complianceRate >= 50 ? '#f59e0b' : '#ef4444', accent: stats.complianceRate >= 80 ? '#059669' : stats.complianceRate >= 50 ? '#f59e0b' : '#ef4444' },
         ].map((s, i) => (
-          <div key={i} style={{ flex: 1, textAlign: 'center', padding: '0 12px', borderLeft: i > 0 ? '1px solid var(--border-card)' : 'none' }}>
-            <div style={{ fontFamily: MONO, fontSize: 18, fontWeight: 800, color: s.color }}>{s.value}</div>
-            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>{s.label}</div>
+          <div key={i} style={{ flex: 1, textAlign: 'center', padding: '2px 12px', borderLeft: `3px solid ${s.accent}` }}>
+            <div style={{ fontFamily: MONO, fontSize: 16, fontWeight: 800, color: s.color }}>{s.value}</div>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 1 }}>{s.label}</div>
           </div>
         ))}
       </div>
 
-      {/* ─── MINI CALENDAR ─── */}
-      <div style={{ ...CARD, padding: 0, marginBottom: 14, overflow: 'hidden' }}>
-        <DashCardHeader gradient="linear-gradient(90deg, #064e3b, #047857)" icon="📅" title="Calendar" right={
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <button onClick={() => { if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1) } else setCalMonth(m => m - 1) }} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 14, padding: '0 4px', opacity: 0.8 }}>‹</button>
-            <span style={{ fontSize: 11, fontFamily: MONO, color: '#fff', minWidth: 110, textAlign: 'center' }}>{calMonthLabel}</span>
-            <button onClick={() => { if (calMonth === 11) { setCalMonth(0); setCalYear(y => y + 1) } else setCalMonth(m => m + 1) }} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 14, padding: '0 4px', opacity: 0.8 }}>›</button>
-          </div>
-        } />
-        <div style={{ padding: '10px 16px 12px' }}>
-          {/* Day headers */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2, marginBottom: 4 }}>
-            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => (
-              <div key={d} style={{ textAlign: 'center', fontSize: 9, fontWeight: 600, color: 'var(--text-muted)', padding: '2px 0', fontFamily: MONO }}>{d}</div>
-            ))}
-          </div>
-          {/* Day cells */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2 }}>
-            {calendarDays.map((cell, i) => {
-              if (!cell) return <div key={`pad-${i}`} />
-              const dotColors = { complete: '#059669', partial: '#f59e0b', missed: '#ef4444', future: '#d4d4d8' }
-              const isToday = cell.date.getTime() === new Date(new Date().setHours(0,0,0,0)).getTime()
-              const isSelected = selectedDay && cell.date.getTime() === selectedDay.getTime()
-              return (
-                <button key={cell.day} onClick={() => {
-                  if (cell.status === 'future') return
-                  setSelectedDay(prev => prev && prev.getTime() === cell.date.getTime() ? null : cell.date)
-                  setPage(0)
-                }} style={{
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
-                  padding: '4px 2px', borderRadius: 6, border: isSelected ? '1.5px solid #059669' : isToday ? '1px solid var(--border-card)' : '1px solid transparent',
-                  background: isSelected ? 'rgba(5,150,105,0.08)' : isToday ? 'var(--bg-card)' : 'transparent',
-                  cursor: cell.status === 'future' ? 'default' : 'pointer', transition: 'all 0.12s',
-                }}>
-                  <span style={{ fontSize: 11, fontWeight: isToday ? 700 : 400, color: isToday ? 'var(--text-primary)' : 'var(--text-secondary)', fontFamily: MONO }}>{cell.day}</span>
-                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: dotColors[cell.status] }} />
-                </button>
-              )
-            })}
-          </div>
-          {/* Legend */}
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 8, paddingTop: 6, borderTop: '1px solid var(--border-card)' }}>
-            {[['#059669', 'Complete'], ['#f59e0b', 'Partial'], ['#ef4444', 'Missed'], ['#d4d4d8', 'Upcoming']].map(([c, l]) => (
-              <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <div style={{ width: 6, height: 6, borderRadius: '50%', background: c }} />
-                <span style={{ fontSize: 9, color: 'var(--text-muted)', fontFamily: DM }}>{l}</span>
-              </div>
-            ))}
-          </div>
-          {selectedDay && (
-            <div style={{ textAlign: 'center', marginTop: 6 }}>
-              <button onClick={() => setSelectedDay(null)} style={{ fontSize: 10, color: '#059669', background: 'none', border: 'none', cursor: 'pointer', fontFamily: DM, fontWeight: 600 }}>
-                Clear day filter ({selectedDay.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })})
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
       {/* ─── FILTERS BAR ─── */}
-      <div style={{ ...CARD, padding: '10px 16px', display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center', marginBottom: 14 }}>
+      <div style={{ ...CARD, padding: '8px 16px', display: 'flex', gap: 10, alignItems: 'center', marginBottom: 14 }}>
         {/* Today's Tasks quick filter */}
         <button onClick={() => { setTodayFilter(!todayFilter); setTab('schedule'); setPage(0) }} style={{
           padding: '5px 14px', borderRadius: 20, fontSize: 11, fontWeight: 600, fontFamily: DM,
@@ -541,42 +493,92 @@ export default function CleaningRota() {
           )}
         </button>
 
-        <div style={{ width: 1, height: 20, background: 'var(--border-card)' }} />
+        {/* Filter popover trigger */}
+        <div ref={filterRef} style={{ position: 'relative' }}>
+          <button onClick={() => setFilterPopoverOpen(!filterPopoverOpen)} style={{
+            padding: '5px 12px', borderRadius: 8, fontSize: 12, fontWeight: 500, fontFamily: DM,
+            background: 'var(--bg-card)', border: '1px solid var(--border-card)', color: 'var(--text-secondary)',
+            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, transition: 'all 0.15s',
+          }}>
+            <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="8" cy="8" r="2.5" /><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4" /></svg>
+            Filters
+            {activeFilterCount > 0 && (
+              <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 10, background: '#059669', color: '#fff' }}>{activeFilterCount}</span>
+            )}
+          </button>
 
-        <select value={filterStaff} onChange={e => { setFilterStaff(e.target.value); setPage(0) }} style={{
-          padding: '5px 10px', borderRadius: 8, fontSize: 11, fontFamily: DM,
-          background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)', cursor: 'pointer',
-        }}>
-          <option value="">All Staff</option>
-          {uniqueStaff.map(s => <option key={s} value={s}>{s}</option>)}
-        </select>
-
-        <div style={{ display: 'flex', gap: 4 }}>
-          {['', 'Pass', 'Fail', 'Overdue'].map(r => (
-            <Pill key={r || 'all'} label={r || 'All'} active={filterResult === r} onClick={() => { setFilterResult(r); setPage(0) }} />
-          ))}
+          {filterPopoverOpen && (
+            <div style={{
+              position: 'absolute', top: '100%', left: 0, marginTop: 6, width: 280, zIndex: 50,
+              background: 'var(--bg-card)', border: '1px solid var(--border-card)', borderRadius: 12,
+              padding: 14, boxShadow: '0 8px 30px rgba(0,0,0,0.12)', fontFamily: DM,
+            }}>
+              {/* Result */}
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Result</div>
+                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                  {['', 'Pass', 'Fail', 'Overdue'].map(r => (
+                    <Pill key={r || 'all'} label={r || 'All'} active={filterResult === r} onClick={() => { setFilterResult(r); setPage(0) }} />
+                  ))}
+                </div>
+              </div>
+              {/* Frequency */}
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Frequency</div>
+                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                  {['', 'daily', 'weekly', 'fortnightly', 'monthly'].map(f => (
+                    <Pill key={f || 'all'} label={f ? FREQ_LABELS[f] : 'All'} active={filterFreq === f} onClick={() => { setFilterFreq(f); setPage(0) }} />
+                  ))}
+                </div>
+              </div>
+              {/* Staff */}
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Staff</div>
+                <select value={filterStaff} onChange={e => { setFilterStaff(e.target.value); setPage(0) }} style={{
+                  width: '100%', padding: '5px 10px', borderRadius: 8, fontSize: 11, fontFamily: DM,
+                  background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)', cursor: 'pointer',
+                }}>
+                  <option value="">All Staff</option>
+                  {uniqueStaff.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+              {/* Date range */}
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Date Range</div>
+                <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                  <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPage(0) }} style={{
+                    flex: 1, padding: '4px 6px', borderRadius: 6, fontSize: 11, fontFamily: MONO,
+                    background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)',
+                  }} />
+                  <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>to</span>
+                  <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(0) }} style={{
+                    flex: 1, padding: '4px 6px', borderRadius: 6, fontSize: 11, fontFamily: MONO,
+                    background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)',
+                  }} />
+                </div>
+              </div>
+              {/* Clear all */}
+              {hasFilters && (
+                <button onClick={() => { clearFilters(); setFilterPopoverOpen(false) }} style={{ fontSize: 11, color: '#059669', background: 'none', border: 'none', cursor: 'pointer', fontFamily: DM, fontWeight: 600, padding: 0 }}>Clear all filters</button>
+              )}
+            </div>
+          )}
         </div>
 
-        <div style={{ display: 'flex', gap: 4 }}>
-          {['', 'daily', 'weekly', 'fortnightly', 'monthly'].map(f => (
-            <Pill key={f || 'all'} label={f ? FREQ_LABELS[f] : 'All'} active={filterFreq === f} onClick={() => { setFilterFreq(f); setPage(0) }} />
-          ))}
-        </div>
-
-        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-          <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPage(0) }} style={{
-            padding: '4px 8px', borderRadius: 6, fontSize: 11, fontFamily: MONO,
-            background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)',
-          }} />
-          <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>to</span>
-          <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(0) }} style={{
-            padding: '4px 8px', borderRadius: 6, fontSize: 11, fontFamily: MONO,
-            background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)',
-          }} />
-        </div>
-
-        {hasFilters && (
-          <button onClick={clearFilters} style={{ fontSize: 11, color: '#059669', background: 'none', border: 'none', cursor: 'pointer', fontFamily: DM, fontWeight: 600 }}>Clear</button>
+        {/* Active filter summary */}
+        {selectedDay && (
+          <>
+            <div style={{ width: 1, height: 20, background: 'var(--border-card)' }} />
+            <button onClick={() => setSelectedDay(null)} style={{ fontSize: 10, color: '#059669', background: 'none', border: 'none', cursor: 'pointer', fontFamily: DM, fontWeight: 600 }}>
+              {selectedDay.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} ✕
+            </button>
+          </>
+        )}
+        {hasFilters && !selectedDay && (
+          <>
+            <div style={{ width: 1, height: 20, background: 'var(--border-card)' }} />
+            <button onClick={clearFilters} style={{ fontSize: 10, color: '#059669', background: 'none', border: 'none', cursor: 'pointer', fontFamily: DM, fontWeight: 600 }}>Clear all ✕</button>
+          </>
         )}
       </div>
 
@@ -589,82 +591,147 @@ export default function CleaningRota() {
 
       {/* ═══ TAB 1 — SCHEDULE ═══ */}
       {tab === 'schedule' && (
-        <div style={CARD}>
-          <DashCardHeader gradient="linear-gradient(90deg, #064e3b, #047857)" icon="📋" title="Cleaning Schedule" right={<span style={{ fontSize: 11, fontFamily: MONO }}>{ROTA.length} tasks</span>} />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 12, alignItems: 'start' }}>
+          {/* Left — Task list */}
+          <div style={CARD}>
+            <DashCardHeader gradient="linear-gradient(90deg, #064e3b, #047857)" icon="📋" title="Cleaning Schedule" right={<span style={{ fontSize: 11, fontFamily: MONO }}>{ROTA.length} tasks</span>} />
 
-          {groupedSchedule.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-muted)', fontSize: 13 }}>No tasks match current filters.</div>
-          ) : groupedSchedule.map(group => (
-            <div key={group.freq} style={{ marginBottom: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>{group.label}</span>
-                {group.overdueCount > 0 && (
-                  <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 8px', borderRadius: 10, background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca' }}>{group.overdueCount} overdue</span>
-                )}
-              </div>
-              {group.tasks.map(task => {
-                const isOverdue = task.status === 'overdue'
-                const isMarking = markingTask === task.name
-                return (
-                  <div key={task.name}>
-                    <div style={{
-                      display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 9, marginBottom: 4,
-                      background: isOverdue ? '#fef2f2' : 'transparent',
-                      border: isOverdue ? '1px solid #fecaca' : '1px solid transparent',
-                      transition: 'background 0.15s',
-                    }}>
-                      <StatusDot status={task.status} />
-                      <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', flex: 1, minWidth: 0 }}>{task.name}</span>
-                      <span style={{
-                        fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 10, fontFamily: DM,
-                        background: task.frequency === 'daily' ? 'rgba(5,150,105,0.08)' : task.frequency === 'weekly' ? 'rgba(59,130,246,0.08)' : task.frequency === 'fortnightly' ? 'rgba(139,92,246,0.08)' : 'rgba(245,158,11,0.08)',
-                        color: task.frequency === 'daily' ? '#059669' : task.frequency === 'weekly' ? '#3b82f6' : task.frequency === 'fortnightly' ? '#8b5cf6' : '#f59e0b',
-                      }}>{FREQ_LABELS[task.frequency]}</span>
-                      <span style={{ fontSize: 10, fontFamily: MONO, color: 'var(--text-muted)', minWidth: 70 }}>
-                        {task.lastPass ? new Date(task.lastPass).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'Never'}
-                      </span>
-                      <Avatar name={task.assignee} size={22} />
-                      {isOverdue && (
-                        <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#ef4444', color: '#fff' }}>OVERDUE</span>
-                      )}
-                      {task.status !== 'done' ? (
-                        <button onClick={() => { setMarkingTask(isMarking ? null : task.name); setMarkForm({ result: 'Pass', notes: '' }) }} style={{
-                          padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 600, fontFamily: DM,
-                          background: '#f0fdf4', color: '#059669', border: '1px solid #d1fae5', cursor: 'pointer',
-                        }}>✓ Mark Done</button>
-                      ) : (
-                        <span style={{ fontSize: 10, fontWeight: 600, color: '#059669', padding: '4px 8px' }}>✓ Done</span>
+            {groupedSchedule.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-muted)', fontSize: 13 }}>No tasks match current filters.</div>
+            ) : groupedSchedule.map(group => (
+              <div key={group.freq} style={{ marginBottom: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>{group.label}</span>
+                  {group.overdueCount > 0 && (
+                    <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 8px', borderRadius: 10, background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca' }}>{group.overdueCount} overdue</span>
+                  )}
+                </div>
+                {group.tasks.map(task => {
+                  const isOverdue = task.status === 'overdue'
+                  const isMarking = markingTask === task.name
+                  return (
+                    <div key={task.name}>
+                      <div style={{
+                        display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 9, marginBottom: 4,
+                        background: 'transparent',
+                        borderLeft: isOverdue ? '3px solid #ef4444' : '3px solid transparent',
+                        border: isOverdue ? '1px solid #fecaca' : '1px solid transparent',
+                        borderLeftWidth: isOverdue ? 3 : 0,
+                        transition: 'all 0.15s',
+                      }}>
+                        {!isOverdue && <StatusDot status={task.status} />}
+                        <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', flex: 1, minWidth: 0 }}>{task.name}</span>
+                        <span style={{
+                          fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 10, fontFamily: DM,
+                          background: task.frequency === 'daily' ? 'rgba(5,150,105,0.08)' : task.frequency === 'weekly' ? 'rgba(59,130,246,0.08)' : task.frequency === 'fortnightly' ? 'rgba(139,92,246,0.08)' : 'rgba(245,158,11,0.08)',
+                          color: task.frequency === 'daily' ? '#059669' : task.frequency === 'weekly' ? '#3b82f6' : task.frequency === 'fortnightly' ? '#8b5cf6' : '#f59e0b',
+                        }}>{FREQ_LABELS[task.frequency]}</span>
+                        <span style={{ fontSize: 10, fontFamily: MONO, color: 'var(--text-muted)', minWidth: 70 }}>
+                          {task.lastPass ? new Date(task.lastPass).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : <em style={{ fontSize: 10, fontStyle: 'italic', color: 'var(--text-faint, var(--text-muted))' }}>Not yet logged</em>}
+                        </span>
+                        <Avatar name={task.assignee} size={22} />
+                        {isOverdue && (
+                          <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#ef4444', color: '#fff' }}>OVERDUE</span>
+                        )}
+                        {task.status !== 'done' ? (
+                          <button onClick={() => { setMarkingTask(isMarking ? null : task.name); setMarkForm({ result: 'Pass', notes: '' }) }} style={{
+                            padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 600, fontFamily: DM,
+                            background: '#f0fdf4', color: '#059669', border: '1px solid #d1fae5', cursor: 'pointer',
+                          }}>✓ Mark Done</button>
+                        ) : (
+                          <span style={{ fontSize: 10, fontWeight: 600, color: '#059669', padding: '4px 8px' }}>✓ Done</span>
+                        )}
+                      </div>
+                      {/* Inline mark-done form */}
+                      {isMarking && (
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '6px 12px 10px 30px' }}>
+                          <select value={markForm.result} onChange={e => setMarkForm({ ...markForm, result: e.target.value })} style={{
+                            padding: '4px 8px', borderRadius: 6, fontSize: 11, fontFamily: DM,
+                            background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)',
+                          }}>
+                            <option value="Pass">Pass</option>
+                            <option value="Action Taken">Fail / Action Taken</option>
+                          </select>
+                          <input type="text" placeholder="Notes (optional)" value={markForm.notes} onChange={e => setMarkForm({ ...markForm, notes: e.target.value })} style={{
+                            flex: 1, padding: '4px 8px', borderRadius: 6, fontSize: 11, fontFamily: DM,
+                            background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)',
+                          }} />
+                          <button onClick={() => handleMarkDone(task)} style={{
+                            padding: '4px 12px', borderRadius: 6, fontSize: 11, fontWeight: 600, fontFamily: DM,
+                            background: '#059669', color: '#fff', border: 'none', cursor: 'pointer',
+                          }}>Save</button>
+                          <button onClick={() => setMarkingTask(null)} style={{
+                            padding: '4px 8px', borderRadius: 6, fontSize: 11, fontFamily: DM,
+                            background: 'transparent', border: '1px solid var(--border-card)', color: 'var(--text-muted)', cursor: 'pointer',
+                          }}>Cancel</button>
+                        </div>
                       )}
                     </div>
-                    {/* Inline mark-done form */}
-                    {isMarking && (
-                      <div style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '6px 12px 10px 30px' }}>
-                        <select value={markForm.result} onChange={e => setMarkForm({ ...markForm, result: e.target.value })} style={{
-                          padding: '4px 8px', borderRadius: 6, fontSize: 11, fontFamily: DM,
-                          background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)',
-                        }}>
-                          <option value="Pass">Pass</option>
-                          <option value="Action Taken">Fail / Action Taken</option>
-                        </select>
-                        <input type="text" placeholder="Notes (optional)" value={markForm.notes} onChange={e => setMarkForm({ ...markForm, notes: e.target.value })} style={{
-                          flex: 1, padding: '4px 8px', borderRadius: 6, fontSize: 11, fontFamily: DM,
-                          background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)',
-                        }} />
-                        <button onClick={() => handleMarkDone(task)} style={{
-                          padding: '4px 12px', borderRadius: 6, fontSize: 11, fontWeight: 600, fontFamily: DM,
-                          background: '#059669', color: '#fff', border: 'none', cursor: 'pointer',
-                        }}>Save</button>
-                        <button onClick={() => setMarkingTask(null)} style={{
-                          padding: '4px 8px', borderRadius: 6, fontSize: 11, fontFamily: DM,
-                          background: 'transparent', border: '1px solid var(--border-card)', color: 'var(--text-muted)', cursor: 'pointer',
-                        }}>Cancel</button>
-                      </div>
-                    )}
+                  )
+                })}
+              </div>
+            ))}
+          </div>
+
+          {/* Right — Compact Calendar */}
+          <div style={{ ...CARD, padding: 0, overflow: 'hidden', position: 'sticky', top: 80 }}>
+            <DashCardHeader gradient="linear-gradient(90deg, #064e3b, #047857)" icon="📅" title="Calendar" right={
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <button onClick={() => { if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1) } else setCalMonth(m => m - 1) }} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 13, padding: '0 3px', opacity: 0.8 }}>‹</button>
+                <span style={{ fontSize: 10, fontFamily: MONO, color: '#fff', minWidth: 90, textAlign: 'center' }}>{calMonthLabel}</span>
+                <button onClick={() => { if (calMonth === 11) { setCalMonth(0); setCalYear(y => y + 1) } else setCalMonth(m => m + 1) }} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 13, padding: '0 3px', opacity: 0.8 }}>›</button>
+              </div>
+            } />
+            <div style={{ padding: '6px 10px 8px' }}>
+              {/* Day headers */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, marginBottom: 2 }}>
+                {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
+                  <div key={i} style={{ textAlign: 'center', fontSize: 8, fontWeight: 600, color: 'var(--text-muted)', padding: '1px 0', fontFamily: MONO }}>{d}</div>
+                ))}
+              </div>
+              {/* Day cells */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1 }}>
+                {calendarDays.map((cell, i) => {
+                  if (!cell) return <div key={`pad-${i}`} />
+                  const dotColors = { complete: '#059669', partial: '#f59e0b', missed: '#ef4444', future: '#d4d4d8' }
+                  const isToday = cell.date.getTime() === new Date(new Date().setHours(0,0,0,0)).getTime()
+                  const isSelected = selectedDay && cell.date.getTime() === selectedDay.getTime()
+                  return (
+                    <button key={cell.day} onClick={() => {
+                      if (cell.status === 'future') return
+                      setSelectedDay(prev => prev && prev.getTime() === cell.date.getTime() ? null : cell.date)
+                      setPage(0)
+                    }} style={{
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1,
+                      minHeight: 36, padding: '2px 4px', borderRadius: 5,
+                      border: isSelected ? '1.5px solid #059669' : isToday ? '1px solid var(--border-card)' : '1px solid transparent',
+                      background: isSelected ? 'rgba(5,150,105,0.08)' : isToday ? 'var(--bg-card)' : 'transparent',
+                      cursor: cell.status === 'future' ? 'default' : 'pointer', transition: 'all 0.12s',
+                    }}>
+                      <span style={{ fontSize: 10, fontWeight: isToday ? 700 : 400, color: isToday ? 'var(--text-primary)' : 'var(--text-secondary)', fontFamily: MONO }}>{cell.day}</span>
+                      <div style={{ width: 5, height: 5, borderRadius: '50%', background: dotColors[cell.status] }} />
+                    </button>
+                  )
+                })}
+              </div>
+              {/* Legend — single line below grid */}
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 4 }}>
+                {[['#059669', 'Done'], ['#f59e0b', 'Partial'], ['#ef4444', 'Missed'], ['#d4d4d8', 'Future']].map(([c, l]) => (
+                  <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <div style={{ width: 5, height: 5, borderRadius: '50%', background: c }} />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', fontFamily: DM }}>{l}</span>
                   </div>
-                )
-              })}
+                ))}
+              </div>
+              {selectedDay && (
+                <div style={{ textAlign: 'center', marginTop: 4 }}>
+                  <button onClick={() => setSelectedDay(null)} style={{ fontSize: 9, color: '#059669', background: 'none', border: 'none', cursor: 'pointer', fontFamily: DM, fontWeight: 600 }}>
+                    Clear ({selectedDay.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })})
+                  </button>
+                </div>
+              )}
             </div>
-          ))}
+          </div>
         </div>
       )}
 
