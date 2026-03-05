@@ -1,12 +1,21 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useUser } from "../contexts/UserContext";
 import { useSupabase } from "../hooks/useSupabase";
+import { supabase } from "../lib/supabase";
 import { getStaffInitials, getRPAssignee } from "../utils/rotationManager";
 import { generateId } from "../utils/helpers";
 import DashCardHeader from "../components/DashCardHeader";
 import Avatar from "../components/Avatar";
 import PriorityBadge from "../components/PriorityBadge";
 import CategoryTag from "../components/CategoryTag";
+
+// ── Spinner keyframe ─────────────────────────────────────────────────────
+if (typeof document !== 'undefined' && !document.getElementById('task-spinner-css')) {
+  const s = document.createElement('style');
+  s.id = 'task-spinner-css';
+  s.textContent = '@keyframes taskSpin { to { transform: rotate(360deg) } }';
+  document.head.appendChild(s);
+}
 
 // ── Shared constants ──────────────────────────────────────────────────────
 
@@ -25,6 +34,78 @@ const STAFF_ASSIGNEES = [
 const CATEGORIES = ["CD Check", "Cleaning", "Compliance", "H&S", "Waste", "RP Check"];
 const PRIORITIES = ["HIGH", "MED", "LOW"];
 const STATUSES = ["pending", "in_progress", "done"];
+
+// ── Automated pharmacy task definitions ──────────────────────────────────
+// freq: daily | weekly | fortnightly | monthly
+// day: JS getDay() value for weekly/fortnightly (1=Mon..5=Fri)
+// role: rp | manager | any
+const PHARMACY_TASKS = [
+  // ── Daily (10) ──
+  { title: "Temperature Log",              freq: "daily", cat: "Compliance", pri: "HIGH", role: "any",     notes: "Record fridge min/max/current temp" },
+  { title: "Daily RP Checks",              freq: "daily", cat: "RP Check",   pri: "HIGH", role: "rp",      notes: "Complete all 14 RP checklist items" },
+  { title: "Dispensary Clean",              freq: "daily", cat: "Cleaning",   pri: "MED",  role: "any",     notes: null },
+  { title: "Counter & Surfaces Wipe",       freq: "daily", cat: "Cleaning",   pri: "MED",  role: "any",     notes: null },
+  { title: "CD Register Balance Check",     freq: "daily", cat: "CD Check",   pri: "HIGH", role: "rp",      notes: "Check all 5 CD entries in PharmSmart" },
+  { title: "Near Miss Log Review",          freq: "daily", cat: "Compliance", pri: "MED",  role: "rp",      notes: null },
+  { title: "Check Drug Alerts & Recalls",   freq: "daily", cat: "Compliance", pri: "HIGH", role: "rp",      notes: "Check MHRA alerts and CAS notifications" },
+  { title: "Prescription Collection Review",freq: "daily", cat: "Compliance", pri: "LOW",  role: "any",     notes: "Return uncollected items after 28 days" },
+  { title: "Check Owing Prescriptions",     freq: "daily", cat: "Compliance", pri: "MED",  role: "any",     notes: "Follow up outstanding owings" },
+  { title: "End of Day Till Reconciliation", freq: "daily", cat: "Compliance", pri: "MED",  role: "manager", notes: "Cash & card totals match POS" },
+
+  // ── Weekly — Monday (2) ──
+  { title: "Full CD Reconciliation",        freq: "weekly", day: 1, cat: "CD Check",   pri: "HIGH", role: "rp",      notes: "Count all Schedule 2 & 3 CDs against register" },
+  { title: "Stock Rotation — Short Dated",  freq: "weekly", day: 1, cat: "Compliance", pri: "MED",  role: "any",     notes: "Move short-dated items to front, flag <3 months" },
+  // ── Weekly — Tuesday (2) ──
+  { title: "Sharps Bin Level Check",        freq: "weekly", day: 2, cat: "Waste",      pri: "HIGH", role: "any",     notes: "Replace if ¾ full — seal and label" },
+  { title: "Fire Exits & Signage Check",    freq: "weekly", day: 2, cat: "H&S",        pri: "HIGH", role: "any",     notes: "All exits unobstructed, signage visible" },
+  // ── Weekly — Wednesday (2) ──
+  { title: "First Aid Kit Check",           freq: "weekly", day: 3, cat: "H&S",        pri: "MED",  role: "any",     notes: "Reorder any expired or missing items" },
+  { title: "Waste Collection Scheduling",   freq: "weekly", day: 3, cat: "Waste",      pri: "MED",  role: "manager", notes: "Confirm DOOP & confidential waste pickup" },
+  // ── Weekly — Thursday (2) ──
+  { title: "Fridge Quick Clean",            freq: "weekly", day: 4, cat: "Cleaning",   pri: "MED",  role: "any",     notes: "Wipe shelves, check for spills" },
+  { title: "Returns Processing",            freq: "weekly", day: 4, cat: "Compliance", pri: "LOW",  role: "any",     notes: "Process supplier returns and credit notes" },
+  // ── Weekly — Friday (2) ──
+  { title: "Robot Maintenance Check",       freq: "weekly", day: 5, cat: "Compliance", pri: "MED",  role: "manager", notes: "Run diagnostics, clear jams, check cassettes" },
+  { title: "Staff Rota Review",             freq: "weekly", day: 5, cat: "Compliance", pri: "LOW",  role: "manager", notes: "Confirm next week's coverage" },
+
+  // ── Fortnightly (3) — even week number ──
+  { title: "SOP Spot Check",               freq: "fortnightly", day: 1, cat: "Compliance", pri: "MED", role: "rp",      notes: "Random check of 2 SOPs for currency" },
+  { title: "Staff Training Record Review",  freq: "fortnightly", day: 3, cat: "Compliance", pri: "MED", role: "manager", notes: "Check training log completeness" },
+  { title: "Consultation Room Check",       freq: "fortnightly", day: 5, cat: "Cleaning",   pri: "LOW", role: "any",     notes: "Clean surfaces, check equipment, restock" },
+
+  // ── Monthly — 1st of month (6) ──
+  { title: "Deep Fridge Clean",             freq: "monthly", cat: "Cleaning",   pri: "HIGH", role: "any",     notes: "Full defrost and clean — document" },
+  { title: "GPhC Standards Self-Assessment",freq: "monthly", cat: "Compliance", pri: "HIGH", role: "rp",      notes: "Review all 5 GPhC standards with evidence" },
+  { title: "Near Miss Trend Analysis",      freq: "monthly", cat: "Compliance", pri: "MED",  role: "rp",      notes: "Identify patterns, update risk register" },
+  { title: "Equipment Calibration Check",   freq: "monthly", cat: "H&S",        pri: "MED",  role: "manager", notes: "Verify scales, thermometers, BP monitors" },
+  { title: "Monthly Audit Summary",         freq: "monthly", cat: "Compliance", pri: "MED",  role: "manager", notes: "Compile compliance metrics for month" },
+  { title: "Insurance & Registration Review",freq: "monthly", cat: "Compliance", pri: "LOW",  role: "manager", notes: "Check policy dates and renewal schedules" },
+];
+
+// Which tasks are due today based on frequency + day-of-week
+function getTasksDueToday() {
+  const now = new Date();
+  const dow = now.getDay();               // 0=Sun..6=Sat
+  const dom = now.getDate();              // 1-31
+  const wk = Math.ceil(((now - new Date(now.getFullYear(), 0, 1)) / 86400000 + 1) / 7);
+
+  return PHARMACY_TASKS.filter(t => {
+    if (t.freq === "daily") return true;
+    if (t.freq === "weekly") return dow === (t.day ?? 1);
+    if (t.freq === "fortnightly") return wk % 2 === 0 && dow === (t.day ?? 1);
+    if (t.freq === "monthly") return dom === 1;
+    return false;
+  });
+}
+
+// Auto-assign based on role; general tasks rotate daily across staff
+const GENERAL_ROTATION = ["SS", "MJ", "UK", "SuS", "UKh", "SN", "MH", "JA"];
+function assignTaskTo(task, index) {
+  if (task.role === "rp") return "AS";
+  if (task.role === "manager") return "SS";
+  const doy = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+  return GENERAL_ROTATION[(doy + index) % GENERAL_ROTATION.length];
+}
 
 function initialsToName(initials) {
   return STAFF_ASSIGNEES.find(s => s.initials === initials)?.name || initials;
@@ -58,8 +139,10 @@ const inputStyle = {
 
 export default function MyTasks() {
   const { user } = useUser();
-  const [staffTasks, setStaffTasks] = useSupabase("staff_tasks", []);
+  const [staffTasks, setStaffTasks, loading] = useSupabase("staff_tasks", []);
   const [now, setNow] = useState(new Date());
+  const seededRef = useRef(false);
+  const [savingTaskId, setSavingTaskId] = useState(null);
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 30000);
@@ -70,6 +153,33 @@ export default function MyTasks() {
   const userInitials = getStaffInitials(user?.name || "");
   const isRP = user?.name === getRPAssignee();
   const canAssign = isRP || !!user?.isManager;
+
+  // ── Seed automated tasks for today ──
+  useEffect(() => {
+    if (loading || seededRef.current) return;
+    seededRef.current = true;
+    const t = todayStr();
+    if (staffTasks.some(task => task.dueDate === t)) return;
+
+    const dueTasks = getTasksDueToday();
+    const ts = new Date().toISOString();
+    const defaults = dueTasks.map((task, i) => ({
+      id: generateId(),
+      title: task.title,
+      assignedTo: assignTaskTo(task, i),
+      assignedBy: "AS",
+      roleRequired: task.role,
+      priority: task.pri,
+      category: task.cat,
+      dueDate: t,
+      status: "pending",
+      notes: task.notes,
+      createdAt: ts,
+    }));
+    if (defaults.length > 0) {
+      setStaffTasks(prev => [...prev, ...defaults]);
+    }
+  }, [loading]);
 
   // ── Filters ──
   const [filterPriority, setFilterPriority] = useState("ALL");
@@ -119,7 +229,7 @@ export default function MyTasks() {
   const inProgress = visibleTasks.filter(t => t.status === "in_progress");
   const done = visibleTasks.filter(t => t.status === "done");
 
-  // ── KPI chips ──
+  // ── PART 2: KPI chips — live counts ──
   const myTasks = canAssign ? allTasks : allTasks.filter(t => t.assignedTo === userInitials);
   const totalAssigned = myTasks.filter(t => t.status !== "done").length;
   const overdueCount = myTasks.filter(t => t.dueDate && t.dueDate < today && t.status !== "done").length;
@@ -131,8 +241,20 @@ export default function MyTasks() {
     return task.assignedTo === userInitials;
   }
 
-  function handleStatusChange(taskId, newStatus) {
+  // PART 3: Optimistic status update with revert on failure
+  async function handleStatusChange(taskId, newStatus) {
+    setSavingTaskId(taskId);
+    const snapshot = staffTasks.map(t => ({ ...t }));
     setStaffTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: newStatus } : t));
+    try {
+      const { error } = await supabase.from('staff_tasks').update({ status: newStatus }).eq('id', taskId);
+      if (error) throw error;
+    } catch (e) {
+      console.error('Status update failed:', e);
+      setStaffTasks(snapshot);
+    } finally {
+      setSavingTaskId(null);
+    }
   }
 
   function handleAssignTask() {
@@ -180,22 +302,26 @@ export default function MyTasks() {
     return cells;
   }, [calMonth, calYear]);
 
+  // PART 4: Include ALL tasks (including done) so we can show grey dots
   const tasksByDate = useMemo(() => {
     const map = {};
-    (canAssign ? allTasks : allTasks.filter(t => t.assignedTo === userInitials))
-      .filter(t => t.dueDate && t.status !== "done")
-      .forEach(t => {
-        if (!map[t.dueDate]) map[t.dueDate] = [];
-        map[t.dueDate].push(t);
-      });
+    const relevantTasks = canAssign ? allTasks : allTasks.filter(t => t.assignedTo === userInitials);
+    relevantTasks.filter(t => t.dueDate).forEach(t => {
+      if (!map[t.dueDate]) map[t.dueDate] = [];
+      map[t.dueDate].push(t);
+    });
     return map;
   }, [allTasks, canAssign, userInitials]);
 
+  // PART 4: Dot color with grey for all-done days
   function getDotColor(date) {
     const tasks = tasksByDate[date];
     if (!tasks?.length) return null;
-    if (tasks.some(t => t.priority === "HIGH" || (t.dueDate < today))) return "#ef4444";
-    if (tasks.some(t => t.priority === "MED")) return "#f59e0b";
+    const allDone = tasks.every(t => t.status === "done");
+    if (allDone) return "#94a3b8";
+    const active = tasks.filter(t => t.status !== "done");
+    if (active.some(t => t.priority === "HIGH" || (t.dueDate < today))) return "#ef4444";
+    if (active.some(t => t.priority === "MED")) return "#f59e0b";
     return "#16a34a";
   }
 
@@ -210,6 +336,16 @@ export default function MyTasks() {
   // ── Date formatting ──
   const dateStr = now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   const firstName = user?.name?.split(" ")[0] || "there";
+
+  // ── PART 6: Team progress data ──
+  const teamProgress = useMemo(() => {
+    if (!canAssign) return [];
+    return STAFF_ASSIGNEES.map(staff => {
+      const dayTasks = allTasks.filter(t => t.assignedTo === staff.initials && t.dueDate === today);
+      const doneCount = dayTasks.filter(t => t.status === "done").length;
+      return { ...staff, total: dayTasks.length, done: doneCount };
+    }).filter(s => s.total > 0);
+  }, [allTasks, canAssign, today]);
 
   // ── Render ──
   return (
@@ -297,26 +433,52 @@ export default function MyTasks() {
           {/* LEFT — Task List */}
           <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
             {visibleTasks.length === 0 ? (
-              /* Empty state */
+              /* PART 5: Improved empty state */
               <div style={{ ...card, padding: "40px 20px", textAlign: "center" }}>
                 <div style={{ width: 60, height: 60, borderRadius: "50%", background: "#f0fdf4", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px" }}>
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
                 </div>
-                <div style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", marginBottom: 4 }}>All caught up!</div>
-                <div style={{ fontSize: 13, color: "#94a3b8" }}>
-                  {filtersActive ? (
-                    <>No tasks match your current filters. <button onClick={clearFilters} style={{ color: "#059669", background: "none", border: "none", cursor: "pointer", fontWeight: 600, fontFamily: "'DM Sans', sans-serif", fontSize: 13 }}>Clear filters</button></>
-                  ) : "You have no tasks assigned right now."}
-                </div>
+                {filtersActive ? (
+                  <>
+                    <div style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", marginBottom: 4 }}>No matches</div>
+                    <div style={{ fontSize: 13, color: "#94a3b8" }}>
+                      No tasks match your current filters. <button onClick={clearFilters} style={{ color: "#059669", background: "none", border: "none", cursor: "pointer", fontWeight: 600, fontFamily: "'DM Sans', sans-serif", fontSize: 13 }}>Clear filters</button>
+                    </div>
+                  </>
+                ) : canAssign ? (
+                  <>
+                    <div style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", marginBottom: 4 }}>No tasks assigned yet</div>
+                    <div style={{ fontSize: 13, color: "#94a3b8", marginBottom: 12 }}>
+                      Use '+ Assign Task' to create the first task.
+                    </div>
+                    <button onClick={() => setModalOpen(true)} style={{
+                      padding: "8px 18px", borderRadius: 99, fontSize: 13, fontWeight: 600,
+                      border: "none", background: "#059669", color: "white",
+                      cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
+                      display: "inline-flex", alignItems: "center", gap: 6,
+                      boxShadow: "0 4px 14px rgba(5,150,105,0.4)",
+                    }}>
+                      <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>
+                      Assign First Task
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", marginBottom: 4 }}>All caught up!</div>
+                    <div style={{ fontSize: 13, color: "#94a3b8" }}>
+                      No tasks assigned to you yet. Check back later or ask your manager.
+                    </div>
+                  </>
+                )}
               </div>
             ) : (
               <>
                 <TaskGroup label="Pending" tasks={pending} open={openSections.pending} onToggle={() => toggleSection("pending")}
-                  today={today} canModifyTask={canModifyTask} onStatusChange={handleStatusChange} />
+                  today={today} canModifyTask={canModifyTask} onStatusChange={handleStatusChange} savingTaskId={savingTaskId} />
                 <TaskGroup label="In Progress" tasks={inProgress} open={openSections.in_progress} onToggle={() => toggleSection("in_progress")}
-                  today={today} canModifyTask={canModifyTask} onStatusChange={handleStatusChange} />
+                  today={today} canModifyTask={canModifyTask} onStatusChange={handleStatusChange} savingTaskId={savingTaskId} />
                 <TaskGroup label="Done" tasks={done} open={openSections.done} onToggle={() => toggleSection("done")}
-                  today={today} canModifyTask={canModifyTask} onStatusChange={handleStatusChange} />
+                  today={today} canModifyTask={canModifyTask} onStatusChange={handleStatusChange} savingTaskId={savingTaskId} />
               </>
             )}
           </div>
@@ -375,7 +537,7 @@ export default function MyTasks() {
 
             {/* Legend */}
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 10, paddingTop: 8, borderTop: "1px solid #d1fae5" }}>
-              {[{ label: "High", color: "#ef4444" }, { label: "Med", color: "#f59e0b" }, { label: "Low", color: "#16a34a" }].map(l => (
+              {[{ label: "High", color: "#ef4444" }, { label: "Med", color: "#f59e0b" }, { label: "Low", color: "#16a34a" }, { label: "Done", color: "#94a3b8" }].map(l => (
                 <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 9, color: "#94a3b8" }}>
                   <div style={{ width: 5, height: 5, borderRadius: "50%", background: l.color }} />
                   {l.label}
@@ -384,6 +546,45 @@ export default function MyTasks() {
             </div>
           </div>
         </div>
+
+        {/* ── PART 6: Team Progress Today (rp/manager only) ── */}
+        {canAssign && teamProgress.length > 0 && (
+          <div style={{ ...card, marginTop: 14, padding: 0, overflow: "hidden" }}>
+            <DashCardHeader
+              gradient="linear-gradient(90deg, #064e3b, #059669)"
+              icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>}
+              title="Team Progress Today"
+            />
+            <div style={{ padding: "10px 16px" }}>
+              {teamProgress.map((staff, i) => {
+                const pct = Math.round((staff.done / staff.total) * 100);
+                return (
+                  <div key={staff.initials} style={{
+                    display: "flex", alignItems: "center", gap: 10, padding: "8px 0",
+                    borderBottom: i < teamProgress.length - 1 ? "1px solid #f0fdf4" : "none",
+                  }}>
+                    <Avatar name={staff.name} size={28} />
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "#1e293b", width: 130, flexShrink: 0 }}>{staff.name}</span>
+                    <div style={{ flex: 1, height: 6, background: "#f0fdf4", borderRadius: 3 }}>
+                      <div style={{
+                        width: `${pct}%`, height: "100%", borderRadius: 3, transition: "width 0.3s",
+                        background: pct === 100 ? "#16a34a" : pct > 0 ? "#f59e0b" : "#ef4444",
+                      }} />
+                    </div>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: "#64748b", fontFamily: "'DM Mono', monospace", width: 32, textAlign: "right" }}>{pct}%</span>
+                    {staff.done === staff.total ? (
+                      <span style={{ fontSize: 9, fontWeight: 600, padding: "1px 7px", borderRadius: 20, background: "#f0fdf4", color: "#16a34a", border: "1px solid #bbf7d0", whiteSpace: "nowrap" }}>✓ Complete</span>
+                    ) : staff.done === 0 ? (
+                      <span style={{ fontSize: 9, fontWeight: 600, padding: "1px 7px", borderRadius: 20, background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca", whiteSpace: "nowrap" }}>Not started</span>
+                    ) : (
+                      <span style={{ fontSize: 9, fontWeight: 600, padding: "1px 7px", borderRadius: 20, background: "#fffbeb", color: "#d97706", border: "1px solid #fde68a", whiteSpace: "nowrap" }}>{staff.done}/{staff.total} done</span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── FAB (rp/manager only) ── */}
@@ -485,7 +686,7 @@ export default function MyTasks() {
 
 // ── Task Group (collapsible section) ──────────────────────────────────────
 
-function TaskGroup({ label, tasks, open, onToggle, today, canModifyTask, onStatusChange }) {
+function TaskGroup({ label, tasks, open, onToggle, today, canModifyTask, onStatusChange, savingTaskId }) {
   if (tasks.length === 0) return null;
   const statusKey = label.toLowerCase().replace(/ /g, "_");
   return (
@@ -504,7 +705,7 @@ function TaskGroup({ label, tasks, open, onToggle, today, canModifyTask, onStatu
         }}>{tasks.length}</span>
       </div>
       {open && tasks.map(task => (
-        <TaskCard key={task.id} task={task} today={today} canModify={canModifyTask(task)} onStatusChange={onStatusChange} />
+        <TaskCard key={task.id} task={task} today={today} canModify={canModifyTask(task)} onStatusChange={onStatusChange} savingTaskId={savingTaskId} />
       ))}
     </div>
   );
@@ -512,9 +713,27 @@ function TaskGroup({ label, tasks, open, onToggle, today, canModifyTask, onStatu
 
 // ── Task Card ─────────────────────────────────────────────────────────────
 
-function TaskCard({ task, today, canModify, onStatusChange }) {
+function TaskCard({ task, today, canModify, onStatusChange, savingTaskId }) {
   const isOverdue = task.dueDate && task.dueDate < today && task.status !== "done";
   const isDone = task.status === "done";
+  const isSaving = savingTaskId === task.id;
+
+  // PART 3: Due date pill renderer
+  function renderDueDate() {
+    if (!task.dueDate) return null;
+    if (task.dueDate === today && task.status !== "done") {
+      return <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 7px", borderRadius: 20, background: "#fffbeb", color: "#d97706", border: "1px solid #fde68a" }}>Due today</span>;
+    }
+    if (task.dueDate < today && task.status !== "done") {
+      const days = Math.floor((new Date(today + "T00:00:00") - new Date(task.dueDate + "T00:00:00")) / (1000 * 60 * 60 * 24));
+      return <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 7px", borderRadius: 20, background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca" }}>{days}d overdue</span>;
+    }
+    return (
+      <span style={{ fontSize: 10, fontFamily: "'DM Mono', monospace", color: "#94a3b8" }}>
+        {new Date(task.dueDate + "T00:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}
+      </span>
+    );
+  }
 
   return (
     <div style={{
@@ -545,16 +764,9 @@ function TaskCard({ task, today, canModify, onStatusChange }) {
         <span>{initialsToName(task.assignedTo)}</span>
       </div>
 
-      {/* Row 3: due date + notes */}
+      {/* Row 3: due date pill + notes */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, paddingLeft: isOverdue ? 6 : 0 }}>
-        {task.dueDate && (
-          <span style={{
-            fontSize: 10, fontFamily: "'DM Mono', monospace",
-            color: isOverdue ? "#dc2626" : "#94a3b8",
-          }}>
-            {new Date(task.dueDate + "T00:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}
-          </span>
-        )}
+        {renderDueDate()}
         {task.notes && (
           <span style={{ fontSize: 10, color: "#94a3b8", fontStyle: "italic", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
             {task.notes}
@@ -562,21 +774,28 @@ function TaskCard({ task, today, canModify, onStatusChange }) {
         )}
       </div>
 
-      {/* Row 4: status buttons */}
+      {/* Row 4: status buttons with spinner */}
       <div style={{ display: "flex", gap: 4, paddingLeft: isOverdue ? 6 : 0 }}>
         {STATUSES.map(s => {
           const label = s === "in_progress" ? "In Progress" : s.charAt(0).toUpperCase() + s.slice(1);
           const isActive = task.status === s;
           return (
-            <button key={s} onClick={() => canModify && onStatusChange(task.id, s)} disabled={!canModify} style={{
+            <button key={s} onClick={() => canModify && !isSaving && onStatusChange(task.id, s)} disabled={!canModify || isSaving} style={{
               padding: "3px 10px", borderRadius: 20, fontSize: 10, fontWeight: 600,
               border: isActive ? "none" : "1px solid #d1fae5",
               background: isActive ? "#059669" : "white",
               color: isActive ? "white" : "#64748b",
-              cursor: canModify ? "pointer" : "default",
+              cursor: canModify && !isSaving ? "pointer" : "default",
               fontFamily: "'DM Sans', sans-serif",
               opacity: canModify ? 1 : 0.5,
-            }}>{label}</button>
+              display: "inline-flex", alignItems: "center", gap: 3,
+            }}>
+              {isSaving && isActive && <span style={{
+                width: 8, height: 8, border: "1.5px solid currentColor", borderTopColor: "transparent",
+                borderRadius: "50%", animation: "taskSpin 0.6s linear infinite", display: "inline-block", flexShrink: 0,
+              }} />}
+              {label}
+            </button>
           );
         })}
       </div>

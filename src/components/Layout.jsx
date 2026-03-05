@@ -11,7 +11,7 @@ const titles = {
   '/rp-log': 'RP Log',
   '/training': 'Training Logs',
   '/cleaning': 'Cleaning Rota',
-  '/documents': 'Document & Renewal Tracker',
+  '/documents': 'Renewals',
   '/staff-training': 'Staff Training Tracker',
   '/safeguarding': 'Safeguarding Training',
   '/temperature': 'Temperature Log',
@@ -57,7 +57,7 @@ const bottomNav = [
 
 const morePages = [
   { to: '/my-tasks', label: 'My Tasks', icon: 'check-square' },
-  { to: '/documents', label: 'Documents', icon: 'file' },
+  { to: '/documents', label: 'Renewals', icon: 'file' },
   { to: '/staff-training', label: 'Staff Training', icon: 'book' },
   { to: '/safeguarding', label: 'Safeguarding', icon: 'shield' },
   { to: '/training', label: 'Training Logs', icon: 'clipboard' },

@@ -65,27 +65,6 @@ const CD_ENTRIES = [
   { drug: "Buprenorphine 8mg", form: "Sublingual", balance: 16, unit: "tabs", lastCheck: "01/03/2026", checker: "AS", status: "overdue" },
 ];
 
-const NAV_ITEMS = [
-  { section: "DAILY", items: [
-    { id: "dashboard", label: "Dashboard", icon: "⊞" },
-    { id: "tasks", label: "My Tasks", icon: "✓" },
-    { id: "rp", label: "RP Log", icon: "⚕" },
-    { id: "temp", label: "Temp Log", icon: "🌡", badge: 1 },
-  ]},
-  { section: "RECORDS", items: [
-    { id: "training", label: "Training Logs", icon: "📚" },
-    { id: "cleaning", label: "Cleaning Rota", icon: "🧹" },
-    { id: "documents", label: "Documents", icon: "📄", badge: 32 },
-    { id: "incidents", label: "Incidents", icon: "⚠️" },
-  ]},
-  { section: "COMPLIANCE", items: [
-    { id: "safeguarding", label: "Safeguarding", icon: "🛡" },
-    { id: "stafftraining", label: "Staff Training", icon: "👥", badge: 483 },
-    { id: "nearmisses", label: "Near Misses", icon: "🔔" },
-    { id: "report", label: "Compliance Report", icon: "📋" },
-  ]},
-];
-
 const EXPIRING_DOCS = [
   { name: "Safeguarding Policy", days: 6, owner: "JA" },
   { name: "CD SOP", days: 12, owner: "AS" },
@@ -256,7 +235,6 @@ export default function ComplianceDashboard() {
   const [todos, setTodos] = useState([]);
   const [todoInput, setTodoInput] = useState("");
   const [alertsDismissed, setAlertsDismissed] = useState(false);
-  const [activeNav, setActiveNav] = useState("dashboard");
   const [now, setNow] = useState(new Date());
 
   useEffect(() => { const t = setInterval(() => setNow(new Date()), 30000); return () => clearInterval(t); }, []);
@@ -302,56 +280,10 @@ export default function ComplianceDashboard() {
   };
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", background: "#f0faf4" }}>
-
-      {/* ── Sidebar ── */}
-      <aside style={{
-        width: 214, flexShrink: 0,
-        background: "linear-gradient(180deg, #064e3b 0%, #065f46 100%)",
-        display: "flex", flexDirection: "column",
-        position: "sticky", top: 0, height: "100vh", overflowY: "auto",
-      }}>
-        <div style={{ padding: "16px 16px 12px", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "white" }}>iP</div>
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "white" }}>iPharmacy Direct</div>
-              <div style={{ fontSize: 9, color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em", textTransform: "uppercase" }}>Compliance Tracker</div>
-            </div>
-          </div>
-        </div>
-
-        {NAV_ITEMS.map(group => (
-          <div key={group.section} style={{ padding: "12px 10px 4px" }}>
-            <div style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.35)", letterSpacing: "0.12em", textTransform: "uppercase", padding: "0 6px", marginBottom: 3 }}>{group.section}</div>
-            {group.items.map(item => (
-              <button key={item.id} onClick={() => setActiveNav(item.id)} style={{
-                display: "flex", alignItems: "center", gap: 8, padding: "7px 10px",
-                borderRadius: 8, cursor: "pointer", marginBottom: 1, width: "100%", textAlign: "left",
-                background: activeNav === item.id ? "rgba(255,255,255,0.18)" : "transparent",
-                color: activeNav === item.id ? "white" : "rgba(255,255,255,0.6)",
-                fontWeight: activeNav === item.id ? 600 : 400, fontSize: 12.5,
-                border: "none", fontFamily: "'DM Sans', sans-serif",
-              }}>
-                <span style={{ fontSize: 12 }}>{item.icon}</span>
-                <span style={{ flex: 1 }}>{item.label}</span>
-                {item.badge && <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 6px", borderRadius: 20, background: "rgba(255,255,255,0.15)", color: "white" }}>{item.badge}</span>}
-              </button>
-            ))}
-          </div>
-        ))}
-
-        <div style={{ marginTop: "auto", padding: "12px 16px", borderTop: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", gap: 8 }}>
-          <Avatar initials="SS" size={28} />
-          <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "white" }}>Salma Shakoor</div>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>Staff · FED07</div>
-          </div>
-        </div>
-      </aside>
+    <div style={{ fontFamily: "'DM Sans', sans-serif" }}>
 
       {/* ── Main ── */}
-      <main style={{ flex: 1, overflowY: "auto" }}>
+      <div>
 
         {/* Topbar */}
         <div style={{
@@ -631,7 +563,7 @@ export default function ComplianceDashboard() {
             </div>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

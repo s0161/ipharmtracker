@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
 import { logAudit } from '../utils/auditLog'
 import { useUser } from '../contexts/UserContext'
@@ -13,11 +13,54 @@ import { downloadCsv } from '../utils/exportCsv'
 import { useDocumentReminders } from '../hooks/useDocumentReminders'
 import { useToast } from '../components/Toast'
 import Modal from '../components/Modal'
-import PageActions from '../components/PageActions'
-import SwipeRow from '../components/SwipeRow'
 import { useConfirm } from '../components/ConfirmDialog'
-import EmptyState from '../components/EmptyState'
-import SkeletonLoader from '../components/SkeletonLoader'
+import Avatar from '../components/Avatar'
+
+// ─── Google Font injection ───
+if (!document.getElementById('dm-fonts-link')) {
+  const l = document.createElement('link')
+  l.id = 'dm-fonts-link'
+  l.rel = 'stylesheet'
+  l.href = 'https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap'
+  document.head.appendChild(l)
+}
+
+const DM = "'DM Sans', sans-serif"
+const MONO = "'DM Mono', monospace"
+const CARD = { background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-card)', boxShadow: 'var(--shadow-card)' }
+
+// ─── Category groupings ───
+const CATEGORY_GROUPS = [
+  { key: 'sops', label: 'SOPs', types: ['SOP', 'Policy'] },
+  { key: 'registrations', label: 'Registrations', types: ['Registration', 'DBS Check'] },
+  { key: 'contracts', label: 'Contracts', types: ['Contract', 'Insurance'] },
+  { key: 'certificates', label: 'Certificates', types: ['Certificate', 'Training', 'Risk Assessment', 'MHRA Alert'] },
+  { key: 'other', label: 'Other', types: ['Staff', 'Other'] },
+]
+
+// ─── RAG status helper ───
+function getDocStatus(expiryDate) {
+  if (!expiryDate) return { key: 'expired', label: 'No date', bg: '#fef2f2', border: '#fecaca', color: '#dc2626', barColor: '#dc2626' }
+  const now = new Date(); now.setHours(0, 0, 0, 0)
+  const exp = new Date(expiryDate); exp.setHours(0, 0, 0, 0)
+  const days = Math.ceil((exp - now) / 864e5)
+  if (days < 0) return { key: 'expired', label: `${Math.abs(days)}d overdue`, bg: '#fef2f2', border: '#fecaca', color: '#dc2626', barColor: '#dc2626', days }
+  if (days <= 14) return { key: 'critical', label: `${days}d left`, bg: '#fef2f2', border: '#fecaca', color: '#dc2626', barColor: '#dc2626', days }
+  if (days <= 30) return { key: 'due-soon', label: `${days}d left`, bg: '#fffbeb', border: '#fde68a', color: '#d97706', barColor: '#d97706', days }
+  if (days <= 90) return { key: 'upcoming', label: `in ${days}d`, bg: '#eff6ff', border: '#bfdbfe', color: '#2563eb', barColor: '#2563eb', days }
+  return { key: 'valid', label: `${days}d left`, bg: '#f0fdf4', border: '#d1fae5', color: '#059669', barColor: '#059669', days }
+}
+
+function getLifetimePercent(issueDate, expiryDate) {
+  if (!issueDate || !expiryDate) return 0
+  const start = new Date(issueDate).getTime()
+  const end = new Date(expiryDate).getTime()
+  const now = Date.now()
+  const total = end - start
+  if (total <= 0) return 100
+  const elapsed = now - start
+  return Math.max(0, Math.min(100, (elapsed / total) * 100))
+}
 
 const emptyForm = {
   documentName: '',
@@ -27,11 +70,6 @@ const emptyForm = {
   expiryDate: '',
   notes: '',
 }
-
-const statusColors = { green: '#10b981', amber: '#f59e0b', red: '#ef4444' }
-const statusBg = { green: 'rgba(16,185,129,0.1)', amber: 'rgba(245,158,11,0.1)', red: 'rgba(239,68,68,0.1)' }
-
-const inputClass = "w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
 
 export default function DocumentTracker() {
   const { user } = useUser()
@@ -43,15 +81,14 @@ export default function DocumentTracker() {
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
-  const [filterCategory, setFilterCategory] = useState('')
   const [errors, setErrors] = useState({})
-
-  if (loading) {
-    return <div className="py-4"><SkeletonLoader variant="table" /></div>
-  }
+  const [tab, setTab] = useState('category')
+  const [bannerDismissed, setBannerDismissed] = useState(false)
+  const [calMonth, setCalMonth] = useState(new Date().getMonth())
+  const [calYear, setCalYear] = useState(new Date().getFullYear())
 
   // Deduplicate by document name (keep most recent by createdAt)
-  const uniqueDocs = (() => {
+  const uniqueDocs = useMemo(() => {
     const map = new Map()
     documents.forEach(d => {
       const existing = map.get(d.documentName)
@@ -60,16 +97,24 @@ export default function DocumentTracker() {
       }
     })
     return [...map.values()]
-  })()
+  }, [documents])
 
-  const filtered = filterCategory
-    ? uniqueDocs.filter((d) => d.category === filterCategory)
-    : uniqueDocs
+  // ─── Stats ───
+  const stats = useMemo(() => {
+    const now = new Date(); now.setHours(0, 0, 0, 0)
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    let expired = 0, expiringMonth = 0, valid = 0
+    uniqueDocs.forEach(d => {
+      if (!d.expiryDate) { expired++; return }
+      const exp = new Date(d.expiryDate); exp.setHours(0, 0, 0, 0)
+      if (exp < now) expired++
+      else if (exp <= monthEnd) expiringMonth++
+      else valid++
+    })
+    return { total: uniqueDocs.length, expired, expiringMonth, valid }
+  }, [uniqueDocs])
 
-  const sorted = [...filtered].sort(
-    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-  )
-
+  // ─── CRUD handlers (preserved) ───
   const openAdd = () => {
     setForm(emptyForm)
     setEditingId(null)
@@ -139,7 +184,7 @@ export default function DocumentTracker() {
 
   const handleCsvDownload = () => {
     const headers = ['Status', 'Document Name', 'Category', 'Owner', 'Issue Date', 'Expiry / Review', 'Notes']
-    const rows = sorted.map((d) => [
+    const rows = uniqueDocs.map((d) => [
       getTrafficLightLabel(getTrafficLight(d.expiryDate)),
       d.documentName,
       d.category,
@@ -151,243 +196,465 @@ export default function DocumentTracker() {
     downloadCsv('documents', headers, rows)
   }
 
+  // ─── Pill button helper ───
+  const Pill = ({ active, label, onClick }) => (
+    <button onClick={onClick} style={{
+      padding: '4px 14px', borderRadius: 20, fontSize: 11, fontWeight: 600, fontFamily: DM,
+      border: active ? '1.5px solid #059669' : '1px solid var(--border-card)',
+      background: active ? '#059669' : 'transparent',
+      color: active ? '#fff' : 'var(--text-secondary)',
+      cursor: 'pointer', transition: 'all 0.15s',
+    }}>{label}</button>
+  )
+
+  // ─── Grouped docs for category tab ───
+  const groupedDocs = useMemo(() => {
+    return CATEGORY_GROUPS.map(group => {
+      const docs = uniqueDocs.filter(d => group.types.includes(d.category))
+      // Sort: expired first, then by days ascending
+      const sorted = [...docs].sort((a, b) => {
+        const sa = getDocStatus(a.expiryDate)
+        const sb = getDocStatus(b.expiryDate)
+        if (sa.key === 'expired' && sb.key !== 'expired') return -1
+        if (sb.key === 'expired' && sa.key !== 'expired') return 1
+        return (sa.days ?? -9999) - (sb.days ?? -9999)
+      })
+      return { ...group, docs: sorted }
+    }).filter(g => g.docs.length > 0)
+  }, [uniqueDocs])
+
+  // ─── Timeline data ───
+  const timelineData = useMemo(() => {
+    const now = new Date()
+    const months = []
+    for (let i = 0; i < 12; i++) {
+      const m = new Date(now.getFullYear(), now.getMonth() + i, 1)
+      const mEnd = new Date(m.getFullYear(), m.getMonth() + 1, 0)
+      const docs = uniqueDocs.filter(d => {
+        if (!d.expiryDate) return false
+        const exp = new Date(d.expiryDate)
+        return exp.getFullYear() === m.getFullYear() && exp.getMonth() === m.getMonth()
+      })
+      months.push({
+        label: m.toLocaleDateString('en-GB', { month: 'short', year: '2-digit' }),
+        fullLabel: m.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }),
+        docs,
+        isPast: mEnd < now,
+      })
+    }
+    return months
+  }, [uniqueDocs])
+
+  // ─── Calendar data ───
+  const calendarDays = useMemo(() => {
+    const firstDay = new Date(calYear, calMonth, 1)
+    const lastDay = new Date(calYear, calMonth + 1, 0)
+    const today = new Date(); today.setHours(0, 0, 0, 0)
+    const days = []
+    const startPad = (firstDay.getDay() + 6) % 7
+    for (let i = 0; i < startPad; i++) days.push(null)
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+      const date = new Date(calYear, calMonth, d); date.setHours(0, 0, 0, 0)
+      const docs = uniqueDocs.filter(doc => {
+        if (!doc.expiryDate) return false
+        const exp = new Date(doc.expiryDate); exp.setHours(0, 0, 0, 0)
+        return exp.getTime() === date.getTime()
+      })
+      days.push({ day: d, date, isToday: date.getTime() === today.getTime(), docs })
+    }
+    return days
+  }, [calMonth, calYear, uniqueDocs])
+
+  const calMonthLabel = new Date(calYear, calMonth).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
+
+  // ─── Input style ───
+  const inputStyle = {
+    width: '100%', padding: '8px 12px', borderRadius: 8, fontSize: 13, fontFamily: DM,
+    background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)',
+    outline: 'none',
+  }
+  const errorInputStyle = { ...inputStyle, borderColor: '#dc2626' }
+  const labelStyle = { fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 4, display: 'block' }
+
+  if (loading) return <div style={{ padding: 24 }}><div style={{ ...CARD, height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontFamily: DM, fontSize: 13 }}>Loading renewals…</div></div>
+
   return (
-    <div>
-      {docReminders.length > 0 && (() => {
+    <div style={{ fontFamily: DM }}>
+      {/* ─── PAGE HEADER ─── */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+          <div>
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', margin: 0, lineHeight: 1.2 }}>Renewals</h1>
+            <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '4px 0 0' }}>Track documents, registrations and renewals. Status updates automatically.</p>
+          </div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button onClick={handleCsvDownload} style={{
+              padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 500, fontFamily: DM,
+              background: 'var(--bg-card)', border: '1px solid var(--border-card)', color: 'var(--text-secondary)',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
+            }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+              CSV
+            </button>
+            <button onClick={openAdd} style={{
+              padding: '6px 16px', borderRadius: 8, fontSize: 12, fontWeight: 600, fontFamily: DM,
+              background: '#059669', color: '#fff', border: 'none', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 5,
+            }}>＋ Add Document</button>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── STATS BAR ─── */}
+      <div style={{ ...CARD, padding: '8px 16px', display: 'flex', gap: 0, marginBottom: 14 }}>
+        {[
+          { label: 'Total', value: stats.total, accent: '#3b82f6' },
+          { label: 'Expired', value: stats.expired, color: stats.expired > 0 ? '#ef4444' : undefined, accent: '#ef4444' },
+          { label: 'Expiring this month', value: stats.expiringMonth, color: stats.expiringMonth > 0 ? '#d97706' : undefined, accent: '#d97706' },
+          { label: 'Valid', value: stats.valid, color: stats.valid > 0 ? '#059669' : undefined, accent: '#059669' },
+        ].map((s, i) => (
+          <div key={i} style={{ flex: 1, textAlign: 'center', padding: '2px 12px', borderLeft: `3px solid ${s.accent}` }}>
+            <div style={{ fontFamily: MONO, fontSize: 16, fontWeight: 800, color: s.color || 'var(--text-primary)' }}>{s.value}</div>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 1 }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* ─── ALERT BANNER ─── */}
+      {docReminders.length > 0 && !bannerDismissed && (() => {
         const hasCritical = docReminders.some(r => r.type === 'critical')
-        const critCount = docReminders.filter(r => r.type === 'critical').length
-        const warnCount = docReminders.filter(r => r.type === 'warning').length
         return (
-          <div
-            className="rounded-xl px-4 py-3 mb-4 flex items-center gap-3"
-            style={{
-              backgroundColor: hasCritical ? 'rgba(239,68,68,0.06)' : 'rgba(245,158,11,0.06)',
-              border: `1px solid ${hasCritical ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)'}`,
-            }}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20"
-              className={hasCritical ? 'text-ec-crit-light shrink-0' : 'text-ec-warn shrink-0'}>
-              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-            <div className="flex-1">
-              <span className="text-sm font-medium text-ec-t1">
-                {hasCritical
-                  ? `${critCount} document${critCount !== 1 ? 's' : ''} expired or expiring this week`
-                  : `${warnCount} document${warnCount !== 1 ? 's' : ''} expiring soon`}
-              </span>
-              <div className="flex flex-wrap gap-2 mt-1.5">
-                {docReminders.slice(0, 5).map(r => (
-                  <span
-                    key={r.id}
-                    className="text-[11px] px-2 py-0.5 rounded-full font-medium"
-                    style={{
-                      backgroundColor: r.type === 'critical' ? 'rgba(239,68,68,0.1)' : 'rgba(245,158,11,0.1)',
-                      color: r.type === 'critical' ? '#fca5a5' : '#fcd34d',
-                    }}
-                  >
+          <div style={{
+            ...CARD,
+            marginBottom: 14,
+            background: hasCritical ? '#fef2f2' : '#fffbeb',
+            border: `1px solid ${hasCritical ? '#fecaca' : '#fde68a'}`,
+            display: 'flex', alignItems: 'flex-start', gap: 10,
+          }}>
+            <span style={{ fontSize: 16, flexShrink: 0, marginTop: 2 }}>🔴</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: hasCritical ? '#dc2626' : '#d97706', marginBottom: 6 }}>
+                {docReminders.length} document{docReminders.length !== 1 ? 's' : ''} require attention
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                {docReminders.slice(0, 6).map(r => (
+                  <span key={r.id} style={{
+                    fontSize: 10, fontWeight: 600, fontFamily: MONO,
+                    padding: '2px 8px', borderRadius: 10,
+                    background: r.type === 'critical' ? 'rgba(220,38,38,0.1)' : 'rgba(217,119,6,0.1)',
+                    color: r.type === 'critical' ? '#dc2626' : '#d97706',
+                  }}>
                     {r.docName} ({r.daysLeft <= 0 ? 'expired' : `${r.daysLeft}d`})
                   </span>
                 ))}
-                {docReminders.length > 5 && (
-                  <span className="text-[11px] text-ec-t3">+{docReminders.length - 5} more</span>
+                {docReminders.length > 6 && (
+                  <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>+{docReminders.length - 6} more</span>
                 )}
               </div>
             </div>
+            <button onClick={() => setBannerDismissed(true)} style={{
+              background: 'none', border: 'none', cursor: 'pointer', fontSize: 16,
+              color: hasCritical ? '#dc2626' : '#d97706', padding: 0, lineHeight: 1, flexShrink: 0,
+            }}>×</button>
           </div>
         )
       })()}
 
-      <div>
-        <p className="text-sm text-ec-t3 mb-2">
-          Track documents, registrations, and renewals. Status updates
-          automatically based on expiry dates.
-        </p>
-        <div className="flex items-center gap-2 flex-wrap mb-4">
-          <PageActions onDownloadCsv={handleCsvDownload} />
-          <select
-            className="bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
-            value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
-          >
-            <option value="">All Categories</option>
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-          <button className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors flex items-center gap-1.5 font-sans" onClick={openAdd}>
-            + Add Document
-          </button>
-        </div>
+      {/* ─── TABS ─── */}
+      <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
+        {[['category', 'By Category'], ['timeline', 'Timeline'], ['calendar', 'Calendar']].map(([key, label]) => (
+          <Pill key={key} label={label} active={tab === key} onClick={() => setTab(key)} />
+        ))}
       </div>
 
-      {sorted.length === 0 ? (
-        filterCategory ? (
-          <div className="text-center py-10 text-ec-t3 text-sm">
-            No documents in &ldquo;{filterCategory}&rdquo; category.
-          </div>
-        ) : (
-          <EmptyState
-            icon={<svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>}
-            title="No documents tracked"
-            description="Add pharmacy documents to track their expiry dates and maintain compliance."
-          />
-        )
-      ) : (
-        <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--ec-border)' }}>
-          <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
-            <thead>
-              <tr>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Status</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Document Name</th>
-                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Category</th>
-                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Owner</th>
-                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Issue Date</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Expiry / Review</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Notes</th>
-                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sorted.map((doc) => {
-                const status = getTrafficLight(doc.expiryDate)
-                return (
-                  <SwipeRow key={doc.id} onEdit={() => openEdit(doc)} onDelete={() => handleDelete(doc.id)}>
-                    <td className="px-4 py-2.5 border-b border-ec-div">
-                      <span
-                        className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold"
-                        style={{ backgroundColor: statusBg[status], color: statusColors[status] }}
-                        title={getTrafficLightLabel(status)}
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: statusColors[status] }} />
-                        {getTrafficLightLabel(status)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2.5 text-ec-t1 font-medium border-b border-ec-div">{doc.documentName}</td>
-                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-ec-div">
-                      <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-ec-border text-ec-t2">{doc.category}</span>
-                    </td>
-                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-ec-div">{doc.owner || '—'}</td>
-                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-ec-div">{formatDate(doc.issueDate)}</td>
-                    <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">{formatDate(doc.expiryDate)}</td>
-                    <td className="px-4 py-2.5 text-ec-t3 border-b border-ec-div max-w-[200px] truncate">{doc.notes || '—'}</td>
-                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-ec-div">
-                      <div className="flex gap-1">
-                        <button
-                          className="px-2.5 py-1 bg-ec-card-hover text-ec-t2 rounded-lg text-xs border border-ec-border cursor-pointer hover:bg-ec-t5 hover:text-ec-t1 transition-colors font-sans"
-                          onClick={() => openEdit(doc)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="px-2.5 py-1 bg-ec-crit/10 text-ec-crit-light rounded-lg text-xs border border-ec-crit/20 cursor-pointer hover:bg-ec-crit/20 transition-colors font-sans"
-                          onClick={() => handleDelete(doc.id)}
-                        >
-                          Delete
-                        </button>
+      {/* ═══ TAB 1 — BY CATEGORY ═══ */}
+      {tab === 'category' && (
+        <div>
+          {groupedDocs.length === 0 ? (
+            <div style={{ ...CARD, textAlign: 'center', padding: 40, color: 'var(--text-muted)', fontSize: 13 }}>
+              No documents tracked yet. Click "＋ Add Document" to get started.
+            </div>
+          ) : groupedDocs.map(group => (
+            <div key={group.key} style={{ marginBottom: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>{group.label}</span>
+                <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 8px', borderRadius: 10, background: 'var(--border-card)', color: 'var(--text-secondary)' }}>{group.docs.length}</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 10 }}>
+                {group.docs.map(doc => {
+                  const status = getDocStatus(doc.expiryDate)
+                  const lifetime = getLifetimePercent(doc.issueDate, doc.expiryDate)
+                  const isExpired = status.key === 'expired' || status.key === 'critical'
+                  return (
+                    <div key={doc.id} style={{
+                      ...CARD,
+                      position: 'relative',
+                      paddingLeft: 20,
+                      opacity: status.key === 'expired' ? 0.85 : 1,
+                      transition: 'box-shadow 0.2s',
+                      cursor: 'default',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 16px rgba(5,150,105,0.12)'}
+                    onMouseLeave={e => e.currentTarget.style.boxShadow = 'var(--shadow-card)'}
+                    >
+                      {/* Left accent bar */}
+                      <div style={{
+                        position: 'absolute', left: 0, top: 0, bottom: 0, width: 4,
+                        borderRadius: '12px 0 0 12px', background: status.barColor,
+                      }} />
+
+                      {/* Row 1: Name + status pill */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.3, flex: 1, marginRight: 8 }}>{doc.documentName}</div>
+                        <span style={{
+                          fontSize: 9, fontWeight: 700, fontFamily: MONO,
+                          padding: '2px 8px', borderRadius: 10, flexShrink: 0,
+                          background: status.bg, color: status.color, border: `1px solid ${status.border}`,
+                        }}>{status.label}</span>
                       </div>
-                    </td>
-                  </SwipeRow>
-                )
-              })}
-            </tbody>
-          </table>
+
+                      {/* Row 2: Category + owner */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                        <span style={{
+                          fontSize: 9, fontWeight: 600, padding: '1px 7px', borderRadius: 8,
+                          background: 'var(--border-card)', color: 'var(--text-secondary)',
+                        }}>{doc.category}</span>
+                        {doc.owner && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <Avatar name={doc.owner} size={20} />
+                            <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{doc.owner}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Row 3: Dates */}
+                      <div style={{ fontSize: 10, fontFamily: MONO, color: 'var(--text-muted)', marginBottom: 8 }}>
+                        {doc.issueDate ? formatDate(doc.issueDate) : '—'} → {doc.expiryDate ? formatDate(doc.expiryDate) : '—'}
+                      </div>
+
+                      {/* Progress bar */}
+                      <div style={{ height: 4, background: 'var(--border-card)', borderRadius: 2, marginBottom: 4, overflow: 'hidden' }}>
+                        <div style={{
+                          height: '100%', borderRadius: 2, width: `${Math.min(lifetime, 100)}%`,
+                          background: status.barColor, transition: 'width 0.3s',
+                        }} />
+                      </div>
+                      <div style={{ fontSize: 9, fontFamily: MONO, color: status.color, marginBottom: 6 }}>
+                        {status.key === 'expired' ? `${Math.abs(status.days || 0)}d overdue` : `${status.days || 0} days remaining`}
+                      </div>
+
+                      {/* Notes */}
+                      {doc.notes && (
+                        <div style={{ fontSize: 10, color: 'var(--text-muted)', fontStyle: 'italic', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: 6 }}>{doc.notes}</div>
+                      )}
+
+                      {/* Actions */}
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button onClick={() => openEdit(doc)} style={{
+                          fontSize: 11, fontWeight: 500, fontFamily: DM, padding: '3px 10px', borderRadius: 6,
+                          background: 'transparent', border: '1px solid var(--border-card)', color: 'var(--text-secondary)',
+                          cursor: 'pointer', transition: 'all 0.15s',
+                        }}>Edit</button>
+                        <button onClick={() => handleDelete(doc.id)} style={{
+                          fontSize: 11, fontWeight: 500, fontFamily: DM, padding: '3px 10px', borderRadius: 6,
+                          background: 'transparent', border: '1px solid #fecaca', color: '#dc2626',
+                          cursor: 'pointer', transition: 'all 0.15s',
+                        }}>Delete</button>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
+      {/* ═══ TAB 2 — TIMELINE ═══ */}
+      {tab === 'timeline' && (
+        <div style={{ ...CARD, overflowX: 'auto' }}>
+          <div style={{ display: 'flex', gap: 0, minWidth: 12 * 140 }}>
+            {timelineData.map((month, i) => (
+              <div key={i} style={{
+                flex: '0 0 140px', borderRight: '1px solid var(--border-card)', padding: '8px 10px',
+                opacity: month.isPast ? 0.5 : 1,
+              }}>
+                <div style={{
+                  fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
+                  color: 'var(--text-muted)', marginBottom: 8, textAlign: 'center',
+                }}>{month.label}</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  {month.docs.length === 0 && (
+                    <div style={{ fontSize: 9, color: 'var(--text-muted)', textAlign: 'center', padding: '8px 0' }}>—</div>
+                  )}
+                  {month.docs.map(doc => {
+                    const status = getDocStatus(doc.expiryDate)
+                    return (
+                      <div key={doc.id} style={{
+                        fontSize: 10, fontWeight: 600, fontFamily: DM,
+                        padding: '4px 8px', borderRadius: 6,
+                        background: status.bg, color: status.color, border: `1px solid ${status.border}`,
+                        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                        cursor: 'pointer',
+                      }} title={`${doc.documentName} — expires ${formatDate(doc.expiryDate)}`}
+                      onClick={() => openEdit(doc)}
+                      >
+                        {doc.documentName}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ═══ TAB 3 — CALENDAR ═══ */}
+      {tab === 'calendar' && (
+        <div style={CARD}>
+          {/* Month navigation */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <button onClick={() => { if (calMonth === 0) { setCalMonth(11); setCalYear(calYear - 1) } else setCalMonth(calMonth - 1) }} style={{
+              background: 'none', border: '1px solid var(--border-card)', borderRadius: 6, padding: '4px 10px',
+              fontSize: 12, cursor: 'pointer', color: 'var(--text-secondary)',
+            }}>←</button>
+            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{calMonthLabel}</span>
+            <button onClick={() => { if (calMonth === 11) { setCalMonth(0); setCalYear(calYear + 1) } else setCalMonth(calMonth + 1) }} style={{
+              background: 'none', border: '1px solid var(--border-card)', borderRadius: 6, padding: '4px 10px',
+              fontSize: 12, cursor: 'pointer', color: 'var(--text-secondary)',
+            }}>→</button>
+          </div>
+
+          {/* Day headers */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2, marginBottom: 4 }}>
+            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => (
+              <div key={d} style={{ textAlign: 'center', fontSize: 9, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', padding: '4px 0' }}>{d}</div>
+            ))}
+          </div>
+
+          {/* Days grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2 }}>
+            {calendarDays.map((day, i) => {
+              if (!day) return <div key={`pad-${i}`} />
+              const hasDocs = day.docs.length > 0
+              const worstStatus = hasDocs ? day.docs.reduce((worst, doc) => {
+                const s = getDocStatus(doc.expiryDate)
+                const priority = { expired: 0, critical: 1, 'due-soon': 2, upcoming: 3, valid: 4 }
+                return (priority[s.key] ?? 4) < (priority[worst.key] ?? 4) ? s : worst
+              }, getDocStatus(day.docs[0].expiryDate)) : null
+              return (
+                <div key={day.day} style={{
+                  position: 'relative', textAlign: 'center', padding: '6px 2px', borderRadius: 6,
+                  background: day.isToday ? '#f0fdf4' : 'transparent',
+                  border: day.isToday ? '1px solid #d1fae5' : '1px solid transparent',
+                  cursor: hasDocs ? 'pointer' : 'default',
+                  minHeight: 36,
+                }}
+                title={hasDocs ? day.docs.map(d => d.documentName).join(', ') : ''}
+                >
+                  <div style={{ fontSize: 11, fontWeight: day.isToday ? 700 : 400, color: day.isToday ? '#059669' : 'var(--text-primary)' }}>{day.day}</div>
+                  {hasDocs && (
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: 2, marginTop: 2 }}>
+                      {day.docs.slice(0, 3).map((doc, j) => {
+                        const s = getDocStatus(doc.expiryDate)
+                        return <div key={j} style={{ width: 5, height: 5, borderRadius: '50%', background: s.barColor }} />
+                      })}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Legend */}
+          <div style={{ display: 'flex', gap: 12, marginTop: 12, justifyContent: 'center' }}>
+            {[
+              { color: '#dc2626', label: 'Expired/Critical' },
+              { color: '#d97706', label: 'Due Soon' },
+              { color: '#2563eb', label: 'Upcoming' },
+              { color: '#059669', label: 'Valid' },
+            ].map(l => (
+              <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ width: 6, height: 6, borderRadius: '50%', background: l.color }} />
+                <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{l.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ─── MODAL FORM ─── */}
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         title={editingId ? 'Edit Document' : 'Add Document'}
       >
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div>
-            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Document Name *</label>
+        <form onSubmit={handleSubmit} style={{ fontFamily: DM }}>
+          <div style={{ marginBottom: 14 }}>
+            <label style={labelStyle}>Document Name *</label>
             <input
               type="text"
-              className={`${inputClass} ${errors.documentName ? 'border-ec-crit focus:border-ec-crit focus:ring-ec-crit/20' : ''}`}
+              style={errors.documentName ? errorInputStyle : inputStyle}
               placeholder="e.g. GPhC Registration"
               value={form.documentName}
-              onChange={(e) => { update('documentName')(e); setErrors((prev) => ({ ...prev, documentName: undefined })) }}
-              required
+              onChange={(e) => { update('documentName')(e); setErrors(prev => ({ ...prev, documentName: undefined })) }}
             />
-            {errors.documentName && <p className="text-xs text-ec-crit-light mt-1">{errors.documentName}</p>}
+            {errors.documentName && <p style={{ fontSize: 11, color: '#dc2626', margin: '4px 0 0' }}>{errors.documentName}</p>}
           </div>
 
-          <div>
-            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Category *</label>
+          <div style={{ marginBottom: 14 }}>
+            <label style={labelStyle}>Category *</label>
             <select
-              className={`${inputClass} ${errors.category ? 'border-ec-crit focus:border-ec-crit focus:ring-ec-crit/20' : ''}`}
+              style={errors.category ? errorInputStyle : inputStyle}
               value={form.category}
-              onChange={(e) => { update('category')(e); setErrors((prev) => ({ ...prev, category: undefined })) }}
-              required
+              onChange={(e) => { update('category')(e); setErrors(prev => ({ ...prev, category: undefined })) }}
             >
               <option value="">Select category...</option>
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
+              {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
-            {errors.category && <p className="text-xs text-ec-crit-light mt-1">{errors.category}</p>}
+            {errors.category && <p style={{ fontSize: 11, color: '#dc2626', margin: '4px 0 0' }}>{errors.category}</p>}
           </div>
 
-          <div>
-            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Owner / Responsible Person</label>
+          <div style={{ marginBottom: 14 }}>
+            <label style={labelStyle}>Owner / Responsible Person</label>
             {staffMembers.length === 0 ? (
               <input
                 type="text"
-                className={inputClass}
+                style={inputStyle}
                 placeholder="Enter name or add staff in Settings"
                 value={form.owner}
                 onChange={update('owner')}
               />
             ) : (
-              <select
-                className={inputClass}
-                value={form.owner}
-                onChange={update('owner')}
-              >
+              <select style={inputStyle} value={form.owner} onChange={update('owner')}>
                 <option value="">Select person...</option>
-                {staffMembers.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
+                {staffMembers.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
             <div>
-              <label className="text-xs font-semibold text-ec-t2 mb-1 block">Issue Date</label>
-              <input
-                type="date"
-                className={inputClass}
-                value={form.issueDate}
-                onChange={update('issueDate')}
-              />
+              <label style={labelStyle}>Issue Date</label>
+              <input type="date" style={inputStyle} value={form.issueDate} onChange={update('issueDate')} />
             </div>
             <div>
-              <label className="text-xs font-semibold text-ec-t2 mb-1 block">Expiry / Review Date *</label>
+              <label style={labelStyle}>Expiry / Review Date *</label>
               <input
                 type="date"
-                className={`${inputClass} ${errors.expiryDate ? 'border-ec-crit focus:border-ec-crit focus:ring-ec-crit/20' : ''}`}
+                style={errors.expiryDate ? errorInputStyle : inputStyle}
                 value={form.expiryDate}
-                onChange={(e) => { update('expiryDate')(e); setErrors((prev) => ({ ...prev, expiryDate: undefined })) }}
-                required
+                onChange={(e) => { update('expiryDate')(e); setErrors(prev => ({ ...prev, expiryDate: undefined })) }}
               />
-              {errors.expiryDate && <p className="text-xs text-ec-crit-light mt-1">{errors.expiryDate}</p>}
+              {errors.expiryDate && <p style={{ fontSize: 11, color: '#dc2626', margin: '4px 0 0' }}>{errors.expiryDate}</p>}
             </div>
           </div>
 
-          <div>
-            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Notes</label>
+          <div style={{ marginBottom: 14 }}>
+            <label style={labelStyle}>Notes</label>
             <textarea
-              className={inputClass + " resize-none"}
+              style={{ ...inputStyle, resize: 'none', minHeight: 60 }}
               placeholder="Optional notes..."
               value={form.notes}
               onChange={update('notes')}
@@ -395,17 +662,16 @@ export default function DocumentTracker() {
             />
           </div>
 
-          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-ec-div">
-            <button
-              type="button"
-              className="px-4 py-2 bg-ec-card-hover text-ec-t2 rounded-lg text-sm border border-ec-border cursor-pointer hover:bg-ec-t5 transition-colors font-sans"
-              onClick={() => setModalOpen(false)}
-            >
-              Cancel
-            </button>
-            <button type="submit" className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors font-sans">
-              {editingId ? 'Save Changes' : 'Add Document'}
-            </button>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, paddingTop: 14, borderTop: '1px solid var(--border-card)' }}>
+            <button type="button" onClick={() => setModalOpen(false)} style={{
+              padding: '6px 16px', borderRadius: 8, fontSize: 12, fontWeight: 500, fontFamily: DM,
+              background: 'var(--bg-card)', border: '1px solid var(--border-card)', color: 'var(--text-secondary)',
+              cursor: 'pointer',
+            }}>Cancel</button>
+            <button type="submit" style={{
+              padding: '6px 16px', borderRadius: 8, fontSize: 12, fontWeight: 600, fontFamily: DM,
+              background: '#059669', color: '#fff', border: 'none', cursor: 'pointer',
+            }}>{editingId ? 'Save Changes' : 'Add Document'}</button>
           </div>
         </form>
       </Modal>

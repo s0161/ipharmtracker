@@ -4,7 +4,7 @@ import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import TrainingLogs from './pages/TrainingLogs'
 import CleaningRota from './pages/CleaningRota'
-import DocumentTracker from './pages/DocumentTracker'
+import Renewals from './pages/DocumentTracker'
 import StaffTraining from './pages/StaffTraining'
 import SafeguardingTraining from './pages/SafeguardingTraining'
 import RPLog from './pages/RPLog'
@@ -16,7 +16,6 @@ import AuditLog from './pages/AuditLog'
 import NearMissLog from './pages/NearMissLog'
 import ComplianceReport from './pages/ComplianceReport'
 import Analytics from './pages/Analytics'
-import ComplianceDashboard from './pages/ComplianceDashboard'
 import Login, { isAuthenticated } from './pages/Login'
 import PinSelect from './pages/PinSelect'
 import { UserProvider, useUser } from './contexts/UserContext'
@@ -31,7 +30,6 @@ function AuthedApp() {
 
   return (
     <Routes>
-      <Route path="/compliance-dashboard" element={<ComplianceDashboard />} />
       <Route path="*" element={
         <Layout>
           <Routes>
@@ -40,7 +38,7 @@ function AuthedApp() {
             <Route path="/rp-log" element={<RPLog />} />
             <Route path="/training" element={<TrainingLogs />} />
             <Route path="/cleaning" element={<CleaningRota />} />
-            <Route path="/documents" element={<DocumentTracker />} />
+            <Route path="/documents" element={<Renewals />} />
             <Route path="/staff-training" element={<StaffTraining />} />
             <Route path="/safeguarding" element={<SafeguardingTraining />} />
             <Route path="/temperature" element={<TemperatureLog />} />

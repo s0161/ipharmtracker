@@ -46,7 +46,7 @@ const sections = [
     items: [
       // { to: '/training', label: 'Training Logs', icon: 'book', shortcut: 'T' },
       { to: '/cleaning', label: 'Cleaning Rota', icon: 'spark', shortcut: 'C' },
-      { to: '/documents', label: 'Documents', icon: 'file' },
+      { to: '/documents', label: 'Renewals', icon: 'file' },
       { to: '/incidents', label: 'Incidents', icon: 'alertTri' },
     ],
   },
@@ -58,7 +58,6 @@ const sections = [
       { to: '/near-misses', label: 'Near Misses', icon: 'shieldAlert' },
       { to: '/compliance-report', label: 'Compliance Report', icon: 'report' },
       { to: '/analytics', label: 'Analytics', icon: 'barChart' },
-      { to: '/compliance-dashboard', label: 'Live Dashboard', icon: 'grid' },
     ],
   },
   {

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 
 const TABLES = {
-  documents: { fields: ['documentName', 'category', 'owner'], label: 'Documents', route: '/documents' },
+  documents: { fields: ['documentName', 'category', 'owner'], label: 'Renewals', route: '/documents' },
   staff_members: { fields: ['name'], label: 'Staff', route: '/settings' },
   cleaning_entries: { fields: ['taskName', 'staffMember'], label: 'Cleaning', route: '/cleaning' },
   training_logs: { fields: ['staffName', 'topic', 'trainerName'], label: 'Training', route: '/training' },
