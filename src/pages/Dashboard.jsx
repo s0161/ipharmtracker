@@ -300,8 +300,31 @@ export default function Dashboard() {
   const [chNotes, setChNotes] = useState("");
   const [chNewHomeName, setChNewHomeName] = useState("");
   const [chAddingHome, setChAddingHome] = useState(false);
+  const [bankHolidays, setBankHolidays] = useState([]);
+  const [bhLoading, setBhLoading] = useState(true);
+  const [bhError, setBhError] = useState(false);
+  const [bhShowAll, setBhShowAll] = useState(false);
 
   useEffect(() => { const t = setInterval(() => setNow(new Date()), 30000); return () => clearInterval(t); }, []);
+
+  // ── Fetch UK bank holidays ──
+  useEffect(() => {
+    let cancelled = false;
+    fetch("https://www.gov.uk/bank-holidays.json")
+      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+      .then(data => {
+        if (cancelled) return;
+        const todayDate = new Date(); todayDate.setHours(0, 0, 0, 0);
+        const cutoff = new Date(todayDate); cutoff.setDate(cutoff.getDate() + 90);
+        const events = (data["england-and-wales"]?.events || [])
+          .filter(e => { const d = new Date(e.date + "T00:00:00"); return d >= todayDate && d <= cutoff; })
+          .sort((a, b) => a.date.localeCompare(b.date));
+        setBankHolidays(events);
+        setBhLoading(false);
+      })
+      .catch(() => { if (!cancelled) { setBhError(true); setBhLoading(false); } });
+    return () => { cancelled = true; };
+  }, []);
 
   const today = useMemo(() => todayStr(), [now]);
   const dateStr = now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
@@ -946,6 +969,86 @@ export default function Dashboard() {
               <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid #d1fae5", fontSize: 10, color: "#9ca3af", display: "flex", alignItems: "center", gap: 4 }}>
                 <SvgDot size={6} color="#6ee7b7" /> Register maintained in PharmSmart · Physical register in CD cabinet
               </div>
+            </div>
+
+            {/* ── Bank Holiday Warning ── */}
+            <div style={{ ...card, overflow: "hidden" }}>
+              <CardHeader
+                gradient="linear-gradient(90deg, #1e40af, #2563eb)"
+                icon={<span>🏦</span>}
+                title="Bank Holidays"
+              />
+              {bhLoading ? (
+                <div style={{ padding: "10px 0" }}>
+                  <div style={{ height: 14, borderRadius: 6, background: "#e2e8f0", animation: "ecPulse 1.5s ease-in-out infinite" }} />
+                </div>
+              ) : bhError ? (
+                <div style={{ fontSize: 11, color: "#94a3b8", fontStyle: "italic", padding: "8px 0" }}>Unable to load bank holidays</div>
+              ) : bankHolidays.length === 0 ? (
+                <div style={{ fontSize: 11, color: "#94a3b8", fontStyle: "italic", padding: "8px 0" }}>No bank holidays in the next 90 days.</div>
+              ) : (() => {
+                const todayISO = todayStr();
+                const soonHoliday = bankHolidays.find(h => {
+                  const diff = Math.round((new Date(h.date + "T00:00:00") - new Date(todayISO + "T00:00:00")) / 86400000);
+                  return diff >= 0 && diff <= 7;
+                });
+                const visible = bhShowAll ? bankHolidays : bankHolidays.slice(0, 4);
+                return (
+                  <>
+                    {soonHoliday && (() => {
+                      const hDate = new Date(soonHoliday.date + "T00:00:00");
+                      return (
+                        <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 8, padding: "7px 12px", marginBottom: 8 }}>
+                          <span style={{ fontSize: 11, color: "#92400e", fontWeight: 500 }}>⚠ {soonHoliday.title} on {hDate.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })} — check prescription batch and delivery schedule</span>
+                        </div>
+                      );
+                    })()}
+                    {visible.map(h => {
+                      const hDate = new Date(h.date + "T00:00:00");
+                      const diff = Math.round((hDate - new Date(todayISO + "T00:00:00")) / 86400000);
+                      const isToday = diff === 0;
+                      const isSoon = diff >= 1 && diff <= 7;
+                      const pillStyle = isToday
+                        ? { background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca" }
+                        : diff <= 7
+                          ? { background: "#fffbeb", color: "#d97706", border: "1px solid #fde68a" }
+                          : diff <= 30
+                            ? { background: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe" }
+                            : { background: "#f0fdf4", color: "#059669", border: "1px solid #d1fae5" };
+                      return (
+                        <div key={h.date} style={{
+                          display: "flex", alignItems: "center", justifyContent: "space-between",
+                          padding: "7px 12px", borderRadius: 8, marginBottom: 4,
+                          background: isToday ? "#fef2f2" : isSoon ? "#fffbeb" : "white",
+                          border: `1px solid ${isToday ? "#fecaca" : isSoon ? "#fde68a" : "#d1fae5"}`,
+                        }}>
+                          <div>
+                            <div style={{ fontSize: 11, fontWeight: 600, color: "#1e293b", fontFamily: "'DM Mono', monospace" }}>
+                              {hDate.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}
+                            </div>
+                            <div style={{ fontSize: 10, color: "#94a3b8" }}>{h.title}</div>
+                          </div>
+                          <span style={{
+                            fontSize: 9, fontWeight: 700, padding: "1px 8px", borderRadius: 20,
+                            fontFamily: "'DM Mono', monospace", ...pillStyle,
+                          }}>
+                            {isToday ? "TODAY" : `in ${diff}d`}
+                          </span>
+                        </div>
+                      );
+                    })}
+                    {bankHolidays.length > 4 && (
+                      <button onClick={() => setBhShowAll(v => !v)} style={{
+                        fontSize: 10, color: "#059669", fontWeight: 600, background: "none", border: "none",
+                        cursor: "pointer", padding: "4px 0", fontFamily: "'DM Sans', sans-serif",
+                      }}>
+                        {bhShowAll ? "Show less" : `View all ${bankHolidays.length} upcoming`}
+                      </button>
+                    )}
+                    <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 4 }}>England &amp; Wales · Source: GOV.UK</div>
+                  </>
+                );
+              })()}
             </div>
           </div>
 
