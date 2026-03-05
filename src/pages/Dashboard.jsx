@@ -1,77 +1,37 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { useUser } from "../contexts/UserContext";
+import { useSupabase } from "../hooks/useSupabase";
+import { usePharmacyConfig } from "../hooks/usePharmacyConfig";
+import { useDocumentReminders } from "../hooks/useDocumentReminders";
+import {
+  getTrafficLight,
+  getTaskStatus,
+  getSafeguardingStatus,
+  DEFAULT_CLEANING_TASKS,
+  generateId,
+} from "../utils/helpers";
+import {
+  getTaskAssignee,
+  getRPAssignee,
+  getStaffInitials,
+  getStaffColor,
+} from "../utils/rotationManager";
 
 const fontLink = document.createElement("link");
 fontLink.rel = "stylesheet";
 fontLink.href = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap";
 document.head.appendChild(fontLink);
 
-// ── Data ───────────────────────────────────────────────────────────────────
-
-const STAFF_INITIALS = {
-  SS: { bg: "#6366f1", label: "Salma Shakoor" },
-  AS: { bg: "#059669", label: "Amjid Shakoor" },
-  JA: { bg: "#0ea5e9", label: "Jamila Adwan" },
-  MH: { bg: "#f59e0b", label: "Marian Hadaway" },
-  UK: { bg: "#8b5cf6", label: "Unknown" },
-};
-
-const SHIFT_TASKS = [
-  { id: 1, label: "Temperature Log", priority: "HIGH", category: "Cleaning", byTime: "09:00", assignee: "SS", section: "time", done: false },
-  { id: 2, label: "Daily RP Checks", priority: "HIGH", category: "RP Check", byTime: "10:00", assignee: "AS", section: "time", done: false },
-  { id: 3, label: "Dispensary Clean", priority: "MED", category: "Cleaning", assignee: "UK", section: "anytime", done: false },
-  { id: 4, label: "Counter & Surfaces Wipe", priority: "MED", category: "Cleaning", assignee: "SS", section: "anytime", done: false },
-];
-
-const WEEKLY_TASKS = [
-  { id: 5, label: "CD Register Balance Check", priority: "HIGH", category: "CD Check", assignee: "AS", done: false },
-  { id: 6, label: "Fridge Temperature Review", priority: "HIGH", category: "Cleaning", assignee: "JA", done: false },
-  { id: 7, label: "Near Miss Log Review", priority: "MED", category: "Compliance", assignee: "AS", done: false },
-  { id: 8, label: "Robot Dispenser Wipe-Down", priority: "MED", category: "Cleaning", assignee: "MH", done: false },
-  { id: 9, label: "Waste Disposal Check", priority: "LOW", category: "Waste", assignee: "MH", done: false },
-  { id: 10, label: "PPE Stock Check", priority: "MED", category: "H&S", assignee: "MH", done: false },
-];
-
-const FORTNIGHTLY_TASKS = [
-  { id: 11, label: "SOP Review Sign-off", priority: "HIGH", category: "Compliance", assignee: "AS", done: false },
-  { id: 12, label: "Sharps Bin Check", priority: "MED", category: "H&S", assignee: "MH", done: false },
-];
-
-const MONTHLY_TASKS = [
-  { id: 13, label: "Controlled Drug Audit", priority: "HIGH", category: "CD Check", assignee: "AS", done: false },
-  { id: 14, label: "Staff Training Records Review", priority: "MED", category: "Compliance", assignee: "AS", done: false },
-  { id: 15, label: "Complaint & Incident Summary", priority: "MED", category: "Compliance", assignee: "AS", done: false },
-];
-
-const COMPLIANCE_HEALTH = [
-  { key: "documents", label: "Documents", pct: 87, trend: "Stable", sub: "32 expiring", subColor: "#d97706", icon: "📄", detail: "4 expired · 28 due within 90 days", color: "#059669" },
-  { key: "training", label: "Training", pct: 68, trend: "Needs attention", sub: "483 modules outstanding", subColor: "#ef4444", icon: "📚", detail: "14 staff tracked — bulk import incomplete", color: "#047857" },
-  { key: "cleaning", label: "Cleaning", pct: 42, trend: "Needs attention", sub: "19 overdue tasks", subColor: "#ef4444", icon: "🧹", detail: "Daily & weekly rotas not being marked complete", color: "#f59e0b" },
-  { key: "safeguarding", label: "Safeguarding", pct: 100, trend: "All current", sub: "All current", subColor: "#059669", icon: "🛡️", detail: "All staff certificates valid", color: "#16a34a" },
-];
-
-const ALERTS = [
-  { level: "red", msg: "Training completion rate critically low — 483 modules outstanding", action: "Review Training" },
-  { level: "red", msg: "Cleaning at 42% — 19 tasks overdue across Daily & Weekly rota", action: "Review Cleaning" },
-  { level: "amber", msg: "32 documents expiring within 90 days", action: "View Documents" },
-  { level: "amber", msg: "No RP signed in — Daily RP Checks not started (0/5)", action: "Sign In as RP" },
-  { level: "yellow", msg: "Last GPhC inspection was 14 months ago — consider mock inspection", action: "View Report" },
-];
+// ── Static Data (no Supabase table) ──────────────────────────────────────
 
 const CD_ENTRIES = [
-  { drug: "Morphine Sulfate 10mg/5ml", form: "Oral Solution", balance: 1240, unit: "ml", lastCheck: "04/03/2026", checker: "AS", status: "ok" },
-  { drug: "Oxycodone 5mg", form: "Capsules", balance: 84, unit: "caps", lastCheck: "04/03/2026", checker: "AS", status: "ok" },
-  { drug: "Methadone 1mg/ml", form: "Oral Solution", balance: 2800, unit: "ml", lastCheck: "03/03/2026", checker: "AS", status: "due" },
-  { drug: "Diazepam 5mg", form: "Tablets", balance: 210, unit: "tabs", lastCheck: "04/03/2026", checker: "AS", status: "ok" },
-  { drug: "Buprenorphine 8mg", form: "Sublingual", balance: 16, unit: "tabs", lastCheck: "01/03/2026", checker: "AS", status: "overdue" },
+  { drug: "Morphine Sulfate 10mg/5ml", form: "Oral Solution", balance: 1240, unit: "ml", lastCheck: "04/03/2026", checker: "Amjid Shakoor", status: "ok" },
+  { drug: "Oxycodone 5mg", form: "Capsules", balance: 84, unit: "caps", lastCheck: "04/03/2026", checker: "Amjid Shakoor", status: "ok" },
+  { drug: "Methadone 1mg/ml", form: "Oral Solution", balance: 2800, unit: "ml", lastCheck: "03/03/2026", checker: "Amjid Shakoor", status: "due" },
+  { drug: "Diazepam 5mg", form: "Tablets", balance: 210, unit: "tabs", lastCheck: "04/03/2026", checker: "Amjid Shakoor", status: "ok" },
+  { drug: "Buprenorphine 8mg", form: "Sublingual", balance: 16, unit: "tabs", lastCheck: "01/03/2026", checker: "Amjid Shakoor", status: "overdue" },
 ];
-
-const EXPIRING_DOCS = [
-  { name: "Safeguarding Policy", days: 6, owner: "JA" },
-  { name: "CD SOP", days: 12, owner: "AS" },
-  { name: "Fire Risk Assessment", days: -5, owner: "AS" },
-  { name: "GPhC Registration", days: 45, owner: "AS" },
-  { name: "Waste Contract (Shred-it)", days: 60, owner: "MH" },
-].sort((a, b) => a.days - b.days);
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -82,11 +42,16 @@ function getGreeting() {
   return "Good evening";
 }
 
-function Avatar({ initials, size = 24 }) {
-  const cfg = STAFF_INITIALS[initials] || { bg: "#94a3b8", label: initials };
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function Avatar({ name, size = 24 }) {
+  const initials = getStaffInitials(name);
+  const bg = getStaffColor(name);
   return (
-    <div title={cfg.label} style={{
-      width: size, height: size, borderRadius: "50%", background: cfg.bg,
+    <div title={name || initials} style={{
+      width: size, height: size, borderRadius: "50%", background: bg,
       display: "flex", alignItems: "center", justifyContent: "center",
       fontSize: size * 0.36, fontWeight: 700, color: "#fff", flexShrink: 0,
     }}>{initials}</div>
@@ -161,9 +126,9 @@ function CardHeader({ gradient, icon, title, right }) {
 
 function TaskRow({ task, onToggle }) {
   return (
-    <div onClick={() => onToggle && onToggle(task.id)} style={{
+    <div onClick={() => onToggle && !task.done && onToggle(task.id)} style={{
       display: "flex", alignItems: "center", gap: 8, padding: "7px 10px",
-      borderRadius: 8, cursor: "pointer",
+      borderRadius: 8, cursor: task.done ? "default" : "pointer",
       background: task.done ? "#f0fdf4" : "white",
       border: `1px solid ${task.done ? "#6ee7b7" : "#e2e8f0"}`,
       marginBottom: 4, transition: "background 0.12s",
@@ -184,7 +149,7 @@ function TaskRow({ task, onToggle }) {
         <PriorityBadge level={task.priority} />
         <CategoryTag label={task.category} />
         {task.byTime && <span style={{ fontSize: 9, color: "#94a3b8", fontFamily: "'DM Mono', monospace" }}>⏱{task.byTime}</span>}
-        <Avatar initials={task.assignee} size={22} />
+        <Avatar name={task.assigneeName} size={22} />
       </div>
     </div>
   );
@@ -227,52 +192,283 @@ function ComplianceCard({ item, expanded, onToggle }) {
 // ── Dashboard ──────────────────────────────────────────────────────────────
 
 export default function Dashboard() {
-  const [shiftTasks, setShiftTasks] = useState(SHIFT_TASKS);
-  const [scheduleTasks, setScheduleTasks] = useState({ weekly: WEEKLY_TASKS, fortnightly: FORTNIGHTLY_TASKS, monthly: MONTHLY_TASKS });
-  const [openSection, setOpenSection] = useState("time");
+  const { user } = useUser();
+  const navigate = useNavigate();
+  const [pharmacyConfig, , configLoading] = usePharmacyConfig();
+
+  // ── Supabase subscriptions ──
+  const [documents, , docsLoading] = useSupabase("documents", []);
+  const [cleaningTasks, , tasksLoading] = useSupabase("cleaning_tasks", []);
+  const [cleaningEntries, setCleaningEntries, entriesLoading] = useSupabase("cleaning_entries", []);
+  const [staffTraining, , trainingLoading] = useSupabase("staff_training", []);
+  const [safeguardingRecords, , sgLoading] = useSupabase("safeguarding_records", []);
+  const [rpLog, , rpLoading] = useSupabase("rp_log", []);
+  const [actionItems, setActionItems, todosLoading] = useSupabase("action_items", []);
+
+  const { unreadCount } = useDocumentReminders(documents);
+
+  const [openSection, setOpenSection] = useState("daily");
   const [expandedCard, setExpandedCard] = useState(null);
-  const [rpSigned, setRpSigned] = useState(false);
-  const [todos, setTodos] = useState([]);
   const [todoInput, setTodoInput] = useState("");
   const [alertsDismissed, setAlertsDismissed] = useState(false);
   const [now, setNow] = useState(new Date());
 
   useEffect(() => { const t = setInterval(() => setNow(new Date()), 30000); return () => clearInterval(t); }, []);
 
+  const today = todayStr();
   const dateStr = now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   const timeStr = now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
 
-  const shiftDone = shiftTasks.filter(t => t.done).length;
-  const shiftTotal = shiftTasks.length;
-  const shiftPct = Math.round((shiftDone / shiftTotal) * 100);
+  const loading = docsLoading || tasksLoading || entriesLoading || trainingLoading || sgLoading || rpLoading || todosLoading || configLoading;
 
-  const toggleShift = (id) => setShiftTasks(ts => ts.map(t => t.id === id ? { ...t, done: !t.done } : t));
+  // ── RP status ──
+  const rpSigned = useMemo(() => {
+    return rpLog.some(e => e.date === today || e.signInTime?.startsWith(today));
+  }, [rpLog, today]);
 
-  const overallPct = Math.round(COMPLIANCE_HEALTH.reduce((s, i) => s + i.pct, 0) / COMPLIANCE_HEALTH.length);
-  const redAlerts = ALERTS.filter(a => a.level === "red").length;
+  // ── Compliance Health (computed from live data) ──
+  const complianceHealth = useMemo(() => {
+    // Documents: green count / total
+    const docTotal = documents.length || 1;
+    const docGreen = documents.filter(d => getTrafficLight(d.expiryDate) === "green").length;
+    const docPct = Math.round((docGreen / docTotal) * 100);
+    const expiredCount = documents.filter(d => getTrafficLight(d.expiryDate) === "red").length;
+    const amberCount = documents.filter(d => getTrafficLight(d.expiryDate) === "amber").length;
+
+    // Training: complete / total
+    const trainTotal = staffTraining.length || 1;
+    const trainComplete = staffTraining.filter(t => t.status === "Complete").length;
+    const trainPct = Math.round((trainComplete / trainTotal) * 100);
+    const trainOutstanding = trainTotal - trainComplete;
+
+    // Cleaning: done+upcoming / total tasks
+    const tasksToCheck = cleaningTasks.length > 0 ? cleaningTasks : DEFAULT_CLEANING_TASKS;
+    const cleanTotal = tasksToCheck.length || 1;
+    const cleanGood = tasksToCheck.filter(t => {
+      const status = getTaskStatus(t.name, t.frequency, cleaningEntries);
+      return status === "done" || status === "upcoming";
+    }).length;
+    const cleanPct = Math.round((cleanGood / cleanTotal) * 100);
+    const cleanOverdue = tasksToCheck.filter(t => getTaskStatus(t.name, t.frequency, cleaningEntries) === "overdue").length;
+
+    // Safeguarding: current / total
+    const sgTotal = safeguardingRecords.length || 1;
+    const sgCurrent = safeguardingRecords.filter(r => getSafeguardingStatus(r.trainingDate) === "current").length;
+    const sgPct = Math.round((sgCurrent / sgTotal) * 100);
+
+    return [
+      {
+        key: "documents", label: "Documents", pct: docPct, icon: "📄",
+        color: docPct >= 80 ? "#059669" : docPct >= 50 ? "#f59e0b" : "#ef4444",
+        trend: docPct >= 80 ? "Stable" : "Needs attention",
+        sub: expiredCount > 0 ? `${expiredCount} expired · ${amberCount} expiring` : amberCount > 0 ? `${amberCount} expiring soon` : "All current",
+        subColor: expiredCount > 0 ? "#ef4444" : amberCount > 0 ? "#d97706" : "#059669",
+        detail: `${docGreen} valid · ${amberCount} due within 30 days · ${expiredCount} expired`,
+      },
+      {
+        key: "training", label: "Training", pct: trainPct, icon: "📚",
+        color: trainPct >= 80 ? "#047857" : trainPct >= 50 ? "#f59e0b" : "#ef4444",
+        trend: trainPct >= 80 ? "On track" : "Needs attention",
+        sub: trainOutstanding > 0 ? `${trainOutstanding} modules outstanding` : "All complete",
+        subColor: trainOutstanding > 0 ? "#ef4444" : "#059669",
+        detail: `${trainComplete} complete · ${trainOutstanding} outstanding`,
+      },
+      {
+        key: "cleaning", label: "Cleaning", pct: cleanPct, icon: "🧹",
+        color: cleanPct >= 80 ? "#059669" : cleanPct >= 50 ? "#f59e0b" : "#ef4444",
+        trend: cleanPct >= 80 ? "On track" : "Needs attention",
+        sub: cleanOverdue > 0 ? `${cleanOverdue} overdue tasks` : "All on schedule",
+        subColor: cleanOverdue > 0 ? "#ef4444" : "#059669",
+        detail: `${cleanGood} on track · ${cleanOverdue} overdue`,
+      },
+      {
+        key: "safeguarding", label: "Safeguarding", pct: sgPct, icon: "🛡️",
+        color: sgPct >= 80 ? "#16a34a" : sgPct >= 50 ? "#f59e0b" : "#ef4444",
+        trend: sgPct === 100 ? "All current" : sgPct >= 80 ? "Mostly current" : "Needs attention",
+        sub: sgPct === 100 ? "All current" : `${sgTotal - sgCurrent} need renewal`,
+        subColor: sgPct === 100 ? "#059669" : "#ef4444",
+        detail: `${sgCurrent} current · ${sgTotal - sgCurrent} need renewal`,
+      },
+    ];
+  }, [documents, staffTraining, cleaningTasks, cleaningEntries, safeguardingRecords]);
+
+  // ── KPI Stats ──
+  const overallPct = useMemo(() =>
+    Math.round(complianceHealth.reduce((s, i) => s + i.pct, 0) / complianceHealth.length),
+    [complianceHealth]
+  );
+
+  const overdueCount = useMemo(() => {
+    const expiredDocs = documents.filter(d => getTrafficLight(d.expiryDate) === "red").length;
+    const tasksToCheck = cleaningTasks.length > 0 ? cleaningTasks : DEFAULT_CLEANING_TASKS;
+    const overdueCleaning = tasksToCheck.filter(t => getTaskStatus(t.name, t.frequency, cleaningEntries) === "overdue").length;
+    const overdueTraining = staffTraining.filter(t => t.status !== "Complete").length;
+    return expiredDocs + overdueCleaning + overdueTraining;
+  }, [documents, cleaningTasks, cleaningEntries, staffTraining]);
+
+  const dueTodayCount = useMemo(() => {
+    const tasksToCheck = cleaningTasks.length > 0 ? cleaningTasks : DEFAULT_CLEANING_TASKS;
+    return tasksToCheck.filter(t => getTaskStatus(t.name, t.frequency, cleaningEntries) === "due").length;
+  }, [cleaningTasks, cleaningEntries]);
+
+  // ── Alerts (dynamic) ──
+  const alerts = useMemo(() => {
+    const list = [];
+    const trainPct = complianceHealth.find(c => c.key === "training")?.pct ?? 100;
+    const cleanPct = complianceHealth.find(c => c.key === "cleaning")?.pct ?? 100;
+    const cleanOverdue = complianceHealth.find(c => c.key === "cleaning");
+    const expiringDocs = documents.filter(d => {
+      const tl = getTrafficLight(d.expiryDate);
+      return tl === "red" || tl === "amber";
+    }).length;
+
+    if (trainPct < 80) list.push({ level: "red", msg: `Training completion at ${trainPct}% — ${complianceHealth.find(c => c.key === "training")?.sub}`, action: "Review Training" });
+    if (cleanPct < 80) list.push({ level: "red", msg: `Cleaning at ${cleanPct}% — ${cleanOverdue?.sub}`, action: "Review Cleaning" });
+    if (expiringDocs > 0) list.push({ level: "amber", msg: `${expiringDocs} documents expired or expiring soon`, action: "View Documents" });
+    if (!rpSigned) list.push({ level: "amber", msg: "No RP signed in today", action: "Sign In as RP" });
+
+    return list;
+  }, [complianceHealth, documents, rpSigned]);
+
+  // ── Shift Checklist (from cleaning_tasks + cleaning_entries) ──
+  const shiftTaskGroups = useMemo(() => {
+    const tasks = cleaningTasks.length > 0 ? cleaningTasks : DEFAULT_CLEANING_TASKS;
+
+    // Group by frequency
+    const byFreq = { daily: [], weekly: [], fortnightly: [], monthly: [] };
+    tasks.forEach((t, idx) => {
+      const freq = t.frequency || "daily";
+      if (byFreq[freq]) {
+        const status = getTaskStatus(t.name, freq, cleaningEntries);
+        const assigneeName = getTaskAssignee(t.name, freq, byFreq[freq].length);
+        byFreq[freq].push({
+          id: t.id || `task-${freq}-${idx}`,
+          label: t.name,
+          priority: freq === "daily" ? "HIGH" : freq === "weekly" ? "MED" : "MED",
+          category: "Cleaning",
+          assigneeName,
+          done: status === "done",
+          frequency: freq,
+          taskName: t.name,
+        });
+      }
+    });
+
+    // Add synthetic RP Checks task to daily
+    byFreq.daily.unshift({
+      id: "rp-checks",
+      label: "Daily RP Checks",
+      priority: "HIGH",
+      category: "RP Check",
+      assigneeName: getRPAssignee(),
+      done: rpSigned,
+      byTime: "10:00",
+      sub: rpSigned ? "RP signed in — checks in progress" : "No RP signed in",
+      isRP: true,
+    });
+
+    return byFreq;
+  }, [cleaningTasks, cleaningEntries, rpSigned]);
+
+  const allShiftTasks = useMemo(() => [
+    ...shiftTaskGroups.daily, ...shiftTaskGroups.weekly,
+    ...shiftTaskGroups.fortnightly, ...shiftTaskGroups.monthly,
+  ], [shiftTaskGroups]);
+
+  const shiftDone = allShiftTasks.filter(t => t.done).length;
+  const shiftTotal = allShiftTasks.length;
+  const shiftPct = shiftTotal > 0 ? Math.round((shiftDone / shiftTotal) * 100) : 0;
+
+  // ── Toggle handler: creates cleaning_entry ──
+  function handleToggleTask(taskId) {
+    const allTasks = [...shiftTaskGroups.daily, ...shiftTaskGroups.weekly, ...shiftTaskGroups.fortnightly, ...shiftTaskGroups.monthly];
+    const task = allTasks.find(t => t.id === taskId);
+    if (!task || task.done || task.isRP) return;
+
+    const entry = {
+      id: generateId(),
+      taskName: task.taskName,
+      dateTime: new Date().toISOString().slice(0, 16),
+      staffMember: user?.name || "Unknown",
+      result: "Pass",
+      notes: "",
+      createdAt: new Date().toISOString(),
+    };
+    setCleaningEntries(prev => [...prev, entry]);
+  }
+
+  // ── Tabs ──
+  const TABS = useMemo(() => [
+    { key: "daily",       label: "Daily",        tasks: shiftTaskGroups.daily },
+    { key: "weekly",      label: "Weekly",        tasks: shiftTaskGroups.weekly },
+    { key: "fortnightly", label: "Fortnightly",   tasks: shiftTaskGroups.fortnightly },
+    { key: "monthly",     label: "Monthly",       tasks: shiftTaskGroups.monthly },
+  ], [shiftTaskGroups]);
+
+  // ── To Do handlers ──
+  function addTodo() {
+    if (!todoInput.trim()) return;
+    const item = {
+      id: generateId(),
+      title: todoInput.trim(),
+      completed: false,
+      createdAt: new Date().toISOString(),
+    };
+    setActionItems(prev => [...prev, item]);
+    setTodoInput("");
+  }
+
+  function toggleTodo(id) {
+    setActionItems(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
+  }
+
+  function deleteTodo(id) {
+    setActionItems(prev => prev.filter(t => t.id !== id));
+  }
+
+  // ── Expiring docs (computed from documents) ──
+  const expiringDocs = useMemo(() => {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    return documents
+      .filter(d => {
+        if (!d.expiryDate) return false;
+        const expiry = new Date(d.expiryDate + "T00:00:00");
+        const days = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
+        return days <= 90; // within 90 days or already expired
+      })
+      .map(d => {
+        const expiry = new Date(d.expiryDate + "T00:00:00");
+        const days = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
+        return { name: d.documentName, days, owner: d.owner || d.category || "" };
+      })
+      .sort((a, b) => a.days - b.days);
+  }, [documents]);
+
+  // ── CD stats ──
   const cdOverdue = CD_ENTRIES.filter(e => e.status === "overdue").length;
   const cdDue = CD_ENTRIES.filter(e => e.status === "due").length;
-  const totalOverdue = cdOverdue + 19;
-  const streakDays = shiftTasks.every(t => t.done) ? 1 : 0;
 
-  const TABS = [
-    { key: "time",        label: "Time-Sensitive",  tasks: shiftTasks.filter(t => t.section === "time") },
-    { key: "anytime",     label: "Anytime",          tasks: shiftTasks.filter(t => t.section === "anytime") },
-    { key: "weekly",      label: "Weekly",           tasks: scheduleTasks.weekly },
-    { key: "fortnightly", label: "Fortnightly",      tasks: scheduleTasks.fortnightly },
-    { key: "monthly",     label: "Monthly",          tasks: scheduleTasks.monthly },
-  ];
-
-  const SCHEDULE_KEYS = ["weekly", "fortnightly", "monthly"];
-  const safeToggleSchedule = (grp, id) => {
-    if (!SCHEDULE_KEYS.includes(grp)) return;
-    setScheduleTasks(prev => ({ ...prev, [grp]: prev[grp].map(t => t.id === id ? { ...t, done: !t.done } : t) }));
-  };
+  const redAlerts = alerts.filter(a => a.level === "red").length;
 
   const card = {
     background: "white", borderRadius: 12, padding: "14px 16px",
     border: "1px solid #d1fae5", boxShadow: "0 1px 4px rgba(5,150,105,0.06)",
   };
+
+  // ── Loading ──
+  if (loading) {
+    return (
+      <div style={{ fontFamily: "'DM Sans', sans-serif", background: "#f0faf4", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ textAlign: "center", color: "#6b7280" }}>
+          <div style={{ fontSize: 32, marginBottom: 8 }}>📊</div>
+          <div style={{ fontSize: 14, fontWeight: 600 }}>Loading Dashboard...</div>
+        </div>
+      </div>
+    );
+  }
+
+  const firstName = user?.name?.split(" ")[0] || "there";
 
   return (
     <div style={{ fontFamily: "'DM Sans', sans-serif", background: "#f0faf4", minHeight: "100vh" }}>
@@ -285,14 +481,14 @@ export default function Dashboard() {
         position: "sticky", top: 0, zIndex: 10,
       }}>
         <div>
-          <div style={{ fontSize: 17, fontWeight: 700, color: "white", letterSpacing: "-0.02em" }}>{getGreeting()}, Salma</div>
+          <div style={{ fontSize: 17, fontWeight: 700, color: "white", letterSpacing: "-0.02em" }}>{getGreeting()}, {firstName}</div>
           <div style={{ fontSize: 11, color: "rgba(255,255,255,0.55)" }}>{dateStr} · {timeStr}</div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           {[
             { label: "Overall", val: `${overallPct}%`, bg: "rgba(255,255,255,0.18)" },
-            { label: "Overdue", val: String(totalOverdue), bg: "#ef4444" },
-            { label: "Due Today", val: String(cdDue + 1), bg: "#f59e0b" },
+            { label: "Overdue", val: String(overdueCount), bg: overdueCount > 0 ? "#ef4444" : "rgba(255,255,255,0.18)" },
+            { label: "Due Today", val: String(dueTodayCount), bg: dueTodayCount > 0 ? "#f59e0b" : "rgba(255,255,255,0.18)" },
           ].map(k => (
             <div key={k.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "5px 12px", borderRadius: 9, background: k.bg }}>
               <span style={{ fontSize: 18, fontWeight: 800, color: "white", lineHeight: 1, fontFamily: "'DM Mono', monospace" }}>{k.val}</span>
@@ -301,9 +497,11 @@ export default function Dashboard() {
           ))}
           <div style={{ position: "relative", cursor: "pointer", padding: "5px 8px" }}>
             <span style={{ fontSize: 17 }}>🔔</span>
-            <div style={{ position: "absolute", top: 1, right: 3, width: 15, height: 15, borderRadius: "50%", background: "#ef4444", fontSize: 8, fontWeight: 700, color: "white", display: "flex", alignItems: "center", justifyContent: "center" }}>3</div>
+            {unreadCount > 0 && (
+              <div style={{ position: "absolute", top: 1, right: 3, width: 15, height: 15, borderRadius: "50%", background: "#ef4444", fontSize: 8, fontWeight: 700, color: "white", display: "flex", alignItems: "center", justifyContent: "center" }}>{unreadCount}</div>
+            )}
           </div>
-          <div style={{ padding: "4px 9px", borderRadius: 7, background: "rgba(255,255,255,0.18)", color: "white", fontSize: 11, fontWeight: 700, border: "1px solid rgba(255,255,255,0.3)" }}>FED07</div>
+          <div style={{ padding: "4px 9px", borderRadius: 7, background: "rgba(255,255,255,0.18)", color: "white", fontSize: 11, fontWeight: 700, border: "1px solid rgba(255,255,255,0.3)" }}>{pharmacyConfig.gphcNumber || "—"}</div>
         </div>
       </div>
 
@@ -318,37 +516,49 @@ export default function Dashboard() {
         }}>
           <div style={{ width: 8, height: 8, borderRadius: "50%", background: rpSigned ? "#059669" : "#ef4444", boxShadow: rpSigned ? "0 0 0 3px #a7f3d0" : "0 0 0 3px #fee2e2" }} />
           <div style={{ flex: 1, fontSize: 13, fontWeight: 500, color: rpSigned ? "#166534" : "#991b1b" }}>
-            {rpSigned ? "RP signed in — Amjid Shakoor" : "No RP signed in · Last: Amjid Shakoor"}
+            {rpSigned ? `RP signed in — ${getRPAssignee()}` : `No RP signed in · Last: ${getRPAssignee()}`}
           </div>
-          <button onClick={() => setRpSigned(!rpSigned)} style={{
-            padding: "6px 14px", borderRadius: 8, border: "none", cursor: "pointer",
-            background: rpSigned ? "#059669" : "#dc2626", color: "white",
-            fontSize: 12, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
-          }}>
-            {rpSigned ? "✓ Signed In" : "Sign In as RP →"}
-          </button>
+          {!rpSigned && (
+            <button onClick={() => navigate("/rp-log")} style={{
+              padding: "6px 14px", borderRadius: 8, border: "none", cursor: "pointer",
+              background: "#dc2626", color: "white",
+              fontSize: 12, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
+            }}>
+              Sign In as RP →
+            </button>
+          )}
+          {rpSigned && (
+            <span style={{
+              padding: "6px 14px", borderRadius: 8,
+              background: "#059669", color: "white",
+              fontSize: 12, fontWeight: 700,
+            }}>
+              ✓ Signed In
+            </span>
+          )}
         </div>
 
         {/* ── Collapsed Alert Banner ── */}
-        {!alertsDismissed && (
+        {!alertsDismissed && alerts.length > 0 && (
           <div style={{
             display: "flex", alignItems: "center", gap: 10, padding: "8px 14px",
             borderRadius: 10, marginBottom: 12,
-            background: "#fef2f2", border: "1px solid #fecaca",
+            background: redAlerts > 0 ? "#fef2f2" : "#fffbeb",
+            border: `1px solid ${redAlerts > 0 ? "#fecaca" : "#fde68a"}`,
           }}>
-            <span style={{ fontSize: 13 }}>🔴</span>
+            <span style={{ fontSize: 13 }}>{redAlerts > 0 ? "🔴" : "🟡"}</span>
             <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: "#991b1b" }}>
-                {redAlerts} critical · {ALERTS.length - redAlerts} warnings
+              <span style={{ fontSize: 12, fontWeight: 700, color: redAlerts > 0 ? "#991b1b" : "#92400e" }}>
+                {redAlerts > 0 ? `${redAlerts} critical` : ""}{redAlerts > 0 && alerts.length - redAlerts > 0 ? " · " : ""}{alerts.length - redAlerts > 0 ? `${alerts.length - redAlerts} warning${alerts.length - redAlerts !== 1 ? "s" : ""}` : ""}
               </span>
               <span style={{ fontSize: 11, color: "#b91c1c" }}>—</span>
-              {ALERTS.slice(0, 2).map((a, i) => (
+              {alerts.slice(0, 2).map((a, i) => (
                 <span key={i} style={{
                   fontSize: 10, fontWeight: 500, color: "#7f1d1d",
                   background: "#fee2e2", padding: "2px 8px", borderRadius: 20, border: "1px solid #fecaca",
                 }}>{a.msg.split("—")[0].trim()}</span>
               ))}
-              {ALERTS.length > 2 && <span style={{ fontSize: 10, color: "#b91c1c", fontWeight: 600 }}>+{ALERTS.length - 2} more</span>}
+              {alerts.length > 2 && <span style={{ fontSize: 10, color: "#b91c1c", fontWeight: 600 }}>+{alerts.length - 2} more</span>}
             </div>
             <button onClick={() => setAlertsDismissed(true)} style={{
               background: "none", border: "none", cursor: "pointer",
@@ -362,30 +572,30 @@ export default function Dashboard() {
           <CardHeader
             gradient="linear-gradient(90deg, #b45309, #d97706)"
             icon="✅" title="To Do"
-            right={todos.filter(t => !t.done).length > 0
-              ? <span style={{ fontSize: 10, fontFamily: "'DM Mono', monospace", background: "rgba(255,255,255,0.2)", padding: "1px 7px", borderRadius: 20 }}>{todos.filter(t => !t.done).length} remaining</span>
+            right={actionItems.filter(t => !t.completed).length > 0
+              ? <span style={{ fontSize: 10, fontFamily: "'DM Mono', monospace", background: "rgba(255,255,255,0.2)", padding: "1px 7px", borderRadius: 20 }}>{actionItems.filter(t => !t.completed).length} remaining</span>
               : null}
           />
-          <div style={{ display: "flex", gap: 6, marginBottom: todos.length ? 8 : 0 }}>
+          <div style={{ display: "flex", gap: 6, marginBottom: actionItems.length ? 8 : 0 }}>
             <input value={todoInput} onChange={e => setTodoInput(e.target.value)}
-              onKeyDown={e => { if (e.key === "Enter" && todoInput.trim()) { setTodos(ts => [...ts, { id: Date.now(), text: todoInput.trim(), done: false }]); setTodoInput(""); }}}
+              onKeyDown={e => { if (e.key === "Enter") addTodo(); }}
               placeholder="Add an action item and press Enter…"
               style={{ flex: 1, padding: "7px 12px", borderRadius: 8, fontSize: 12, border: "1px solid #d1fae5", outline: "none", fontFamily: "'DM Sans', sans-serif", background: "#f9fafb" }}
             />
-            <button onClick={() => { if (todoInput.trim()) { setTodos(ts => [...ts, { id: Date.now(), text: todoInput.trim(), done: false }]); setTodoInput(""); }}}
+            <button onClick={addTodo}
               style={{ padding: "7px 14px", borderRadius: 8, border: "none", cursor: "pointer", background: "#059669", color: "white", fontSize: 12, fontWeight: 600, fontFamily: "'DM Sans', sans-serif" }}>
               + Add
             </button>
           </div>
-          {todos.length === 0
+          {actionItems.length === 0
             ? <div style={{ fontSize: 11, color: "#9ca3af", textAlign: "center", padding: "8px 0", fontStyle: "italic" }}>Nothing here yet — add an action item above</div>
-            : todos.map(todo => (
-              <div key={todo.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", borderRadius: 8, marginBottom: 4, background: todo.done ? "#f0fdf4" : "#f9fafb", border: `1px solid ${todo.done ? "#6ee7b7" : "#e2e8f0"}` }}>
-                <div onClick={() => setTodos(ts => ts.map(t => t.id === todo.id ? { ...t, done: !t.done } : t))} style={{ width: 17, height: 17, borderRadius: 5, flexShrink: 0, cursor: "pointer", border: todo.done ? "none" : "2px solid #d1d5db", background: todo.done ? "#059669" : "white", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  {todo.done && <span style={{ color: "white", fontSize: 10, fontWeight: 700 }}>✓</span>}
+            : actionItems.map(todo => (
+              <div key={todo.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", borderRadius: 8, marginBottom: 4, background: todo.completed ? "#f0fdf4" : "#f9fafb", border: `1px solid ${todo.completed ? "#6ee7b7" : "#e2e8f0"}` }}>
+                <div onClick={() => toggleTodo(todo.id)} style={{ width: 17, height: 17, borderRadius: 5, flexShrink: 0, cursor: "pointer", border: todo.completed ? "none" : "2px solid #d1d5db", background: todo.completed ? "#059669" : "white", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  {todo.completed && <span style={{ color: "white", fontSize: 10, fontWeight: 700 }}>✓</span>}
                 </div>
-                <span style={{ flex: 1, fontSize: 12, color: todo.done ? "#6ee7b7" : "#1e293b", textDecoration: todo.done ? "line-through" : "none" }}>{todo.text}</span>
-                <button onClick={() => setTodos(ts => ts.filter(t => t.id !== todo.id))} style={{ background: "none", border: "none", cursor: "pointer", color: "#cbd5e1", fontSize: 15 }}>×</button>
+                <span style={{ flex: 1, fontSize: 12, color: todo.completed ? "#6ee7b7" : "#1e293b", textDecoration: todo.completed ? "line-through" : "none" }}>{todo.title}</span>
+                <button onClick={() => deleteTodo(todo.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#cbd5e1", fontSize: 15 }}>×</button>
               </div>
             ))
           }
@@ -397,7 +607,7 @@ export default function Dashboard() {
           {/* LEFT */}
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
 
-            {/* ── Shift Checklist (merged with schedule tabs) ── */}
+            {/* ── Shift Checklist ── */}
             <div style={{ ...card, overflow: "hidden" }}>
               <CardHeader
                 gradient="linear-gradient(90deg, #064e3b, #059669)"
@@ -439,21 +649,15 @@ export default function Dashboard() {
               {(() => {
                 const active = TABS.find(t => t.key === openSection);
                 if (!active) return null;
-                if (openSection === "time" || openSection === "anytime") {
-                  return active.tasks.map(t => {
-                    const enriched = t.id === 2
-                      ? { ...t, sub: rpSigned ? "RP signed in — checks in progress" : "0/5 RP checks complete — no RP signed in" }
-                      : t;
-                    return <TaskRow key={t.id} task={enriched} onToggle={toggleShift} />;
-                  });
-                }
-                return active.tasks.map(t => <TaskRow key={t.id} task={t} onToggle={(id) => safeToggleSchedule(openSection, id)} />);
+                return active.tasks.map(t => (
+                  <TaskRow key={t.id} task={t} onToggle={t.isRP ? () => navigate("/rp-log") : handleToggleTask} />
+                ));
               })()}
 
               <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid #d1fae5", fontSize: 10, color: "#6b7280", display: "flex", alignItems: "center", gap: 5 }}>
-                🔥 <span style={{ fontWeight: 500 }}>{streakDays} day{streakDays !== 1 ? "s" : ""} fully completed this week</span>
-                {streakDays === 0 && <span style={{ marginLeft: "auto", fontSize: 9, color: "#9ca3af" }}>Complete all tasks to build your streak</span>}
-                {streakDays > 0 && <span style={{ marginLeft: "auto", fontSize: 9, color: "#059669", fontWeight: 600 }}>Keep it up!</span>}
+                📋 <span style={{ fontWeight: 500 }}>{shiftDone}/{shiftTotal} tasks completed</span>
+                {shiftPct === 100 && <span style={{ marginLeft: "auto", fontSize: 9, color: "#059669", fontWeight: 600 }}>All done!</span>}
+                {shiftPct < 100 && <span style={{ marginLeft: "auto", fontSize: 9, color: "#9ca3af" }}>{shiftTotal - shiftDone} remaining</span>}
               </div>
             </div>
 
@@ -491,7 +695,7 @@ export default function Dashboard() {
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3, flexShrink: 0 }}>
                         <div style={{ fontSize: 9, color: "#94a3b8", fontFamily: "'DM Mono', monospace" }}>{e.lastCheck}</div>
-                        <Avatar initials={e.checker} size={20} />
+                        <Avatar name={e.checker} size={20} />
                       </div>
                     </div>
                   );
@@ -514,7 +718,7 @@ export default function Dashboard() {
                 right={<span style={{ fontSize: 13, fontWeight: 800, fontFamily: "'DM Mono', monospace" }}>{overallPct}% <span style={{ fontSize: 9, fontWeight: 400, opacity: 0.7 }}>overall</span></span>}
               />
               <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                {COMPLIANCE_HEALTH.map(item => (
+                {complianceHealth.map(item => (
                   <ComplianceCard key={item.key} item={item}
                     expanded={expandedCard === item.key}
                     onToggle={() => setExpandedCard(expandedCard === item.key ? null : item.key)}
@@ -530,25 +734,27 @@ export default function Dashboard() {
             {/* Expiring Soon */}
             <div style={{ ...card, overflow: "hidden" }}>
               <CardHeader gradient="linear-gradient(90deg, #166534, #16a34a)" icon="📅" title="Expiring Soon" />
-              {EXPIRING_DOCS.map((doc, i) => {
-                const r = doc.days < 0
-                  ? { bg: "#fef2f2", border: "#fecaca", text: "#dc2626", label: "EXPIRED", sublabel: `${Math.abs(doc.days)}d ago` }
-                  : doc.days <= 14
-                  ? { bg: "#fef2f2", border: "#fecaca", text: "#dc2626", label: `in ${doc.days}d`, sublabel: "Urgent" }
-                  : doc.days <= 30
-                  ? { bg: "#fffbeb", border: "#fde68a", text: "#d97706", label: `in ${doc.days}d`, sublabel: "Soon" }
-                  : { bg: "white", border: "#d1fae5", text: "#059669", label: `in ${doc.days}d`, sublabel: "OK" };
-                return (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 10px", borderRadius: 8, marginBottom: 4, background: r.bg, border: `1px solid ${r.border}` }}>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: "#1e293b" }}>{doc.name}</div>
-                      <div style={{ fontSize: 9, color: "#9ca3af", marginTop: 1 }}>{r.sublabel}</div>
+              {expiringDocs.length === 0
+                ? <div style={{ fontSize: 11, color: "#9ca3af", textAlign: "center", padding: "8px 0", fontStyle: "italic" }}>No documents expiring within 90 days</div>
+                : expiringDocs.map((doc, i) => {
+                  const r = doc.days < 0
+                    ? { bg: "#fef2f2", border: "#fecaca", text: "#dc2626", label: "EXPIRED", sublabel: `${Math.abs(doc.days)}d ago` }
+                    : doc.days <= 14
+                    ? { bg: "#fef2f2", border: "#fecaca", text: "#dc2626", label: `in ${doc.days}d`, sublabel: "Urgent" }
+                    : doc.days <= 30
+                    ? { bg: "#fffbeb", border: "#fde68a", text: "#d97706", label: `in ${doc.days}d`, sublabel: "Soon" }
+                    : { bg: "white", border: "#d1fae5", text: "#059669", label: `in ${doc.days}d`, sublabel: "OK" };
+                  return (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 10px", borderRadius: 8, marginBottom: 4, background: r.bg, border: `1px solid ${r.border}` }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 11, fontWeight: 600, color: "#1e293b" }}>{doc.name}</div>
+                        <div style={{ fontSize: 9, color: "#9ca3af", marginTop: 1 }}>{r.sublabel}</div>
+                      </div>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: r.text, fontFamily: "'DM Mono', monospace", minWidth: 54, textAlign: "right" }}>{r.label}</span>
                     </div>
-                    <Avatar initials={doc.owner} size={20} />
-                    <span style={{ fontSize: 10, fontWeight: 700, color: r.text, fontFamily: "'DM Mono', monospace", minWidth: 54, textAlign: "right" }}>{r.label}</span>
-                  </div>
-                );
-              })}
+                  );
+                })
+              }
             </div>
 
           </div>
