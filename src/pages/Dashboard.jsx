@@ -17,6 +17,10 @@ import {
   getStaffInitials,
   getStaffColor,
 } from "../utils/rotationManager";
+import DashCardHeader from "../components/DashCardHeader";
+import Avatar from "../components/Avatar";
+import PriorityBadge from "../components/PriorityBadge";
+import CategoryTag from "../components/CategoryTag";
 
 const fontLink = document.createElement("link");
 fontLink.rel = "stylesheet";
@@ -106,49 +110,6 @@ function todayStr() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function Avatar({ name, size = 24 }) {
-  const initials = getStaffInitials(name);
-  const bg = getStaffColor(name);
-  return (
-    <div title={name || initials} style={{
-      width: size, height: size, borderRadius: "50%", background: bg,
-      display: "flex", alignItems: "center", justifyContent: "center",
-      fontSize: size * 0.36, fontWeight: 700, color: "#fff", flexShrink: 0,
-    }}>{initials}</div>
-  );
-}
-
-function PriorityBadge({ level }) {
-  const cfg = {
-    HIGH: { bg: "#fef2f2", color: "#dc2626", border: "#fecaca" },
-    MED:  { bg: "#fffbeb", color: "#d97706", border: "#fde68a" },
-    LOW:  { bg: "#f0fdf4", color: "#16a34a", border: "#bbf7d0" },
-  }[level] || { bg: "#f8fafc", color: "#64748b", border: "#e2e8f0" };
-  return (
-    <span style={{
-      fontSize: 9, fontWeight: 700, padding: "1px 6px", borderRadius: 20,
-      background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`,
-      letterSpacing: "0.05em", fontFamily: "'DM Mono', monospace",
-    }}>{level}</span>
-  );
-}
-
-function CategoryTag({ label }) {
-  const cfg = {
-    "Cleaning":   { bg: "#eff6ff", color: "#2563eb", border: "#bfdbfe" },
-    "RP Check":   { bg: "#fdf4ff", color: "#9333ea", border: "#e9d5ff" },
-    "CD Check":   { bg: "#fff7ed", color: "#c2410c", border: "#fed7aa" },
-    "Compliance": { bg: "#f0fdf4", color: "#16a34a", border: "#bbf7d0" },
-    "H&S":        { bg: "#fef9c3", color: "#a16207", border: "#fde68a" },
-    "Waste":      { bg: "#f1f5f9", color: "#475569", border: "#cbd5e1" },
-  }[label] || { bg: "#f1f5f9", color: "#475569", border: "#e2e8f0" };
-  return (
-    <span style={{
-      fontSize: 9, fontWeight: 600, padding: "1px 7px", borderRadius: 20,
-      background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`,
-    }}>{label}</span>
-  );
-}
 
 function CircleProgress({ pct, color, size = 52 }) {
   const r = (size - 10) / 2;
@@ -170,19 +131,8 @@ function CircleProgress({ pct, color, size = 52 }) {
   );
 }
 
-function CardHeader({ gradient, icon, title, right }) {
-  return (
-    <div style={{
-      margin: "-14px -16px 12px", padding: "9px 16px",
-      background: gradient, display: "flex", alignItems: "center", justifyContent: "space-between",
-    }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 7, color: "white", fontSize: 13, fontWeight: 700 }}>
-        <span>{icon}</span>{title}
-      </div>
-      {right && <div style={{ color: "rgba(255,255,255,0.9)" }}>{right}</div>}
-    </div>
-  );
-}
+// CardHeader is now imported as DashCardHeader
+const CardHeader = DashCardHeader;
 
 function TaskRow({ task, onToggle }) {
   return (
