@@ -72,7 +72,7 @@
   --heading-font: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
   /* Emerald Command token variables — light */
   --ec-bg: #f0faf4;
-  --ec-sidebar: #d1fae5;
+  --ec-sidebar: #065f46;
   --ec-card: #ffffff;
   --ec-card-solid: #ffffff;
   --ec-card-hover: #f0fdf4;
@@ -95,6 +95,19 @@
   --ec-info: #4f46e5;
   --ec-info-light: #4338ca;
   --ec-z6: #6b7280;
+}
+
+/* ── Dark-green sidebar (always dark regardless of theme) ── */
+.ec-sidebar-dark {
+  --ec-t1: #ffffff;
+  --ec-t2: rgba(255,255,255,0.7);
+  --ec-t3: rgba(255,255,255,0.5);
+  --ec-t4: rgba(255,255,255,0.35);
+  --ec-z6: rgba(255,255,255,0.6);
+  --ec-card: rgba(255,255,255,0.08);
+  --ec-card-hover: rgba(255,255,255,0.06);
+  --ec-div: rgba(255,255,255,0.1);
+  --ec-border: rgba(255,255,255,0.1);
 }
 
 /* ── Dark theme (toggle) ── */

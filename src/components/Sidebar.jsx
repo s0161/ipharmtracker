@@ -93,7 +93,7 @@ export default function Sidebar({ open, onClose }) {
 
       <aside
         className={`fixed left-0 top-0 h-screen w-[220px] bg-ec-sidebar z-50 flex flex-col
-          border-r border-ec-div font-sans
+          border-r border-ec-div font-sans ec-sidebar-dark
           transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
           lg:translate-x-0 ${open ? 'translate-x-0 shadow-[8px_0_32px_rgba(5,150,105,0.1)]' : '-translate-x-full'}`}
       >
