@@ -6,7 +6,6 @@ import { downloadCsv } from '../utils/exportCsv'
 import { logAudit } from '../utils/auditLog'
 import { useUser } from '../contexts/UserContext'
 import SkeletonLoader from '../components/SkeletonLoader'
-import DashCardHeader from '../components/DashCardHeader'
 
 // ── Font injection ──
 if (!document.getElementById('rp-fonts')) {
@@ -45,40 +44,20 @@ const ALL_ITEMS = [...DAILY_ITEMS, ...WEEKLY_ITEMS, ...FORTNIGHTLY_ITEMS]
 // ── Shared styles ──
 const sans = { fontFamily: "'DM Sans', sans-serif" }
 const mono = { fontFamily: "'DM Mono', monospace" }
-const card = {
-  background: 'var(--bg-card)',
-  borderRadius: 12,
-  padding: '14px 16px',
-  border: '1px solid var(--border-card)',
-  boxShadow: 'var(--shadow-card)',
-  marginBottom: 12,
-}
-const inputStyle = {
-  ...sans,
-  width: '100%',
-  background: 'var(--input-bg)',
-  border: '1px solid var(--input-border)',
-  borderRadius: 8,
-  padding: '8px 12px',
-  fontSize: 12,
-  color: 'var(--text-primary)',
-  outline: 'none',
-  boxSizing: 'border-box',
-}
 
 const SvgCheck = ({ size = 10, color = 'white' }) => (
-  <svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8.5l3.5 3.5 6.5-7"/></svg>
+  <svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg>
 )
 
 const SvgCsv = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13">
-    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
   </svg>
 )
 
 const SvgPrint = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13">
-    <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+    <polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><rect x="6" y="14" width="12" height="8" />
   </svg>
 )
 
@@ -102,6 +81,13 @@ function setRpSign(data) {
 function clearRpSign() {
   localStorage.removeItem(RP_SIGN_KEY)
 }
+
+// ── Section config ──
+const SECTIONS = [
+  { key: 'daily', title: 'Daily Checks', items: DAILY_ITEMS, accent: '#059669', icon: '\uD83D\uDCCB' },
+  { key: 'weekly', title: 'Weekly Checks', items: WEEKLY_ITEMS, accent: '#0d9488', icon: '\uD83D\uDCC5' },
+  { key: 'fortnightly', title: 'Fortnightly Checks', items: FORTNIGHTLY_ITEMS, accent: '#3b82f6', icon: '\uD83D\uDDD3' },
+]
 
 export default function RPLog() {
   const { user } = useUser()
@@ -132,7 +118,6 @@ export default function RPLog() {
       setChecklist(existingEntry.checklist || {})
       setNotes(existingEntry.notes || '')
       setEditingId(existingEntry.id)
-      // Restore sign-in state from DB if localStorage is empty
       if (!rpSign && existingEntry.signInTime && !existingEntry.signOutTime && existingEntry.date === today) {
         const signDate = new Date(existingEntry.signInTime)
         const time = signDate.toTimeString().slice(0, 5)
@@ -208,7 +193,6 @@ export default function RPLog() {
     const data = { signedIn: true, time, rpName: rpName || defaultRp }
     setRpSign(data)
     setRpSignState(data)
-    // Persist sign-in time to Supabase rp_log entry for today
     const signInTime = now.toISOString()
     if (editingId) {
       setLogs(logs.map(l => (l.id === editingId ? { ...l, signInTime } : l)))
@@ -223,7 +207,6 @@ export default function RPLog() {
   const handleSignOut = () => {
     const now = new Date()
     const signOutTime = now.toISOString()
-    // Persist sign-out time to Supabase rp_log entry for today
     if (editingId) {
       setLogs(logs.map(l => (l.id === editingId ? { ...l, signOutTime } : l)))
     }
@@ -245,7 +228,6 @@ export default function RPLog() {
 
   const pctColor = pctComplete < 50 ? '#ef4444' : pctComplete < 80 ? '#f59e0b' : '#059669'
 
-  // Status pill
   const statusPill = totalChecked === ALL_ITEMS.length
     ? { label: '\u2713 Completed', bg: '#f0fdf4', color: '#059669', border: '#6ee7b7' }
     : totalChecked > 0
@@ -266,323 +248,340 @@ export default function RPLog() {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   })
 
-  const actionBtn = {
-    ...sans,
-    display: 'inline-flex', alignItems: 'center', gap: 5,
-    border: '1px solid var(--border-card)',
-    background: 'var(--bg-card)',
-    color: 'var(--text-secondary)',
-    borderRadius: 8, padding: '6px 14px', fontSize: 12,
-    cursor: 'pointer', fontWeight: 500,
-  }
-
-  // ── Checklist section renderer ──
-  const renderChecklistCard = (title, items, gradient, icon) => {
-    const done = checkedCount(items)
-    return (
-      <div style={card}>
-        <DashCardHeader
-          gradient={gradient}
-          icon={icon}
-          title={title}
-          right={<span style={{ ...mono, fontSize: 12, fontWeight: 600 }}>{done}/{items.length}</span>}
-        />
-        <div>
-          {items.map(item => {
-            const checked = !!checklist[item]
-            return (
-              <div
-                key={item}
-                onClick={() => toggleItem(item)}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 10,
-                  padding: '8px 12px', borderRadius: 8, marginBottom: 4,
-                  cursor: 'pointer', transition: 'background 0.12s',
-                  background: checked ? 'var(--task-done-bg)' : 'var(--bg-card)',
-                  border: `1px solid ${checked ? 'var(--task-done-border)' : 'var(--border-card)'}`,
-                }}
-              >
-                <div style={{
-                  width: 17, height: 17, borderRadius: 5, flexShrink: 0,
-                  border: checked ? 'none' : '2px solid #d1d5db',
-                  background: checked ? '#059669' : 'var(--bg-card)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  {checked && <span style={{ fontSize: 10, fontWeight: 700, color: 'white', lineHeight: 1 }}>{'\u2713'}</span>}
-                </div>
-                <span style={{
-                  ...sans, fontSize: 12, fontWeight: 500,
-                  color: checked ? '#6ee7b7' : 'var(--text-primary)',
-                  textDecoration: checked ? 'line-through' : 'none',
-                }}>{item}</span>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div style={{ ...sans }}>
+    <div style={sans} className="rp-log-page">
       {/* ── Page Header ── */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 6 }}>Dashboard / RP Log</div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 4 }}>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>RP Log</h1>
-          <span style={{ ...mono, fontSize: 13, color: 'var(--text-muted)' }}>{todayFormatted}</span>
+      <div className="mb-6">
+        <div className="text-xs text-ec-t3 mb-2">Dashboard / RP Log</div>
+        <div className="flex items-center justify-between flex-wrap gap-2 mb-1">
+          <h1 className="text-xl font-bold text-ec-t1 m-0">RP Log</h1>
+          <span style={mono} className="text-[13px] text-ec-t3">{todayFormatted}</span>
         </div>
-        <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '0 0 10px' }}>
+        <p className="text-xs text-ec-t3 m-0 mb-3">
           Daily Responsible Pharmacist checklist — GPhC compliance requirement.
         </p>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <span style={{
-            ...sans, display: 'inline-block', fontSize: 11, fontWeight: 600,
-            padding: '3px 10px', borderRadius: 20,
-            background: statusPill.bg, color: statusPill.color,
-            border: `1px solid ${statusPill.border}`,
-          }}>{statusPill.label}</span>
-          <div style={{ flex: 1 }} />
-          <button style={actionBtn} onClick={handleCsvDownload}><SvgCsv /> CSV</button>
-          <button style={actionBtn} onClick={() => window.print()}><SvgPrint /> Print</button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span
+            className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full"
+            style={{ background: statusPill.bg, color: statusPill.color, border: `1px solid ${statusPill.border}` }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: statusPill.color }} />
+            {statusPill.label}
+          </span>
+          <div className="flex-1" />
+          <button
+            onClick={handleCsvDownload}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border cursor-pointer bg-ec-card text-ec-t2 border-ec-div hover:border-ec-em transition-colors"
+            style={sans}
+          >
+            <SvgCsv /> CSV
+          </button>
+          <button
+            onClick={() => window.print()}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border cursor-pointer bg-ec-card text-ec-t2 border-ec-div hover:border-ec-em transition-colors"
+            style={sans}
+          >
+            <SvgPrint /> Print
+          </button>
         </div>
       </div>
 
       {/* ── Two-column layout ── */}
-      <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+      <div className="flex gap-5 items-start rp-columns">
 
         {/* ── Left column ── */}
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="flex-1 min-w-0">
 
           {/* RP Details Card */}
-          <div style={card}>
-            <DashCardHeader gradient="linear-gradient(90deg, #064e3b, #059669)" icon={'\u2695'} title="Today's RP" />
-            <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
-              <div style={{ flex: 1 }}>
-                <label style={{ ...sans, display: 'block', fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>Date</label>
+          <div className="rounded-xl p-4 mb-6" style={{ background: '#f0faf6', border: '1px solid #c6e8da' }}>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-base">⚕</span>
+              <span className="text-[13px] font-bold text-ec-t1 tracking-wide">Today's RP</span>
+            </div>
+            <div className="flex gap-3 mb-3">
+              <div className="flex-1">
+                <label className="block text-[10px] font-semibold text-ec-t2 mb-1 uppercase tracking-wider">Date</label>
                 <input
                   type="date"
                   value={selectedDate}
                   onChange={(e) => loadEntry(e.target.value)}
-                  style={{ ...inputStyle, ...mono }}
+                  className="w-full rounded-lg px-3 py-2 text-xs outline-none transition-all"
+                  style={{ ...mono, background: 'white', border: '1px solid #c6e8da', color: 'var(--text-primary)' }}
                 />
               </div>
-              <div style={{ flex: 1 }}>
-                <label style={{ ...sans, display: 'block', fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>Responsible Pharmacist</label>
-                <input
-                  type="text"
-                  value={rpName}
-                  readOnly
-                  style={{ ...inputStyle, cursor: 'default' }}
-                />
+              <div className="flex-1">
+                <label className="block text-[10px] font-semibold text-ec-t2 mb-1 uppercase tracking-wider">Responsible Pharmacist</label>
+                <div
+                  className="w-full rounded-lg px-3 py-2 text-xs"
+                  style={{ ...sans, background: 'white', border: '1px solid #c6e8da', color: 'var(--text-primary)', minHeight: 34, display: 'flex', alignItems: 'center' }}
+                >
+                  {rpName}
+                </div>
               </div>
             </div>
-            <p style={{ fontSize: 10, color: 'var(--text-muted)', fontStyle: 'italic', margin: '0 0 14px' }}>
+            <p className="text-[10px] text-ec-t3 italic m-0 mb-3">
               RP is auto-assigned based on rotation schedule
             </p>
 
             {/* Completion bar */}
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <span style={{ ...sans, fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>
+              <div className="flex justify-between items-center mb-1.5">
+                <span className="text-xs font-semibold text-ec-t1" style={sans}>
                   Completion: {totalChecked}/{ALL_ITEMS.length}
                 </span>
-                <span style={{ ...mono, fontSize: 12, fontWeight: 700, color: pctColor }}>
+                <span className="text-xs font-bold" style={{ ...mono, color: pctColor }}>
                   {pctComplete}%
                 </span>
               </div>
-              <div style={{ height: 8, borderRadius: 99, background: 'var(--border-card)', overflow: 'hidden' }}>
-                <div style={{
-                  height: '100%', borderRadius: 99,
-                  background: pctColor,
-                  width: `${pctComplete}%`,
-                  transition: 'width 0.4s',
-                }} />
+              <div className="h-2 rounded-full overflow-hidden" style={{ background: '#e2e8f0' }}>
+                <div
+                  className="h-full rounded-full transition-all duration-500 ease-out"
+                  style={{ background: pctColor, width: `${pctComplete}%` }}
+                />
               </div>
             </div>
           </div>
 
           {/* Checklist sections */}
-          {renderChecklistCard('Daily Checks', DAILY_ITEMS, 'linear-gradient(90deg, #064e3b, #059669)', '\uD83D\uDCCB')}
-          {renderChecklistCard('Weekly Checks', WEEKLY_ITEMS, 'linear-gradient(90deg, #0f766e, #14b8a6)', '\uD83D\uDCC5')}
-          {renderChecklistCard('Fortnightly Checks', FORTNIGHTLY_ITEMS, 'linear-gradient(90deg, #1e40af, #3b82f6)', '\uD83D\uDDD3')}
+          {SECTIONS.map(section => {
+            const done = checkedCount(section.items)
+            const allDone = done === section.items.length
+            return (
+              <div key={section.key} className="mb-6">
+                {/* Section header — soft left-border accent */}
+                <div className="flex items-center gap-2.5 mb-3 pl-3" style={{ borderLeft: `3px solid ${section.accent}` }}>
+                  <span className="text-sm">{section.icon}</span>
+                  <span className="text-[13px] font-semibold text-ec-t1 tracking-[0.06em] uppercase flex-1" style={sans}>
+                    {section.title}
+                  </span>
+                  <span
+                    className="text-[11px] font-bold px-2.5 py-0.5 rounded-full"
+                    style={{
+                      ...mono,
+                      background: allDone ? '#f0fdf4' : '#f1f5f9',
+                      color: allDone ? '#059669' : '#64748b',
+                      border: `1px solid ${allDone ? '#6ee7b7' : '#e2e8f0'}`,
+                    }}
+                  >
+                    {done}/{section.items.length}
+                  </span>
+                </div>
+
+                {/* Checklist items */}
+                <div className="flex flex-col gap-1.5">
+                  {section.items.map(item => {
+                    const checked = !!checklist[item]
+                    return (
+                      <div
+                        key={item}
+                        onClick={() => toggleItem(item)}
+                        className="flex items-center gap-3 px-4 py-3.5 rounded-lg cursor-pointer transition-all duration-150 rp-check-row"
+                        style={{
+                          background: checked ? '#f0faf6' : 'var(--bg-card)',
+                          border: `1px solid ${checked ? '#a7f3d0' : '#e8f5f0'}`,
+                        }}
+                      >
+                        {/* Circular checkbox */}
+                        <div
+                          className="w-[18px] h-[18px] rounded-full shrink-0 flex items-center justify-center transition-all duration-200"
+                          style={{
+                            border: checked ? 'none' : '2px solid #d1d5db',
+                            background: checked ? '#059669' : 'transparent',
+                            transitionTimingFunction: 'cubic-bezier(0.34,1.56,0.64,1)',
+                            transform: checked ? 'scale(1)' : 'scale(1)',
+                          }}
+                        >
+                          {checked && <SvgCheck size={10} />}
+                        </div>
+                        <span
+                          className="text-[14px] font-normal transition-all duration-200"
+                          style={{
+                            ...sans,
+                            color: checked ? '#6ee7b7' : 'var(--text-primary)',
+                            textDecoration: checked ? 'line-through' : 'none',
+                          }}
+                        >
+                          {item}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          })}
 
           {/* Notes Card */}
-          <div style={card}>
-            <DashCardHeader gradient="linear-gradient(90deg, #475569, #64748b)" icon={'\uD83D\uDCDD'} title="Notes" />
+          <div className="mb-6">
+            <div className="flex items-center gap-2.5 mb-3 pl-3" style={{ borderLeft: '3px solid #64748b' }}>
+              <span className="text-sm">{'\uD83D\uDCDD'}</span>
+              <span className="text-[13px] font-semibold text-ec-t1 tracking-[0.06em] uppercase" style={sans}>Notes</span>
+            </div>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Any issues, observations, or actions taken\u2026"
+              className="w-full rounded-lg px-4 py-3 text-sm outline-none resize-y transition-all duration-150"
               style={{
-                ...inputStyle,
+                ...sans,
                 minHeight: 80,
-                resize: 'vertical',
+                background: 'var(--bg-card)',
+                border: '1px solid #e8f5f0',
+                color: 'var(--text-primary)',
+                boxSizing: 'border-box',
               }}
             />
           </div>
         </div>
 
         {/* ── Right column ── */}
-        <div style={{ width: 280, flexShrink: 0 }}>
+        <div className="w-[280px] shrink-0 rp-sidebar">
 
           {/* RP Presence Card */}
-          <div style={card}>
-            <DashCardHeader gradient="linear-gradient(90deg, #064e3b, #059669)" icon={'\uD83D\uDD50'} title="RP Presence" />
-
-            {rpSign?.signedIn ? (
-              <div>
-                {/* Signed in state */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                  <div style={{
-                    width: 8, height: 8, borderRadius: '50%',
-                    background: '#059669', boxShadow: '0 0 0 3px #a7f3d0',
-                    animation: 'ecPulse 2s ease-in-out infinite',
-                  }} />
-                  <span style={{ ...sans, fontSize: 13, fontWeight: 500, color: '#166534' }}>
-                    Signed in — {rpSign.rpName || rpName}
-                  </span>
-                </div>
-                <div style={{ ...mono, fontSize: 10, color: 'var(--text-muted)', marginBottom: 6 }}>
-                  Signed in at {rpSign.time}
-                </div>
-                <div style={{ ...sans, fontSize: 12, fontWeight: 600, color: '#059669', marginBottom: 10 }}>
-                  On duty: {elapsed}
-                </div>
-
-                {/* 90-minute warning */}
-                {elapsedMin > 90 && (
-                  <div style={{
-                    background: '#fffbeb', border: '1px solid #fde68a',
-                    borderRadius: 8, padding: '8px 10px', marginBottom: 10,
-                    fontSize: 11, color: '#92400e', lineHeight: 1.4,
-                  }}>
-                    {'\u26A0'} RP has been on duty for over 90 minutes — log any absence periods
+          <div className="rounded-xl border overflow-hidden mb-5" style={{ borderColor: '#e8f5f0', background: 'var(--bg-card)' }}>
+            <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: '1px solid #e8f5f0' }}>
+              <span className="text-sm">{'\uD83D\uDD50'}</span>
+              <span className="text-[13px] font-bold text-ec-t1">RP Presence</span>
+            </div>
+            <div className="px-4 py-4">
+              {rpSign?.signedIn ? (
+                <div>
+                  <div className="flex items-center gap-2.5 mb-2.5">
+                    <div className="w-2 h-2 rounded-full shrink-0" style={{ background: '#059669', boxShadow: '0 0 0 3px #a7f3d0', animation: 'ecPulse 2s ease-in-out infinite' }} />
+                    <span className="text-[13px] font-medium" style={{ ...sans, color: '#166534' }}>
+                      Signed in — {rpSign.rpName || rpName}
+                    </span>
                   </div>
-                )}
+                  <div className="text-[10px] text-ec-t3 mb-1.5" style={mono}>
+                    Signed in at {rpSign.time}
+                  </div>
+                  <div className="text-xs font-semibold mb-3" style={{ ...sans, color: '#059669' }}>
+                    On duty: {elapsed}
+                  </div>
 
-                <button
-                  onClick={handleSignOut}
-                  style={{
-                    ...sans, width: '100%', padding: 8,
-                    background: '#dc2626', color: 'white',
-                    borderRadius: 8, border: 'none', fontSize: 13,
-                    fontWeight: 700, cursor: 'pointer',
-                  }}
-                >Sign Out</button>
-              </div>
-            ) : (
-              <div>
-                {/* Signed out state */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                  <div style={{
-                    width: 8, height: 8, borderRadius: '50%',
-                    background: '#ef4444', boxShadow: '0 0 0 3px #fee2e2',
-                    animation: 'ecPulse 2s ease-in-out infinite',
-                  }} />
-                  <span style={{ ...sans, fontSize: 13, fontWeight: 500, color: '#991b1b' }}>
-                    No RP signed in
-                  </span>
+                  {elapsedMin > 90 && (
+                    <div className="rounded-lg px-3 py-2 mb-3 text-[11px] leading-relaxed" style={{ background: '#fffbeb', border: '1px solid #fde68a', color: '#92400e' }}>
+                      {'\u26A0'} RP has been on duty for over 90 minutes — log any absence periods
+                    </div>
+                  )}
+
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full py-2.5 rounded-lg border-none text-[13px] font-bold cursor-pointer transition-colors"
+                    style={{ ...sans, background: '#dc2626', color: 'white' }}
+                  >
+                    Sign Out
+                  </button>
                 </div>
-                <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 10 }}>
-                  Last: {rpName || defaultRp}
+              ) : (
+                <div>
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <div className="w-2 h-2 rounded-full shrink-0" style={{ background: '#ef4444', boxShadow: '0 0 0 3px #fee2e2', animation: 'ecPulse 2s ease-in-out infinite' }} />
+                    <span className="text-[13px] font-medium" style={{ ...sans, color: '#991b1b' }}>
+                      No RP signed in
+                    </span>
+                  </div>
+                  <div className="text-[10px] text-ec-t3 mb-3">
+                    Last: {rpName || defaultRp}
+                  </div>
+                  <button
+                    onClick={handleSignIn}
+                    className="w-full py-2.5 rounded-lg border-none text-[13px] font-bold cursor-pointer flex items-center justify-center gap-2 transition-colors hover:opacity-90"
+                    style={{ ...sans, background: '#059669', color: 'white' }}
+                  >
+                    Sign In as RP <span className="text-base">{'\u2192'}</span>
+                  </button>
                 </div>
-                <button
-                  onClick={handleSignIn}
-                  style={{
-                    ...sans, width: '100%', padding: 8,
-                    background: '#059669', color: 'white',
-                    borderRadius: 8, border: 'none', fontSize: 13,
-                    fontWeight: 700, cursor: 'pointer',
-                  }}
-                >Sign In as RP {'\u2192'}</button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           {/* Recent Checklists Card */}
-          <div style={card}>
-            <DashCardHeader gradient="linear-gradient(90deg, #475569, #64748b)" icon={'\uD83D\uDDC2'} title="Recent Checklists" />
-            {recentLogs.length === 0 ? (
-              <p style={{ fontSize: 12, color: 'var(--text-muted)', fontStyle: 'italic', textAlign: 'center', padding: '16px 0' }}>
-                No previous checklists found.
-              </p>
-            ) : (
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr>
-                      {['Date', 'RP', 'Done', 'Notes'].map(h => (
-                        <th key={h} style={{
-                          ...sans, fontSize: 9, fontWeight: 600, color: 'var(--text-muted)',
-                          textAlign: 'left', padding: '4px 6px',
-                          borderBottom: '1px solid var(--border-card)',
-                          textTransform: 'uppercase', letterSpacing: 0.5,
-                        }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentLogs.map(log => {
-                      const c = log.checklist || {}
-                      const completed = ALL_ITEMS.filter(i => c[i]).length
-                      const pct = Math.round((completed / ALL_ITEMS.length) * 100)
-                      const isToday = log.date === today
-                      const pillColor = pct === 100 ? { bg: '#f0fdf4', color: '#059669', border: '#6ee7b7' }
-                        : pct > 0 ? { bg: '#fffbeb', color: '#d97706', border: '#fde68a' }
-                        : { bg: '#fef2f2', color: '#dc2626', border: '#fecaca' }
+          <div className="rounded-xl border overflow-hidden" style={{ borderColor: '#e8f5f0', background: 'var(--bg-card)' }}>
+            <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: '1px solid #e8f5f0' }}>
+              <span className="text-sm">{'\uD83D\uDDC2'}</span>
+              <span className="text-[13px] font-bold text-ec-t1">Recent Checklists</span>
+            </div>
+            <div className="px-4 py-3">
+              {recentLogs.length === 0 ? (
+                <p className="text-xs text-ec-t3 italic text-center py-4">
+                  No previous checklists found.
+                </p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full" style={{ borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr>
+                        {['Date', 'RP', 'Done', 'Notes'].map(h => (
+                          <th key={h} className="text-left text-[9px] font-semibold text-ec-t3 uppercase tracking-wider px-1.5 py-1.5" style={{ borderBottom: '1px solid #e8f5f0' }}>
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {recentLogs.map((log, i) => {
+                        const c = log.checklist || {}
+                        const completed = ALL_ITEMS.filter(item => c[item]).length
+                        const pct = Math.round((completed / ALL_ITEMS.length) * 100)
+                        const isToday = log.date === today
+                        const pillColor = pct === 100
+                          ? { bg: '#f0fdf4', color: '#059669', border: '#6ee7b7' }
+                          : pct > 0
+                          ? { bg: '#fffbeb', color: '#d97706', border: '#fde68a' }
+                          : { bg: '#fef2f2', color: '#dc2626', border: '#fecaca' }
 
-                      return (
-                        <tr
-                          key={log.id}
-                          onClick={() => loadEntry(log.date)}
-                          style={{
-                            cursor: 'pointer',
-                            background: isToday ? 'var(--task-done-bg)' : 'transparent',
-                            fontWeight: isToday ? 600 : 400,
-                          }}
-                        >
-                          <td style={{ ...mono, fontSize: 11, padding: '6px', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-card)' }}>
-                            {formatDate(log.date)}
-                          </td>
-                          <td style={{ ...sans, fontSize: 11, padding: '6px', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-card)', maxWidth: 60, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {(log.rpName || '').split(' ')[0]}
-                          </td>
-                          <td style={{ padding: '6px', borderBottom: '1px solid var(--border-card)' }}>
-                            <span style={{
-                              ...mono, display: 'inline-block', fontSize: 10, fontWeight: 600,
-                              padding: '1px 6px', borderRadius: 20,
-                              background: pillColor.bg, color: pillColor.color,
-                              border: `1px solid ${pillColor.border}`,
-                            }}>{completed}/{ALL_ITEMS.length}</span>
-                          </td>
-                          <td style={{
-                            ...sans, fontSize: 10, padding: '6px',
-                            color: 'var(--text-muted)',
-                            borderBottom: '1px solid var(--border-card)',
-                            maxWidth: 80, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                          }}>
-                            {(log.notes || '').slice(0, 30) || '\u2014'}
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                        return (
+                          <tr
+                            key={log.id}
+                            onClick={() => loadEntry(log.date)}
+                            className="cursor-pointer transition-colors hover:bg-ec-card"
+                            style={{
+                              background: i % 2 === 1 ? '#f9fffe' : 'transparent',
+                              fontWeight: isToday ? 600 : 400,
+                            }}
+                          >
+                            <td className="py-2 px-1.5 text-[11px] text-ec-t1" style={{ ...mono, borderBottom: '1px solid #f0fdf4' }}>
+                              {formatDate(log.date)}
+                            </td>
+                            <td className="py-2 px-1.5 text-[11px] text-ec-t2 max-w-[60px] overflow-hidden text-ellipsis whitespace-nowrap" style={{ ...sans, borderBottom: '1px solid #f0fdf4' }}>
+                              {(log.rpName || '').split(' ')[0]}
+                            </td>
+                            <td className="py-2 px-1.5" style={{ borderBottom: '1px solid #f0fdf4' }}>
+                              <span
+                                className="inline-block text-[10px] font-semibold px-1.5 py-px rounded-full"
+                                style={{ ...mono, background: pillColor.bg, color: pillColor.color, border: `1px solid ${pillColor.border}` }}
+                              >
+                                {completed}/{ALL_ITEMS.length}
+                              </span>
+                            </td>
+                            <td className="py-2 px-1.5 text-[10px] text-ec-t3 max-w-[80px] overflow-hidden text-ellipsis whitespace-nowrap" style={{ ...sans, borderBottom: '1px solid #f0fdf4' }}>
+                              {(log.notes || '').slice(0, 30) || '\u2014'}
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ── Responsive: stack columns on mobile ── */}
+      {/* ── Responsive ── */}
       <style>{`
+        .rp-check-row:hover {
+          border-color: #10b981 !important;
+          box-shadow: 0 1px 4px rgba(16,185,129,0.1);
+        }
         @media (max-width: 768px) {
-          div[style*="width: 280px"] {
-            width: 100% !important;
-          }
-          div[style*="display: flex"][style*="gap: 16px"][style*="align-items: flex-start"] {
+          .rp-columns {
             flex-direction: column !important;
+          }
+          .rp-sidebar {
+            width: 100% !important;
           }
         }
       `}</style>
