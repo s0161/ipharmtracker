@@ -7768,3 +7768,42 @@ select.input {
   /* Headings */
   h1, h2, h3 { color: #0f172a !important; page-break-after: avoid; }
 }
+
+/* ── MyTasks animations ── */
+@keyframes taskCheckFill {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+.task-check-fill {
+  animation: taskCheckFill 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes taskCheckDraw {
+  0% { stroke-dashoffset: 20; opacity: 0; }
+  100% { stroke-dashoffset: 0; opacity: 1; }
+}
+.task-check-draw path {
+  stroke-dasharray: 20;
+  animation: taskCheckDraw 150ms ease-out forwards;
+}
+
+@keyframes taskRipple {
+  0% { opacity: 0.6; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.5); }
+}
+.task-ripple {
+  animation: taskRipple 400ms ease-out forwards;
+}
+
+@keyframes taskRowFade {
+  0% { opacity: 1; }
+  100% { opacity: 0.55; }
+}
+.task-row-done {
+  animation: taskRowFade 300ms ease-out forwards;
+}
+
+/* Hide scrollbar for filter bar horizontal scroll */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

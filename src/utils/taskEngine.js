@@ -210,3 +210,42 @@ export const ROLE_LABELS = {
 }
 
 export const ALL_ROLES = Object.keys(ROLE_LABELS)
+
+/**
+ * Group tasks by urgency: overdue → dueToday → upcoming → completed.
+ * Overdue sorted oldest-first, dueToday by priority, completed by most-recent.
+ */
+export function getTasksByUrgency(tasks) {
+  const today = new Date().toISOString().slice(0, 10)
+  const overdue = []
+  const dueToday = []
+  const upcoming = []
+  const completed = []
+
+  for (const task of tasks) {
+    if (task.status === 'done') {
+      completed.push(task)
+    } else if (task.dueDate && task.dueDate < today) {
+      overdue.push(task)
+    } else if (task.dueDate === today) {
+      dueToday.push(task)
+    } else {
+      upcoming.push(task)
+    }
+  }
+
+  // Overdue: oldest first
+  overdue.sort((a, b) => (a.dueDate || '').localeCompare(b.dueDate || ''))
+
+  // Due today: by priority (urgent > high > normal > low)
+  const priIdx = { urgent: 0, high: 1, normal: 2, low: 3 }
+  dueToday.sort((a, b) => (priIdx[a.priority] ?? 2) - (priIdx[b.priority] ?? 2))
+
+  // Upcoming: earliest due first
+  upcoming.sort((a, b) => (a.dueDate || '9').localeCompare(b.dueDate || '9'))
+
+  // Completed: most recent first
+  completed.sort((a, b) => (b.completedAt || '').localeCompare(a.completedAt || ''))
+
+  return { overdue, dueToday, upcoming, completed }
+}
