@@ -1,7 +1,8 @@
 /*
-  Training Logs — Full training manager
-  Records completed training, tracks compliance (expiring/overdue certs),
-  and supports scheduling future training via future-dated entries.
+  Training & Competency — Full training management system
+  Matrix view (staff × training items), personal records, expiring alerts,
+  and training library. Uses training_logs table for records, hardcoded
+  TRAINING_ITEMS for the required curriculum.
 
   Supabase table: training_logs
   Fields: id, staff_name, date_completed, topic, trainer_name,
@@ -9,11 +10,11 @@
           renewal_date, notes, created_at
 */
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useRef } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
 import { useUser } from '../contexts/UserContext'
 import { logAudit } from '../utils/auditLog'
-import { generateId, formatDate, getTrafficLight } from '../utils/helpers'
+import { generateId, formatDate } from '../utils/helpers'
 import { isElevatedRole } from '../utils/taskEngine'
 import { useToast } from '../components/Toast'
 import { useConfirm } from '../components/ConfirmDialog'
@@ -21,7 +22,6 @@ import { downloadCsv } from '../utils/exportCsv'
 import Modal from '../components/Modal'
 import EmptyState from '../components/EmptyState'
 import SkeletonLoader from '../components/SkeletonLoader'
-import PageActions from '../components/PageActions'
 
 // ── Font injection ──
 if (!document.getElementById('tl-fonts')) {
@@ -34,58 +34,109 @@ if (!document.getElementById('tl-fonts')) {
 
 const sans = { fontFamily: "'DM Sans', sans-serif" }
 const mono = { fontFamily: "'DM Mono', monospace" }
-const card = {
-  background: 'var(--bg-card)', borderRadius: 12,
-  padding: '14px 16px', border: '1px solid var(--border-card)',
-  boxShadow: 'var(--shadow-card)', marginBottom: 12,
-}
-const selectStyle = {
-  fontSize: 11, padding: '4px 8px', borderRadius: 6,
-  border: '1px solid var(--border-card)', background: 'var(--bg-card)',
-  color: 'var(--text-secondary)', outline: 'none', cursor: 'pointer',
-  ...sans,
+
+// ═══════════════════════════════════════════════════════════
+//  TRAINING ITEMS — Master curriculum (19 items, 4 categories)
+// ═══════════════════════════════════════════════════════════
+const TRAINING_ITEMS = [
+  // MANDATORY
+  { id: 'safeguarding-adults', name: 'Safeguarding Adults — Level 1', category: 'mandatory', requiredRoles: ['all'], renewalMonths: 24, evidenceRequired: true, isMandatory: true },
+  { id: 'safeguarding-children', name: 'Safeguarding Children — Level 1', category: 'mandatory', requiredRoles: ['all'], renewalMonths: 24, evidenceRequired: true, isMandatory: true },
+  { id: 'gdpr', name: 'Information Governance / GDPR', category: 'mandatory', requiredRoles: ['all'], renewalMonths: 12, evidenceRequired: true, isMandatory: true },
+  { id: 'fire-safety', name: 'Fire Safety Awareness', category: 'mandatory', requiredRoles: ['all'], renewalMonths: 12, evidenceRequired: true, isMandatory: true },
+  { id: 'health-safety', name: 'Health & Safety Induction', category: 'mandatory', requiredRoles: ['all'], renewalMonths: null, evidenceRequired: true, isMandatory: true },
+  { id: 'lone-working', name: 'Lone Working Awareness', category: 'mandatory', requiredRoles: ['all'], renewalMonths: 12, evidenceRequired: false, isMandatory: true },
+  { id: 'equality-diversity', name: 'Equality & Diversity', category: 'mandatory', requiredRoles: ['all'], renewalMonths: 24, evidenceRequired: true, isMandatory: true },
+
+  // DISPENSING
+  { id: 'dispensing-accuracy', name: 'Dispensing Accuracy Checks', category: 'dispensing', requiredRoles: ['superintendent', 'pharmacist', 'technician', 'dispenser'], renewalMonths: 12, evidenceRequired: true, isMandatory: true },
+  { id: 'cd-handling', name: 'Controlled Drugs Handling', category: 'dispensing', requiredRoles: ['superintendent', 'pharmacist', 'technician', 'dispenser'], renewalMonths: 12, evidenceRequired: true, isMandatory: true },
+  { id: 'near-miss', name: 'Near Miss & Incident Reporting', category: 'dispensing', requiredRoles: ['all'], renewalMonths: 12, evidenceRequired: false, isMandatory: true },
+  { id: 'prescription-validation', name: 'Prescription Validation', category: 'dispensing', requiredRoles: ['superintendent', 'pharmacist', 'technician'], renewalMonths: 12, evidenceRequired: true, isMandatory: true },
+  { id: 'mds-blister', name: 'MDS / Blister Pack Preparation', category: 'dispensing', requiredRoles: ['technician', 'dispenser'], renewalMonths: 12, evidenceRequired: true, isMandatory: false },
+  { id: 'methadone', name: 'Methadone / Supervised Consumption', category: 'dispensing', requiredRoles: ['superintendent', 'pharmacist', 'technician'], renewalMonths: 12, evidenceRequired: true, isMandatory: false },
+
+  // ADMIN
+  { id: 'gdpr-admin', name: 'GDPR for Administrative Staff', category: 'admin', requiredRoles: ['manager'], renewalMonths: 12, evidenceRequired: true, isMandatory: true },
+  { id: 'complaints', name: 'Complaints Handling Procedure', category: 'admin', requiredRoles: ['superintendent', 'manager', 'pharmacist'], renewalMonths: 12, evidenceRequired: false, isMandatory: true },
+  { id: 'confidential-waste', name: 'Confidential Waste Procedure', category: 'admin', requiredRoles: ['superintendent', 'manager', 'technician'], renewalMonths: 12, evidenceRequired: false, isMandatory: true },
+
+  // SUPERINTENDENT
+  { id: 'gphc-cpd', name: 'GPhC CPD Requirements', category: 'superintendent', requiredRoles: ['superintendent', 'pharmacist'], renewalMonths: 12, evidenceRequired: true, isMandatory: true },
+  { id: 'rp-obligations', name: 'Responsible Pharmacist Obligations', category: 'superintendent', requiredRoles: ['superintendent', 'pharmacist'], renewalMonths: 12, evidenceRequired: true, isMandatory: true },
+  { id: 'clinical-governance', name: 'Clinical Governance Updates', category: 'superintendent', requiredRoles: ['superintendent', 'pharmacist'], renewalMonths: 12, evidenceRequired: true, isMandatory: true },
+]
+
+const CATEGORIES = [
+  { key: 'mandatory', label: 'Mandatory', accent: '#10b981', icon: '🛡️' },
+  { key: 'dispensing', label: 'Dispensing', accent: '#3b82f6', icon: '💊' },
+  { key: 'admin', label: 'Administrative', accent: '#8b5cf6', icon: '📋' },
+  { key: 'superintendent', label: 'Superintendent', accent: '#f59e0b', icon: '⚕️' },
+]
+
+const STATUS_CONFIG = {
+  complete:    { bg: '#f0fdf4', color: '#059669', border: '#6ee7b7', label: 'Complete', shortLabel: '✓' },
+  expiring:    { bg: '#fffbeb', color: '#d97706', border: '#fde68a', label: 'Expiring', shortLabel: 'DUE' },
+  expired:     { bg: '#fef2f2', color: '#ef4444', border: '#fca5a5', label: 'Overdue', shortLabel: 'OVR' },
+  in_progress: { bg: '#eff6ff', color: '#2563eb', border: '#bfdbfe', label: 'In Progress', shortLabel: '◐' },
+  not_started: { bg: '#f9fafb', color: '#9ca3af', border: '#e5e7eb', label: 'Not Started', shortLabel: '—' },
+  na:          { bg: 'transparent', color: '#d1d5db', border: 'transparent', label: 'N/A', shortLabel: 'N/A' },
 }
 
 const DELIVERY_METHODS = ['Classroom', 'Online', 'On-the-job', 'Self-study']
 const OUTCOMES = ['Pass', 'Attended', 'Certificate Issued']
-const STATUS_FILTERS = ['All', 'Completed', 'Scheduled', 'Expiring', 'Expired']
 
-// ── Helpers ──
-function getToday() {
-  return new Date().toISOString().slice(0, 10)
-}
+// ═══════════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════════
+function getToday() { return new Date().toISOString().slice(0, 10) }
 
 function daysUntil(dateStr) {
   if (!dateStr) return null
-  const now = new Date()
-  now.setHours(0, 0, 0, 0)
-  const target = new Date(dateStr + 'T00:00:00')
-  return Math.ceil((target - now) / (1000 * 60 * 60 * 24))
+  const now = new Date(); now.setHours(0, 0, 0, 0)
+  return Math.ceil((new Date(dateStr + 'T00:00:00') - now) / 86400000)
+}
+
+function roleMatchesItem(role, item) {
+  if (!role) return false
+  if (item.requiredRoles.includes('all')) return true
+  return item.requiredRoles.includes(role)
+}
+
+function findLatestRecord(logs, staffName, itemName) {
+  return logs
+    .filter(r => r.staffName === staffName && r.topic === itemName)
+    .sort((a, b) => (b.dateCompleted || '').localeCompare(a.dateCompleted || ''))
+    [0] || null
 }
 
 function deriveStatus(record) {
-  const today = getToday()
-  // Future date with no outcome = scheduled
-  if (record.dateCompleted > today && (!record.outcome || record.outcome === '')) {
-    return 'scheduled'
+  if (!record) return 'not_started'
+  if (record.outcome && ['Pass', 'Attended', 'Certificate Issued'].includes(record.outcome)) {
+    if (record.certificateExpiry) {
+      const days = daysUntil(record.certificateExpiry)
+      if (days !== null && days < 0) return 'expired'
+      if (days !== null && days <= 30) return 'expiring'
+    }
+    return 'complete'
   }
-  // Has cert expiry
-  if (record.certificateExpiry) {
-    const days = daysUntil(record.certificateExpiry)
-    if (days !== null && days < 0) return 'expired'
-    if (days !== null && days <= 30) return 'expiring'
-  }
-  return 'completed'
+  if (record.dateCompleted) return 'in_progress'
+  return 'not_started'
 }
 
-const STATUS_STYLES = {
-  completed:  { bg: '#f0fdf4', color: '#059669', border: '#6ee7b7', label: 'Completed' },
-  scheduled:  { bg: '#eff6ff', color: '#2563eb', border: '#bfdbfe', label: 'Scheduled' },
-  expiring:   { bg: '#fffbeb', color: '#d97706', border: '#fde68a', label: 'Expiring' },
-  expired:    { bg: '#fef2f2', color: '#ef4444', border: '#fca5a5', label: 'Expired' },
+function shortYear(dateStr) {
+  if (!dateStr) return ''
+  return "'" + dateStr.slice(2, 4)
 }
 
-// ── Section Header (left-border accent) ──
+function getInitials(name) {
+  return (name || '').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SUB-COMPONENTS
+// ═══════════════════════════════════════════════════════════
+
 function SectionHeader({ accent, icon, title, right }) {
   return (
     <div style={{
@@ -103,160 +154,308 @@ function SectionHeader({ accent, icon, title, right }) {
   )
 }
 
-// ── Status Pill ──
-function StatusPill({ status }) {
-  const s = STATUS_STYLES[status] || STATUS_STYLES.completed
+function StatCard({ icon, label, value, total, accent, showBar, onClick, active }) {
+  const pct = total ? Math.round((value / total) * 100) : 0
   return (
-    <span style={{
-      fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 20,
-      background: s.bg, color: s.color, border: `1px solid ${s.border}`,
-      whiteSpace: 'nowrap',
-    }}>
-      {s.label}
-    </span>
-  )
-}
-
-// ── Expiry indicator ──
-function ExpiryBadge({ dateStr }) {
-  if (!dateStr) return <span style={{ color: 'var(--text-muted)', fontSize: 11 }}>—</span>
-  const days = daysUntil(dateStr)
-  const light = days < 0 ? 'red' : days <= 30 ? 'amber' : 'green'
-  const colors = {
-    red:   { bg: '#fef2f2', color: '#ef4444', border: '#fca5a5' },
-    amber: { bg: '#fffbeb', color: '#d97706', border: '#fde68a' },
-    green: { bg: '#f0fdf4', color: '#059669', border: '#6ee7b7' },
-  }
-  const c = colors[light]
-  const label = days < 0 ? `${Math.abs(days)}d overdue` : days === 0 ? 'Today' : days <= 30 ? `${days}d left` : formatDate(dateStr)
-  return (
-    <span style={{
-      fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 20,
-      background: c.bg, color: c.color, border: `1px solid ${c.border}`,
-      whiteSpace: 'nowrap',
-    }}>
-      {label}
-    </span>
-  )
-}
-
-// ── Stat Card ──
-function StatCard({ icon, label, value, accent }) {
-  return (
-    <div style={{
-      ...card,
-      display: 'flex', alignItems: 'center', gap: 10,
-      borderLeft: `3px solid ${accent}`, minWidth: 130,
-    }}>
-      <span style={{ fontSize: 18 }}>{icon}</span>
-      <div>
-        <div style={{ ...mono, fontSize: 20, fontWeight: 700, color: accent, lineHeight: 1 }}>{value}</div>
-        <div style={{ ...sans, fontSize: 10, color: 'var(--text-muted)', marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 600 }}>{label}</div>
+    <div
+      onClick={onClick}
+      style={{
+        background: active ? `${accent}10` : '#ffffff',
+        borderRadius: 12, padding: '14px 16px',
+        border: `1px solid ${active ? accent : '#e8f5f0'}`,
+        cursor: onClick ? 'pointer' : 'default',
+        transition: 'all 150ms',
+        minWidth: 0,
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: showBar ? 8 : 0 }}>
+        <span style={{ fontSize: 18 }}>{icon}</span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ ...mono, fontSize: 22, fontWeight: 700, color: accent, lineHeight: 1 }}>
+            {total !== undefined ? `${value} / ${total}` : value}
+          </div>
+          <div style={{ ...sans, fontSize: 10, color: '#6b7280', marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
+        </div>
       </div>
+      {showBar && (
+        <div style={{ height: 6, borderRadius: 3, background: '#e5e7eb', overflow: 'hidden' }}>
+          <div style={{
+            height: '100%', borderRadius: 3, background: accent,
+            width: `${pct}%`, transition: 'width 600ms ease',
+          }} />
+        </div>
+      )}
     </div>
   )
 }
 
-// ══════════════════════════════════════════════
+function StatusPill({ status, compact }) {
+  const s = STATUS_CONFIG[status] || STATUS_CONFIG.not_started
+  return (
+    <span style={{
+      ...sans, fontSize: compact ? 9 : 10, fontWeight: 600,
+      padding: compact ? '1px 5px' : '2px 7px', borderRadius: 20,
+      background: s.bg, color: s.color, border: `1px solid ${s.border}`,
+      whiteSpace: 'nowrap', display: 'inline-block',
+    }}>
+      {compact ? s.shortLabel : s.label}
+    </span>
+  )
+}
+
+function TabBar({ active, tabs, onChange }) {
+  return (
+    <div style={{
+      display: 'flex', gap: 0, borderBottom: '1px solid #e8f5f0',
+      marginBottom: 16, overflowX: 'auto',
+    }}>
+      {tabs.map(tab => (
+        <button
+          key={tab.key}
+          onClick={() => onChange(tab.key)}
+          style={{
+            ...sans, fontSize: 12, fontWeight: active === tab.key ? 600 : 400,
+            color: active === tab.key ? '#10b981' : '#6b7280',
+            background: 'none', border: 'none', cursor: 'pointer',
+            padding: '10px 16px', whiteSpace: 'nowrap',
+            borderBottom: active === tab.key ? '2px solid #10b981' : '2px solid transparent',
+            transition: 'all 150ms',
+          }}
+        >
+          {tab.label}
+          {tab.badge > 0 && (
+            <span style={{
+              ...mono, fontSize: 9, fontWeight: 700,
+              padding: '1px 5px', borderRadius: 10, marginLeft: 6,
+              background: tab.badgeColor || '#f3f4f6', color: tab.badgeTextColor || '#6b7280',
+            }}>
+              {tab.badge}
+            </span>
+          )}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+// ── Matrix Cell ──
+function MatrixCell({ status, record, onClick, compact }) {
+  const s = STATUS_CONFIG[status] || STATUS_CONFIG.not_started
+  if (status === 'na') {
+    return (
+      <td style={{
+        ...sans, fontSize: 10, color: '#d1d5db', textAlign: 'center',
+        padding: '6px 4px', borderBottom: '1px solid #f3f4f6',
+        borderRight: '1px solid #f9fafb',
+      }}>
+        N/A
+      </td>
+    )
+  }
+
+  const year = record?.dateCompleted ? shortYear(record.dateCompleted) : ''
+  let cellLabel = s.shortLabel
+  if (status === 'complete' && year) cellLabel = `✓ ${year}`
+  if (status === 'expired' && record?.certificateExpiry) {
+    const d = Math.abs(daysUntil(record.certificateExpiry))
+    cellLabel = `${d}d`
+  }
+  if (status === 'expiring' && record?.certificateExpiry) {
+    const d = daysUntil(record.certificateExpiry)
+    cellLabel = `${d}d`
+  }
+
+  return (
+    <td
+      onClick={onClick}
+      style={{
+        textAlign: 'center', padding: '6px 4px', cursor: onClick ? 'pointer' : 'default',
+        borderBottom: '1px solid #f3f4f6', borderRight: '1px solid #f9fafb',
+        minWidth: 80, height: 44, verticalAlign: 'middle',
+      }}
+      title={`${s.label}${record?.dateCompleted ? ` — ${formatDate(record.dateCompleted)}` : ''}${record?.certificateExpiry ? ` (exp: ${formatDate(record.certificateExpiry)})` : ''}`}
+    >
+      <span style={{
+        ...mono, fontSize: 10, fontWeight: 600,
+        padding: '2px 8px', borderRadius: 12,
+        background: s.bg, color: s.color,
+        border: `1px solid ${s.border}`,
+        display: 'inline-block', minWidth: 32,
+      }}>
+        {cellLabel}
+      </span>
+    </td>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════
 //  MAIN COMPONENT
-// ══════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 export default function TrainingLogs() {
   const [logs, setLogs, loading] = useSupabase('training_logs', [])
-  const [staff] = useSupabase('staff_members', [], { valueField: 'name' })
-  const [topics] = useSupabase('training_topics', [], { valueField: 'name' })
+  const [staffMembers] = useSupabase('staff_members', [])
   const { user } = useUser()
   const toast = useToast()
   const { confirm, ConfirmDialog } = useConfirm()
 
   const elevated = user && isElevatedRole(user.role)
-
-  // ── Filters ──
-  const [filterStaff, setFilterStaff] = useState('')
-  const [filterTopic, setFilterTopic] = useState('')
-  const [filterMethod, setFilterMethod] = useState('')
-  const [filterStatus, setFilterStatus] = useState('All')
-  const [search, setSearch] = useState('')
-  const [sortField, setSortField] = useState('dateCompleted')
-  const [sortDir, setSortDir] = useState('desc')
-
-  // ── Modal ──
+  const [activeTab, setActiveTab] = useState('matrix')
   const [modalOpen, setModalOpen] = useState(false)
   const [editingId, setEditingId] = useState(null)
+  const [search, setSearch] = useState('')
+  const [filterCategory, setFilterCategory] = useState('')
+  const [filterStatus, setFilterStatus] = useState('')
+  const [filterRole, setFilterRole] = useState('')
+
   const emptyForm = {
-    staffName: user?.name || '', dateCompleted: getToday(), topic: '',
+    staffName: '', dateCompleted: getToday(), topic: '',
     trainerName: '', deliveryMethod: 'Classroom', duration: '',
     outcome: 'Pass', certificateExpiry: '', renewalDate: '', notes: '',
   }
   const [form, setForm] = useState(emptyForm)
   const [formErrors, setFormErrors] = useState({})
 
-  // ── Derived data ──
-  const enrichedLogs = useMemo(() =>
-    logs.map(r => ({ ...r, _status: deriveStatus(r) })),
-    [logs]
+  // ── Active staff sorted by name ──
+  const activeStaff = useMemo(() =>
+    staffMembers.filter(s => s.name).sort((a, b) => a.name.localeCompare(b.name)),
+    [staffMembers]
   )
 
-  const stats = useMemo(() => {
-    const s = { total: enrichedLogs.length, completed: 0, scheduled: 0, expiring: 0, expired: 0 }
-    enrichedLogs.forEach(r => { if (s[r._status] !== undefined) s[r._status]++ })
-    const uniqueStaff = new Set(enrichedLogs.filter(r => r._status === 'completed').map(r => r.staffName))
-    s.staffTrained = uniqueStaff.size
-    return s
-  }, [enrichedLogs])
+  // ── Filter staff for matrix by role ──
+  const matrixStaff = useMemo(() => {
+    if (!filterRole) return activeStaff
+    return activeStaff.filter(s => s.role === filterRole)
+  }, [activeStaff, filterRole])
 
-  // ── Filter + Sort ──
-  const filtered = useMemo(() => {
-    let result = enrichedLogs
+  // ── My applicable items ──
+  const myItems = useMemo(() =>
+    TRAINING_ITEMS.filter(i => roleMatchesItem(user?.role, i)),
+    [user?.role]
+  )
 
-    if (filterStaff) result = result.filter(r => r.staffName === filterStaff)
-    if (filterTopic) result = result.filter(r => r.topic === filterTopic)
-    if (filterMethod) result = result.filter(r => r.deliveryMethod === filterMethod)
-    if (filterStatus !== 'All') result = result.filter(r => r._status === filterStatus.toLowerCase())
-    if (search) {
-      const q = search.toLowerCase()
-      result = result.filter(r =>
-        r.staffName?.toLowerCase().includes(q) ||
-        r.topic?.toLowerCase().includes(q) ||
-        r.trainerName?.toLowerCase().includes(q) ||
-        r.notes?.toLowerCase().includes(q)
-      )
-    }
-
-    result.sort((a, b) => {
-      const av = a[sortField] || ''
-      const bv = b[sortField] || ''
-      const cmp = av < bv ? -1 : av > bv ? 1 : 0
-      return sortDir === 'asc' ? cmp : -cmp
+  // ── My stats ──
+  const myStats = useMemo(() => {
+    const total = myItems.length
+    let complete = 0, inProgress = 0, expiring = 0, expired = 0
+    myItems.forEach(item => {
+      const record = findLatestRecord(logs, user?.name, item.name)
+      const status = deriveStatus(record)
+      if (status === 'complete') complete++
+      else if (status === 'in_progress') inProgress++
+      else if (status === 'expiring') expiring++
+      else if (status === 'expired') expired++
     })
+    return { total, complete, inProgress, expiring, expired }
+  }, [myItems, logs, user?.name])
 
-    return result
-  }, [enrichedLogs, filterStaff, filterTopic, filterMethod, filterStatus, search, sortField, sortDir])
-
-  // ── Get unique values for filter dropdowns ──
-  const usedTopics = useMemo(() => [...new Set(logs.map(r => r.topic).filter(Boolean))].sort(), [logs])
-  const usedStaff = useMemo(() => [...new Set(logs.map(r => r.staffName).filter(Boolean))].sort(), [logs])
-
-  // ── Sort handler ──
-  const handleSort = useCallback((field) => {
-    setSortField(prev => {
-      if (prev === field) {
-        setSortDir(d => d === 'asc' ? 'desc' : 'asc')
-        return field
+  // ── Matrix data: items grouped by category, each with per-staff cell status ──
+  const matrixData = useMemo(() => {
+    return CATEGORIES.map(cat => {
+      const items = TRAINING_ITEMS.filter(i => i.category === cat.key)
+        .filter(i => {
+          if (search) {
+            const q = search.toLowerCase()
+            return i.name.toLowerCase().includes(q)
+          }
+          return true
+        })
+      return {
+        ...cat,
+        items: items.map(item => ({
+          item,
+          cells: matrixStaff.map(staff => {
+            const applies = roleMatchesItem(staff.role, item)
+            if (!applies) return { status: 'na', record: null, staff }
+            const record = findLatestRecord(logs, staff.name, item.name)
+            const status = deriveStatus(record)
+            if (filterStatus && status !== filterStatus) return null
+            return { status, record, staff }
+          }).filter(Boolean)
+        })).filter(row => {
+          if (!filterStatus) return true
+          return row.cells.some(c => c.status !== 'na')
+        })
       }
-      setSortDir('desc')
-      return field
+    }).filter(cat => {
+      if (filterCategory && cat.key !== filterCategory) return false
+      return cat.items.length > 0
     })
-  }, [])
+  }, [logs, matrixStaff, search, filterCategory, filterStatus])
+
+  // ── Expiring / overdue records (all staff for elevated, own for others) ──
+  const expiringRecords = useMemo(() => {
+    const results = []
+    const staffToCheck = elevated ? activeStaff : activeStaff.filter(s => s.name === user?.name)
+
+    staffToCheck.forEach(staff => {
+      TRAINING_ITEMS.forEach(item => {
+        if (!roleMatchesItem(staff.role, item)) return
+        const record = findLatestRecord(logs, staff.name, item.name)
+        const status = deriveStatus(record)
+        if (status === 'expired' || status === 'expiring') {
+          const days = record?.certificateExpiry ? daysUntil(record.certificateExpiry) : null
+          results.push({ staff, item, record, status, daysLeft: days })
+        }
+      })
+    })
+
+    return results.sort((a, b) => (a.daysLeft || -999) - (b.daysLeft || -999))
+  }, [logs, activeStaff, elevated, user?.name])
+
+  // ── My records ──
+  const myRecords = useMemo(() => {
+    return myItems.map(item => {
+      const record = findLatestRecord(logs, user?.name, item.name)
+      return { item, record, status: deriveStatus(record) }
+    })
+  }, [myItems, logs, user?.name])
+
+  // ── Overall matrix stats ──
+  const matrixStats = useMemo(() => {
+    let total = 0, complete = 0, expired = 0, expiring = 0
+    activeStaff.forEach(staff => {
+      TRAINING_ITEMS.forEach(item => {
+        if (!roleMatchesItem(staff.role, item)) return
+        total++
+        const record = findLatestRecord(logs, staff.name, item.name)
+        const status = deriveStatus(record)
+        if (status === 'complete') complete++
+        else if (status === 'expired') expired++
+        else if (status === 'expiring') expiring++
+      })
+    })
+    return { total, complete, expired, expiring }
+  }, [activeStaff, logs])
 
   // ── Form handlers ──
-  const openAdd = () => {
+  const openAdd = useCallback((prefillStaff, prefillTopic) => {
     setEditingId(null)
-    setForm({ ...emptyForm, staffName: user?.name || '' })
+    const item = prefillTopic ? TRAINING_ITEMS.find(i => i.name === prefillTopic) : null
+    const renewalMonths = item?.renewalMonths
+    const today = getToday()
+    let expiry = ''
+    if (renewalMonths) {
+      const d = new Date(today + 'T00:00:00')
+      d.setMonth(d.getMonth() + renewalMonths)
+      expiry = d.toISOString().slice(0, 10)
+    }
+    setForm({
+      staffName: prefillStaff || user?.name || '',
+      dateCompleted: today,
+      topic: prefillTopic || '',
+      trainerName: '',
+      deliveryMethod: 'Classroom',
+      duration: '',
+      outcome: 'Pass',
+      certificateExpiry: expiry,
+      renewalDate: '',
+      notes: '',
+    })
     setFormErrors({})
     setModalOpen(true)
-  }
+  }, [user?.name])
 
-  const openEdit = (record) => {
+  const openEdit = useCallback((record) => {
     setEditingId(record.id)
     setForm({
       staffName: record.staffName || '',
@@ -272,7 +471,7 @@ export default function TrainingLogs() {
     })
     setFormErrors({})
     setModalOpen(true)
-  }
+  }, [])
 
   const validate = () => {
     const errs = {}
@@ -285,7 +484,6 @@ export default function TrainingLogs() {
 
   const handleSave = () => {
     if (!validate()) return
-
     if (editingId) {
       setLogs(prev => prev.map(r => r.id === editingId ? { ...r, ...form } : r))
       logAudit('training_log_updated', { id: editingId, ...form }, user?.name)
@@ -296,7 +494,6 @@ export default function TrainingLogs() {
       logAudit('training_log_added', newRecord, user?.name)
       toast.success('Training record added')
     }
-
     setModalOpen(false)
   }
 
@@ -307,411 +504,666 @@ export default function TrainingLogs() {
     })
     if (!ok) return
     setLogs(prev => prev.filter(r => r.id !== record.id))
-    logAudit('training_log_deleted', { id: record.id, topic: record.topic }, user?.name)
+    logAudit('training_log_deleted', { id: record.id }, user?.name)
     toast.success('Record deleted')
   }
 
+  // ── Matrix cell click ──
+  const handleCellClick = useCallback((staff, item, record) => {
+    if (!elevated && staff.name !== user?.name) return
+    if (record) {
+      openEdit(record)
+    } else {
+      openAdd(staff.name, item.name)
+    }
+  }, [elevated, user?.name, openEdit, openAdd])
+
   // ── CSV Export ──
-  const handleCsv = () => {
-    downloadCsv('training-logs', [
-      'Date', 'Staff', 'Topic', 'Trainer', 'Method', 'Duration', 'Outcome',
-      'Cert Expiry', 'Renewal Date', 'Status', 'Notes',
-    ], filtered.map(r => [
-      r.dateCompleted, r.staffName, r.topic, r.trainerName, r.deliveryMethod,
-      r.duration, r.outcome, r.certificateExpiry, r.renewalDate,
-      STATUS_STYLES[r._status]?.label || '', r.notes,
-    ]))
+  const handleExportMatrix = () => {
+    const headers = ['Training Item', 'Category', ...matrixStaff.map(s => s.name)]
+    const rows = []
+    CATEGORIES.forEach(cat => {
+      TRAINING_ITEMS.filter(i => i.category === cat.key).forEach(item => {
+        const row = [item.name, cat.label]
+        matrixStaff.forEach(staff => {
+          if (!roleMatchesItem(staff.role, item)) { row.push('N/A'); return }
+          const record = findLatestRecord(logs, staff.name, item.name)
+          const status = deriveStatus(record)
+          const s = STATUS_CONFIG[status]
+          row.push(record?.dateCompleted ? `${s.label} (${formatDate(record.dateCompleted)})` : s.label)
+        })
+        rows.push(row)
+      })
+    })
+    downloadCsv('training-matrix', headers, rows)
   }
 
   // ── Clear filters ──
-  const clearFilters = () => {
-    setFilterStaff('')
-    setFilterTopic('')
-    setFilterMethod('')
-    setFilterStatus('All')
-    setSearch('')
-  }
-  const hasFilters = filterStaff || filterTopic || filterMethod || filterStatus !== 'All' || search
+  const clearFilters = () => { setSearch(''); setFilterCategory(''); setFilterStatus(''); setFilterRole('') }
+  const hasFilters = search || filterCategory || filterStatus || filterRole
 
-  const today = getToday()
-  const dateFormatted = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
-
-  // ── Sort icon ──
-  const SortIcon = ({ field }) => {
-    if (sortField !== field) return <span style={{ opacity: 0.3, fontSize: 9 }}>↕</span>
-    return <span style={{ fontSize: 9 }}>{sortDir === 'asc' ? '↑' : '↓'}</span>
-  }
-
-  // ── Table columns ──
-  const columns = [
-    { key: 'dateCompleted', label: 'Date', w: 90 },
-    { key: 'staffName', label: 'Staff', w: 120 },
-    { key: 'topic', label: 'Topic', w: 160 },
-    { key: 'trainerName', label: 'Trainer', w: 110 },
-    { key: 'deliveryMethod', label: 'Method', w: 80 },
-    { key: 'duration', label: 'Duration', w: 70 },
-    { key: 'outcome', label: 'Outcome', w: 80 },
-    { key: 'certificateExpiry', label: 'Cert Expiry', w: 100 },
-    { key: '_status', label: 'Status', w: 80 },
+  // ── Tabs config ──
+  const tabs = [
+    { key: 'matrix', label: 'Matrix' },
+    { key: 'my-records', label: 'My Records' },
+    { key: 'expiring', label: 'Expiring Soon', badge: expiringRecords.length, badgeColor: '#fef2f2', badgeTextColor: '#ef4444' },
+    ...(elevated ? [{ key: 'library', label: 'Training Library' }] : []),
   ]
+
+  const dateFormatted = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+  const pct = myStats.total ? Math.round((myStats.complete / myStats.total) * 100) : 0
+
+  // ── Unique roles for filter ──
+  const usedRoles = useMemo(() => [...new Set(activeStaff.map(s => s.role).filter(Boolean))].sort(), [activeStaff])
 
   if (loading) {
     return (
-      <div style={{ ...sans, padding: '24px 28px', maxWidth: 1200 }}>
+      <div style={{ ...sans, padding: '24px 28px', maxWidth: 1400 }}>
         <SkeletonLoader variant="table" />
       </div>
     )
   }
 
   return (
-    <div style={{ ...sans, padding: '24px 28px', maxWidth: 1200 }}>
-      {/* ── Header ── */}
+    <div style={{ ...sans, padding: '24px 28px', maxWidth: 1400 }}>
+      {/* ═══ HEADER ═══ */}
       <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 6 }}>Dashboard / Training Logs</div>
+        <div style={{ fontSize: 11, color: '#9ca3af', marginBottom: 6 }}>Dashboard / Training</div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 4 }}>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Training Logs</h1>
-          <span style={{ ...mono, fontSize: 13, color: 'var(--text-muted)' }}>{dateFormatted}</span>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: '#111827', margin: 0 }}>Training &amp; Competency</h1>
+          <span style={{ ...mono, fontSize: 13, color: '#9ca3af' }}>{dateFormatted}</span>
         </div>
-        <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: '0 0 10px' }}>
-          Staff training records, compliance tracking &amp; scheduled training
+        <p style={{ fontSize: 11, color: '#9ca3af', margin: '0 0 10px' }}>
+          Staff training records, compliance matrix &amp; certification tracking
         </p>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
           {elevated && (
             <button
-              onClick={openAdd}
-              style={{
-                ...sans, fontSize: 11, fontWeight: 600, padding: '6px 14px',
-                borderRadius: 8, border: 'none', cursor: 'pointer',
-                background: '#059669', color: 'white',
-              }}
+              onClick={() => openAdd('', '')}
+              style={{ ...sans, fontSize: 11, fontWeight: 600, padding: '6px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', background: '#10b981', color: 'white' }}
             >
               + Add Record
             </button>
           )}
           <div style={{ flex: 1 }} />
-          <PageActions onDownloadCsv={handleCsv} />
-        </div>
-      </div>
-
-      {/* ── Stats Strip ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, marginBottom: 16 }}>
-        <StatCard icon="📋" label="Total Records" value={stats.total} accent="#3b82f6" />
-        <StatCard icon="✅" label="Completed" value={stats.completed} accent="#059669" />
-        <StatCard icon="📅" label="Scheduled" value={stats.scheduled} accent="#2563eb" />
-        <StatCard icon="⚠️" label="Expiring Soon" value={stats.expiring} accent="#d97706" />
-        <StatCard icon="🔴" label="Expired" value={stats.expired} accent="#ef4444" />
-      </div>
-
-      {/* ── Filters ── */}
-      <SectionHeader accent="#6366f1" icon="🔍" title="Filter Records" right={
-        hasFilters ? (
-          <button onClick={clearFilters} style={{ ...sans, fontSize: 10, color: '#6366f1', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
-            Clear All
+          <button
+            onClick={handleExportMatrix}
+            style={{ ...sans, fontSize: 11, fontWeight: 500, padding: '5px 12px', borderRadius: 7, border: '1px solid #e8f5f0', background: '#fff', color: '#6b7280', cursor: 'pointer' }}
+          >
+            Export CSV
           </button>
-        ) : null
-      } />
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16, alignItems: 'center' }}>
-        <input
-          type="text"
-          placeholder="Search..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          style={{ ...selectStyle, width: 160, padding: '5px 8px' }}
-        />
-        <select value={filterStaff} onChange={e => setFilterStaff(e.target.value)} style={selectStyle}>
-          <option value="">All Staff</option>
-          {usedStaff.map(s => <option key={s}>{s}</option>)}
-        </select>
-        <select value={filterTopic} onChange={e => setFilterTopic(e.target.value)} style={selectStyle}>
-          <option value="">All Topics</option>
-          {usedTopics.map(t => <option key={t}>{t}</option>)}
-        </select>
-        <select value={filterMethod} onChange={e => setFilterMethod(e.target.value)} style={selectStyle}>
-          <option value="">All Methods</option>
-          {DELIVERY_METHODS.map(m => <option key={m}>{m}</option>)}
-        </select>
-        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={selectStyle}>
-          {STATUS_FILTERS.map(s => <option key={s}>{s}</option>)}
-        </select>
-        <div style={{ flex: 1 }} />
-        <span style={{ ...sans, fontSize: 11, color: 'var(--text-muted)' }}>
-          Showing {filtered.length} of {enrichedLogs.length}
-        </span>
+          <button
+            onClick={() => window.print()}
+            style={{ ...sans, fontSize: 11, fontWeight: 500, padding: '5px 12px', borderRadius: 7, border: '1px solid #e8f5f0', background: '#fff', color: '#6b7280', cursor: 'pointer' }}
+          >
+            Print
+          </button>
+        </div>
       </div>
 
-      {/* ── Table ── */}
-      <SectionHeader accent="#059669" icon="📚" title="Training Records" right={
-        <span style={{ ...mono, fontSize: 11, color: '#059669', fontWeight: 600 }}>
-          {stats.staffTrained} staff trained
-        </span>
-      } />
+      {/* ═══ STAT CARDS ═══ */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(145px, 1fr))', gap: 10, marginBottom: 8 }}>
+        <StatCard icon="✅" label="Completed" value={myStats.complete} total={myStats.total} accent="#10b981" showBar />
+        <StatCard icon="🔵" label="In Progress" value={myStats.inProgress} accent="#3b82f6" />
+        <StatCard icon="⚠️" label="Due Soon" value={myStats.expiring} accent="#f59e0b" />
+        <StatCard icon="🔴" label="Overdue" value={myStats.expired} accent="#ef4444" />
+      </div>
 
-      {filtered.length === 0 ? (
-        <EmptyState
-          title="No training records"
-          description={hasFilters ? 'Try adjusting your filters' : 'Add your first training record to get started'}
-          actionLabel={elevated ? '+ Add Record' : undefined}
-          onAction={elevated ? openAdd : undefined}
-        />
-      ) : (
-        <div style={{ overflowX: 'auto', marginBottom: 24 }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr>
-                {columns.map(col => (
-                  <th
-                    key={col.key}
-                    onClick={() => handleSort(col.key)}
-                    style={{
-                      ...sans, fontSize: 9, fontWeight: 600, color: 'var(--text-muted)',
-                      textAlign: 'left', padding: '6px 8px',
-                      borderBottom: '1px solid var(--border-card)',
-                      textTransform: 'uppercase', letterSpacing: 0.5,
-                      cursor: 'pointer', userSelect: 'none',
-                      minWidth: col.w,
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {col.label} <SortIcon field={col.key} />
-                  </th>
-                ))}
-                {elevated && (
-                  <th style={{
-                    fontSize: 9, fontWeight: 600, color: 'var(--text-muted)',
-                    textAlign: 'right', padding: '6px 8px',
-                    borderBottom: '1px solid var(--border-card)',
-                    textTransform: 'uppercase', letterSpacing: 0.5, minWidth: 80,
-                  }}>
-                    Actions
-                  </th>
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((r, idx) => {
-                const isScheduled = r._status === 'scheduled'
-                return (
-                  <tr
-                    key={r.id}
-                    style={{
-                      background: idx % 2 === 1 ? '#f9fffe' : 'transparent',
-                      opacity: isScheduled ? 0.75 : 1,
-                      transition: 'background 150ms',
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#f0faf4'}
-                    onMouseLeave={e => e.currentTarget.style.background = idx % 2 === 1 ? '#f9fffe' : 'transparent'}
-                  >
-                    <td style={{ ...mono, fontSize: 11, padding: '8px 8px', borderBottom: '1px solid var(--border-card)', color: 'var(--text-primary)' }}>
-                      {formatDate(r.dateCompleted)}
-                    </td>
-                    <td style={{ ...sans, fontSize: 12, padding: '8px 8px', borderBottom: '1px solid var(--border-card)', color: 'var(--text-primary)', fontWeight: 500 }}>
-                      {r.staffName}
-                    </td>
-                    <td style={{ ...sans, fontSize: 12, padding: '8px 8px', borderBottom: '1px solid var(--border-card)', color: 'var(--text-primary)' }}>
-                      {r.topic}
-                    </td>
-                    <td style={{ ...sans, fontSize: 11, padding: '8px 8px', borderBottom: '1px solid var(--border-card)', color: 'var(--text-secondary)' }}>
-                      {r.trainerName || '—'}
-                    </td>
-                    <td style={{ ...sans, fontSize: 11, padding: '8px 8px', borderBottom: '1px solid var(--border-card)', color: 'var(--text-secondary)' }}>
-                      {r.deliveryMethod || '—'}
-                    </td>
-                    <td style={{ ...mono, fontSize: 11, padding: '8px 8px', borderBottom: '1px solid var(--border-card)', color: 'var(--text-secondary)' }}>
-                      {r.duration || '—'}
-                    </td>
-                    <td style={{ fontSize: 11, padding: '8px 8px', borderBottom: '1px solid var(--border-card)' }}>
-                      {r.outcome ? (
-                        <span style={{
-                          fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 20,
-                          background: r.outcome === 'Pass' ? '#f0fdf4' : r.outcome === 'Attended' ? '#fffbeb' : '#eff6ff',
-                          color: r.outcome === 'Pass' ? '#059669' : r.outcome === 'Attended' ? '#d97706' : '#2563eb',
-                          border: `1px solid ${r.outcome === 'Pass' ? '#6ee7b7' : r.outcome === 'Attended' ? '#fde68a' : '#bfdbfe'}`,
-                        }}>
-                          {r.outcome}
-                        </span>
-                      ) : <span style={{ color: 'var(--text-muted)', fontSize: 11 }}>—</span>}
-                    </td>
-                    <td style={{ fontSize: 11, padding: '8px 8px', borderBottom: '1px solid var(--border-card)' }}>
-                      <ExpiryBadge dateStr={r.certificateExpiry} />
-                    </td>
-                    <td style={{ fontSize: 11, padding: '8px 8px', borderBottom: '1px solid var(--border-card)' }}>
-                      <StatusPill status={r._status} />
-                    </td>
-                    {elevated && (
-                      <td style={{ padding: '8px 8px', borderBottom: '1px solid var(--border-card)', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                        <button
-                          onClick={() => openEdit(r)}
-                          style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 6, border: '1px solid var(--border-card)', background: 'var(--bg-card)', color: 'var(--text-secondary)', cursor: 'pointer', marginRight: 4 }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(r)}
-                          style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 6, border: '1px solid #fca5a5', background: '#fef2f2', color: '#ef4444', cursor: 'pointer' }}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    )}
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+      {/* Overall progress bar */}
+      <div style={{ marginBottom: 20, padding: '10px 14px', background: '#ffffff', borderRadius: 10, border: '1px solid #e8f5f0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+          <span style={{ ...sans, fontSize: 11, color: '#6b7280' }}>Your overall training completion</span>
+          <span style={{ ...mono, fontSize: 13, fontWeight: 700, color: '#10b981' }}>{pct}%</span>
         </div>
+        <div style={{ height: 10, borderRadius: 5, background: '#e5e7eb', overflow: 'hidden' }}>
+          <div style={{ height: '100%', borderRadius: 5, background: 'linear-gradient(90deg, #10b981, #059669)', width: `${pct}%`, transition: 'width 800ms ease' }} />
+        </div>
+      </div>
+
+      {/* ═══ TAB BAR ═══ */}
+      <TabBar active={activeTab} tabs={tabs} onChange={setActiveTab} />
+
+      {/* ═══ TAB: MATRIX ═══ */}
+      {activeTab === 'matrix' && (
+        <>
+          {/* Filters */}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14, alignItems: 'center' }}>
+            <input
+              type="text" placeholder="Search training items..."
+              value={search} onChange={e => setSearch(e.target.value)}
+              style={{ ...sans, fontSize: 11, padding: '5px 10px', borderRadius: 6, border: '1px solid #e8f5f0', background: '#fff', color: '#111827', outline: 'none', width: 180 }}
+            />
+            <select value={filterRole} onChange={e => setFilterRole(e.target.value)} style={{ ...sans, fontSize: 11, padding: '5px 8px', borderRadius: 6, border: '1px solid #e8f5f0', background: '#fff', color: '#6b7280', outline: 'none', cursor: 'pointer' }}>
+              <option value="">All Roles</option>
+              {usedRoles.map(r => <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
+            </select>
+            <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} style={{ ...sans, fontSize: 11, padding: '5px 8px', borderRadius: 6, border: '1px solid #e8f5f0', background: '#fff', color: '#6b7280', outline: 'none', cursor: 'pointer' }}>
+              <option value="">All Categories</option>
+              {CATEGORIES.map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
+            </select>
+            <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ ...sans, fontSize: 11, padding: '5px 8px', borderRadius: 6, border: '1px solid #e8f5f0', background: '#fff', color: '#6b7280', outline: 'none', cursor: 'pointer' }}>
+              <option value="">All Statuses</option>
+              <option value="expired">Overdue</option>
+              <option value="expiring">Expiring Soon</option>
+              <option value="not_started">Not Started</option>
+              <option value="complete">Complete</option>
+            </select>
+            {hasFilters && (
+              <button onClick={clearFilters} style={{ ...sans, fontSize: 10, color: '#10b981', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
+                Clear All
+              </button>
+            )}
+            <div style={{ flex: 1 }} />
+            <span style={{ ...mono, fontSize: 11, color: '#10b981', fontWeight: 600 }}>
+              {matrixStats.complete}/{matrixStats.total} complete ({matrixStats.total ? Math.round(matrixStats.complete / matrixStats.total * 100) : 0}%)
+            </span>
+          </div>
+
+          {/* Matrix Table */}
+          <div style={{ overflowX: 'auto', borderRadius: 12, border: '1px solid #e8f5f0', background: '#ffffff', marginBottom: 24 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr>
+                  <th style={{
+                    ...sans, fontSize: 10, fontWeight: 600, color: '#6b7280',
+                    textAlign: 'left', padding: '10px 12px',
+                    background: '#ffffff', position: 'sticky', left: 0, zIndex: 15,
+                    borderBottom: '2px solid #e8f5f0', borderRight: '2px solid #e8f5f0',
+                    minWidth: 220,
+                  }}>
+                    TRAINING ITEM
+                  </th>
+                  {matrixStaff.map(staff => (
+                    <th key={staff.name} style={{
+                      ...sans, fontSize: 9, fontWeight: 600, color: '#6b7280',
+                      textAlign: 'center', padding: '8px 6px',
+                      background: '#ffffff', position: 'sticky', top: 0, zIndex: 10,
+                      borderBottom: '2px solid #e8f5f0',
+                      minWidth: 80, maxWidth: 100, whiteSpace: 'nowrap',
+                    }}>
+                      <div style={{
+                        width: 28, height: 28, borderRadius: '50%', margin: '0 auto 3px',
+                        background: '#f0faf6', color: '#10b981', fontSize: 10, fontWeight: 700,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        {getInitials(staff.name)}
+                      </div>
+                      <div style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{staff.name?.split(' ')[0]}</div>
+                      <div style={{ fontSize: 8, color: '#9ca3af', textTransform: 'capitalize' }}>{staff.role}</div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {matrixData.map(cat => (
+                  <>
+                    {/* Category header row */}
+                    <tr key={`cat-${cat.key}`}>
+                      <td
+                        colSpan={matrixStaff.length + 1}
+                        style={{
+                          ...sans, fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
+                          letterSpacing: '0.06em', padding: '8px 12px',
+                          background: `${cat.accent}08`, color: cat.accent,
+                          borderBottom: `1px solid ${cat.accent}20`,
+                          position: 'sticky', left: 0, zIndex: 5,
+                        }}
+                      >
+                        <span style={{ marginRight: 6 }}>{cat.icon}</span>
+                        {cat.label}
+                        <span style={{ ...mono, fontSize: 9, color: '#9ca3af', marginLeft: 8, fontWeight: 400 }}>
+                          {cat.items.length} items
+                        </span>
+                      </td>
+                    </tr>
+                    {/* Item rows */}
+                    {cat.items.map(({ item, cells }) => (
+                      <tr key={item.id}>
+                        <td style={{
+                          ...sans, fontSize: 11, fontWeight: 500, color: '#111827',
+                          padding: '6px 12px', background: '#ffffff',
+                          position: 'sticky', left: 0, zIndex: 5,
+                          borderBottom: '1px solid #f3f4f6', borderRight: '2px solid #e8f5f0',
+                          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                          maxWidth: 220,
+                        }}
+                          title={item.name}
+                        >
+                          {item.name}
+                          {item.renewalMonths && (
+                            <span style={{ ...mono, fontSize: 8, color: '#9ca3af', marginLeft: 6 }}>
+                              {item.renewalMonths === 12 ? 'Annual' : item.renewalMonths === 24 ? '2-yr' : item.renewalMonths === 36 ? '3-yr' : `${item.renewalMonths}m`}
+                            </span>
+                          )}
+                          {!item.renewalMonths && (
+                            <span style={{ ...mono, fontSize: 8, color: '#9ca3af', marginLeft: 6 }}>One-off</span>
+                          )}
+                        </td>
+                        {cells.map((cell, ci) => (
+                          <MatrixCell
+                            key={ci}
+                            status={cell.status}
+                            record={cell.record}
+                            onClick={() => handleCellClick(cell.staff, item, cell.record)}
+                          />
+                        ))}
+                      </tr>
+                    ))}
+                  </>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {matrixData.length === 0 && (
+            <EmptyState
+              title="No items match filters"
+              description="Try adjusting your search or filters"
+              actionLabel="Clear Filters"
+              onAction={clearFilters}
+            />
+          )}
+        </>
       )}
 
-      {/* ── Add / Edit Modal ── */}
+      {/* ═══ TAB: MY RECORDS ═══ */}
+      {activeTab === 'my-records' && (
+        <>
+          <SectionHeader accent="#10b981" icon="👤" title={`Training Records — ${user?.name || 'You'}`} right={
+            <span style={{ ...mono, fontSize: 11, color: '#10b981', fontWeight: 600 }}>
+              {myStats.complete}/{myStats.total} complete
+            </span>
+          } />
+
+          {myRecords.length === 0 ? (
+            <EmptyState
+              title="No training records"
+              description="Your manager will assign training items to your profile."
+            />
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr>
+                    {['Training Item', 'Category', 'Status', 'Completed', 'Expiry', 'Outcome', 'Actions'].map(h => (
+                      <th key={h} style={{
+                        ...sans, fontSize: 9, fontWeight: 600, color: '#9ca3af',
+                        textAlign: 'left', padding: '6px 8px', textTransform: 'uppercase',
+                        letterSpacing: 0.5, borderBottom: '1px solid #e8f5f0',
+                      }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {myRecords.map(({ item, record, status }) => {
+                    const catInfo = CATEGORIES.find(c => c.key === item.category)
+                    return (
+                      <tr key={item.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                        <td style={{ ...sans, fontSize: 12, fontWeight: 500, padding: '10px 8px', color: '#111827' }}>
+                          {item.name}
+                          {item.renewalMonths && (
+                            <span style={{ ...mono, fontSize: 8, color: '#9ca3af', marginLeft: 6 }}>
+                              {item.renewalMonths === 12 ? 'Annual' : `${item.renewalMonths}m`}
+                            </span>
+                          )}
+                        </td>
+                        <td style={{ padding: '10px 8px' }}>
+                          <span style={{
+                            ...sans, fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 4,
+                            background: `${catInfo?.accent}10`, color: catInfo?.accent,
+                          }}>
+                            {catInfo?.label}
+                          </span>
+                        </td>
+                        <td style={{ padding: '10px 8px' }}>
+                          <StatusPill status={status} />
+                        </td>
+                        <td style={{ ...mono, fontSize: 11, padding: '10px 8px', color: '#6b7280' }}>
+                          {record?.dateCompleted ? formatDate(record.dateCompleted) : '—'}
+                        </td>
+                        <td style={{ padding: '10px 8px' }}>
+                          {record?.certificateExpiry ? (
+                            <div>
+                              <div style={{ ...mono, fontSize: 11, color: '#6b7280' }}>{formatDate(record.certificateExpiry)}</div>
+                              {(() => {
+                                const days = daysUntil(record.certificateExpiry)
+                                if (days === null) return null
+                                const color = days < 0 ? '#ef4444' : days <= 30 ? '#d97706' : days <= 60 ? '#f59e0b' : '#10b981'
+                                const label = days < 0 ? `${Math.abs(days)}d overdue` : `${days}d left`
+                                return <div style={{ ...sans, fontSize: 9, color, fontWeight: 600 }}>{label}</div>
+                              })()}
+                            </div>
+                          ) : <span style={{ color: '#d1d5db', fontSize: 11 }}>—</span>}
+                        </td>
+                        <td style={{ padding: '10px 8px' }}>
+                          {record?.outcome ? (
+                            <span style={{
+                              ...sans, fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 20,
+                              background: record.outcome === 'Pass' ? '#f0fdf4' : '#eff6ff',
+                              color: record.outcome === 'Pass' ? '#059669' : '#2563eb',
+                              border: `1px solid ${record.outcome === 'Pass' ? '#6ee7b7' : '#bfdbfe'}`,
+                            }}>
+                              {record.outcome}
+                            </span>
+                          ) : <span style={{ color: '#d1d5db', fontSize: 11 }}>—</span>}
+                        </td>
+                        <td style={{ padding: '10px 8px', whiteSpace: 'nowrap' }}>
+                          {record ? (
+                            <button
+                              onClick={() => openEdit(record)}
+                              style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 6, border: '1px solid #e8f5f0', background: '#fff', color: '#6b7280', cursor: 'pointer' }}
+                            >
+                              {elevated ? 'Edit' : 'View'}
+                            </button>
+                          ) : elevated ? (
+                            <button
+                              onClick={() => openAdd(user?.name, item.name)}
+                              style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 6, border: 'none', background: '#10b981', color: '#fff', cursor: 'pointer' }}
+                            >
+                              Record
+                            </button>
+                          ) : null}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ═══ TAB: EXPIRING SOON ═══ */}
+      {activeTab === 'expiring' && (
+        <>
+          <SectionHeader accent="#ef4444" icon="⏰" title="Expiring &amp; Overdue Training" right={
+            <span style={{ ...mono, fontSize: 11, color: '#ef4444', fontWeight: 600 }}>
+              {expiringRecords.length} items need attention
+            </span>
+          } />
+
+          {expiringRecords.length === 0 ? (
+            <EmptyState
+              title="All clear!"
+              description="No training records are expiring or overdue."
+            />
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {expiringRecords.map((entry, idx) => {
+                const { staff, item, record, status, daysLeft } = entry
+                const isExpired = status === 'expired'
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      background: '#ffffff', borderRadius: 12, padding: '14px 16px',
+                      border: `1px solid ${isExpired ? '#fca5a5' : '#fde68a'}`,
+                      borderLeft: `4px solid ${isExpired ? '#ef4444' : '#f59e0b'}`,
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: 16 }}>{isExpired ? '🔴' : '🟡'}</span>
+                      <div style={{ flex: 1, minWidth: 200 }}>
+                        <div style={{ ...sans, fontSize: 13, fontWeight: 600, color: '#111827' }}>
+                          {item.name}
+                          <span style={{ ...sans, fontSize: 11, fontWeight: 400, color: '#6b7280', marginLeft: 8 }}>
+                            — {staff.name}
+                          </span>
+                        </div>
+                        <div style={{ ...sans, fontSize: 11, color: isExpired ? '#ef4444' : '#d97706', marginTop: 2 }}>
+                          {isExpired ? `Expired ${Math.abs(daysLeft)} days ago` : `Expires in ${daysLeft} days`}
+                          {record?.dateCompleted && (
+                            <span style={{ color: '#9ca3af', marginLeft: 8 }}>
+                              Last completed: {formatDate(record.dateCompleted)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <StatusPill status={status} />
+                      {elevated && (
+                        <button
+                          onClick={() => record ? openEdit(record) : openAdd(staff.name, item.name)}
+                          style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '5px 12px', borderRadius: 7, border: '1px solid #e8f5f0', background: '#fff', color: '#10b981', cursor: 'pointer' }}
+                        >
+                          Update Record
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ═══ TAB: TRAINING LIBRARY ═══ */}
+      {activeTab === 'library' && elevated && (
+        <>
+          <SectionHeader accent="#8b5cf6" icon="📖" title="Training Library" right={
+            <span style={{ ...mono, fontSize: 11, color: '#8b5cf6', fontWeight: 600 }}>
+              {TRAINING_ITEMS.length} items
+            </span>
+          } />
+
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr>
+                  {['Name', 'Category', 'Required Roles', 'Renewal', 'Evidence', 'Mandatory'].map(h => (
+                    <th key={h} style={{
+                      ...sans, fontSize: 9, fontWeight: 600, color: '#9ca3af',
+                      textAlign: 'left', padding: '6px 8px', textTransform: 'uppercase',
+                      letterSpacing: 0.5, borderBottom: '1px solid #e8f5f0',
+                    }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {TRAINING_ITEMS.map(item => {
+                  const catInfo = CATEGORIES.find(c => c.key === item.category)
+                  const renewalLabel = !item.renewalMonths ? 'One-off' :
+                    item.renewalMonths === 12 ? 'Annual' :
+                    item.renewalMonths === 24 ? 'Biennial' :
+                    item.renewalMonths === 36 ? '3-yearly' : `${item.renewalMonths}m`
+                  return (
+                    <tr key={item.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                      <td style={{ ...sans, fontSize: 12, fontWeight: 500, padding: '10px 8px', color: '#111827' }}>
+                        {item.name}
+                      </td>
+                      <td style={{ padding: '10px 8px' }}>
+                        <span style={{
+                          ...sans, fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 4,
+                          background: `${catInfo?.accent}10`, color: catInfo?.accent,
+                        }}>
+                          {catInfo?.label}
+                        </span>
+                      </td>
+                      <td style={{ ...sans, fontSize: 10, padding: '10px 8px', color: '#6b7280' }}>
+                        {item.requiredRoles.includes('all') ? 'All Staff' : item.requiredRoles.map(r => r.charAt(0).toUpperCase() + r.slice(1)).join(', ')}
+                      </td>
+                      <td style={{ ...mono, fontSize: 11, padding: '10px 8px', color: '#6b7280' }}>
+                        {renewalLabel}
+                      </td>
+                      <td style={{ padding: '10px 8px', textAlign: 'center' }}>
+                        {item.evidenceRequired ? (
+                          <span style={{ color: '#10b981', fontSize: 12 }}>✓</span>
+                        ) : (
+                          <span style={{ color: '#d1d5db', fontSize: 12 }}>—</span>
+                        )}
+                      </td>
+                      <td style={{ padding: '10px 8px', textAlign: 'center' }}>
+                        {item.isMandatory ? (
+                          <span style={{ ...sans, fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 4, background: '#fef2f2', color: '#ef4444' }}>Required</span>
+                        ) : (
+                          <span style={{ ...sans, fontSize: 9, color: '#9ca3af' }}>Optional</span>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
+      {/* ═══ MODAL: Add / Edit Record ═══ */}
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? 'Edit Training Record' : 'Add Training Record'}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           {/* Staff */}
-          <div>
-            <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Staff Member *</label>
+          <FormField label="Staff Member *" error={formErrors.staffName}>
             <select
               value={form.staffName}
               onChange={e => setForm(f => ({ ...f, staffName: e.target.value }))}
-              style={{ ...selectStyle, width: '100%', padding: '7px 8px', fontSize: 12, borderColor: formErrors.staffName ? '#ef4444' : undefined }}
+              style={inputStyle(formErrors.staffName)}
+              disabled={!elevated}
             >
               <option value="">Select staff...</option>
-              {staff.map(s => <option key={s}>{s}</option>)}
+              {activeStaff.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
             </select>
-          </div>
+          </FormField>
 
           {/* Date */}
-          <div>
-            <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Date *</label>
+          <FormField label="Completion Date *" error={formErrors.dateCompleted}>
             <input
               type="date"
               value={form.dateCompleted}
               onChange={e => setForm(f => ({ ...f, dateCompleted: e.target.value }))}
-              style={{ ...selectStyle, width: '100%', padding: '7px 8px', fontSize: 12, borderColor: formErrors.dateCompleted ? '#ef4444' : undefined }}
+              style={inputStyle(formErrors.dateCompleted)}
             />
-            {form.dateCompleted > today && (
-              <span style={{ fontSize: 9, color: '#2563eb', fontWeight: 600 }}>Future date = Scheduled</span>
-            )}
-          </div>
+          </FormField>
 
           {/* Topic */}
-          <div style={{ gridColumn: '1 / -1' }}>
-            <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Topic *</label>
+          <FormField label="Training Item *" error={formErrors.topic} span>
             <select
               value={form.topic}
-              onChange={e => setForm(f => ({ ...f, topic: e.target.value }))}
-              style={{ ...selectStyle, width: '100%', padding: '7px 8px', fontSize: 12, borderColor: formErrors.topic ? '#ef4444' : undefined }}
+              onChange={e => {
+                const item = TRAINING_ITEMS.find(i => i.name === e.target.value)
+                const renewalMonths = item?.renewalMonths
+                let expiry = ''
+                if (renewalMonths && form.dateCompleted) {
+                  const d = new Date(form.dateCompleted + 'T00:00:00')
+                  d.setMonth(d.getMonth() + renewalMonths)
+                  expiry = d.toISOString().slice(0, 10)
+                }
+                setForm(f => ({ ...f, topic: e.target.value, certificateExpiry: expiry || f.certificateExpiry }))
+              }}
+              style={inputStyle(formErrors.topic)}
             >
-              <option value="">Select topic...</option>
-              {topics.map(t => <option key={t}>{t}</option>)}
+              <option value="">Select training item...</option>
+              {TRAINING_ITEMS.map(i => <option key={i.id} value={i.name}>{i.name}</option>)}
             </select>
-          </div>
+          </FormField>
 
           {/* Trainer */}
-          <div>
-            <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Trainer</label>
+          <FormField label="Trainer">
             <input
-              type="text"
+              type="text" placeholder="Trainer name"
               value={form.trainerName}
               onChange={e => setForm(f => ({ ...f, trainerName: e.target.value }))}
-              placeholder="Trainer name"
-              style={{ ...selectStyle, width: '100%', padding: '7px 8px', fontSize: 12 }}
+              style={inputStyle()}
             />
-          </div>
+          </FormField>
 
           {/* Method */}
-          <div>
-            <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Delivery Method</label>
-            <select
-              value={form.deliveryMethod}
-              onChange={e => setForm(f => ({ ...f, deliveryMethod: e.target.value }))}
-              style={{ ...selectStyle, width: '100%', padding: '7px 8px', fontSize: 12 }}
-            >
+          <FormField label="Delivery Method">
+            <select value={form.deliveryMethod} onChange={e => setForm(f => ({ ...f, deliveryMethod: e.target.value }))} style={inputStyle()}>
               {DELIVERY_METHODS.map(m => <option key={m}>{m}</option>)}
             </select>
-          </div>
+          </FormField>
 
           {/* Duration */}
-          <div>
-            <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Duration</label>
+          <FormField label="Duration">
             <input
-              type="text"
+              type="text" placeholder="e.g. 2 hours"
               value={form.duration}
               onChange={e => setForm(f => ({ ...f, duration: e.target.value }))}
-              placeholder="e.g. 2 hours"
-              style={{ ...selectStyle, width: '100%', padding: '7px 8px', fontSize: 12 }}
+              style={inputStyle()}
             />
-          </div>
+          </FormField>
 
           {/* Outcome */}
-          <div>
-            <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Outcome</label>
-            <select
-              value={form.outcome}
-              onChange={e => setForm(f => ({ ...f, outcome: e.target.value }))}
-              style={{ ...selectStyle, width: '100%', padding: '7px 8px', fontSize: 12 }}
-            >
-              <option value="">None (Scheduled)</option>
+          <FormField label="Outcome">
+            <select value={form.outcome} onChange={e => setForm(f => ({ ...f, outcome: e.target.value }))} style={inputStyle()}>
+              <option value="">Not completed yet</option>
               {OUTCOMES.map(o => <option key={o}>{o}</option>)}
             </select>
-          </div>
+          </FormField>
 
           {/* Cert Expiry */}
-          <div>
-            <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Certificate Expiry</label>
+          <FormField label="Certificate Expiry">
             <input
               type="date"
               value={form.certificateExpiry}
               onChange={e => setForm(f => ({ ...f, certificateExpiry: e.target.value }))}
-              style={{ ...selectStyle, width: '100%', padding: '7px 8px', fontSize: 12 }}
+              style={inputStyle()}
             />
-          </div>
+          </FormField>
 
-          {/* Renewal Date */}
-          <div>
-            <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Renewal Date</label>
+          {/* Renewal */}
+          <FormField label="Renewal Date">
             <input
               type="date"
               value={form.renewalDate}
               onChange={e => setForm(f => ({ ...f, renewalDate: e.target.value }))}
-              style={{ ...selectStyle, width: '100%', padding: '7px 8px', fontSize: 12 }}
+              style={inputStyle()}
             />
-          </div>
+          </FormField>
 
           {/* Notes */}
-          <div style={{ gridColumn: '1 / -1' }}>
-            <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Notes</label>
+          <FormField label="Notes" span>
             <textarea
               value={form.notes}
               onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-              rows={2}
-              placeholder="Optional notes..."
-              style={{ ...selectStyle, width: '100%', padding: '7px 8px', fontSize: 12, resize: 'vertical' }}
+              rows={2} placeholder="Optional notes..."
+              style={{ ...inputStyle(), resize: 'vertical' }}
             />
-          </div>
+          </FormField>
         </div>
 
-        {/* Save / Cancel */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-          <button
-            onClick={() => setModalOpen(false)}
-            style={{ ...sans, fontSize: 12, fontWeight: 500, padding: '7px 16px', borderRadius: 8, border: '1px solid var(--border-card)', background: 'var(--bg-card)', color: 'var(--text-secondary)', cursor: 'pointer' }}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            style={{ ...sans, fontSize: 12, fontWeight: 600, padding: '7px 16px', borderRadius: 8, border: 'none', background: '#059669', color: 'white', cursor: 'pointer' }}
-          >
-            {editingId ? 'Update' : 'Save'}
-          </button>
+        {/* Save / Cancel / Delete */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginTop: 16 }}>
+          <div>
+            {editingId && elevated && (
+              <button
+                onClick={() => {
+                  const record = logs.find(r => r.id === editingId)
+                  if (record) { handleDelete(record); setModalOpen(false) }
+                }}
+                style={{ ...sans, fontSize: 11, fontWeight: 600, padding: '7px 14px', borderRadius: 8, border: '1px solid #fca5a5', background: '#fef2f2', color: '#ef4444', cursor: 'pointer' }}
+              >
+                Delete
+              </button>
+            )}
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={() => setModalOpen(false)}
+              style={{ ...sans, fontSize: 12, fontWeight: 500, padding: '7px 16px', borderRadius: 8, border: '1px solid #e8f5f0', background: '#fff', color: '#6b7280', cursor: 'pointer' }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              style={{ ...sans, fontSize: 12, fontWeight: 600, padding: '7px 16px', borderRadius: 8, border: 'none', background: '#10b981', color: 'white', cursor: 'pointer' }}
+            >
+              {editingId ? 'Update' : 'Save'}
+            </button>
+          </div>
         </div>
       </Modal>
 
       {ConfirmDialog}
       {toast.ToastContainer}
 
-      {/* ── Print styles ── */}
+      {/* Print styles */}
       <style>{`
         @media print {
           .no-print { display: none !important; }
+          button { display: none !important; }
+          input, select { display: none !important; }
         }
         @media (max-width: 768px) {
           table { font-size: 10px !important; }
@@ -719,4 +1171,25 @@ export default function TrainingLogs() {
       `}</style>
     </div>
   )
+}
+
+// ── Form helpers ──
+function FormField({ label, error, span, children }) {
+  return (
+    <div style={span ? { gridColumn: '1 / -1' } : {}}>
+      <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, color: error ? '#ef4444' : '#6b7280', display: 'block', marginBottom: 4 }}>
+        {label}
+      </label>
+      {children}
+    </div>
+  )
+}
+
+function inputStyle(error) {
+  return {
+    fontFamily: "'DM Sans', sans-serif", fontSize: 12, width: '100%',
+    padding: '7px 8px', borderRadius: 6, outline: 'none', cursor: 'pointer',
+    border: `1px solid ${error ? '#ef4444' : '#e8f5f0'}`,
+    background: '#fff', color: '#111827',
+  }
 }

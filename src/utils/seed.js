@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { generateId } from './helpers'
 
-const SEED_KEY = 'ipd_seeded_v31'
+const SEED_KEY = 'ipd_seeded_v32'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -11,7 +11,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
   'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13', 'ipd_seeded_v14', 'ipd_seeded_v15', 'ipd_seeded_v16',
   'ipd_seeded_v17', 'ipd_seeded_v18', 'ipd_seeded_v19', 'ipd_seeded_v20', 'ipd_seeded_v21', 'ipd_seeded_v22',
-  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28', 'ipd_seeded_v29', 'ipd_seeded_v30',
+  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28', 'ipd_seeded_v29', 'ipd_seeded_v30', 'ipd_seeded_v31',
 ]
 
 export function cleanupOldLocalStorage() {
@@ -287,180 +287,110 @@ export async function seedIfNeeded() {
     ]),
   ]
 
-  // Training topics (valueField table — each row is { name })
+  // Training topics — matches TRAINING_ITEMS names in TrainingLogs.jsx
   const trainingTopics = [
-    'Safeguarding Awareness',
-    'GDPR Training',
-    'Health & Safety',
-    'General Dispensing Refresher',
-    'Internal Delivery Refresher',
-    'Dispensing Training',
-    'Dispensing Course',
-    'ACA Course',
-    'CPD GPhC Revalidation',
-    'Distance Pharmacy Regulatory Update',
-    'Safeguarding Level 3 Review',
-    'Information Governance & GDPR Refresher',
+    'Safeguarding Adults — Level 1',
+    'Safeguarding Children — Level 1',
+    'Information Governance / GDPR',
     'Fire Safety Awareness',
-    'Manual Handling',
+    'Health & Safety Induction',
+    'Lone Working Awareness',
+    'Equality & Diversity',
+    'Dispensing Accuracy Checks',
+    'Controlled Drugs Handling',
+    'Near Miss & Incident Reporting',
+    'Prescription Validation',
+    'MDS / Blister Pack Preparation',
+    'Methadone / Supervised Consumption',
+    'GDPR for Administrative Staff',
+    'Complaints Handling Procedure',
+    'Confidential Waste Procedure',
+    'GPhC CPD Requirements',
+    'Responsible Pharmacist Obligations',
+    'Clinical Governance Updates',
   ]
 
-  // Training Logs (completed training records)
+  // Training Logs — realistic records matching TRAINING_ITEMS
+  // Mix of complete, expired, expiring within 30 days, and not-started gaps
+  const rec = (staff, topic, date, outcome, expiry, notes = '') => ({
+    id: generateId(),
+    staff_name: staff,
+    date_completed: date,
+    topic,
+    trainer_name: staff === 'Amjid Shakoor' ? '' : 'Amjid Shakoor',
+    delivery_method: outcome === 'Certificate Issued' ? 'Self-study' : 'Classroom',
+    duration: '2 hours',
+    outcome,
+    certificate_expiry: expiry,
+    renewal_date: '',
+    notes,
+    created_at: date + 'T10:00:00.000Z',
+  })
+
   const trainingLogs = [
-    {
-      id: generateId(),
-      staff_name: 'Salma Shakoor',
-      date_completed: '2026-01-10',
-      topic: 'Safeguarding Awareness',
-      trainer_name: 'Amjid Shakoor',
-      delivery_method: 'Classroom',
-      duration: '2 hours',
-      outcome: 'Pass',
-      certificate_expiry: '2028-01-10',
-      renewal_date: '2027-12-10',
-      notes: 'Level 1 awareness training completed',
-      created_at: '2026-01-10T10:00:00.000Z',
-    },
-    {
-      id: generateId(),
-      staff_name: 'Umama Khan',
-      date_completed: '2026-01-10',
-      topic: 'Safeguarding Awareness',
-      trainer_name: 'Amjid Shakoor',
-      delivery_method: 'Classroom',
-      duration: '2 hours',
-      outcome: 'Pass',
-      certificate_expiry: '2028-01-10',
-      renewal_date: '2027-12-10',
-      notes: '',
-      created_at: '2026-01-10T10:00:00.000Z',
-    },
-    {
-      id: generateId(),
-      staff_name: 'Urooj Khan',
-      date_completed: '2026-01-10',
-      topic: 'Safeguarding Awareness',
-      trainer_name: 'Amjid Shakoor',
-      delivery_method: 'Classroom',
-      duration: '2 hours',
-      outcome: 'Pass',
-      certificate_expiry: '2028-01-10',
-      renewal_date: '2027-12-10',
-      notes: '',
-      created_at: '2026-01-10T10:00:00.000Z',
-    },
-    {
-      id: generateId(),
-      staff_name: 'Salma Shakoor',
-      date_completed: '2026-01-15',
-      topic: 'GDPR Training',
-      trainer_name: 'Amjid Shakoor',
-      delivery_method: 'Online',
-      duration: '1 hour',
-      outcome: 'Pass',
-      certificate_expiry: '2027-01-15',
-      renewal_date: '2026-12-15',
-      notes: 'Annual GDPR refresher',
-      created_at: '2026-01-15T09:00:00.000Z',
-    },
-    {
-      id: generateId(),
-      staff_name: 'Moniba Jamil',
-      date_completed: '2026-01-15',
-      topic: 'GDPR Training',
-      trainer_name: 'Amjid Shakoor',
-      delivery_method: 'Online',
-      duration: '1 hour',
-      outcome: 'Pass',
-      certificate_expiry: '2027-01-15',
-      renewal_date: '2026-12-15',
-      notes: '',
-      created_at: '2026-01-15T09:00:00.000Z',
-    },
-    {
-      id: generateId(),
-      staff_name: 'Shain Nawaz',
-      date_completed: '2026-02-01',
-      topic: 'Health & Safety',
-      trainer_name: 'Amjid Shakoor',
-      delivery_method: 'Classroom',
-      duration: '3 hours',
-      outcome: 'Pass',
-      certificate_expiry: '2027-02-01',
-      renewal_date: '2027-01-01',
-      notes: 'Covers fire safety, manual handling, COSHH',
-      created_at: '2026-02-01T10:00:00.000Z',
-    },
-    {
-      id: generateId(),
-      staff_name: 'Jamila Adwan',
-      date_completed: '2026-02-01',
-      topic: 'Health & Safety',
-      trainer_name: 'Amjid Shakoor',
-      delivery_method: 'Classroom',
-      duration: '3 hours',
-      outcome: 'Pass',
-      certificate_expiry: '2027-02-01',
-      renewal_date: '2027-01-01',
-      notes: '',
-      created_at: '2026-02-01T10:00:00.000Z',
-    },
-    {
-      id: generateId(),
-      staff_name: 'Marian Hadaway',
-      date_completed: '2026-02-10',
-      topic: 'Fire Safety Awareness',
-      trainer_name: 'Amjid Shakoor',
-      delivery_method: 'On-the-job',
-      duration: '1 hour',
-      outcome: 'Attended',
-      certificate_expiry: '',
-      renewal_date: '2027-02-10',
-      notes: 'Practical fire extinguisher training',
-      created_at: '2026-02-10T14:00:00.000Z',
-    },
-    {
-      id: generateId(),
-      staff_name: 'M Imran',
-      date_completed: '2026-02-15',
-      topic: 'Internal Delivery Refresher',
-      trainer_name: 'Salma Shakoor',
-      delivery_method: 'On-the-job',
-      duration: '30 minutes',
-      outcome: 'Pass',
-      certificate_expiry: '',
-      renewal_date: '2026-08-15',
-      notes: 'Route safety and patient data handling',
-      created_at: '2026-02-15T11:00:00.000Z',
-    },
-    {
-      id: generateId(),
-      staff_name: 'Sadaf Subhani',
-      date_completed: '2026-02-20',
-      topic: 'Dispensing Training',
-      trainer_name: 'Jamila Adwan',
-      delivery_method: 'On-the-job',
-      duration: '4 hours',
-      outcome: 'Attended',
-      certificate_expiry: '',
-      renewal_date: '',
-      notes: 'Ongoing dispensing course — module 3 complete',
-      created_at: '2026-02-20T09:00:00.000Z',
-    },
-    {
-      id: generateId(),
-      staff_name: 'Amjid Shakoor',
-      date_completed: '2026-02-22',
-      topic: 'CPD GPhC Revalidation',
-      trainer_name: '',
-      delivery_method: 'Self-study',
-      duration: '6 hours',
-      outcome: 'Certificate Issued',
-      certificate_expiry: '2027-02-22',
-      renewal_date: '2027-01-22',
-      notes: 'Annual CPD cycle — 9 entries submitted to GPhC',
-      created_at: '2026-02-22T16:00:00.000Z',
-    },
+    // ─── Amjid Shakoor (superintendent) — mostly complete ───
+    rec('Amjid Shakoor', 'Safeguarding Adults — Level 1',   '2025-02-15', 'Pass', '2027-02-15'),
+    rec('Amjid Shakoor', 'Safeguarding Children — Level 1', '2025-02-15', 'Pass', '2027-02-15'),
+    rec('Amjid Shakoor', 'Information Governance / GDPR',    '2025-06-01', 'Pass', '2026-03-20'), // EXPIRING ~14 days
+    rec('Amjid Shakoor', 'Fire Safety Awareness',            '2025-09-10', 'Pass', '2026-09-10'),
+    rec('Amjid Shakoor', 'Health & Safety Induction',         '2024-01-10', 'Pass', ''),
+    rec('Amjid Shakoor', 'Dispensing Accuracy Checks',        '2025-08-20', 'Pass', '2026-08-20'),
+    rec('Amjid Shakoor', 'Controlled Drugs Handling',         '2025-07-15', 'Pass', '2026-07-15'),
+    rec('Amjid Shakoor', 'Near Miss & Incident Reporting',    '2025-10-01', 'Pass', '2026-10-01'),
+    rec('Amjid Shakoor', 'GPhC CPD Requirements',            '2025-11-01', 'Certificate Issued', '2026-11-01', 'Annual CPD cycle — 9 entries submitted to GPhC'),
+    rec('Amjid Shakoor', 'Responsible Pharmacist Obligations','2025-12-01', 'Pass', '2026-12-01'),
+    rec('Amjid Shakoor', 'Clinical Governance Updates',      '2026-01-15', 'Pass', '2027-01-15'),
+    rec('Amjid Shakoor', 'Complaints Handling Procedure',    '2025-11-20', 'Attended', '2026-11-20'),
+
+    // ─── Salma Shakoor (manager) — some expired ───
+    rec('Salma Shakoor', 'Safeguarding Adults — Level 1',   '2024-01-10', 'Pass', '2026-01-10'), // EXPIRED ~55 days
+    rec('Salma Shakoor', 'Safeguarding Children — Level 1', '2024-01-10', 'Pass', '2026-01-10'), // EXPIRED
+    rec('Salma Shakoor', 'Information Governance / GDPR',    '2025-03-20', 'Pass', '2026-03-25'), // EXPIRING ~19 days
+    rec('Salma Shakoor', 'Fire Safety Awareness',            '2025-10-01', 'Pass', '2026-10-01'),
+    rec('Salma Shakoor', 'Health & Safety Induction',         '2024-06-15', 'Pass', ''),
+    rec('Salma Shakoor', 'GDPR for Administrative Staff',    '2025-04-01', 'Pass', '2026-04-01'), // EXPIRING ~26 days
+    rec('Salma Shakoor', 'Complaints Handling Procedure',    '2025-09-10', 'Attended', '2026-09-10'),
+
+    // ─── Moniba Jamil (dispenser) — partial coverage ───
+    rec('Moniba Jamil', 'Safeguarding Adults — Level 1',   '2025-04-01', 'Pass', '2027-04-01'),
+    rec('Moniba Jamil', 'Information Governance / GDPR',    '2025-06-10', 'Pass', '2026-06-10'),
+    rec('Moniba Jamil', 'Fire Safety Awareness',            '2025-11-15', 'Attended', '2026-11-15'),
+    rec('Moniba Jamil', 'Dispensing Accuracy Checks',       '2025-05-10', 'Pass', '2026-05-10'),
+    rec('Moniba Jamil', 'Near Miss & Incident Reporting',   '2025-08-01', 'Pass', '2026-08-01'),
+
+    // ─── Jamila Adwan (technician) — well trained ───
+    rec('Jamila Adwan', 'Safeguarding Adults — Level 1',   '2025-03-01', 'Pass', '2027-03-01'),
+    rec('Jamila Adwan', 'Safeguarding Children — Level 1', '2025-03-01', 'Pass', '2027-03-01'),
+    rec('Jamila Adwan', 'Information Governance / GDPR',    '2025-08-15', 'Pass', '2026-08-15'),
+    rec('Jamila Adwan', 'Fire Safety Awareness',            '2025-09-01', 'Pass', '2026-09-01'),
+    rec('Jamila Adwan', 'Health & Safety Induction',         '2024-02-15', 'Pass', ''),
+    rec('Jamila Adwan', 'Dispensing Accuracy Checks',       '2025-07-01', 'Pass', '2026-07-01'),
+    rec('Jamila Adwan', 'Controlled Drugs Handling',        '2025-06-20', 'Pass', '2026-06-20'),
+    rec('Jamila Adwan', 'Prescription Validation',          '2025-10-15', 'Pass', '2026-10-15'),
+    rec('Jamila Adwan', 'Confidential Waste Procedure',     '2025-11-01', 'Attended', '2026-11-01'),
+
+    // ─── Umama Khan (dispenser) — some gaps ───
+    rec('Umama Khan', 'Safeguarding Adults — Level 1',   '2025-05-01', 'Pass', '2027-05-01'),
+    rec('Umama Khan', 'Fire Safety Awareness',            '2025-12-01', 'Pass', '2026-12-01'),
+    rec('Umama Khan', 'Controlled Drugs Handling',        '2025-02-01', 'Pass', '2026-02-01'), // EXPIRED ~33 days
+
+    // ─── Shain Nawaz (aca) — basic mandatory only ───
+    rec('Shain Nawaz', 'Safeguarding Adults — Level 1',   '2025-07-01', 'Pass', '2027-07-01'),
+    rec('Shain Nawaz', 'Health & Safety Induction',         '2025-02-01', 'Pass', ''),
+    rec('Shain Nawaz', 'Fire Safety Awareness',            '2025-10-15', 'Pass', '2026-10-15'),
+
+    // ─── Marian Hadaway (stock_assistant) — minimal ───
+    rec('Marian Hadaway', 'Fire Safety Awareness',            '2025-11-10', 'Attended', '2026-11-10'),
+    rec('Marian Hadaway', 'Health & Safety Induction',         '2025-01-15', 'Pass', ''),
+
+    // ─── Sadaf Subhani (dispenser) — in progress ───
+    rec('Sadaf Subhani', 'Safeguarding Adults — Level 1',   '2025-06-01', 'Pass', '2027-06-01'),
+    rec('Sadaf Subhani', 'Dispensing Accuracy Checks',       '2025-09-15', 'Pass', '2026-09-15'),
+
+    // ─── Urooj Khan (dispenser) — some done ───
+    rec('Urooj Khan', 'Safeguarding Adults — Level 1',   '2025-04-15', 'Pass', '2027-04-15'),
+    rec('Urooj Khan', 'Information Governance / GDPR',    '2025-07-20', 'Pass', '2026-07-20'),
+    rec('Urooj Khan', 'Dispensing Accuracy Checks',       '2025-08-01', 'Pass', '2026-08-01'),
   ]
 
   // Safeguarding Records
