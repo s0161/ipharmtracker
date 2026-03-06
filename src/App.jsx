@@ -6,7 +6,7 @@ import TrainingLogs from './pages/TrainingLogs'
 import CleaningRota from './pages/CleaningRota'
 import Renewals from './pages/DocumentTracker'
 import StaffTraining from './pages/StaffTraining'
-import SafeguardingTraining from './pages/SafeguardingTraining'
+
 import RPLog from './pages/RPLog'
 import Settings from './pages/Settings'
 import TemperatureLog from './pages/TemperatureLog'
@@ -40,7 +40,7 @@ function AuthedApp() {
             <Route path="/cleaning" element={<CleaningRota />} />
             <Route path="/documents" element={<Renewals />} />
             <Route path="/staff-training" element={<StaffTraining />} />
-            <Route path="/safeguarding" element={<SafeguardingTraining />} />
+
             <Route path="/temperature" element={<TemperatureLog />} />
             <Route path="/incidents" element={<Incidents />} />
             <Route path="/near-misses" element={<NearMissLog />} />

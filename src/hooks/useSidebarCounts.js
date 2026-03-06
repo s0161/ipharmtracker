@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { getTrafficLight, getSafeguardingStatus, getTaskStatus } from '../utils/helpers'
+import { getTrafficLight, getTaskStatus } from '../utils/helpers'
 
 function emptyCounts() {
   return {
     '/documents': { red: 0, amber: 0 },
     '/staff-training': { red: 0, amber: 0 },
-    '/safeguarding': { red: 0, amber: 0 },
+
     '/cleaning': { red: 0, amber: 0 },
     '/temperature': { red: 0, amber: 0 },
     '/my-tasks': { red: 0, amber: 0 },
@@ -17,10 +17,9 @@ async function fetchCounts() {
   const counts = emptyCounts()
   const prefs = JSON.parse(localStorage.getItem('ipd_notification_prefs') || '{}')
 
-  const [docsRes, staffRes, sgRes, tasksRes, entriesRes, tempRes, staffTasksRes] = await Promise.all([
+  const [docsRes, staffRes, tasksRes, entriesRes, tempRes, staffTasksRes] = await Promise.all([
     supabase.from('documents').select('expiry_date'),
     supabase.from('staff_training').select('status, target_date'),
-    supabase.from('safeguarding_records').select('training_date'),
     supabase.from('cleaning_tasks').select('name, frequency'),
     supabase.from('cleaning_entries').select('task_name, date_time'),
     supabase.from('fridge_temperature_logs').select('date'),
@@ -42,14 +41,6 @@ async function fetchCounts() {
       if (e.status === 'Pending' && e.target_date && e.target_date < todayStr) {
         counts['/staff-training'].red++
       }
-    })
-  }
-
-  if (sgRes.data) {
-    sgRes.data.forEach((r) => {
-      const status = getSafeguardingStatus(r.training_date)
-      if (status === 'overdue') counts['/safeguarding'].red++
-      if (status === 'due-soon') counts['/safeguarding'].amber++
     })
   }
 
@@ -97,7 +88,7 @@ async function fetchCounts() {
   // Zero out counts for disabled notification categories
   if (prefs.documentExpiry === false) counts['/documents'] = { red: 0, amber: 0 }
   if (prefs.trainingOverdue === false) counts['/staff-training'] = { red: 0, amber: 0 }
-  if (prefs.safeguardingDue === false) counts['/safeguarding'] = { red: 0, amber: 0 }
+
   if (prefs.cleaningOverdue === false) counts['/cleaning'] = { red: 0, amber: 0 }
   if (prefs.temperatureMissing === false) counts['/temperature'] = { red: 0, amber: 0 }
 
