@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useUser } from '../contexts/UserContext'
 import { getStaffInitials } from '../utils/rotationManager'
+import { STAFF_ROLES } from '../utils/taskEngine'
 
 export default function PinSelect() {
   const { login } = useUser()
@@ -24,7 +25,7 @@ export default function PinSelect() {
             name: r.name,
             pin: r.pin || '',
             isManager: !!r.is_manager,
-            role: r.role || 'staff',
+            role: r.role || STAFF_ROLES[r.name] || 'staff',
           }))
         )
         setLoading(false)

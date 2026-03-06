@@ -3,7 +3,7 @@ import { useSupabase } from './useSupabase'
 import { supabase } from '../lib/supabase'
 import { useUser } from '../contexts/UserContext'
 import { generateId } from '../utils/helpers'
-import { generateDailyTasks, getTasksForRole, getTaskStats, isElevatedRole } from '../utils/taskEngine'
+import { generateDailyTasks, getTasksForRole, getTaskStats, isElevatedRole, TASK_TEMPLATES, STAFF_ROLES } from '../utils/taskEngine'
 
 function todayStr() {
   return new Date().toISOString().slice(0, 10)
@@ -15,10 +15,11 @@ function todayStr() {
  */
 export function useTaskData() {
   const { user } = useUser()
-  const role = user?.role || 'staff'
+  const role = user?.role || STAFF_ROLES[user?.name] || 'staff'
   const isElevated = isElevatedRole(role)
 
-  const [templates, , templatesLoading] = useSupabase('task_templates', [])
+  // Use hardcoded templates (task_templates table doesn't exist in Supabase)
+  const templates = TASK_TEMPLATES
   const [allTasks, setAllTasks, tasksLoading] = useSupabase('staff_tasks', [])
   const [staff] = useSupabase('staff_members', [])
 
@@ -26,18 +27,18 @@ export function useTaskData() {
   const [savingId, setSavingId] = useState(null)
 
   const today = todayStr()
-  const loading = templatesLoading || tasksLoading
+  const loading = tasksLoading
 
   // Auto-generate today's tasks from templates (once per session)
   useEffect(() => {
-    if (loading || seededRef.current || templates.length === 0) return
+    if (loading || seededRef.current) return
     seededRef.current = true
 
     const newTasks = generateDailyTasks(templates, allTasks, today)
     if (newTasks.length > 0) {
       setAllTasks(prev => [...prev, ...newTasks])
     }
-  }, [loading, templates.length])
+  }, [loading])
 
   // Active templates only
   const activeTemplates = useMemo(

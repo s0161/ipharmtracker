@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { generateId } from './helpers'
 
-const SEED_KEY = 'ipd_seeded_v29'
+const SEED_KEY = 'ipd_seeded_v30'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -11,7 +11,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
   'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13', 'ipd_seeded_v14', 'ipd_seeded_v15', 'ipd_seeded_v16',
   'ipd_seeded_v17', 'ipd_seeded_v18', 'ipd_seeded_v19', 'ipd_seeded_v20', 'ipd_seeded_v21', 'ipd_seeded_v22',
-  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28',
+  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28', 'ipd_seeded_v29',
 ]
 
 export function cleanupOldLocalStorage() {
@@ -32,19 +32,19 @@ export async function seedIfNeeded() {
 
   // Staff members — full objects with pin, manager flag, and role
   const staff = [
-    { name: 'Amjid Shakoor', pin: '0001', is_manager: true, role: 'superintendent' },
-    { name: 'Salma Shakoor', pin: '0002', is_manager: true, role: 'manager' },
-    { name: 'Moniba Jamil', pin: '0003', is_manager: false, role: 'dispenser' },
-    { name: 'Umama Khan', pin: '0004', is_manager: false, role: 'dispenser' },
-    { name: 'Sadaf Subhani', pin: '0005', is_manager: false, role: 'dispenser' },
-    { name: 'Urooj Khan', pin: '0006', is_manager: false, role: 'dispenser' },
-    { name: 'Shain Nawaz', pin: '0007', is_manager: false, role: 'aca' },
-    { name: 'Marian Hadaway', pin: '0008', is_manager: false, role: 'stock_assistant' },
-    { name: 'Jamila Adwan', pin: '0009', is_manager: false, role: 'technician' },
-    { name: 'M Imran', pin: '0010', is_manager: false, role: 'driver' },
-    { name: 'Shahzadul Hassan', pin: '0011', is_manager: false, role: 'driver' },
-    { name: 'Manzoor Ahmed', pin: '0012', is_manager: false, role: 'driver' },
-    { name: 'Sarmad Khalid', pin: '0013', is_manager: false, role: 'driver' },
+    { name: 'Amjid Shakoor', pin: '0001', is_manager: true },
+    { name: 'Salma Shakoor', pin: '0002', is_manager: true },
+    { name: 'Moniba Jamil', pin: '0003', is_manager: false },
+    { name: 'Umama Khan', pin: '0004', is_manager: false },
+    { name: 'Sadaf Subhani', pin: '0005', is_manager: false },
+    { name: 'Urooj Khan', pin: '0006', is_manager: false },
+    { name: 'Shain Nawaz', pin: '0007', is_manager: false },
+    { name: 'Marian Hadaway', pin: '0008', is_manager: false },
+    { name: 'Jamila Adwan', pin: '0009', is_manager: false },
+    { name: 'M Imran', pin: '0010', is_manager: false },
+    { name: 'Shahzadul Hassan', pin: '0011', is_manager: false },
+    { name: 'Manzoor Ahmed', pin: '0012', is_manager: false },
+    { name: 'Sarmad Khalid', pin: '0013', is_manager: false },
   ]
 
   // Cleaning tasks
@@ -520,9 +520,9 @@ export async function seedIfNeeded() {
     return d.toISOString().slice(0, 10)
   }
 
-  // Initials must match STAFF_ASSIGNEES in MyTasks.jsx
   const ASSIGNEE_POOL = [
-    'SS', 'AS', 'JA', 'MH', 'MJ', 'UK', 'SuS', 'UKh', 'SN',
+    'Salma Shakoor', 'Amjid Shakoor', 'Jamila Adwan', 'Marian Hadaway',
+    'Moniba Jamil', 'Umama Khan', 'Sadaf Subhani', 'Urooj Khan', 'Shain Nawaz',
   ]
 
   const staffTaskSamples = [
@@ -559,56 +559,10 @@ export async function seedIfNeeded() {
     id: generateId(),
     ...task,
     assigned_to: ASSIGNEE_POOL[i % ASSIGNEE_POOL.length],
-    assigned_by: 'AS',
+    assigned_by: 'Amjid Shakoor',
     role_required: 'any',
     created_at: new Date().toISOString(),
   }))
-
-  // Task Templates — replaces hardcoded PHARMACY_TASKS
-  const taskTemplates = [
-    // ── Opening (3) ──
-    { name: 'Temperature Log', category: 'opening', frequency: 'daily', priority: 'high', applicable_roles: ['dispenser','technician','aca','stock_assistant'], description: 'Record fridge min/max/current temp', linked_log: '/temperature', is_active: true },
-    { name: 'Daily RP Checks', category: 'opening', frequency: 'daily', priority: 'urgent', applicable_roles: ['superintendent','pharmacist'], description: 'Complete all 14 RP checklist items', linked_log: '/rp-log', is_active: true },
-    { name: 'CD Register Balance Check', category: 'opening', frequency: 'daily', priority: 'urgent', applicable_roles: ['superintendent','pharmacist'], description: 'Check all 5 CD entries in PharmSmart', linked_log: null, is_active: true },
-
-    // ── Clinical (4) ──
-    { name: 'Check Drug Alerts & Recalls', category: 'clinical', frequency: 'daily', priority: 'urgent', applicable_roles: ['superintendent','pharmacist'], description: 'Check MHRA alerts and CAS notifications', linked_log: null, is_active: true },
-    { name: 'Near Miss Log Review', category: 'clinical', frequency: 'daily', priority: 'normal', applicable_roles: ['superintendent','pharmacist'], description: 'Review daily near miss entries', linked_log: '/near-misses', is_active: true },
-    { name: 'Check Owing Prescriptions', category: 'clinical', frequency: 'daily', priority: 'normal', applicable_roles: ['dispenser','technician','aca'], description: 'Follow up outstanding owings', linked_log: null, is_active: true },
-    { name: 'Prescription Collection Review', category: 'clinical', frequency: 'daily', priority: 'low', applicable_roles: ['dispenser','technician','aca','stock_assistant'], description: 'Return uncollected items after 28 days', linked_log: null, is_active: true },
-
-    // ── Dispensary (3) ──
-    { name: 'Dispensary Clean', category: 'dispensary', frequency: 'daily', priority: 'normal', applicable_roles: ['dispenser','technician','aca','stock_assistant'], description: 'Clean dispensary surfaces and equipment', linked_log: '/cleaning', is_active: true },
-    { name: 'Counter & Surfaces Wipe', category: 'dispensary', frequency: 'daily', priority: 'normal', applicable_roles: ['dispenser','technician','aca','stock_assistant'], description: 'Wipe down all counter surfaces', linked_log: '/cleaning', is_active: true },
-    { name: 'Fridge Quick Clean', category: 'dispensary', frequency: 'weekly', priority: 'normal', applicable_roles: ['dispenser','technician','aca','stock_assistant'], description: 'Wipe shelves, check for spills', linked_log: '/cleaning', is_active: true },
-
-    // ── Stock (4) ──
-    { name: 'Stock Rotation — Short Dated', category: 'stock', frequency: 'weekly', priority: 'normal', applicable_roles: ['dispenser','technician','aca','stock_assistant'], description: 'Move short-dated items to front, flag <3 months', linked_log: null, is_active: true },
-    { name: 'Returns Processing', category: 'stock', frequency: 'weekly', priority: 'low', applicable_roles: ['dispenser','technician','aca','stock_assistant'], description: 'Process supplier returns and credit notes', linked_log: null, is_active: true },
-    { name: 'Robot Maintenance Check', category: 'stock', frequency: 'weekly', priority: 'normal', applicable_roles: ['manager','superintendent'], description: 'Run diagnostics, clear jams, check cassettes', linked_log: null, is_active: true },
-    { name: 'Deep Fridge Clean', category: 'stock', frequency: 'monthly', priority: 'high', applicable_roles: ['dispenser','technician','aca','stock_assistant'], description: 'Full defrost and clean — document', linked_log: '/cleaning', is_active: true },
-
-    // ── Compliance (10) ──
-    { name: 'Full CD Reconciliation', category: 'compliance', frequency: 'weekly', priority: 'urgent', applicable_roles: ['superintendent','pharmacist'], description: 'Count all Schedule 2 & 3 CDs against register', linked_log: null, is_active: true },
-    { name: 'SOP Spot Check', category: 'compliance', frequency: 'fortnightly', priority: 'normal', applicable_roles: ['superintendent','pharmacist'], description: 'Random check of 2 SOPs for currency', linked_log: null, is_active: true },
-    { name: 'Staff Training Record Review', category: 'compliance', frequency: 'fortnightly', priority: 'normal', applicable_roles: ['manager','superintendent'], description: 'Check training log completeness', linked_log: '/staff-training', is_active: true },
-    { name: 'Staff Rota Review', category: 'compliance', frequency: 'weekly', priority: 'low', applicable_roles: ['manager','superintendent'], description: 'Confirm next week\'s coverage', linked_log: null, is_active: true },
-    { name: 'GPhC Standards Self-Assessment', category: 'compliance', frequency: 'monthly', priority: 'high', applicable_roles: ['superintendent','pharmacist'], description: 'Review all 5 GPhC standards with evidence', linked_log: '/compliance-report', is_active: true },
-    { name: 'Near Miss Trend Analysis', category: 'compliance', frequency: 'monthly', priority: 'normal', applicable_roles: ['superintendent','pharmacist'], description: 'Identify patterns, update risk register', linked_log: '/near-misses', is_active: true },
-    { name: 'Monthly Audit Summary', category: 'compliance', frequency: 'monthly', priority: 'normal', applicable_roles: ['manager','superintendent'], description: 'Compile compliance metrics for month', linked_log: '/analytics', is_active: true },
-    { name: 'Insurance & Registration Review', category: 'compliance', frequency: 'monthly', priority: 'low', applicable_roles: ['manager','superintendent'], description: 'Check policy dates and renewal schedules', linked_log: '/documents', is_active: true },
-    { name: 'End of Day Till Reconciliation', category: 'compliance', frequency: 'daily', priority: 'normal', applicable_roles: ['manager','superintendent'], description: 'Cash & card totals match POS', linked_log: null, is_active: true },
-    { name: 'Equipment Calibration Check', category: 'compliance', frequency: 'monthly', priority: 'normal', applicable_roles: ['manager','superintendent'], description: 'Verify scales, thermometers, BP monitors', linked_log: null, is_active: true },
-
-    // ── Closing (2) ──
-    { name: 'Sharps Bin Level Check', category: 'closing', frequency: 'weekly', priority: 'high', applicable_roles: ['dispenser','technician','aca','stock_assistant'], description: 'Replace if ¾ full — seal and label', linked_log: null, is_active: true },
-    { name: 'Waste Collection Scheduling', category: 'closing', frequency: 'weekly', priority: 'normal', applicable_roles: ['manager','superintendent'], description: 'Confirm DOOP & confidential waste pickup', linked_log: null, is_active: true },
-
-    // ── Admin (4) ──
-    { name: 'Fire Exits & Signage Check', category: 'admin', frequency: 'weekly', priority: 'high', applicable_roles: ['manager','superintendent','dispenser','technician'], description: 'All exits unobstructed, signage visible', linked_log: null, is_active: true },
-    { name: 'First Aid Kit Check', category: 'admin', frequency: 'weekly', priority: 'normal', applicable_roles: ['dispenser','technician','aca','stock_assistant'], description: 'Reorder any expired or missing items', linked_log: null, is_active: true },
-    { name: 'Consultation Room Check', category: 'admin', frequency: 'fortnightly', priority: 'low', applicable_roles: ['dispenser','technician','aca','stock_assistant'], description: 'Clean surfaces, check equipment, restock', linked_log: '/cleaning', is_active: true },
-  ].map(t => ({ id: generateId(), ...t, created_at: new Date().toISOString() }))
 
   // Clear old seed data before re-inserting
   // Use .not('id','is',null) instead of .neq('id','') — the latter fails for UUID columns
@@ -628,7 +582,6 @@ export async function seedIfNeeded() {
     delFilter(supabase.from('staff_tasks').delete()),
     delFilter(supabase.from('near_misses').delete()),
     delFilter(supabase.from('pharmacy_config').delete()),
-    delFilter(supabase.from('task_templates').delete()),
   ])
 
   // Insert into Supabase tables
@@ -643,7 +596,6 @@ export async function seedIfNeeded() {
     supabase.from('training_logs').insert(trainingLogs),
     supabase.from('action_items').insert(actionItems),
     supabase.from('staff_tasks').insert(staffTaskSamples),
-    supabase.from('task_templates').insert(taskTemplates),
     supabase.from('pharmacy_config').insert({
       pharmacy_name: 'iPharmacy Direct',
       address: 'Manchester, UK',

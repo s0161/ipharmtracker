@@ -10,6 +10,7 @@ import { useUser } from '../contexts/UserContext'
 import { usePharmacyConfig } from '../hooks/usePharmacyConfig'
 import { logout } from './Login'
 import { useConfirm } from '../components/ConfirmDialog'
+import { TASK_TEMPLATES as TASK_TEMPLATES_IMPORT, STAFF_ROLES, ROLE_LABELS } from '../utils/taskEngine'
 import DashCardHeader from '../components/DashCardHeader'
 import Avatar from '../components/Avatar'
 
@@ -125,7 +126,11 @@ function RolePill({ role }) {
 
 export default function Settings() {
   const [staffMembers, setStaffMembers] = useSupabase('staff_members', [])
-  const [taskTemplates, setTaskTemplates] = useSupabase('task_templates', [])
+  const [taskTemplates, setTaskTemplates] = useState(() => {
+    const saved = localStorage.getItem('ipd_template_active_state')
+    const overrides = saved ? JSON.parse(saved) : {}
+    return TASK_TEMPLATES_IMPORT.map(t => ({ ...t, isActive: overrides[t.id] !== undefined ? overrides[t.id] : t.isActive }))
+  })
   const { user, logout: logoutUser } = useUser()
   const [pharmacyConfig, updatePharmacyConfig] = usePharmacyConfig()
   const [pharmacyForm, setPharmacyForm] = useState(null)
@@ -422,14 +427,14 @@ export default function Settings() {
                           <div style={{ fontSize: 10, fontFamily: MONO, color: 'var(--text-muted)', marginTop: 1 }}>
                             {s.name ? s.name.split(' ').map(w => w[0]).join('').toUpperCase() : '?'}
                           </div>
-                          <div style={{ marginTop: 4 }}><RolePill role={s.role || 'staff'} /></div>
+                          <div style={{ marginTop: 4 }}><RolePill role={s.role || STAFF_ROLES[s.name] || 'staff'} /></div>
                         </div>
 
                         {/* Role dropdown */}
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 8 }}>
                           <label style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600 }}>Role:</label>
                           <select
-                            value={s.role || 'staff'}
+                            value={s.role || STAFF_ROLES[s.name] || 'staff'}
                             onChange={e => {
                               const newRole = e.target.value
                               const isManager = ['superintendent', 'manager'].includes(newRole)
@@ -782,7 +787,13 @@ export default function Settings() {
                         }}>
                           <Toggle
                             checked={t.isActive !== false}
-                            onChange={() => setTaskTemplates(taskTemplates.map(x => x.id === t.id ? { ...x, isActive: !x.isActive } : x))}
+                            onChange={() => {
+                              const updated = taskTemplates.map(x => x.id === t.id ? { ...x, isActive: !x.isActive } : x)
+                              setTaskTemplates(updated)
+                              const overrides = {}
+                              updated.forEach(x => { overrides[x.id] = x.isActive })
+                              localStorage.setItem('ipd_template_active_state', JSON.stringify(overrides))
+                            }}
                             size="small"
                           />
                           <div style={{ flex: 1, minWidth: 0 }}>

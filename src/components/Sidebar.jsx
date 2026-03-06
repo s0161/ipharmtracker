@@ -5,6 +5,7 @@ import { useTheme } from '../hooks/useTheme'
 import { useUser } from '../contexts/UserContext'
 import { usePharmacyConfig } from '../hooks/usePharmacyConfig'
 import { getStaffInitials } from '../utils/rotationManager'
+import { STAFF_ROLES } from '../utils/taskEngine'
 
 // ─── NAV ICONS (16x16 viewBox) ───
 function NI({ name, color }) {
@@ -214,7 +215,7 @@ export default function Sidebar({ open, onClose }) {
             <div className="flex-1 min-w-0">
               <div className="text-xs font-semibold text-ec-t1 truncate">{user.name}</div>
               <div className="text-[10px] text-ec-t3 capitalize">
-                {(user.role || 'staff').replace('_', ' ')}
+                {(user.role || STAFF_ROLES[user.name] || 'staff').replace('_', ' ')}
               </div>
             </div>
             <button
