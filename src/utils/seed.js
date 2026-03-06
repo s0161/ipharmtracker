@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { generateId } from './helpers'
 
-const SEED_KEY = 'ipd_seeded_v30'
+const SEED_KEY = 'ipd_seeded_v31'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -11,7 +11,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
   'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13', 'ipd_seeded_v14', 'ipd_seeded_v15', 'ipd_seeded_v16',
   'ipd_seeded_v17', 'ipd_seeded_v18', 'ipd_seeded_v19', 'ipd_seeded_v20', 'ipd_seeded_v21', 'ipd_seeded_v22',
-  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28', 'ipd_seeded_v29',
+  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28', 'ipd_seeded_v29', 'ipd_seeded_v30',
 ]
 
 export function cleanupOldLocalStorage() {
@@ -564,6 +564,78 @@ export async function seedIfNeeded() {
     created_at: new Date().toISOString(),
   }))
 
+  // Fridge temperature logs — sample data for past 7 days, both fridges
+  const tempLogs = []
+  for (let i = 7; i >= 1; i--) {
+    const d = dayStr(-i)
+    // Main fridge — morning
+    tempLogs.push({
+      id: generateId(),
+      fridge_id: 'main',
+      date: d,
+      slot: 'morning',
+      temp_min: 2.1 + Math.round(Math.random() * 10) / 10,
+      temp_max: 6.5 + Math.round(Math.random() * 15) / 10,
+      temp_current: 3.5 + Math.round(Math.random() * 20) / 10,
+      logged_by: 'SS',
+      excursion: false,
+      not_checked: false,
+      created_at: new Date(`${d}T09:00:00`).toISOString(),
+    })
+    // Main fridge — evening
+    if (i > 1) {
+      tempLogs.push({
+        id: generateId(),
+        fridge_id: 'main',
+        date: d,
+        slot: 'evening',
+        temp_min: 2.3 + Math.round(Math.random() * 10) / 10,
+        temp_max: 6.8 + Math.round(Math.random() * 15) / 10,
+        temp_current: 4.0 + Math.round(Math.random() * 20) / 10,
+        logged_by: 'MJ',
+        excursion: false,
+        not_checked: false,
+        created_at: new Date(`${d}T17:00:00`).toISOString(),
+      })
+    }
+    // Backup fridge — morning only
+    tempLogs.push({
+      id: generateId(),
+      fridge_id: 'backup',
+      date: d,
+      slot: 'morning',
+      temp_min: 2.0 + Math.round(Math.random() * 10) / 10,
+      temp_max: 5.5 + Math.round(Math.random() * 20) / 10,
+      temp_current: 3.0 + Math.round(Math.random() * 25) / 10,
+      logged_by: 'MH',
+      excursion: false,
+      not_checked: false,
+      created_at: new Date(`${d}T09:30:00`).toISOString(),
+    })
+  }
+  // Add one excursion entry (3 days ago, main, morning)
+  const excursionLog = tempLogs.find(l => l.date === dayStr(-3) && l.fridge_id === 'main' && l.slot === 'morning')
+  if (excursionLog) {
+    excursionLog.temp_max = 9.2
+    excursionLog.excursion = true
+    excursionLog.excursion_reason = 'Fridge door left ajar overnight — temperature recovered after closing'
+    excursionLog.stock_quarantined = true
+    excursionLog.stock_destroyed = false
+    excursionLog.reported_to = 'Amjid Shakoor'
+  }
+  // Add one "not checked" entry (5 days ago, backup, evening)
+  tempLogs.push({
+    id: generateId(),
+    fridge_id: 'backup',
+    date: dayStr(-5),
+    slot: 'evening',
+    not_checked: true,
+    not_checked_reason: 'Bank Holiday',
+    logged_by: 'SS',
+    excursion: false,
+    created_at: new Date(`${dayStr(-5)}T17:00:00`).toISOString(),
+  })
+
   // Clear old seed data before re-inserting
   // Use .not('id','is',null) instead of .neq('id','') — the latter fails for UUID columns
   const delFilter = (q) => q.not('id', 'is', null)
@@ -582,6 +654,7 @@ export async function seedIfNeeded() {
     delFilter(supabase.from('staff_tasks').delete()),
     delFilter(supabase.from('near_misses').delete()),
     delFilter(supabase.from('pharmacy_config').delete()),
+    delFilter(supabase.from('fridge_temperature_logs').delete()),
   ])
 
   // Insert into Supabase tables
@@ -596,6 +669,7 @@ export async function seedIfNeeded() {
     supabase.from('training_logs').insert(trainingLogs),
     supabase.from('action_items').insert(actionItems),
     supabase.from('staff_tasks').insert(staffTaskSamples),
+    supabase.from('fridge_temperature_logs').insert(tempLogs),
     supabase.from('pharmacy_config').insert({
       pharmacy_name: 'iPharmacy Direct',
       address: 'Manchester, UK',
