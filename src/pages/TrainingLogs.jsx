@@ -1,337 +1,559 @@
-import { useState, useEffect, useMemo } from 'react'
-import { useSearchParams } from 'react-router-dom'
+/*
+  Training Logs — Full training manager
+  Records completed training, tracks compliance (expiring/overdue certs),
+  and supports scheduling future training via future-dated entries.
+
+  Supabase table: training_logs
+  Fields: id, staff_name, date_completed, topic, trainer_name,
+          delivery_method, duration, outcome, certificate_expiry,
+          renewal_date, notes, created_at
+*/
+
+import { useState, useMemo, useCallback } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
-import { logAudit } from '../utils/auditLog'
 import { useUser } from '../contexts/UserContext'
+import { logAudit } from '../utils/auditLog'
 import { generateId, formatDate, getTrafficLight } from '../utils/helpers'
-import { downloadCsv } from '../utils/exportCsv'
+import { isElevatedRole } from '../utils/taskEngine'
 import { useToast } from '../components/Toast'
-import Modal from '../components/Modal'
-import PageActions from '../components/PageActions'
-import SwipeRow from '../components/SwipeRow'
 import { useConfirm } from '../components/ConfirmDialog'
+import { downloadCsv } from '../utils/exportCsv'
+import Modal from '../components/Modal'
 import EmptyState from '../components/EmptyState'
 import SkeletonLoader from '../components/SkeletonLoader'
+import PageActions from '../components/PageActions'
 
-const DELIVERY_METHODS = ['Classroom', 'Online', 'On-the-job', 'Self-study', 'External Provider', 'Workshop']
-const OUTCOMES = ['Pass', 'Fail', 'Attended', 'Certificate Issued', 'Refresher Needed']
-
-const emptyForm = {
-  staffName: '',
-  dateCompleted: '',
-  topic: '',
-  trainerName: '',
-  deliveryMethod: '',
-  duration: '',
-  outcome: '',
-  certificateExpiry: '',
-  renewalDate: '',
-  notes: '',
+// ── Font injection ──
+if (!document.getElementById('tl-fonts')) {
+  const fl = document.createElement('link')
+  fl.id = 'tl-fonts'
+  fl.rel = 'stylesheet'
+  fl.href = 'https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap'
+  document.head.appendChild(fl)
 }
 
-function getExpiryStatus(certificateExpiry) {
-  if (!certificateExpiry) return 'none'
-  return getTrafficLight(certificateExpiry)
+const sans = { fontFamily: "'DM Sans', sans-serif" }
+const mono = { fontFamily: "'DM Mono', monospace" }
+const card = {
+  background: 'var(--bg-card)', borderRadius: 12,
+  padding: '14px 16px', border: '1px solid var(--border-card)',
+  boxShadow: 'var(--shadow-card)', marginBottom: 12,
+}
+const selectStyle = {
+  fontSize: 11, padding: '4px 8px', borderRadius: 6,
+  border: '1px solid var(--border-card)', background: 'var(--bg-card)',
+  color: 'var(--text-secondary)', outline: 'none', cursor: 'pointer',
+  ...sans,
 }
 
-function getExpiryLabel(status) {
-  switch (status) {
-    case 'red': return 'Expired'
-    case 'amber': return 'Expiring Soon'
-    case 'green': return 'Valid'
-    default: return '—'
+const DELIVERY_METHODS = ['Classroom', 'Online', 'On-the-job', 'Self-study']
+const OUTCOMES = ['Pass', 'Attended', 'Certificate Issued']
+const STATUS_FILTERS = ['All', 'Completed', 'Scheduled', 'Expiring', 'Expired']
+
+// ── Helpers ──
+function getToday() {
+  return new Date().toISOString().slice(0, 10)
+}
+
+function daysUntil(dateStr) {
+  if (!dateStr) return null
+  const now = new Date()
+  now.setHours(0, 0, 0, 0)
+  const target = new Date(dateStr + 'T00:00:00')
+  return Math.ceil((target - now) / (1000 * 60 * 60 * 24))
+}
+
+function deriveStatus(record) {
+  const today = getToday()
+  // Future date with no outcome = scheduled
+  if (record.dateCompleted > today && (!record.outcome || record.outcome === '')) {
+    return 'scheduled'
   }
-}
-
-const expiryBadgeClass = (status) => {
-  const base = "px-2 py-0.5 rounded-full text-xs font-semibold"
-  switch (status) {
-    case 'green': return `${base} bg-ec-em/10 text-ec-em`
-    case 'amber': return `${base} bg-ec-warn/10 text-ec-warn`
-    case 'red': return `${base} bg-ec-crit/10 text-ec-crit-light`
-    default: return base
+  // Has cert expiry
+  if (record.certificateExpiry) {
+    const days = daysUntil(record.certificateExpiry)
+    if (days !== null && days < 0) return 'expired'
+    if (days !== null && days <= 30) return 'expiring'
   }
+  return 'completed'
 }
 
-const inputClass = "w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+const STATUS_STYLES = {
+  completed:  { bg: '#f0fdf4', color: '#059669', border: '#6ee7b7', label: 'Completed' },
+  scheduled:  { bg: '#eff6ff', color: '#2563eb', border: '#bfdbfe', label: 'Scheduled' },
+  expiring:   { bg: '#fffbeb', color: '#d97706', border: '#fde68a', label: 'Expiring' },
+  expired:    { bg: '#fef2f2', color: '#ef4444', border: '#fca5a5', label: 'Expired' },
+}
 
+// ── Section Header (left-border accent) ──
+function SectionHeader({ accent, icon, title, right }) {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '8px 12px', marginBottom: 12,
+      borderLeft: `3px solid ${accent}`, borderRadius: 4,
+      background: `${accent}08`,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+        <span style={{ fontSize: 14 }}>{icon}</span>
+        <span style={{ ...sans, fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{title}</span>
+      </div>
+      {right && <div>{right}</div>}
+    </div>
+  )
+}
+
+// ── Status Pill ──
+function StatusPill({ status }) {
+  const s = STATUS_STYLES[status] || STATUS_STYLES.completed
+  return (
+    <span style={{
+      fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 20,
+      background: s.bg, color: s.color, border: `1px solid ${s.border}`,
+      whiteSpace: 'nowrap',
+    }}>
+      {s.label}
+    </span>
+  )
+}
+
+// ── Expiry indicator ──
+function ExpiryBadge({ dateStr }) {
+  if (!dateStr) return <span style={{ color: 'var(--text-muted)', fontSize: 11 }}>—</span>
+  const days = daysUntil(dateStr)
+  const light = days < 0 ? 'red' : days <= 30 ? 'amber' : 'green'
+  const colors = {
+    red:   { bg: '#fef2f2', color: '#ef4444', border: '#fca5a5' },
+    amber: { bg: '#fffbeb', color: '#d97706', border: '#fde68a' },
+    green: { bg: '#f0fdf4', color: '#059669', border: '#6ee7b7' },
+  }
+  const c = colors[light]
+  const label = days < 0 ? `${Math.abs(days)}d overdue` : days === 0 ? 'Today' : days <= 30 ? `${days}d left` : formatDate(dateStr)
+  return (
+    <span style={{
+      fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 20,
+      background: c.bg, color: c.color, border: `1px solid ${c.border}`,
+      whiteSpace: 'nowrap',
+    }}>
+      {label}
+    </span>
+  )
+}
+
+// ── Stat Card ──
+function StatCard({ icon, label, value, accent }) {
+  return (
+    <div style={{
+      ...card,
+      display: 'flex', alignItems: 'center', gap: 10,
+      borderLeft: `3px solid ${accent}`, minWidth: 130,
+    }}>
+      <span style={{ fontSize: 18 }}>{icon}</span>
+      <div>
+        <div style={{ ...mono, fontSize: 20, fontWeight: 700, color: accent, lineHeight: 1 }}>{value}</div>
+        <div style={{ ...sans, fontSize: 10, color: 'var(--text-muted)', marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 600 }}>{label}</div>
+      </div>
+    </div>
+  )
+}
+
+// ══════════════════════════════════════════════
+//  MAIN COMPONENT
+// ══════════════════════════════════════════════
 export default function TrainingLogs() {
-  const { user } = useUser()
   const [logs, setLogs, loading] = useSupabase('training_logs', [])
-  const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
+  const [staff] = useSupabase('staff_members', [], { valueField: 'name' })
   const [topics] = useSupabase('training_topics', [], { valueField: 'name' })
-  const showToast = useToast()
+  const { user } = useUser()
+  const toast = useToast()
   const { confirm, ConfirmDialog } = useConfirm()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const [modalOpen, setModalOpen] = useState(false)
-  const [form, setForm] = useState(emptyForm)
-  const [editingId, setEditingId] = useState(null)
+
+  const elevated = user && isElevatedRole(user.role)
+
+  // ── Filters ──
   const [filterStaff, setFilterStaff] = useState('')
   const [filterTopic, setFilterTopic] = useState('')
+  const [filterMethod, setFilterMethod] = useState('')
+  const [filterStatus, setFilterStatus] = useState('All')
   const [search, setSearch] = useState('')
+  const [sortField, setSortField] = useState('dateCompleted')
+  const [sortDir, setSortDir] = useState('desc')
+
+  // ── Modal ──
+  const [modalOpen, setModalOpen] = useState(false)
+  const [editingId, setEditingId] = useState(null)
+  const emptyForm = {
+    staffName: user?.name || '', dateCompleted: getToday(), topic: '',
+    trainerName: '', deliveryMethod: 'Classroom', duration: '',
+    outcome: 'Pass', certificateExpiry: '', renewalDate: '', notes: '',
+  }
+  const [form, setForm] = useState(emptyForm)
   const [formErrors, setFormErrors] = useState({})
 
-  useEffect(() => {
-    if (searchParams.get('add') === 'true' && !loading) {
-      setForm(emptyForm)
-      setEditingId(null)
-      setModalOpen(true)
-      setSearchParams({}, { replace: true })
-    }
-  }, [loading, searchParams, setSearchParams])
-
-  if (loading) {
-    return <SkeletonLoader variant="table" />
-  }
-
-  // Stats
-  const thisMonth = new Date().toISOString().slice(0, 7)
-  const totalLogs = logs.length
-  const thisMonthCount = logs.filter(l => (l.dateCompleted || '').startsWith(thisMonth)).length
-  const expiringSoon = logs.filter(l => {
-    const s = getExpiryStatus(l.certificateExpiry)
-    return s === 'red' || s === 'amber'
-  }).length
-  const staffTrained = new Set(logs.map(l => l.staffName)).size
-
-  // Filter
-  const filtered = useMemo(() => {
-    const q = search.toLowerCase()
-    return logs.filter(l => {
-      if (filterStaff && l.staffName !== filterStaff) return false
-      if (filterTopic && l.topic !== filterTopic) return false
-      if (q && !(l.staffName || '').toLowerCase().includes(q) && !(l.topic || '').toLowerCase().includes(q) && !(l.trainerName || '').toLowerCase().includes(q)) return false
-      return true
-    })
-  }, [logs, filterStaff, filterTopic, search])
-
-  const sorted = [...filtered].sort(
-    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  // ── Derived data ──
+  const enrichedLogs = useMemo(() =>
+    logs.map(r => ({ ...r, _status: deriveStatus(r) })),
+    [logs]
   )
 
-  const uniqueStaff = [...new Set(logs.map(l => l.staffName))].sort()
-  const uniqueTopics = [...new Set(logs.map(l => l.topic))].sort()
+  const stats = useMemo(() => {
+    const s = { total: enrichedLogs.length, completed: 0, scheduled: 0, expiring: 0, expired: 0 }
+    enrichedLogs.forEach(r => { if (s[r._status] !== undefined) s[r._status]++ })
+    const uniqueStaff = new Set(enrichedLogs.filter(r => r._status === 'completed').map(r => r.staffName))
+    s.staffTrained = uniqueStaff.size
+    return s
+  }, [enrichedLogs])
 
-  const openAdd = () => {
-    setForm(emptyForm)
-    setEditingId(null)
-    setFormErrors({})
-    setModalOpen(true)
-  }
+  // ── Filter + Sort ──
+  const filtered = useMemo(() => {
+    let result = enrichedLogs
 
-  const openEdit = (log) => {
-    setForm({
-      staffName: log.staffName,
-      dateCompleted: log.dateCompleted,
-      topic: log.topic,
-      trainerName: log.trainerName,
-      deliveryMethod: log.deliveryMethod || '',
-      duration: log.duration || '',
-      outcome: log.outcome || '',
-      certificateExpiry: log.certificateExpiry,
-      renewalDate: log.renewalDate || '',
-      notes: log.notes,
-    })
-    setEditingId(log.id)
-    setFormErrors({})
-    setModalOpen(true)
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    const errors = {}
-    if (!form.staffName) errors.staffName = 'Staff member is required'
-    if (!form.topic) errors.topic = 'Training topic is required'
-    if (!form.dateCompleted) errors.dateCompleted = 'Date completed is required'
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors)
-      return
+    if (filterStaff) result = result.filter(r => r.staffName === filterStaff)
+    if (filterTopic) result = result.filter(r => r.topic === filterTopic)
+    if (filterMethod) result = result.filter(r => r.deliveryMethod === filterMethod)
+    if (filterStatus !== 'All') result = result.filter(r => r._status === filterStatus.toLowerCase())
+    if (search) {
+      const q = search.toLowerCase()
+      result = result.filter(r =>
+        r.staffName?.toLowerCase().includes(q) ||
+        r.topic?.toLowerCase().includes(q) ||
+        r.trainerName?.toLowerCase().includes(q) ||
+        r.notes?.toLowerCase().includes(q)
+      )
     }
+
+    result.sort((a, b) => {
+      const av = a[sortField] || ''
+      const bv = b[sortField] || ''
+      const cmp = av < bv ? -1 : av > bv ? 1 : 0
+      return sortDir === 'asc' ? cmp : -cmp
+    })
+
+    return result
+  }, [enrichedLogs, filterStaff, filterTopic, filterMethod, filterStatus, search, sortField, sortDir])
+
+  // ── Get unique values for filter dropdowns ──
+  const usedTopics = useMemo(() => [...new Set(logs.map(r => r.topic).filter(Boolean))].sort(), [logs])
+  const usedStaff = useMemo(() => [...new Set(logs.map(r => r.staffName).filter(Boolean))].sort(), [logs])
+
+  // ── Sort handler ──
+  const handleSort = useCallback((field) => {
+    setSortField(prev => {
+      if (prev === field) {
+        setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+        return field
+      }
+      setSortDir('desc')
+      return field
+    })
+  }, [])
+
+  // ── Form handlers ──
+  const openAdd = () => {
+    setEditingId(null)
+    setForm({ ...emptyForm, staffName: user?.name || '' })
     setFormErrors({})
+    setModalOpen(true)
+  }
+
+  const openEdit = (record) => {
+    setEditingId(record.id)
+    setForm({
+      staffName: record.staffName || '',
+      dateCompleted: record.dateCompleted || '',
+      topic: record.topic || '',
+      trainerName: record.trainerName || '',
+      deliveryMethod: record.deliveryMethod || 'Classroom',
+      duration: record.duration || '',
+      outcome: record.outcome || '',
+      certificateExpiry: record.certificateExpiry || '',
+      renewalDate: record.renewalDate || '',
+      notes: record.notes || '',
+    })
+    setFormErrors({})
+    setModalOpen(true)
+  }
+
+  const validate = () => {
+    const errs = {}
+    if (!form.staffName) errs.staffName = 'Required'
+    if (!form.dateCompleted) errs.dateCompleted = 'Required'
+    if (!form.topic) errs.topic = 'Required'
+    setFormErrors(errs)
+    return Object.keys(errs).length === 0
+  }
+
+  const handleSave = () => {
+    if (!validate()) return
 
     if (editingId) {
-      setLogs(
-        logs.map((l) =>
-          l.id === editingId ? { ...l, ...form } : l
-        )
-      )
-      logAudit('Updated', `Training Log: ${form.topic} for ${form.staffName}`, 'Training Logs', user?.name)
-      showToast('Training log updated')
+      setLogs(prev => prev.map(r => r.id === editingId ? { ...r, ...form } : r))
+      logAudit('training_log_updated', { id: editingId, ...form }, user?.name)
+      toast.success('Training record updated')
     } else {
-      setLogs([
-        ...logs,
-        { id: generateId(), ...form, createdAt: new Date().toISOString() },
-      ])
-      logAudit('Created', `Training Log: ${form.topic} for ${form.staffName}`, 'Training Logs', user?.name)
-      showToast('Training log added')
+      const newRecord = { id: generateId(), ...form, createdAt: new Date().toISOString() }
+      setLogs(prev => [newRecord, ...prev])
+      logAudit('training_log_added', newRecord, user?.name)
+      toast.success('Training record added')
     }
+
     setModalOpen(false)
   }
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (record) => {
     const ok = await confirm({
-      title: 'Delete entry?',
-      message: 'Are you sure you want to delete this training log entry? This action cannot be undone.',
-      confirmLabel: 'Delete',
-      variant: 'danger',
+      title: 'Delete Training Record',
+      message: `Delete "${record.topic}" for ${record.staffName}?`,
     })
     if (!ok) return
-    const log = logs.find((l) => l.id === id)
-    setLogs(logs.filter((l) => l.id !== id))
-    logAudit('Deleted', `Training Log: ${log?.topic} for ${log?.staffName}`, 'Training Logs', user?.name)
-    showToast('Entry deleted', 'info')
+    setLogs(prev => prev.filter(r => r.id !== record.id))
+    logAudit('training_log_deleted', { id: record.id, topic: record.topic }, user?.name)
+    toast.success('Record deleted')
   }
 
-  const update = (field) => (e) => setForm({ ...form, [field]: e.target.value })
+  // ── CSV Export ──
+  const handleCsv = () => {
+    downloadCsv('training-logs', [
+      'Date', 'Staff', 'Topic', 'Trainer', 'Method', 'Duration', 'Outcome',
+      'Cert Expiry', 'Renewal Date', 'Status', 'Notes',
+    ], filtered.map(r => [
+      r.dateCompleted, r.staffName, r.topic, r.trainerName, r.deliveryMethod,
+      r.duration, r.outcome, r.certificateExpiry, r.renewalDate,
+      STATUS_STYLES[r._status]?.label || '', r.notes,
+    ]))
+  }
 
-  const handleCsvDownload = () => {
-    const headers = ['Staff Member', 'Date Completed', 'Topic', 'Trainer', 'Delivery Method', 'Duration', 'Outcome', 'Cert. Expiry', 'Renewal Date', 'Status', 'Notes']
-    const rows = sorted.map((l) => [
-      l.staffName,
-      l.dateCompleted || '',
-      l.topic,
-      l.trainerName || '',
-      l.deliveryMethod || '',
-      l.duration || '',
-      l.outcome || '',
-      l.certificateExpiry || '',
-      l.renewalDate || '',
-      getExpiryLabel(getExpiryStatus(l.certificateExpiry)),
-      l.notes || '',
-    ])
-    downloadCsv('training-logs', headers, rows)
+  // ── Clear filters ──
+  const clearFilters = () => {
+    setFilterStaff('')
+    setFilterTopic('')
+    setFilterMethod('')
+    setFilterStatus('All')
+    setSearch('')
+  }
+  const hasFilters = filterStaff || filterTopic || filterMethod || filterStatus !== 'All' || search
+
+  const today = getToday()
+  const dateFormatted = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+
+  // ── Sort icon ──
+  const SortIcon = ({ field }) => {
+    if (sortField !== field) return <span style={{ opacity: 0.3, fontSize: 9 }}>↕</span>
+    return <span style={{ fontSize: 9 }}>{sortDir === 'asc' ? '↑' : '↓'}</span>
+  }
+
+  // ── Table columns ──
+  const columns = [
+    { key: 'dateCompleted', label: 'Date', w: 90 },
+    { key: 'staffName', label: 'Staff', w: 120 },
+    { key: 'topic', label: 'Topic', w: 160 },
+    { key: 'trainerName', label: 'Trainer', w: 110 },
+    { key: 'deliveryMethod', label: 'Method', w: 80 },
+    { key: 'duration', label: 'Duration', w: 70 },
+    { key: 'outcome', label: 'Outcome', w: 80 },
+    { key: 'certificateExpiry', label: 'Cert Expiry', w: 100 },
+    { key: '_status', label: 'Status', w: 80 },
+  ]
+
+  if (loading) {
+    return (
+      <div style={{ ...sans, padding: '24px 28px', maxWidth: 1200 }}>
+        <SkeletonLoader variant="table" />
+      </div>
+    )
   }
 
   return (
-    <div>
-      <div>
-        <p className="text-sm text-ec-t3 mb-2">
-          Record and track staff training activities, certifications, and compliance.
+    <div style={{ ...sans, padding: '24px 28px', maxWidth: 1200 }}>
+      {/* ── Header ── */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 6 }}>Dashboard / Training Logs</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 4 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Training Logs</h1>
+          <span style={{ ...mono, fontSize: 13, color: 'var(--text-muted)' }}>{dateFormatted}</span>
+        </div>
+        <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: '0 0 10px' }}>
+          Staff training records, compliance tracking &amp; scheduled training
         </p>
-        <div className="flex items-center gap-2 flex-wrap mb-4">
-          <PageActions onDownloadCsv={handleCsvDownload} />
-          <button className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors flex items-center gap-1.5 font-sans" onClick={openAdd}>
-            + Add Entry
-          </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          {elevated && (
+            <button
+              onClick={openAdd}
+              style={{
+                ...sans, fontSize: 11, fontWeight: 600, padding: '6px 14px',
+                borderRadius: 8, border: 'none', cursor: 'pointer',
+                background: '#059669', color: 'white',
+              }}
+            >
+              + Add Record
+            </button>
+          )}
+          <div style={{ flex: 1 }} />
+          <PageActions onDownloadCsv={handleCsv} />
         </div>
       </div>
 
-      {/* Stats Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        <div className="rounded-xl p-4 text-center" style={{ backgroundColor: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)' }}>
-          <span className="text-2xl font-bold text-ec-em block">{totalLogs}</span>
-          <span className="text-xs text-ec-t3 mt-1 block">Total Records</span>
-        </div>
-        <div className="rounded-xl p-4 text-center" style={{ backgroundColor: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)' }}>
-          <span className="text-2xl font-bold text-ec-info block">{thisMonthCount}</span>
-          <span className="text-xs text-ec-t3 mt-1 block">This Month</span>
-        </div>
-        <div className="rounded-xl p-4 text-center" style={{ backgroundColor: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)' }}>
-          <span className="text-2xl font-bold text-ec-warn block">{expiringSoon}</span>
-          <span className="text-xs text-ec-t3 mt-1 block">Expiring / Expired</span>
-        </div>
-        <div className="rounded-xl p-4 text-center" style={{ backgroundColor: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)' }}>
-          <span className="text-2xl font-bold text-ec-em block">{staffTrained}</span>
-          <span className="text-xs text-ec-t3 mt-1 block">Staff Trained</span>
-        </div>
+      {/* ── Stats Strip ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, marginBottom: 16 }}>
+        <StatCard icon="📋" label="Total Records" value={stats.total} accent="#3b82f6" />
+        <StatCard icon="✅" label="Completed" value={stats.completed} accent="#059669" />
+        <StatCard icon="📅" label="Scheduled" value={stats.scheduled} accent="#2563eb" />
+        <StatCard icon="⚠️" label="Expiring Soon" value={stats.expiring} accent="#d97706" />
+        <StatCard icon="🔴" label="Expired" value={stats.expired} accent="#ef4444" />
       </div>
 
-      {/* Filter Bar */}
-      <div className="flex flex-wrap gap-2 items-center mb-4">
-        <div className="relative flex-1 min-w-[200px]">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-ec-t3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-          <input
-            type="text"
-            className="w-full bg-ec-card border border-ec-border rounded-lg pl-9 pr-3 py-2 text-sm text-ec-t1 placeholder:text-ec-t3 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
-            placeholder="Search staff, topic, or trainer..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-        <select className="bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans" value={filterStaff} onChange={(e) => setFilterStaff(e.target.value)}>
-          <option value="">All Staff</option>
-          {uniqueStaff.map(s => <option key={s} value={s}>{s}</option>)}
-        </select>
-        <select className="bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans" value={filterTopic} onChange={(e) => setFilterTopic(e.target.value)}>
-          <option value="">All Topics</option>
-          {uniqueTopics.map(t => <option key={t} value={t}>{t}</option>)}
-        </select>
-        {(filterStaff || filterTopic || search) && (
-          <button className="px-3 py-1.5 bg-ec-card-hover text-ec-t2 rounded-lg text-xs border border-ec-border cursor-pointer hover:bg-ec-t5 hover:text-ec-t1 transition-colors font-sans" onClick={() => { setFilterStaff(''); setFilterTopic(''); setSearch('') }}>
+      {/* ── Filters ── */}
+      <SectionHeader accent="#6366f1" icon="🔍" title="Filter Records" right={
+        hasFilters ? (
+          <button onClick={clearFilters} style={{ ...sans, fontSize: 10, color: '#6366f1', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
             Clear All
           </button>
-        )}
+        ) : null
+      } />
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16, alignItems: 'center' }}>
+        <input
+          type="text"
+          placeholder="Search..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          style={{ ...selectStyle, width: 160, padding: '5px 8px' }}
+        />
+        <select value={filterStaff} onChange={e => setFilterStaff(e.target.value)} style={selectStyle}>
+          <option value="">All Staff</option>
+          {usedStaff.map(s => <option key={s}>{s}</option>)}
+        </select>
+        <select value={filterTopic} onChange={e => setFilterTopic(e.target.value)} style={selectStyle}>
+          <option value="">All Topics</option>
+          {usedTopics.map(t => <option key={t}>{t}</option>)}
+        </select>
+        <select value={filterMethod} onChange={e => setFilterMethod(e.target.value)} style={selectStyle}>
+          <option value="">All Methods</option>
+          {DELIVERY_METHODS.map(m => <option key={m}>{m}</option>)}
+        </select>
+        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={selectStyle}>
+          {STATUS_FILTERS.map(s => <option key={s}>{s}</option>)}
+        </select>
+        <div style={{ flex: 1 }} />
+        <span style={{ ...sans, fontSize: 11, color: 'var(--text-muted)' }}>
+          Showing {filtered.length} of {enrichedLogs.length}
+        </span>
       </div>
 
-      <p className="text-xs text-ec-t3 mb-2">
-        Showing {sorted.length} of {logs.length} entries
-      </p>
+      {/* ── Table ── */}
+      <SectionHeader accent="#059669" icon="📚" title="Training Records" right={
+        <span style={{ ...mono, fontSize: 11, color: '#059669', fontWeight: 600 }}>
+          {stats.staffTrained} staff trained
+        </span>
+      } />
 
-      {logs.length === 0 ? (
+      {filtered.length === 0 ? (
         <EmptyState
-          icon={<svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" /></svg>}
-          title="No training logs"
-          description="Training session logs will appear here as they are recorded."
+          title="No training records"
+          description={hasFilters ? 'Try adjusting your filters' : 'Add your first training record to get started'}
+          actionLabel={elevated ? '+ Add Record' : undefined}
+          onAction={elevated ? openAdd : undefined}
         />
-      ) : sorted.length === 0 ? (
-        <div className="text-center py-10 text-ec-t3 text-sm">
-          No entries match your filters.
-        </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid var(--ec-border)' }}>
-          <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
+        <div style={{ overflowX: 'auto', marginBottom: 24 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Staff Member</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Date Completed</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Topic</th>
-                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Trainer</th>
-                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Cert. Expiry</th>
-                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Status</th>
-                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Notes</th>
-                <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Actions</th>
+                {columns.map(col => (
+                  <th
+                    key={col.key}
+                    onClick={() => handleSort(col.key)}
+                    style={{
+                      ...sans, fontSize: 9, fontWeight: 600, color: 'var(--text-muted)',
+                      textAlign: 'left', padding: '6px 8px',
+                      borderBottom: '1px solid var(--border-card)',
+                      textTransform: 'uppercase', letterSpacing: 0.5,
+                      cursor: 'pointer', userSelect: 'none',
+                      minWidth: col.w,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {col.label} <SortIcon field={col.key} />
+                  </th>
+                ))}
+                {elevated && (
+                  <th style={{
+                    fontSize: 9, fontWeight: 600, color: 'var(--text-muted)',
+                    textAlign: 'right', padding: '6px 8px',
+                    borderBottom: '1px solid var(--border-card)',
+                    textTransform: 'uppercase', letterSpacing: 0.5, minWidth: 80,
+                  }}>
+                    Actions
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody>
-              {sorted.map((log) => {
-                const status = getExpiryStatus(log.certificateExpiry)
+              {filtered.map((r, idx) => {
+                const isScheduled = r._status === 'scheduled'
                 return (
-                  <SwipeRow key={log.id} onEdit={() => openEdit(log)} onDelete={() => handleDelete(log.id)}>
-                    <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">{log.staffName}</td>
-                    <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">{formatDate(log.dateCompleted)}</td>
-                    <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">{log.topic}</td>
-                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-ec-div">{log.trainerName || '—'}</td>
-                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-ec-div">{formatDate(log.certificateExpiry)}</td>
-                    <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">
-                      {status !== 'none' ? (
-                        <span className={expiryBadgeClass(status)}>
-                          {getExpiryLabel(status)}
-                        </span>
-                      ) : (
-                        <span className="text-ec-t3">—</span>
-                      )}
+                  <tr
+                    key={r.id}
+                    style={{
+                      background: idx % 2 === 1 ? '#f9fffe' : 'transparent',
+                      opacity: isScheduled ? 0.75 : 1,
+                      transition: 'background 150ms',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#f0faf4'}
+                    onMouseLeave={e => e.currentTarget.style.background = idx % 2 === 1 ? '#f9fffe' : 'transparent'}
+                  >
+                    <td style={{ ...mono, fontSize: 11, padding: '8px 8px', borderBottom: '1px solid var(--border-card)', color: 'var(--text-primary)' }}>
+                      {formatDate(r.dateCompleted)}
                     </td>
-                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t3 border-b border-ec-div max-w-[200px] truncate">{log.notes || '—'}</td>
-                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-ec-div">
-                      <div className="flex gap-1">
+                    <td style={{ ...sans, fontSize: 12, padding: '8px 8px', borderBottom: '1px solid var(--border-card)', color: 'var(--text-primary)', fontWeight: 500 }}>
+                      {r.staffName}
+                    </td>
+                    <td style={{ ...sans, fontSize: 12, padding: '8px 8px', borderBottom: '1px solid var(--border-card)', color: 'var(--text-primary)' }}>
+                      {r.topic}
+                    </td>
+                    <td style={{ ...sans, fontSize: 11, padding: '8px 8px', borderBottom: '1px solid var(--border-card)', color: 'var(--text-secondary)' }}>
+                      {r.trainerName || '—'}
+                    </td>
+                    <td style={{ ...sans, fontSize: 11, padding: '8px 8px', borderBottom: '1px solid var(--border-card)', color: 'var(--text-secondary)' }}>
+                      {r.deliveryMethod || '—'}
+                    </td>
+                    <td style={{ ...mono, fontSize: 11, padding: '8px 8px', borderBottom: '1px solid var(--border-card)', color: 'var(--text-secondary)' }}>
+                      {r.duration || '—'}
+                    </td>
+                    <td style={{ fontSize: 11, padding: '8px 8px', borderBottom: '1px solid var(--border-card)' }}>
+                      {r.outcome ? (
+                        <span style={{
+                          fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 20,
+                          background: r.outcome === 'Pass' ? '#f0fdf4' : r.outcome === 'Attended' ? '#fffbeb' : '#eff6ff',
+                          color: r.outcome === 'Pass' ? '#059669' : r.outcome === 'Attended' ? '#d97706' : '#2563eb',
+                          border: `1px solid ${r.outcome === 'Pass' ? '#6ee7b7' : r.outcome === 'Attended' ? '#fde68a' : '#bfdbfe'}`,
+                        }}>
+                          {r.outcome}
+                        </span>
+                      ) : <span style={{ color: 'var(--text-muted)', fontSize: 11 }}>—</span>}
+                    </td>
+                    <td style={{ fontSize: 11, padding: '8px 8px', borderBottom: '1px solid var(--border-card)' }}>
+                      <ExpiryBadge dateStr={r.certificateExpiry} />
+                    </td>
+                    <td style={{ fontSize: 11, padding: '8px 8px', borderBottom: '1px solid var(--border-card)' }}>
+                      <StatusPill status={r._status} />
+                    </td>
+                    {elevated && (
+                      <td style={{ padding: '8px 8px', borderBottom: '1px solid var(--border-card)', textAlign: 'right', whiteSpace: 'nowrap' }}>
                         <button
-                          className="px-2.5 py-1 bg-ec-card-hover text-ec-t2 rounded-lg text-xs border border-ec-border cursor-pointer hover:bg-ec-t5 hover:text-ec-t1 transition-colors font-sans"
-                          onClick={() => openEdit(log)}
+                          onClick={() => openEdit(r)}
+                          style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 6, border: '1px solid var(--border-card)', background: 'var(--bg-card)', color: 'var(--text-secondary)', cursor: 'pointer', marginRight: 4 }}
                         >
                           Edit
                         </button>
                         <button
-                          className="px-2.5 py-1 bg-ec-crit/10 text-ec-crit-light rounded-lg text-xs border border-ec-crit/20 cursor-pointer hover:bg-ec-crit/20 transition-colors font-sans"
-                          onClick={() => handleDelete(log.id)}
+                          onClick={() => handleDelete(r)}
+                          style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 6, border: '1px solid #fca5a5', background: '#fef2f2', color: '#ef4444', cursor: 'pointer' }}
                         >
                           Delete
                         </button>
-                      </div>
-                    </td>
-                  </SwipeRow>
+                      </td>
+                    )}
+                  </tr>
                 )
               })}
             </tbody>
@@ -339,190 +561,162 @@ export default function TrainingLogs() {
         </div>
       )}
 
-      <Modal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title={editingId ? 'Edit Training Log' : 'Add Training Log'}
-      >
-        <form className="space-y-4" onSubmit={handleSubmit}>
+      {/* ── Add / Edit Modal ── */}
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? 'Edit Training Record' : 'Add Training Record'}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          {/* Staff */}
           <div>
-            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Staff Member *</label>
-            {staffMembers.length === 0 ? (
-              <p className="text-xs text-ec-t3 mt-1">
-                No staff members configured.{' '}
-                <a href="/settings" className="text-ec-em hover:underline">Add them in Settings</a>.
-              </p>
-            ) : (
-              <select
-                className={`${inputClass}${formErrors.staffName ? ' !border-ec-crit/60 !ring-1 !ring-ec-crit/20' : ''}`}
-                value={form.staffName}
-                onChange={(e) => {
-                  setForm({ ...form, staffName: e.target.value })
-                  if (e.target.value) setFormErrors((prev) => { const { staffName, ...rest } = prev; return rest })
-                }}
-                required
-              >
-                <option value="">Select staff member...</option>
-                {staffMembers.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-            )}
-            {formErrors.staffName && <p className="text-xs text-ec-crit-light mt-1">{formErrors.staffName}</p>}
+            <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Staff Member *</label>
+            <select
+              value={form.staffName}
+              onChange={e => setForm(f => ({ ...f, staffName: e.target.value }))}
+              style={{ ...selectStyle, width: '100%', padding: '7px 8px', fontSize: 12, borderColor: formErrors.staffName ? '#ef4444' : undefined }}
+            >
+              <option value="">Select staff...</option>
+              {staff.map(s => <option key={s}>{s}</option>)}
+            </select>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-semibold text-ec-t2 mb-1 block">Date Completed *</label>
-              <input
-                type="date"
-                className={`${inputClass}${formErrors.dateCompleted ? ' !border-ec-crit/60 !ring-1 !ring-ec-crit/20' : ''}`}
-                value={form.dateCompleted}
-                onChange={(e) => {
-                  setForm({ ...form, dateCompleted: e.target.value })
-                  if (e.target.value) setFormErrors((prev) => { const { dateCompleted, ...rest } = prev; return rest })
-                }}
-                required
-              />
-              {formErrors.dateCompleted && <p className="text-xs text-ec-crit-light mt-1">{formErrors.dateCompleted}</p>}
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-ec-t2 mb-1 block">Duration</label>
-              <input
-                type="text"
-                className={inputClass}
-                placeholder="e.g. 2 hours"
-                value={form.duration}
-                onChange={update('duration')}
-              />
-            </div>
-          </div>
-
+          {/* Date */}
           <div>
-            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Training Topic *</label>
-            {topics.length === 0 ? (
-              <input
-                type="text"
-                className={`${inputClass}${formErrors.topic ? ' !border-ec-crit/60 !ring-1 !ring-ec-crit/20' : ''}`}
-                placeholder="Enter training topic..."
-                value={form.topic}
-                onChange={(e) => {
-                  setForm({ ...form, topic: e.target.value })
-                  if (e.target.value) setFormErrors((prev) => { const { topic, ...rest } = prev; return rest })
-                }}
-                required
-              />
-            ) : (
-              <select
-                className={`${inputClass}${formErrors.topic ? ' !border-ec-crit/60 !ring-1 !ring-ec-crit/20' : ''}`}
-                value={form.topic}
-                onChange={(e) => {
-                  setForm({ ...form, topic: e.target.value })
-                  if (e.target.value) setFormErrors((prev) => { const { topic, ...rest } = prev; return rest })
-                }}
-                required
-              >
-                <option value="">Select topic...</option>
-                {topics.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-            )}
-            {formErrors.topic && <p className="text-xs text-ec-crit-light mt-1">{formErrors.topic}</p>}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-semibold text-ec-t2 mb-1 block">Trainer Name</label>
-              <input
-                type="text"
-                className={inputClass}
-                placeholder="e.g. Amjid Shakoor"
-                value={form.trainerName}
-                onChange={update('trainerName')}
-              />
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-ec-t2 mb-1 block">Delivery Method</label>
-              <select
-                className={inputClass}
-                value={form.deliveryMethod}
-                onChange={update('deliveryMethod')}
-              >
-                <option value="">Select...</option>
-                {DELIVERY_METHODS.map(m => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-semibold text-ec-t2 mb-1 block">Outcome</label>
-              <select
-                className={inputClass}
-                value={form.outcome}
-                onChange={update('outcome')}
-              >
-                <option value="">Select...</option>
-                {OUTCOMES.map(o => (
-                  <option key={o} value={o}>{o}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-ec-t2 mb-1 block">Certificate Expiry</label>
-              <input
-                type="date"
-                className={inputClass}
-                value={form.certificateExpiry}
-                onChange={update('certificateExpiry')}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Renewal Date</label>
+            <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Date *</label>
             <input
               type="date"
-              className={inputClass}
-              value={form.renewalDate}
-              onChange={update('renewalDate')}
+              value={form.dateCompleted}
+              onChange={e => setForm(f => ({ ...f, dateCompleted: e.target.value }))}
+              style={{ ...selectStyle, width: '100%', padding: '7px 8px', fontSize: 12, borderColor: formErrors.dateCompleted ? '#ef4444' : undefined }}
             />
-            <p className="text-xs text-ec-t3 mt-1">When this training needs to be renewed.</p>
+            {form.dateCompleted > today && (
+              <span style={{ fontSize: 9, color: '#2563eb', fontWeight: 600 }}>Future date = Scheduled</span>
+            )}
           </div>
 
-          <div>
-            <label className="text-xs font-semibold text-ec-t2 mb-1 block">Notes</label>
-            <textarea
-              className={`${inputClass} resize-none`}
-              placeholder="Optional notes..."
-              value={form.notes}
-              onChange={update('notes')}
-              rows={3}
-            />
-          </div>
-
-          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-ec-div">
-            <button
-              type="button"
-              className="px-4 py-2 bg-ec-card-hover text-ec-t2 rounded-lg text-sm border border-ec-border cursor-pointer hover:bg-ec-t5 transition-colors font-sans"
-              onClick={() => setModalOpen(false)}
+          {/* Topic */}
+          <div style={{ gridColumn: '1 / -1' }}>
+            <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Topic *</label>
+            <select
+              value={form.topic}
+              onChange={e => setForm(f => ({ ...f, topic: e.target.value }))}
+              style={{ ...selectStyle, width: '100%', padding: '7px 8px', fontSize: 12, borderColor: formErrors.topic ? '#ef4444' : undefined }}
             >
-              Cancel
-            </button>
-            <button type="submit" className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors font-sans">
-              {editingId ? 'Save Changes' : 'Add Entry'}
-            </button>
+              <option value="">Select topic...</option>
+              {topics.map(t => <option key={t}>{t}</option>)}
+            </select>
           </div>
-        </form>
+
+          {/* Trainer */}
+          <div>
+            <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Trainer</label>
+            <input
+              type="text"
+              value={form.trainerName}
+              onChange={e => setForm(f => ({ ...f, trainerName: e.target.value }))}
+              placeholder="Trainer name"
+              style={{ ...selectStyle, width: '100%', padding: '7px 8px', fontSize: 12 }}
+            />
+          </div>
+
+          {/* Method */}
+          <div>
+            <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Delivery Method</label>
+            <select
+              value={form.deliveryMethod}
+              onChange={e => setForm(f => ({ ...f, deliveryMethod: e.target.value }))}
+              style={{ ...selectStyle, width: '100%', padding: '7px 8px', fontSize: 12 }}
+            >
+              {DELIVERY_METHODS.map(m => <option key={m}>{m}</option>)}
+            </select>
+          </div>
+
+          {/* Duration */}
+          <div>
+            <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Duration</label>
+            <input
+              type="text"
+              value={form.duration}
+              onChange={e => setForm(f => ({ ...f, duration: e.target.value }))}
+              placeholder="e.g. 2 hours"
+              style={{ ...selectStyle, width: '100%', padding: '7px 8px', fontSize: 12 }}
+            />
+          </div>
+
+          {/* Outcome */}
+          <div>
+            <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Outcome</label>
+            <select
+              value={form.outcome}
+              onChange={e => setForm(f => ({ ...f, outcome: e.target.value }))}
+              style={{ ...selectStyle, width: '100%', padding: '7px 8px', fontSize: 12 }}
+            >
+              <option value="">None (Scheduled)</option>
+              {OUTCOMES.map(o => <option key={o}>{o}</option>)}
+            </select>
+          </div>
+
+          {/* Cert Expiry */}
+          <div>
+            <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Certificate Expiry</label>
+            <input
+              type="date"
+              value={form.certificateExpiry}
+              onChange={e => setForm(f => ({ ...f, certificateExpiry: e.target.value }))}
+              style={{ ...selectStyle, width: '100%', padding: '7px 8px', fontSize: 12 }}
+            />
+          </div>
+
+          {/* Renewal Date */}
+          <div>
+            <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Renewal Date</label>
+            <input
+              type="date"
+              value={form.renewalDate}
+              onChange={e => setForm(f => ({ ...f, renewalDate: e.target.value }))}
+              style={{ ...selectStyle, width: '100%', padding: '7px 8px', fontSize: 12 }}
+            />
+          </div>
+
+          {/* Notes */}
+          <div style={{ gridColumn: '1 / -1' }}>
+            <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Notes</label>
+            <textarea
+              value={form.notes}
+              onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
+              rows={2}
+              placeholder="Optional notes..."
+              style={{ ...selectStyle, width: '100%', padding: '7px 8px', fontSize: 12, resize: 'vertical' }}
+            />
+          </div>
+        </div>
+
+        {/* Save / Cancel */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+          <button
+            onClick={() => setModalOpen(false)}
+            style={{ ...sans, fontSize: 12, fontWeight: 500, padding: '7px 16px', borderRadius: 8, border: '1px solid var(--border-card)', background: 'var(--bg-card)', color: 'var(--text-secondary)', cursor: 'pointer' }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            style={{ ...sans, fontSize: 12, fontWeight: 600, padding: '7px 16px', borderRadius: 8, border: 'none', background: '#059669', color: 'white', cursor: 'pointer' }}
+          >
+            {editingId ? 'Update' : 'Save'}
+          </button>
+        </div>
       </Modal>
+
       {ConfirmDialog}
+      {toast.ToastContainer}
+
+      {/* ── Print styles ── */}
+      <style>{`
+        @media print {
+          .no-print { display: none !important; }
+        }
+        @media (max-width: 768px) {
+          table { font-size: 10px !important; }
+        }
+      `}</style>
     </div>
   )
 }
