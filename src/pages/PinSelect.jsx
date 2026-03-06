@@ -24,6 +24,7 @@ export default function PinSelect() {
             name: r.name,
             pin: r.pin || '',
             isManager: !!r.is_manager,
+            role: r.role || 'staff',
           }))
         )
         setLoading(false)
@@ -192,11 +193,9 @@ export default function PinSelect() {
                 {getStaffInitials(s.name)}
               </div>
               <span className="text-sm font-medium text-ec-t1">{s.name}</span>
-              {s.isManager && (
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-ec-em/10 text-ec-em font-semibold">
-                  Manager
-                </span>
-              )}
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-ec-em/10 text-ec-em font-semibold capitalize">
+                {(s.role || 'staff').replace('_', ' ')}
+              </span>
             </button>
           ))}
         </div>

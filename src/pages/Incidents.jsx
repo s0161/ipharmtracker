@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
 import { generateId, formatDate } from '../utils/helpers'
 import { downloadCsv } from '../utils/exportCsv'
@@ -13,10 +13,12 @@ import SkeletonLoader from '../components/SkeletonLoader'
 
 const TYPES = ['Near Miss', 'Dispensing Error', 'Complaint', 'Other']
 const SEVERITIES = ['Low', 'Medium', 'High']
+const STATUSES = ['Open', 'Investigating', 'Resolved', 'Closed']
 const emptyForm = {
   type: '',
   description: '',
   severity: 'Low',
+  status: 'Open',
   date: new Date().toISOString().slice(0, 10),
   reportedBy: '',
   actionTaken: '',
@@ -58,6 +60,20 @@ const typeBadge = (type) => {
   )
 }
 
+const statusBadge = (status) => {
+  const styles = {
+    Open: 'bg-red-50 text-red-600 border-red-200',
+    Investigating: 'bg-amber-50 text-amber-600 border-amber-200',
+    Resolved: 'bg-emerald-50 text-emerald-600 border-emerald-200',
+    Closed: 'bg-gray-100 text-gray-500 border-gray-200',
+  }
+  return (
+    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold border ${styles[status] || styles.Open}`}>
+      {status || 'Open'}
+    </span>
+  )
+}
+
 export default function Incidents() {
   const [incidents, setIncidents, loading] = useSupabase('incidents', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
@@ -69,8 +85,24 @@ export default function Incidents() {
   const [editingId, setEditingId] = useState(null)
   const [filterType, setFilterType] = useState('')
   const [filterSeverity, setFilterSeverity] = useState('')
+  const [filterStatus, setFilterStatus] = useState('')
   const [search, setSearch] = useState('')
   const [formErrors, setFormErrors] = useState({})
+  const [expandedRow, setExpandedRow] = useState(null)
+
+  // ── Summary stats ──
+  const summaryStats = useMemo(() => {
+    const now = new Date()
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+    const thisMonth = incidents.filter(inc => {
+      const d = new Date(inc.date || inc.createdAt)
+      return d >= monthStart
+    })
+    const resolved = incidents.filter(inc => inc.status === 'Resolved' || inc.status === 'Closed')
+    const open = incidents.filter(inc => !inc.status || inc.status === 'Open' || inc.status === 'Investigating')
+    const resolvedPct = incidents.length > 0 ? Math.round((resolved.length / incidents.length) * 100) : 0
+    return { thisMonth: thisMonth.length, resolvedPct, openCount: open.length }
+  }, [incidents])
 
   const openAdd = () => {
     setForm(emptyForm)
@@ -84,6 +116,7 @@ export default function Incidents() {
       type: inc.type || '',
       description: inc.description || '',
       severity: inc.severity || 'Low',
+      status: inc.status || 'Open',
       date: inc.date || '',
       reportedBy: inc.reportedBy || '',
       actionTaken: inc.actionTaken || '',
@@ -148,6 +181,7 @@ export default function Incidents() {
       'Date',
       'Type',
       'Severity',
+      'Status',
       'Description',
       'Reported By',
       'Action Taken',
@@ -156,6 +190,7 @@ export default function Incidents() {
       inc.date || '',
       inc.type || '',
       inc.severity || '',
+      inc.status || 'Open',
       inc.description || '',
       inc.reportedBy || '',
       inc.actionTaken || '',
@@ -221,31 +256,48 @@ export default function Incidents() {
         </div>
         <div>
           <label className="text-xs font-semibold text-ec-t2 mb-1 block">
-            Reported By
+            Status
           </label>
-          {staffMembers.length === 0 ? (
-            <input
-              type="text"
-              className={inputClass}
-              placeholder="Enter name"
-              value={form.reportedBy}
-              onChange={update('reportedBy')}
-            />
-          ) : (
-            <select
-              className={inputClass}
-              value={form.reportedBy}
-              onChange={update('reportedBy')}
-            >
-              <option value="">Select person...</option>
-              {staffMembers.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          )}
+          <select
+            className={inputClass}
+            value={form.status}
+            onChange={update('status')}
+          >
+            {STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
         </div>
+      </div>
+
+      <div>
+        <label className="text-xs font-semibold text-ec-t2 mb-1 block">
+          Reported By
+        </label>
+        {staffMembers.length === 0 ? (
+          <input
+            type="text"
+            className={inputClass}
+            placeholder="Enter name"
+            value={form.reportedBy}
+            onChange={update('reportedBy')}
+          />
+        ) : (
+          <select
+            className={inputClass}
+            value={form.reportedBy}
+            onChange={update('reportedBy')}
+          >
+            <option value="">Select person...</option>
+            {staffMembers.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       <div>
@@ -303,6 +355,7 @@ export default function Incidents() {
   const filtered = incidents.filter((inc) => {
     if (filterType && inc.type !== filterType) return false
     if (filterSeverity && inc.severity !== filterSeverity) return false
+    if (filterStatus && (inc.status || 'Open') !== filterStatus) return false
     if (search) {
       const q = search.toLowerCase()
       const matchDesc = (inc.description || '').toLowerCase().includes(q)
@@ -353,6 +406,25 @@ export default function Incidents() {
         Record and track pharmacy incidents, complaints, and near misses.
       </p>
 
+      {/* ── Summary Stat Cards ── */}
+      <div
+        className="grid grid-cols-3 gap-px rounded-xl overflow-hidden mb-4"
+        style={{ border: '1px solid var(--ec-border)' }}
+      >
+        <div className="p-4 text-center" style={{ backgroundColor: 'var(--ec-card)' }}>
+          <span className="text-2xl font-bold text-ec-t1 block">{summaryStats.thisMonth}</span>
+          <span className="text-xs text-ec-t3 mt-1 block">This Month</span>
+        </div>
+        <div className="p-4 text-center" style={{ backgroundColor: 'var(--ec-card)' }}>
+          <span className="text-2xl font-bold text-ec-em block">{summaryStats.resolvedPct}%</span>
+          <span className="text-xs text-ec-t3 mt-1 block">Resolved</span>
+        </div>
+        <div className="p-4 text-center" style={{ backgroundColor: 'var(--ec-card)' }}>
+          <span className={`text-2xl font-bold block ${summaryStats.openCount > 0 ? 'text-ec-crit-light' : 'text-ec-em'}`}>{summaryStats.openCount}</span>
+          <span className="text-xs text-ec-t3 mt-1 block">Open Items</span>
+        </div>
+      </div>
+
       <div className="flex items-center gap-2 flex-wrap mb-4">
         <PageActions onDownloadCsv={handleCsvDownload} />
         <select
@@ -374,6 +446,18 @@ export default function Incidents() {
         >
           <option value="">All Severities</option>
           {SEVERITIES.map((s) => (
+            <option key={s} value={s}>
+              {s}
+            </option>
+          ))}
+        </select>
+        <select
+          className="bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+        >
+          <option value="">All Statuses</option>
+          {STATUSES.map((s) => (
             <option key={s} value={s}>
               {s}
             </option>
@@ -419,6 +503,9 @@ export default function Incidents() {
                   Severity
                 </th>
                 <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">
+                  Status
+                </th>
+                <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">
                   Description
                 </th>
                 <th className="hidden md:table-cell text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">
@@ -431,41 +518,58 @@ export default function Incidents() {
             </thead>
             <tbody>
               {sorted.map((inc) => (
-                <tr key={inc.id}>
-                  <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">
-                    {formatDate(inc.date)}
-                  </td>
-                  <td className="px-4 py-2.5 border-b border-ec-div">
-                    {typeBadge(inc.type)}
-                  </td>
-                  <td className="px-4 py-2.5 border-b border-ec-div">
-                    {severityBadge(inc.severity)}
-                  </td>
-                  <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div max-w-[250px] truncate">
-                    {(inc.description || '').length > 60
-                      ? inc.description.slice(0, 60) + '...'
-                      : inc.description || ''}
-                  </td>
-                  <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-ec-div">
-                    {inc.reportedBy || '\u2014'}
-                  </td>
-                  <td className="px-4 py-2.5 border-b border-ec-div">
-                    <div className="flex gap-1">
-                      <button
-                        className="px-2.5 py-1 bg-ec-card-hover text-ec-t2 rounded-lg text-xs border border-ec-border cursor-pointer hover:bg-ec-t5 hover:text-ec-t1 transition-colors font-sans"
-                        onClick={() => openEdit(inc)}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="px-2.5 py-1 bg-ec-crit/10 text-ec-crit-light rounded-lg text-xs border border-ec-crit/20 cursor-pointer hover:bg-ec-crit/20 transition-colors font-sans"
-                        onClick={() => handleDelete(inc)}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                <>
+                  <tr
+                    key={inc.id}
+                    className="cursor-pointer hover:bg-ec-card transition-colors"
+                    onClick={() => setExpandedRow(expandedRow === inc.id ? null : inc.id)}
+                  >
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div">
+                      {formatDate(inc.date)}
+                    </td>
+                    <td className="px-4 py-2.5 border-b border-ec-div">
+                      {typeBadge(inc.type)}
+                    </td>
+                    <td className="px-4 py-2.5 border-b border-ec-div">
+                      {severityBadge(inc.severity)}
+                    </td>
+                    <td className="px-4 py-2.5 border-b border-ec-div">
+                      {statusBadge(inc.status)}
+                    </td>
+                    <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div max-w-[250px] truncate">
+                      {(inc.description || '').length > 60
+                        ? inc.description.slice(0, 60) + '...'
+                        : inc.description || ''}
+                    </td>
+                    <td className="hidden md:table-cell px-4 py-2.5 text-ec-t1 border-b border-ec-div">
+                      {inc.reportedBy || '\u2014'}
+                    </td>
+                    <td className="px-4 py-2.5 border-b border-ec-div">
+                      <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          className="px-2.5 py-1 bg-ec-card-hover text-ec-t2 rounded-lg text-xs border border-ec-border cursor-pointer hover:bg-ec-t5 hover:text-ec-t1 transition-colors font-sans"
+                          onClick={() => openEdit(inc)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="px-2.5 py-1 bg-ec-crit/10 text-ec-crit-light rounded-lg text-xs border border-ec-crit/20 cursor-pointer hover:bg-ec-crit/20 transition-colors font-sans"
+                          onClick={() => handleDelete(inc)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  {expandedRow === inc.id && inc.actionTaken && (
+                    <tr key={`${inc.id}-action`}>
+                      <td colSpan={7} className="px-4 py-3 border-b border-ec-div" style={{ backgroundColor: 'var(--ec-card-hover, #f8fafc)' }}>
+                        <div className="text-xs font-semibold text-ec-t2 mb-1">Action Taken</div>
+                        <div className="text-sm text-ec-t1">{inc.actionTaken}</div>
+                      </td>
+                    </tr>
+                  )}
+                </>
               ))}
             </tbody>
           </table>

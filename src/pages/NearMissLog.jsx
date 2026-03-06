@@ -101,6 +101,8 @@ export default function NearMissLog() {
   const [search, setSearch] = useState('')
   const [expandedId, setExpandedId] = useState(null)
   const [formErrors, setFormErrors] = useState({})
+  const [page, setPage] = useState(1)
+  const PER_PAGE = 20
 
   const openAdd = () => {
     setForm(emptyForm)
@@ -449,6 +451,11 @@ export default function NearMissLog() {
     (a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date)
   )
 
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PER_PAGE))
+  const safePage = Math.min(page, totalPages)
+  const displayed = sorted.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE)
+
   if (entries.length === 0) {
     return (
       <div>
@@ -526,7 +533,7 @@ export default function NearMissLog() {
         <select
           className="bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
           value={filterCategory}
-          onChange={(e) => setFilterCategory(e.target.value)}
+          onChange={(e) => { setFilterCategory(e.target.value); setPage(1) }}
         >
           <option value="">All Categories</option>
           {CATEGORIES.map((c) => (
@@ -538,7 +545,7 @@ export default function NearMissLog() {
         <select
           className="bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
           value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
+          onChange={(e) => { setFilterStatus(e.target.value); setPage(1) }}
         >
           <option value="">All Statuses</option>
           {STATUSES.map((s) => (
@@ -552,7 +559,7 @@ export default function NearMissLog() {
           className="bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
           placeholder="Search..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => { setSearch(e.target.value); setPage(1) }}
         />
         <button
           className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors flex items-center gap-1.5 font-sans"
@@ -599,7 +606,7 @@ export default function NearMissLog() {
               </tr>
             </thead>
             <tbody>
-              {sorted.map((entry) => (
+              {displayed.map((entry) => (
                 <>
                   <tr
                     key={entry.id}
@@ -699,6 +706,37 @@ export default function NearMissLog() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {sorted.length > PER_PAGE && (
+        <div className="flex justify-between items-center mt-4">
+          <button
+            className={`px-4 py-2 rounded-lg bg-ec-card border border-ec-border text-ec-t1 text-sm font-sans transition-colors ${
+              safePage <= 1
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:bg-ec-card-hover hover:border-ec-em/30 cursor-pointer'
+            }`}
+            disabled={safePage <= 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+          >
+            Previous
+          </button>
+          <span className="text-sm text-ec-t2">
+            Showing {(safePage - 1) * PER_PAGE + 1}–{Math.min(safePage * PER_PAGE, sorted.length)} of {sorted.length} results
+          </span>
+          <button
+            className={`px-4 py-2 rounded-lg bg-ec-card border border-ec-border text-ec-t1 text-sm font-sans transition-colors ${
+              safePage >= totalPages
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:bg-ec-card-hover hover:border-ec-em/30 cursor-pointer'
+            }`}
+            disabled={safePage >= totalPages}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          >
+            Next
+          </button>
         </div>
       )}
 

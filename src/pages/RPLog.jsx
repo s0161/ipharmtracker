@@ -132,6 +132,14 @@ export default function RPLog() {
       setChecklist(existingEntry.checklist || {})
       setNotes(existingEntry.notes || '')
       setEditingId(existingEntry.id)
+      // Restore sign-in state from DB if localStorage is empty
+      if (!rpSign && existingEntry.signInTime && !existingEntry.signOutTime && existingEntry.date === today) {
+        const signDate = new Date(existingEntry.signInTime)
+        const time = signDate.toTimeString().slice(0, 5)
+        const data = { signedIn: true, time, rpName: existingEntry.rpName || defaultRp }
+        setRpSign(data)
+        setRpSignState(data)
+      }
     }
   }, [existingEntry])
 
@@ -200,9 +208,26 @@ export default function RPLog() {
     const data = { signedIn: true, time, rpName: rpName || defaultRp }
     setRpSign(data)
     setRpSignState(data)
+    // Persist sign-in time to Supabase rp_log entry for today
+    const signInTime = now.toISOString()
+    if (editingId) {
+      setLogs(logs.map(l => (l.id === editingId ? { ...l, signInTime } : l)))
+    } else {
+      const id = generateId()
+      setLogs([...logs, { id, date: today, rpName: rpName || defaultRp, checklist: {}, notes: '', signInTime, createdAt: now.toISOString() }])
+      setEditingId(id)
+    }
+    logAudit('RP Sign In', `RP signed in at ${time}`, 'RP Log', user?.name)
   }
 
   const handleSignOut = () => {
+    const now = new Date()
+    const signOutTime = now.toISOString()
+    // Persist sign-out time to Supabase rp_log entry for today
+    if (editingId) {
+      setLogs(logs.map(l => (l.id === editingId ? { ...l, signOutTime } : l)))
+    }
+    logAudit('RP Sign Out', `RP signed out at ${now.toTimeString().slice(0, 5)}`, 'RP Log', user?.name)
     clearRpSign()
     setRpSignState(null)
   }

@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
 import { usePharmacyConfig } from '../hooks/usePharmacyConfig'
 import { getTrafficLight, getSafeguardingStatus, getTaskStatus, DEFAULT_CLEANING_TASKS } from '../utils/helpers'
+import { calculateComplianceScores } from '../utils/complianceScore'
 import generateComplianceReport from '../utils/generateReport'
 
 function ScoreCard({ label, score, items }) {
@@ -25,29 +26,36 @@ export default function ComplianceReport() {
   const [rpLogs] = useSupabase('rp_log', [])
   const [incidents] = useSupabase('incidents', [])
 
-  // Document score
-  const docStatuses = documents.map(d => getTrafficLight(d.expiryDate))
-  const greenDocs = docStatuses.filter(s => s === 'green').length
-  const docScore = documents.length > 0 ? Math.round((greenDocs / documents.length) * 100) : 100
-
-  // Training score
-  const staffScore = staffTraining.length > 0
-    ? Math.round((staffTraining.filter(e => e.status === 'Complete').length / staffTraining.length) * 100) : 100
-
-  // Cleaning score
-  const seen = new Set()
-  const taskStatuses = cleaningTasks.filter(t => {
-    if (seen.has(t.name)) return false; seen.add(t.name); return true
-  }).map(t => ({ ...t, status: getTaskStatus(t.name, t.frequency, cleaningEntries) }))
-  const cleaningUpToDate = taskStatuses.filter(t => t.status === 'done' || t.status === 'upcoming').length
-  const cleaningScore = cleaningTasks.length > 0 ? Math.round((cleaningUpToDate / taskStatuses.length) * 100) : 100
-
-  // Safeguarding score
-  const sgCurrent = safeguarding.filter(r => getSafeguardingStatus(r.trainingDate) === 'current').length
-  const sgScore = safeguarding.length > 0 ? Math.round((sgCurrent / safeguarding.length) * 100) : 100
-
-  const overallScore = Math.round((docScore + staffScore + cleaningScore + sgScore) / 4)
+  // Shared compliance scores
+  const scores = calculateComplianceScores({
+    documents, staffTraining, cleaningEntries, safeguardingRecords: safeguarding, cleaningTasks,
+  })
+  const docScore = scores.documents
+  const staffScore = scores.training
+  const cleaningScore = scores.cleaning
+  const sgScore = scores.safeguarding
+  const overallScore = scores.overall
   const overallColor = overallScore >= 80 ? 'var(--ec-em)' : overallScore >= 50 ? 'var(--ec-warn)' : 'var(--ec-crit)'
+
+  // Detail counts for score cards
+  const greenDocs = documents.filter(d => getTrafficLight(d.expiryDate) === 'green').length
+  const sgCurrent = safeguarding.filter(r => getSafeguardingStatus(r.trainingDate) === 'current').length
+
+  // Deduplicated cleaning task statuses
+  const taskStatuses = useMemo(() => {
+    const tasks = cleaningTasks.length > 0 ? cleaningTasks : DEFAULT_CLEANING_TASKS
+    const seen = new Set()
+    return tasks.filter(t => {
+      if (seen.has(t.name)) return false
+      seen.add(t.name)
+      return true
+    }).map(t => ({
+      name: t.name,
+      frequency: t.frequency || 'daily',
+      status: getTaskStatus(t.name, t.frequency, cleaningEntries),
+    }))
+  }, [cleaningTasks, cleaningEntries])
+  const cleaningUpToDate = taskStatuses.filter(t => t.status === 'done' || t.status === 'upcoming').length
 
   // RP coverage (last 30 days)
   const rpCoverage = useMemo(() => {
@@ -228,6 +236,109 @@ export default function ComplianceReport() {
                       <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div font-medium">{doc.documentName}</td>
                       <td className="px-4 py-2.5 text-ec-t3 border-b border-ec-div">{doc.category || '\u2014'}</td>
                       <td className="px-4 py-2.5 text-ec-t2 border-b border-ec-div tabular-nums">{doc.expiryDate || '\u2014'}</td>
+                      <td className={`px-4 py-2.5 border-b border-ec-div font-semibold text-xs ${statusColor}`}>{statusLabel}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Training status table */}
+      <div>
+        <h3 className="text-sm font-bold text-ec-t1 mb-3">Training Status</h3>
+        {staffTraining.length === 0 ? (
+          <div className="text-sm text-ec-t3">No training records tracked.</div>
+        ) : (
+          <div className="overflow-x-auto rounded-xl border border-ec-border">
+            <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
+              <thead className="text-left">
+                <tr>
+                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Staff</th>
+                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Topic</th>
+                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Target Date</th>
+                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {staffTraining.map(t => {
+                  const isComplete = t.status === 'Complete'
+                  return (
+                    <tr key={t.id}>
+                      <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div font-medium">{t.staffName || '\u2014'}</td>
+                      <td className="px-4 py-2.5 text-ec-t2 border-b border-ec-div">{t.trainingItem || t.topicName || '\u2014'}</td>
+                      <td className="px-4 py-2.5 text-ec-t2 border-b border-ec-div tabular-nums">{t.targetDate || '\u2014'}</td>
+                      <td className={`px-4 py-2.5 border-b border-ec-div font-semibold text-xs ${isComplete ? 'text-ec-em' : 'text-ec-warn'}`}>{t.status || 'Outstanding'}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Cleaning status table */}
+      <div>
+        <h3 className="text-sm font-bold text-ec-t1 mb-3">Cleaning Task Status</h3>
+        {taskStatuses.length === 0 ? (
+          <div className="text-sm text-ec-t3">No cleaning tasks tracked.</div>
+        ) : (
+          <div className="overflow-x-auto rounded-xl border border-ec-border">
+            <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
+              <thead className="text-left">
+                <tr>
+                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Task</th>
+                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Frequency</th>
+                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {taskStatuses.map(t => {
+                  const statusLabel = t.status === 'done' ? 'Done' : t.status === 'upcoming' ? 'Upcoming' : 'Overdue'
+                  const statusColor = t.status === 'done' ? 'text-ec-em' : t.status === 'upcoming' ? 'text-ec-t3' : 'text-ec-crit'
+                  return (
+                    <tr key={t.name}>
+                      <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div font-medium">{t.name}</td>
+                      <td className="px-4 py-2.5 text-ec-t2 border-b border-ec-div capitalize">{t.frequency}</td>
+                      <td className={`px-4 py-2.5 border-b border-ec-div font-semibold text-xs ${statusColor}`}>{statusLabel}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Safeguarding status table */}
+      <div>
+        <h3 className="text-sm font-bold text-ec-t1 mb-3">Safeguarding Training Status</h3>
+        {safeguarding.length === 0 ? (
+          <div className="text-sm text-ec-t3">No safeguarding records tracked.</div>
+        ) : (
+          <div className="overflow-x-auto rounded-xl border border-ec-border">
+            <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
+              <thead className="text-left">
+                <tr>
+                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Staff</th>
+                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Training Date</th>
+                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Delivered By</th>
+                  <th className="text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {safeguarding.map(r => {
+                  const status = getSafeguardingStatus(r.trainingDate)
+                  const statusLabel = status === 'current' ? 'Current' : status === 'due-soon' ? 'Due Soon' : 'Overdue'
+                  const statusColor = status === 'current' ? 'text-ec-em' : status === 'due-soon' ? 'text-ec-warn' : 'text-ec-crit'
+                  return (
+                    <tr key={r.id}>
+                      <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div font-medium">{r.staffName || '\u2014'}</td>
+                      <td className="px-4 py-2.5 text-ec-t2 border-b border-ec-div tabular-nums">{r.trainingDate || '\u2014'}</td>
+                      <td className="px-4 py-2.5 text-ec-t2 border-b border-ec-div">{r.deliveredBy || '\u2014'}</td>
                       <td className={`px-4 py-2.5 border-b border-ec-div font-semibold text-xs ${statusColor}`}>{statusLabel}</td>
                     </tr>
                   )

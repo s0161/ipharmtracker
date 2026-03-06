@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
+import { usePharmacyConfig } from '../hooks/usePharmacyConfig'
 import { logAudit } from '../utils/auditLog'
 import { useUser } from '../contexts/UserContext'
 import { formatDate, generateId, getSafeguardingStatus, getRefresherDate } from '../utils/helpers'
@@ -29,7 +30,7 @@ const emptyForm = {
   staffName: '',
   jobTitle: '',
   trainingDate: '',
-  deliveredBy: 'Amjid Shakoor — Superintendent Pharmacist',
+  deliveredBy: '',
   trainingMethod: 'Internal — Level 1 Awareness',
   handbookVersion: 'v1.0 January 2026',
   signedOff: false,
@@ -50,6 +51,7 @@ export default function SafeguardingTraining() {
   const { user } = useUser()
   const [records, setRecords, loading] = useSupabase('safeguarding_records', [])
   const [staffMembers] = useSupabase('staff_members', [], { valueField: 'name' })
+  const [pharmacyConfig] = usePharmacyConfig()
   const showToast = useToast()
   const { confirm, ConfirmDialog } = useConfirm()
   const [modalOpen, setModalOpen] = useState(false)
@@ -57,12 +59,33 @@ export default function SafeguardingTraining() {
   const [editingId, setEditingId] = useState(null)
   const [docsOpen, setDocsOpen] = useState(false)
   const [formErrors, setFormErrors] = useState({})
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filterStatus, setFilterStatus] = useState('')
+
+  const superintendentName = pharmacyConfig?.superintendentName || pharmacyConfig?.superintendent_name || 'Amjid Shakoor'
 
   if (loading) {
     return <SkeletonLoader variant="table" />
   }
 
-  const sorted = [...records].sort((a, b) => a.staffName.localeCompare(b.staffName))
+  // ── Apply search + status filters ──
+  const filteredRecords = useMemo(() => {
+    return records.filter(r => {
+      if (filterStatus) {
+        const status = getSafeguardingStatus(r.trainingDate)
+        if (status !== filterStatus) return false
+      }
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase()
+        const matchName = (r.staffName || '').toLowerCase().includes(q)
+        const matchTitle = (r.jobTitle || '').toLowerCase().includes(q)
+        if (!matchName && !matchTitle) return false
+      }
+      return true
+    })
+  }, [records, filterStatus, searchQuery])
+
+  const sorted = [...filteredRecords].sort((a, b) => a.staffName.localeCompare(b.staffName))
 
   // Summary
   const totalTrained = records.filter((r) => r.trainingDate).length
@@ -78,7 +101,7 @@ export default function SafeguardingTraining() {
   }
 
   const openAdd = () => {
-    setForm(emptyForm)
+    setForm({ ...emptyForm, deliveredBy: `${superintendentName} — Superintendent Pharmacist` })
     setEditingId(null)
     setFormErrors({})
     setModalOpen(true)
@@ -159,7 +182,7 @@ export default function SafeguardingTraining() {
       <div>
         <p className="text-sm text-ec-t3 mb-2">
           Safeguarding training records for iPharmacy Direct, Ashton-under-Lyne.
-          Safeguarding Lead: <strong className="text-ec-t1">Amjid Shakoor</strong> (Superintendent Pharmacist).
+          Safeguarding Lead: <strong className="text-ec-t1">{superintendentName}</strong> (Superintendent Pharmacist).
         </p>
         <div className="flex items-center gap-2 flex-wrap mb-4">
           <PageActions onDownloadCsv={handleCsvDownload} />
@@ -169,6 +192,23 @@ export default function SafeguardingTraining() {
           >
             + Add Record
           </button>
+          <input
+            type="text"
+            className="bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+            placeholder="Search staff..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <select
+            className="bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+          >
+            <option value="">All Statuses</option>
+            <option value="current">Current</option>
+            <option value="due-soon">Due Soon</option>
+            <option value="overdue">Overdue</option>
+          </select>
         </div>
       </div>
 
@@ -310,7 +350,7 @@ export default function SafeguardingTraining() {
             <polyline points="6 9 12 15 18 9" />
           </svg>
         </button>
-        <p className="text-xs text-ec-t3 mt-1">Safeguarding Lead: Amjid Shakoor — Superintendent Pharmacist</p>
+        <p className="text-xs text-ec-t3 mt-1">Safeguarding Lead: {superintendentName} — Superintendent Pharmacist</p>
         {docsOpen && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
             {REFERENCE_DOCS.map((doc) => (

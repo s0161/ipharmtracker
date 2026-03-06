@@ -4,6 +4,7 @@ import { useSupabase } from '../hooks/useSupabase'
 import { logAudit } from '../utils/auditLog'
 import { useUser } from '../contexts/UserContext'
 import { generateId, formatDateTime, DEFAULT_CLEANING_TASKS } from '../utils/helpers'
+import { getTaskAssignee } from '../utils/rotationManager'
 import { downloadCsv } from '../utils/exportCsv'
 import { useToast } from '../components/Toast'
 import Modal from '../components/Modal'
@@ -24,19 +25,8 @@ const DM = "'DM Sans', sans-serif"
 const MONO = "'DM Mono', monospace"
 const CARD = { background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-card)', boxShadow: 'var(--shadow-card)' }
 
-// ─── Rota schedule template ───
-const ROTA = [
-  { name: 'Dispensary Clean', frequency: 'daily', assignee: 'Umama Khan' },
-  { name: 'Counter & Surfaces Wipe', frequency: 'daily', assignee: 'Salma Shakoor' },
-  { name: 'Fridge Temperature Recorded', frequency: 'daily', assignee: 'Salma Shakoor' },
-  { name: 'Deep Fridge Clean', frequency: 'weekly', assignee: 'Jamila Adwan' },
-  { name: 'Robot Dispenser Wipe-Down', frequency: 'weekly', assignee: 'Marian Hadaway' },
-  { name: 'Waste Disposal Check', frequency: 'weekly', assignee: 'Marian Hadaway' },
-  { name: 'Fridge Quick Clean', frequency: 'fortnightly', assignee: 'Jamila Adwan' },
-  { name: 'PPE Stock Check', frequency: 'fortnightly', assignee: 'Marian Hadaway' },
-  { name: 'Deep Equipment Clean', frequency: 'monthly', assignee: 'Amjid Shakoor' },
-  { name: 'Dispensary Floor Clean', frequency: 'monthly', assignee: 'Umama Khan' },
-]
+// ─── Rota schedule — derived from DB (cleaning_tasks) + rotationManager ───
+// ROTA is now computed inside the component as `rota` using useMemo
 const FREQ_MAP = { daily: 1, weekly: 7, fortnightly: 14, monthly: 30 }
 const FREQ_LABELS = { daily: 'Daily', weekly: 'Weekly', fortnightly: 'Fortnightly', monthly: 'Monthly' }
 
@@ -194,6 +184,18 @@ export default function CleaningRota() {
 
   const sorted = useMemo(() => [...deduped].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)), [deduped])
 
+  // ─── Rota: derive from DB cleaning_tasks + rotationManager ───
+  const rota = useMemo(() => {
+    const tasks = cleaningTasks.length > 0 ? cleaningTasks : DEFAULT_CLEANING_TASKS
+    const byFreq = {}
+    return tasks.map(t => {
+      const freq = t.frequency || 'daily'
+      if (!byFreq[freq]) byFreq[freq] = 0
+      const idx = byFreq[freq]++
+      return { name: t.name, frequency: freq, assignee: getTaskAssignee(t.name, freq, idx) }
+    })
+  }, [cleaningTasks])
+
   // ─── Stats ───
   const stats = useMemo(() => {
     const now = new Date()
@@ -204,21 +206,21 @@ export default function CleaningRota() {
     const weekPass = weekEntries.filter(e => e.result === 'Pass').length
     const monthPass = monthEntries.filter(e => e.result === 'Pass').length
     // Scheduled per period
-    const dailyCount = ROTA.filter(r => r.frequency === 'daily').length
-    const weeklyCount = ROTA.filter(r => r.frequency === 'weekly').length
-    const fnCount = ROTA.filter(r => r.frequency === 'fortnightly').length
-    const monthlyCount = ROTA.filter(r => r.frequency === 'monthly').length
+    const dailyCount = rota.filter(r => r.frequency === 'daily').length
+    const weeklyCount = rota.filter(r => r.frequency === 'weekly').length
+    const fnCount = rota.filter(r => r.frequency === 'fortnightly').length
+    const monthlyCount = rota.filter(r => r.frequency === 'monthly').length
     const daysSinceWeekStart = Math.max(1, Math.ceil(daysBetween(weekStart, now)))
     const weekScheduled = dailyCount * daysSinceWeekStart + weeklyCount + (daysSinceWeekStart >= 14 ? fnCount : 0)
     const daysInMonth = Math.max(1, Math.ceil(daysBetween(monthStart, now)))
     const monthScheduled = dailyCount * daysInMonth + weeklyCount * Math.ceil(daysInMonth / 7) + fnCount * Math.ceil(daysInMonth / 14) + monthlyCount
-    const overdue = ROTA.filter(r => getRotaStatus(r, deduped) === 'overdue').length
+    const overdue = rota.filter(r => getRotaStatus(r, deduped) === 'overdue').length
     const complianceRate = monthScheduled > 0 ? Math.round((monthPass / monthScheduled) * 100) : 0
     return { weekPass, weekScheduled, monthPass, monthScheduled, overdue, complianceRate }
-  }, [deduped])
+  }, [deduped, rota])
 
   // ─── Rota statuses ───
-  const rotaStatuses = useMemo(() => ROTA.map(r => ({ ...r, status: getRotaStatus(r, deduped), lastPass: lastPassDate(r.name, deduped) })), [deduped])
+  const rotaStatuses = useMemo(() => rota.map(r => ({ ...r, status: getRotaStatus(r, deduped), lastPass: lastPassDate(r.name, deduped) })), [deduped, rota])
 
   // ─── Today filter count ───
   const todayDueCount = useMemo(() => rotaStatuses.filter(r => r.status === 'overdue' || r.status === 'due-soon' || (r.frequency === 'daily' && r.status !== 'done')).length, [rotaStatuses])
@@ -240,7 +242,7 @@ export default function CleaningRota() {
       const dayEntries = deduped.filter(e => { const ed = new Date(e.dateTime); return ed >= date && ed < nextDate })
       const passes = dayEntries.filter(e => e.result === 'Pass').length
       const total = dayEntries.length
-      const dailyTasks = ROTA.filter(r => r.frequency === 'daily').length
+      const dailyTasks = rota.filter(r => r.frequency === 'daily').length
       let status = 'missed'
       if (total === 0) status = 'missed'
       else if (passes >= dailyTasks) status = 'complete'
@@ -248,7 +250,7 @@ export default function CleaningRota() {
       days.push({ day: d, date, status, passes, total })
     }
     return days
-  }, [calMonth, calYear, deduped])
+  }, [calMonth, calYear, deduped, rota])
 
   const calMonthLabel = new Date(calYear, calMonth).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
 
@@ -320,7 +322,7 @@ export default function CleaningRota() {
   }, [deduped])
 
   // ─── Unique staff from entries ───
-  const uniqueStaff = useMemo(() => [...new Set([...deduped.map(e => e.staffMember), ...ROTA.map(r => r.assignee)].filter(Boolean))].sort(), [deduped])
+  const uniqueStaff = useMemo(() => [...new Set([...deduped.map(e => e.staffMember), ...rota.map(r => r.assignee)].filter(Boolean))].sort(), [deduped, rota])
 
   // ─── CRUD handlers (preserved) ───
   const openAdd = () => {
@@ -594,7 +596,7 @@ export default function CleaningRota() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 12, alignItems: 'start' }}>
           {/* Left — Task list */}
           <div style={CARD}>
-            <DashCardHeader gradient="linear-gradient(90deg, #064e3b, #047857)" icon="📋" title="Cleaning Schedule" right={<span style={{ fontSize: 11, fontFamily: MONO }}>{ROTA.length} tasks</span>} />
+            <DashCardHeader gradient="linear-gradient(90deg, #064e3b, #047857)" icon="📋" title="Cleaning Schedule" right={<span style={{ fontSize: 11, fontFamily: MONO }}>{rota.length} tasks</span>} />
 
             {groupedSchedule.length === 0 ? (
               <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-muted)', fontSize: 13 }}>No tasks match current filters.</div>

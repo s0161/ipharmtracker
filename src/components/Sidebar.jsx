@@ -44,7 +44,7 @@ const sections = [
   {
     label: 'RECORDS',
     items: [
-      // { to: '/training', label: 'Training Logs', icon: 'book', shortcut: 'T' },
+      { to: '/training', label: 'Training Logs', icon: 'book', shortcut: 'T' },
       { to: '/cleaning', label: 'Cleaning Rota', icon: 'spark', shortcut: 'C' },
       { to: '/documents', label: 'Renewals', icon: 'file' },
       { to: '/incidents', label: 'Incidents', icon: 'alertTri' },
@@ -54,7 +54,7 @@ const sections = [
     label: 'COMPLIANCE',
     items: [
       { to: '/safeguarding', label: 'Safeguarding', icon: 'shield' },
-      // { to: '/staff-training', label: 'Staff Training', icon: 'users', shortcut: 'S' },
+      { to: '/staff-training', label: 'Staff Training', icon: 'users', shortcut: 'S' },
       { to: '/near-misses', label: 'Near Misses', icon: 'shieldAlert' },
       { to: '/compliance-report', label: 'Compliance Report', icon: 'report' },
       { to: '/analytics', label: 'Analytics', icon: 'barChart' },
@@ -213,8 +213,8 @@ export default function Sidebar({ open, onClose }) {
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-xs font-semibold text-ec-t1 truncate">{user.name}</div>
-              <div className="text-[10px] text-ec-t3">
-                {user.is_manager ? 'Manager' : 'Staff'}
+              <div className="text-[10px] text-ec-t3 capitalize">
+                {(user.role || 'staff').replace('_', ' ')}
               </div>
             </div>
             <button

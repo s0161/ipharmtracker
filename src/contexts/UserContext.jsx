@@ -20,6 +20,7 @@ export function UserProvider({ children }) {
       id: staffRow.id,
       name: staffRow.name,
       isManager: !!staffRow.isManager,
+      role: staffRow.role || 'staff',
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(u))
     setUser(u)
@@ -33,8 +34,11 @@ export function UserProvider({ children }) {
   const refreshUser = useCallback((staffRows) => {
     if (!user) return
     const match = staffRows.find((s) => s.name === user.name)
-    if (match && !!match.isManager !== user.isManager) {
-      const updated = { ...user, isManager: !!match.isManager }
+    if (!match) return
+    const newManager = !!match.isManager
+    const newRole = match.role || 'staff'
+    if (newManager !== user.isManager || newRole !== user.role) {
+      const updated = { ...user, isManager: newManager, role: newRole }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
       setUser(updated)
     }

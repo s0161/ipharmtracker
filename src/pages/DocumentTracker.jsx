@@ -86,6 +86,7 @@ export default function DocumentTracker() {
   const [bannerDismissed, setBannerDismissed] = useState(false)
   const [calMonth, setCalMonth] = useState(new Date().getMonth())
   const [calYear, setCalYear] = useState(new Date().getFullYear())
+  const [categorySearch, setCategorySearch] = useState('')
 
   // Deduplicate by document name (keep most recent by createdAt)
   const uniqueDocs = useMemo(() => {
@@ -209,9 +210,16 @@ export default function DocumentTracker() {
 
   // ─── Grouped docs for category tab ───
   const groupedDocs = useMemo(() => {
+    const q = categorySearch.toLowerCase()
     return CATEGORY_GROUPS.map(group => {
-      const docs = uniqueDocs.filter(d => group.types.includes(d.category))
-      // Sort: expired first, then by days ascending
+      let docs = uniqueDocs.filter(d => group.types.includes(d.category))
+      if (q) {
+        docs = docs.filter(d =>
+          (d.documentName || '').toLowerCase().includes(q) ||
+          (d.owner || '').toLowerCase().includes(q) ||
+          (d.category || '').toLowerCase().includes(q)
+        )
+      }
       const sorted = [...docs].sort((a, b) => {
         const sa = getDocStatus(a.expiryDate)
         const sb = getDocStatus(b.expiryDate)
@@ -221,7 +229,7 @@ export default function DocumentTracker() {
       })
       return { ...group, docs: sorted }
     }).filter(g => g.docs.length > 0)
-  }, [uniqueDocs])
+  }, [uniqueDocs, categorySearch])
 
   // ─── Timeline data ───
   const timelineData = useMemo(() => {
@@ -370,6 +378,20 @@ export default function DocumentTracker() {
       {/* ═══ TAB 1 — BY CATEGORY ═══ */}
       {tab === 'category' && (
         <div>
+          <div style={{ marginBottom: 12 }}>
+            <input
+              type="text"
+              placeholder="Search documents by name, owner, or category..."
+              value={categorySearch}
+              onChange={(e) => setCategorySearch(e.target.value)}
+              style={{
+                fontFamily: DM, width: '100%', maxWidth: 400,
+                background: 'var(--input-bg, var(--bg-card))', border: '1px solid var(--border-card)',
+                borderRadius: 8, padding: '8px 12px', fontSize: 12,
+                color: 'var(--text-primary)', outline: 'none', boxSizing: 'border-box',
+              }}
+            />
+          </div>
           {groupedDocs.length === 0 ? (
             <div style={{ ...CARD, textAlign: 'center', padding: 40, color: 'var(--text-muted)', fontSize: 13 }}>
               No documents tracked yet. Click "＋ Add Document" to get started.

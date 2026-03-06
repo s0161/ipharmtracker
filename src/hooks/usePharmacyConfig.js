@@ -29,6 +29,7 @@ export function usePharmacyConfig() {
           gphcNumber: row.gphc_number || '',
           phone: row.phone || '',
           email: row.email || '',
+          notificationPrefs: row.notification_prefs || null,
         })
       }
       setLoading(false)
@@ -47,6 +48,7 @@ export function usePharmacyConfig() {
       gphc_number: merged.gphcNumber,
       phone: merged.phone,
       email: merged.email,
+      notification_prefs: merged.notificationPrefs || null,
       updated_at: new Date().toISOString(),
     }
     if (config.id) {

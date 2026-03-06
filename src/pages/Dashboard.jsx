@@ -11,6 +11,7 @@ import {
   DEFAULT_CLEANING_TASKS,
   generateId,
 } from "../utils/helpers";
+import { calculateComplianceScores, getComplianceDetails } from "../utils/complianceScore";
 import {
   getTaskAssignee,
   getRPAssignee,
@@ -89,9 +90,6 @@ const SvgDot = ({ size = 6, color }) => (
   <svg width={size} height={size} viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill={color}/></svg>
 );
 
-const SvgVan = ({ size = 14, color = "currentColor" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 5v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-);
 
 const SvgCircleAlert = ({ size = 13, color }) => (
   <svg width={size} height={size} viewBox="0 0 16 16"><circle cx="8" cy="8" r="8" fill={color}/></svg>
@@ -199,16 +197,7 @@ function ComplianceCard({ item, expanded, onToggle }) {
   );
 }
 
-const STAFF_ASSIGNEES = [
-  { initials: "SS", name: "Salma Shakoor" },
-  { initials: "AS", name: "Amjid Shakoor" },
-  { initials: "JA", name: "Jamila Adwan" },
-  { initials: "MH", name: "Marian Hadaway" },
-];
-
-function initialsToName(initials) {
-  return STAFF_ASSIGNEES.find(s => s.initials === initials)?.name || initials;
-}
+// STAFF_ASSIGNEES now derived dynamically inside Dashboard from staff_members DB table
 
 // ── Dashboard ──────────────────────────────────────────────────────────────
 
@@ -226,8 +215,20 @@ export default function Dashboard() {
   const [rpLog, , rpLoading] = useSupabase("rp_log", []);
   const [actionItems, setActionItems, todosLoading] = useSupabase("action_items", []);
   const [staffTasks, setStaffTasks, stLoading] = useSupabase("staff_tasks", []);
-  const [careHomes, setCareHomes] = useSupabase("care_homes", []);
-  const [careDeliveries, setCareDeliveries] = useSupabase("care_home_deliveries", []);
+  const [staffMembers] = useSupabase("staff_members", [], { valueField: "name" });
+
+  // ── Derive STAFF_ASSIGNEES dynamically from DB ──
+  const staffAssignees = useMemo(() => {
+    const names = staffMembers.length > 0 ? staffMembers : ["Salma Shakoor", "Amjid Shakoor", "Jamila Adwan", "Marian Hadaway"];
+    return names.map(name => ({
+      initials: getStaffInitials(name),
+      name,
+    }));
+  }, [staffMembers]);
+
+  function initialsToName(initials) {
+    return staffAssignees.find(s => s.initials === initials)?.name || initials;
+  }
 
   const { unreadCount } = useDocumentReminders(documents);
 
@@ -244,12 +245,6 @@ export default function Dashboard() {
   const [stDueDate, setStDueDate] = useState("");
   const [stNotes, setStNotes] = useState("");
   const [stOpenSections, setStOpenSections] = useState({ pending: true, in_progress: true, done: false });
-  const [chFormOpen, setChFormOpen] = useState(false);
-  const [chHomeId, setChHomeId] = useState("");
-  const [chDate, setChDate] = useState("");
-  const [chNotes, setChNotes] = useState("");
-  const [chNewHomeName, setChNewHomeName] = useState("");
-  const [chAddingHome, setChAddingHome] = useState(false);
   const [bankHolidays, setBankHolidays] = useState([]);
   const [bhLoading, setBhLoading] = useState(true);
   const [bhError, setBhError] = useState(false);
@@ -287,68 +282,45 @@ export default function Dashboard() {
     return rpLog.some(e => e.date === today || e.signInTime?.startsWith(today));
   }, [rpLog, today]);
 
-  // ── Compliance Health (computed from live data) ──
+  // ── Compliance Health (computed via shared utility) ──
   const complianceHealth = useMemo(() => {
-    // Documents: green count / total
-    const docTotal = documents.length || 1;
-    const docGreen = documents.filter(d => getTrafficLight(d.expiryDate) === "green").length;
-    const docPct = Math.round((docGreen / docTotal) * 100);
-    const expiredCount = documents.filter(d => getTrafficLight(d.expiryDate) === "red").length;
-    const amberCount = documents.filter(d => getTrafficLight(d.expiryDate) === "amber").length;
-
-    // Training: complete / total
-    const trainTotal = staffTraining.length || 1;
-    const trainComplete = staffTraining.filter(t => t.status === "Complete").length;
-    const trainPct = Math.round((trainComplete / trainTotal) * 100);
-    const trainOutstanding = trainTotal - trainComplete;
-
-    // Cleaning: done+upcoming / total tasks
-    const tasksToCheck = cleaningTasks.length > 0 ? cleaningTasks : DEFAULT_CLEANING_TASKS;
-    const cleanTotal = tasksToCheck.length || 1;
-    const cleanGood = tasksToCheck.filter(t => {
-      const status = getTaskStatus(t.name, t.frequency, cleaningEntries);
-      return status === "done" || status === "upcoming";
-    }).length;
-    const cleanPct = Math.round((cleanGood / cleanTotal) * 100);
-    const cleanOverdue = tasksToCheck.filter(t => getTaskStatus(t.name, t.frequency, cleaningEntries) === "overdue").length;
-
-    // Safeguarding: current / total
-    const sgTotal = safeguardingRecords.length || 1;
-    const sgCurrent = safeguardingRecords.filter(r => getSafeguardingStatus(r.trainingDate) === "current").length;
-    const sgPct = Math.round((sgCurrent / sgTotal) * 100);
+    const scoreData = { documents, staffTraining, cleaningEntries, safeguardingRecords, cleaningTasks };
+    const scores = calculateComplianceScores(scoreData);
+    const details = getComplianceDetails(scoreData);
+    const d = details.documents, tr = details.training, cl = details.cleaning, sg = details.safeguarding;
 
     return [
       {
-        key: "documents", label: "Documents", pct: docPct, icon: <SvgDoc size={13} color="#064e3b" />,
-        color: docPct >= 80 ? "#059669" : docPct >= 50 ? "#f59e0b" : "#ef4444",
-        trend: docPct >= 80 ? "Stable" : "Needs attention",
-        sub: expiredCount > 0 ? `${expiredCount} expired · ${amberCount} expiring` : amberCount > 0 ? `${amberCount} expiring soon` : "All current",
-        subColor: expiredCount > 0 ? "#ef4444" : amberCount > 0 ? "#d97706" : "#059669",
-        detail: `${docGreen} valid · ${amberCount} due within 30 days · ${expiredCount} expired`,
+        key: "documents", label: "Documents", pct: scores.documents, icon: <SvgDoc size={13} color="#064e3b" />,
+        color: scores.documents >= 80 ? "#059669" : scores.documents >= 50 ? "#f59e0b" : "#ef4444",
+        trend: scores.documents >= 80 ? "Stable" : "Needs attention",
+        sub: d.red > 0 ? `${d.red} expired · ${d.amber} expiring` : d.amber > 0 ? `${d.amber} expiring soon` : "All current",
+        subColor: d.red > 0 ? "#ef4444" : d.amber > 0 ? "#d97706" : "#059669",
+        detail: `${d.green} valid · ${d.amber} due within 30 days · ${d.red} expired`,
       },
       {
-        key: "training", label: "Training", pct: trainPct, icon: <SvgBook size={13} color="#064e3b" />,
-        color: trainPct >= 80 ? "#047857" : trainPct >= 50 ? "#f59e0b" : "#ef4444",
-        trend: trainPct >= 80 ? "On track" : "Needs attention",
-        sub: trainOutstanding > 0 ? `${trainOutstanding} modules outstanding` : "All complete",
-        subColor: trainOutstanding > 0 ? "#ef4444" : "#059669",
-        detail: `${trainComplete} complete · ${trainOutstanding} outstanding`,
+        key: "training", label: "Training", pct: scores.training, icon: <SvgBook size={13} color="#064e3b" />,
+        color: scores.training >= 80 ? "#047857" : scores.training >= 50 ? "#f59e0b" : "#ef4444",
+        trend: scores.training >= 80 ? "On track" : "Needs attention",
+        sub: tr.outstanding > 0 ? `${tr.outstanding} modules outstanding` : "All complete",
+        subColor: tr.outstanding > 0 ? "#ef4444" : "#059669",
+        detail: `${tr.complete} complete · ${tr.outstanding} outstanding`,
       },
       {
-        key: "cleaning", label: "Cleaning", pct: cleanPct, icon: <SvgBroom size={13} color="#064e3b" />,
-        color: cleanPct >= 80 ? "#059669" : cleanPct >= 50 ? "#f59e0b" : "#ef4444",
-        trend: cleanPct >= 80 ? "On track" : "Needs attention",
-        sub: cleanOverdue > 0 ? `${cleanOverdue} overdue tasks` : "All on schedule",
-        subColor: cleanOverdue > 0 ? "#ef4444" : "#059669",
-        detail: `${cleanGood} on track · ${cleanOverdue} overdue`,
+        key: "cleaning", label: "Cleaning", pct: scores.cleaning, icon: <SvgBroom size={13} color="#064e3b" />,
+        color: scores.cleaning >= 80 ? "#059669" : scores.cleaning >= 50 ? "#f59e0b" : "#ef4444",
+        trend: scores.cleaning >= 80 ? "On track" : "Needs attention",
+        sub: cl.overdue > 0 ? `${cl.overdue} overdue tasks` : "All on schedule",
+        subColor: cl.overdue > 0 ? "#ef4444" : "#059669",
+        detail: `${cl.done} on track · ${cl.overdue} overdue`,
       },
       {
-        key: "safeguarding", label: "Safeguarding", pct: sgPct, icon: <SvgShield size={13} color="#064e3b" />,
-        color: sgPct >= 80 ? "#16a34a" : sgPct >= 50 ? "#f59e0b" : "#ef4444",
-        trend: sgPct === 100 ? "All current" : sgPct >= 80 ? "Mostly current" : "Needs attention",
-        sub: sgPct === 100 ? "All current" : `${sgTotal - sgCurrent} need renewal`,
-        subColor: sgPct === 100 ? "#059669" : "#ef4444",
-        detail: `${sgCurrent} current · ${sgTotal - sgCurrent} need renewal`,
+        key: "safeguarding", label: "Safeguarding", pct: scores.safeguarding, icon: <SvgShield size={13} color="#064e3b" />,
+        color: scores.safeguarding >= 80 ? "#16a34a" : scores.safeguarding >= 50 ? "#f59e0b" : "#ef4444",
+        trend: scores.safeguarding === 100 ? "All current" : scores.safeguarding >= 80 ? "Mostly current" : "Needs attention",
+        sub: scores.safeguarding === 100 ? "All current" : `${sg.total - sg.current} need renewal`,
+        subColor: scores.safeguarding === 100 ? "#059669" : "#ef4444",
+        detail: `${sg.current} current · ${sg.total - sg.current} need renewal`,
       },
     ];
   }, [documents, staffTraining, cleaningTasks, cleaningEntries, safeguardingRecords]);
@@ -581,74 +553,6 @@ export default function Dashboard() {
 
   function toggleStSection(section) {
     setStOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
-  }
-
-  // ── Care Home Deliveries ──
-  const chMonthLabel = now.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
-  const chYear = now.getFullYear();
-  const chMonth = now.getMonth();
-
-  const chHomeMap = useMemo(() => {
-    const m = {};
-    careHomes.forEach(h => { m[h.id] = h.name; });
-    return m;
-  }, [careHomes]);
-
-  const chMonthDeliveries = useMemo(() => {
-    const monthStart = `${chYear}-${String(chMonth + 1).padStart(2, "0")}-01`;
-    const nextMonth = chMonth === 11 ? `${chYear + 1}-01-01` : `${chYear}-${String(chMonth + 2).padStart(2, "0")}-01`;
-    return careDeliveries
-      .filter(d => d.deliveryDate >= monthStart && d.deliveryDate < nextMonth)
-      .map(d => ({ ...d, homeName: chHomeMap[d.careHomeId] || "Unknown" }))
-      .sort((a, b) => a.deliveryDate.localeCompare(b.deliveryDate));
-  }, [careDeliveries, chHomeMap, chYear, chMonth]);
-
-  const chByWeek = useMemo(() => {
-    const weeks = {};
-    const daysInMonth = new Date(chYear, chMonth + 1, 0).getDate();
-    chMonthDeliveries.forEach(d => {
-      const day = parseInt(d.deliveryDate.slice(8, 10), 10);
-      const wk = Math.ceil(day / 7);
-      const wkStart = (wk - 1) * 7 + 1;
-      const wkEnd = Math.min(wk * 7, daysInMonth);
-      const monthShort = now.toLocaleDateString("en-GB", { month: "short" });
-      const key = `Week ${wk} (${wkStart}–${wkEnd} ${monthShort})`;
-      if (!weeks[key]) weeks[key] = [];
-      weeks[key].push(d);
-    });
-    return weeks;
-  }, [chMonthDeliveries, chYear, chMonth, now]);
-
-  const chDelivered = chMonthDeliveries.filter(d => d.status === "delivered").length;
-  const chTotal = chMonthDeliveries.length;
-  const chPct = chTotal > 0 ? Math.round((chDelivered / chTotal) * 100) : 0;
-
-  function handleAddDelivery() {
-    if (!chHomeId || !chDate) return;
-    const newDel = {
-      id: generateId(),
-      careHomeId: chHomeId,
-      deliveryDate: chDate,
-      status: "pending",
-      notes: chNotes.trim() || null,
-      createdAt: new Date().toISOString(),
-    };
-    setCareDeliveries(prev => [...prev, newDel]);
-    setChHomeId(""); setChDate(""); setChNotes("");
-    setChFormOpen(false);
-  }
-
-  function handleAddCareHome() {
-    if (!chNewHomeName.trim()) return;
-    const newHome = { id: generateId(), name: chNewHomeName.trim(), createdAt: new Date().toISOString() };
-    setCareHomes(prev => [...prev, newHome]);
-    setChHomeId(newHome.id);
-    setChNewHomeName("");
-    setChAddingHome(false);
-  }
-
-  function handleChStatusChange(delId, newStatus) {
-    setCareDeliveries(prev => prev.map(d => d.id === delId ? { ...d, status: newStatus } : d));
   }
 
   const card = {
@@ -1065,136 +969,9 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* ── Side-by-side: Care Homes + Staff Tasks ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, alignItems: "start", marginTop: 12 }}>
+        {/* ── Staff Tasks ── */}
+        <div style={{ marginTop: 12 }}>
 
-        {/* ── Care Home Deliveries ── */}
-        <div style={{ ...card, overflow: "hidden" }}>
-          <CardHeader
-            gradient="linear-gradient(90deg, #0f766e, #14b8a6)"
-            icon={<SvgVan size={14} />}
-            title="Care Home Deliveries"
-            right={<span style={{ fontSize: 11, color: "white" }}>{chMonthLabel}</span>}
-          />
-
-          {/* Toggle form */}
-          <button
-            onClick={() => setChFormOpen(o => !o)}
-            style={{ fontSize: 10, fontWeight: 700, color: "#0f766e", background: "none", border: "none", cursor: "pointer", padding: "0 0 8px", fontFamily: "'DM Sans', sans-serif" }}
-          >
-            {chFormOpen ? "– Hide Form" : "+ Add Delivery"}
-          </button>
-
-          {/* Inline add form */}
-          {chFormOpen && (
-            <div style={{ background: "#f0fdf9", border: "1px solid #99f6e4", borderRadius: 10, padding: 12, marginBottom: 12 }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 8 }}>
-                <div>
-                  <label style={{ fontSize: 10, fontWeight: 600, color: "#64748b", marginBottom: 2, display: "block" }}>Care home *</label>
-                  <div style={{ display: "flex", gap: 4 }}>
-                    {!chAddingHome ? (
-                      <>
-                        <select value={chHomeId} onChange={e => setChHomeId(e.target.value)}
-                          style={{ flex: 1, fontSize: 12, padding: "6px 10px", borderRadius: 8, border: "1px solid #d1fae5", background: "white", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }}
-                        >
-                          <option value="">Select…</option>
-                          {careHomes.map(h => <option key={h.id} value={h.id}>{h.name}</option>)}
-                        </select>
-                        <button onClick={() => setChAddingHome(true)}
-                          style={{ fontSize: 10, fontWeight: 700, padding: "4px 8px", borderRadius: 6, border: "1px solid #99f6e4", background: "white", color: "#0f766e", cursor: "pointer", flexShrink: 0, fontFamily: "'DM Sans', sans-serif" }}
-                        >+ New</button>
-                      </>
-                    ) : (
-                      <>
-                        <input value={chNewHomeName} onChange={e => setChNewHomeName(e.target.value)} placeholder="Care home name…"
-                          style={{ flex: 1, fontSize: 12, padding: "6px 10px", borderRadius: 8, border: "1px solid #d1fae5", background: "white", outline: "none", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }}
-                        />
-                        <button onClick={handleAddCareHome} disabled={!chNewHomeName.trim()}
-                          style={{ fontSize: 10, fontWeight: 700, padding: "4px 8px", borderRadius: 6, border: "none", background: chNewHomeName.trim() ? "#0f766e" : "#d1d5db", color: "white", cursor: chNewHomeName.trim() ? "pointer" : "default", flexShrink: 0, fontFamily: "'DM Sans', sans-serif" }}
-                        >Save</button>
-                        <button onClick={() => { setChAddingHome(false); setChNewHomeName(""); }}
-                          style={{ fontSize: 10, padding: "4px 6px", borderRadius: 6, border: "1px solid #d1fae5", background: "white", color: "#64748b", cursor: "pointer", flexShrink: 0, fontFamily: "'DM Sans', sans-serif" }}
-                        >Cancel</button>
-                      </>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <label style={{ fontSize: 10, fontWeight: 600, color: "#64748b", marginBottom: 2, display: "block" }}>Date *</label>
-                  <input type="date" value={chDate} onChange={e => setChDate(e.target.value)}
-                    style={{ width: "100%", fontSize: 12, padding: "6px 10px", borderRadius: 8, border: "1px solid #d1fae5", background: "white", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }}
-                  />
-                </div>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                <div>
-                  <label style={{ fontSize: 10, fontWeight: 600, color: "#64748b", marginBottom: 2, display: "block" }}>Notes</label>
-                  <input value={chNotes} onChange={e => setChNotes(e.target.value)} placeholder="Special instructions…"
-                    style={{ width: "100%", fontSize: 12, padding: "6px 10px", borderRadius: 8, border: "1px solid #d1fae5", background: "white", outline: "none", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }}
-                  />
-                </div>
-                <button onClick={handleAddDelivery} disabled={!chHomeId || !chDate}
-                  style={{ background: (chHomeId && chDate) ? "#0f766e" : "#d1d5db", color: "white", fontSize: 12, fontWeight: 600, borderRadius: 8, padding: "6px 14px", border: "none", cursor: (chHomeId && chDate) ? "pointer" : "default", fontFamily: "'DM Sans', sans-serif", flexShrink: 0 }}
-                >Add</button>
-              </div>
-            </div>
-          )}
-
-          {/* Delivery list */}
-          {chTotal === 0 ? (
-            <div style={{ fontSize: 11, color: "#9ca3af", textAlign: "center", padding: "12px 0", fontStyle: "italic" }}>No deliveries scheduled for this month.</div>
-          ) : (
-            <>
-              {Object.entries(chByWeek).map(([weekLabel, dels]) => (
-                <div key={weekLabel}>
-                  <div style={{ fontSize: 9, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.08em", marginTop: 8, marginBottom: 4 }}>{weekLabel}</div>
-                  {dels.map(d => {
-                    const isToday = d.deliveryDate === today;
-                    const isPastUndelivered = d.deliveryDate < today && d.status !== "delivered";
-                    const rowBg = isPastUndelivered ? "#fef2f2" : d.status === "dispatched" ? "#eff6ff" : d.status === "delivered" ? "#f0fdf4" : "white";
-                    const rowBorder = isPastUndelivered ? "#fecaca" : d.status === "dispatched" ? "#bfdbfe" : d.status === "delivered" ? "#6ee7b7" : "#e2e8f0";
-                    const dotColor = d.status === "delivered" ? "#059669" : d.status === "dispatched" ? "#3b82f6" : "#f59e0b";
-                    const dateObj = new Date(d.deliveryDate + "T00:00:00");
-                    const dateLabel = dateObj.toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short" });
-                    return (
-                      <div key={d.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 9, marginBottom: 4, background: rowBg, border: `1px solid ${rowBorder}` }}>
-                        <SvgDot size={7} color={dotColor} />
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                            <span style={{ fontSize: 12, fontWeight: 600, color: "#1e293b" }}>{d.homeName}</span>
-                            {isToday && <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 6px", borderRadius: 20, background: "#ccfbf1", color: "#0f766e" }}>Today</span>}
-                            {isPastUndelivered && <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 6px", borderRadius: 20, background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca" }}>Overdue</span>}
-                          </div>
-                          <div style={{ fontSize: 10, color: "#94a3b8", fontFamily: "'DM Mono', monospace", marginTop: 1 }}>{dateLabel}</div>
-                          {d.notes && <div style={{ fontSize: 10, color: "#94a3b8", fontStyle: "italic", marginTop: 1 }}>{d.notes}</div>}
-                        </div>
-                        <select value={d.status} onChange={e => handleChStatusChange(d.id, e.target.value)}
-                          style={{ fontSize: 10, padding: "2px 4px", borderRadius: 6, border: "1px solid #d1fae5", background: "#f9fafb", color: "#1e293b", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="dispatched">Dispatched</option>
-                          <option value="delivered">Delivered</option>
-                        </select>
-                      </div>
-                    );
-                  })}
-                </div>
-              ))}
-
-              {/* Summary */}
-              <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid #d1fae5" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-                  <span style={{ fontSize: 10, color: "#94a3b8" }}>{chDelivered} of {chTotal} deliveries completed this month</span>
-                </div>
-                <div style={{ height: 4, borderRadius: 99, background: "#e8f5e9", overflow: "hidden" }}>
-                  <div style={{ width: `${chPct}%`, height: "100%", background: "#059669", borderRadius: 99, transition: "width 0.4s" }} />
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* ── Staff Task Progress ── */}
         <div style={{ ...card, overflow: "hidden" }}>
           <CardHeader
             gradient="linear-gradient(90deg, #064e3b, #059669)"
@@ -1235,7 +1012,7 @@ export default function Dashboard() {
                   <select value={stAssignTo} onChange={e => setStAssignTo(e.target.value)}
                     style={{ width: "100%", padding: "6px 10px", borderRadius: 7, fontSize: 12, border: "1px solid #d1fae5", background: "white", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }}
                   >
-                    {STAFF_ASSIGNEES.map(s => <option key={s.initials} value={s.initials}>{s.initials} — {s.name}</option>)}
+                    {staffAssignees.map(s => <option key={s.initials} value={s.initials}>{s.initials} — {s.name}</option>)}
                   </select>
                 </div>
                 <div>
@@ -1400,7 +1177,7 @@ export default function Dashboard() {
           )}
         </div>
 
-        </div>{/* end side-by-side grid */}
+        </div>{/* end Staff Tasks wrapper */}
 
       </div>
     </div>

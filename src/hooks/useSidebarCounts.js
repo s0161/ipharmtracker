@@ -9,6 +9,7 @@ function emptyCounts() {
     '/safeguarding': { red: 0, amber: 0 },
     '/cleaning': { red: 0, amber: 0 },
     '/temperature': { red: 0, amber: 0 },
+    '/my-tasks': { red: 0, amber: 0 },
   }
 }
 
@@ -16,13 +17,14 @@ async function fetchCounts() {
   const counts = emptyCounts()
   const prefs = JSON.parse(localStorage.getItem('ipd_notification_prefs') || '{}')
 
-  const [docsRes, staffRes, sgRes, tasksRes, entriesRes, tempRes] = await Promise.all([
+  const [docsRes, staffRes, sgRes, tasksRes, entriesRes, tempRes, staffTasksRes] = await Promise.all([
     supabase.from('documents').select('expiry_date'),
     supabase.from('staff_training').select('status, target_date'),
     supabase.from('safeguarding_records').select('training_date'),
     supabase.from('cleaning_tasks').select('name, frequency'),
     supabase.from('cleaning_entries').select('task_name, date_time'),
-    supabase.from('temperature_logs').select('date'),
+    supabase.from('fridge_temperature_logs').select('date'),
+    supabase.from('staff_tasks').select('status, due_date'),
   ])
 
   if (docsRes.data) {
@@ -76,6 +78,20 @@ async function fetchCounts() {
     }
   } else {
     counts['/temperature'].amber = 1
+  }
+
+  // Staff tasks: pending/overdue count
+  if (staffTasksRes.data) {
+    const todayStr = new Date().toISOString().slice(0, 10)
+    staffTasksRes.data.forEach((t) => {
+      if (t.status !== 'done') {
+        if (t.due_date && t.due_date < todayStr) {
+          counts['/my-tasks'].red++
+        } else {
+          counts['/my-tasks'].amber++
+        }
+      }
+    })
   }
 
   // Zero out counts for disabled notification categories

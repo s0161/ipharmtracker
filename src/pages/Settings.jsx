@@ -31,6 +31,7 @@ const TABS = [
   { id: 'pharmacy', label: '🏥 Pharmacy' },
   { id: 'cleaning', label: '🧹 Cleaning' },
   { id: 'rp', label: '📋 RP & Tasks' },
+  { id: 'templates', label: '📝 Task Templates' },
   { id: 'notifications', label: '🔔 Notifications' },
   { id: 'data', label: '📊 Data & Reports' },
 ]
@@ -89,22 +90,42 @@ function Toggle({ checked, onChange, size = 'normal' }) {
 }
 
 // ─── Role pill ───
+const ROLE_PILL_COLORS = {
+  superintendent: { bg: '#fdf4ff', color: '#9333ea', border: '#e9d5ff' },
+  manager: { bg: '#fff7ed', color: '#c2410c', border: '#fed7aa' },
+  pharmacist: { bg: '#fdf4ff', color: '#9333ea', border: '#e9d5ff' },
+  technician: { bg: '#eff6ff', color: '#2563eb', border: '#bfdbfe' },
+  dispenser: { bg: '#f0fdf4', color: '#059669', border: '#d1fae5' },
+  stock_assistant: { bg: '#fef9c3', color: '#a16207', border: '#fde68a' },
+  driver: { bg: '#f1f5f9', color: '#475569', border: '#cbd5e1' },
+  aca: { bg: '#fff7ed', color: '#ea580c', border: '#fed7aa' },
+  staff: { bg: '#f0fdf4', color: '#059669', border: '#d1fae5' },
+}
+const SETTINGS_ROLE_OPTIONS = [
+  'superintendent', 'manager', 'pharmacist', 'technician',
+  'dispenser', 'stock_assistant', 'driver', 'aca', 'staff',
+]
+const SETTINGS_ROLE_LABELS = {
+  superintendent: 'Superintendent', manager: 'Manager', pharmacist: 'Pharmacist',
+  technician: 'Technician', dispenser: 'Dispenser', stock_assistant: 'Stock Assistant',
+  driver: 'Driver', aca: 'ACA', staff: 'Staff',
+}
+
 function RolePill({ role }) {
-  const cfg = {
-    Manager: { bg: '#fff7ed', color: '#c2410c', border: '#fed7aa' },
-    RP: { bg: '#fdf4ff', color: '#9333ea', border: '#e9d5ff' },
-    Staff: { bg: '#f0fdf4', color: '#059669', border: '#d1fae5' },
-  }[role] || { bg: '#f0fdf4', color: '#059669', border: '#d1fae5' }
+  const cfg = ROLE_PILL_COLORS[role] || ROLE_PILL_COLORS.staff
+  const label = SETTINGS_ROLE_LABELS[role] || role || 'Staff'
   return (
     <span style={{
       fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
       background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`,
-    }}>{role}</span>
+      textTransform: 'capitalize',
+    }}>{label}</span>
   )
 }
 
 export default function Settings() {
   const [staffMembers, setStaffMembers] = useSupabase('staff_members', [])
+  const [taskTemplates, setTaskTemplates] = useSupabase('task_templates', [])
   const { user, logout: logoutUser } = useUser()
   const [pharmacyConfig, updatePharmacyConfig] = usePharmacyConfig()
   const [pharmacyForm, setPharmacyForm] = useState(null)
@@ -124,10 +145,19 @@ export default function Settings() {
   const [activeTab, setActiveTab] = useState('staff')
   const [backendStatus, setBackendStatus] = useState({ checking: true })
   const [notifPrefs, setNotifPrefs] = useState(() => {
+    // Prefer Supabase data if available, fall back to localStorage
+    if (pharmacyConfig.notificationPrefs) return pharmacyConfig.notificationPrefs
     try {
       return JSON.parse(localStorage.getItem('ipd_notification_prefs')) || DEFAULT_NOTIFICATION_PREFS
     } catch { return DEFAULT_NOTIFICATION_PREFS }
   })
+
+  // Sync from Supabase when config loads
+  useEffect(() => {
+    if (pharmacyConfig.notificationPrefs) {
+      setNotifPrefs(pharmacyConfig.notificationPrefs)
+    }
+  }, [pharmacyConfig.notificationPrefs])
 
   // Staff tab state
   const [staffName, setStaffName] = useState('')
@@ -379,7 +409,6 @@ export default function Settings() {
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 10 }}>
                   {staffMembers.map(s => {
-                    const role = s.isManager ? 'Manager' : 'Staff'
                     const pinRevealed = revealPin[s.id]
                     return (
                       <div key={s.id} style={{
@@ -393,7 +422,25 @@ export default function Settings() {
                           <div style={{ fontSize: 10, fontFamily: MONO, color: 'var(--text-muted)', marginTop: 1 }}>
                             {s.name ? s.name.split(' ').map(w => w[0]).join('').toUpperCase() : '?'}
                           </div>
-                          <div style={{ marginTop: 4 }}><RolePill role={role} /></div>
+                          <div style={{ marginTop: 4 }}><RolePill role={s.role || 'staff'} /></div>
+                        </div>
+
+                        {/* Role dropdown */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 8 }}>
+                          <label style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600 }}>Role:</label>
+                          <select
+                            value={s.role || 'staff'}
+                            onChange={e => {
+                              const newRole = e.target.value
+                              const isManager = ['superintendent', 'manager'].includes(newRole)
+                              setStaffMembers(staffMembers.map(m => m.id === s.id ? { ...m, role: newRole, isManager } : m))
+                            }}
+                            style={{ ...inputStyle, width: 'auto', padding: '3px 8px', fontSize: 11 }}
+                          >
+                            {SETTINGS_ROLE_OPTIONS.map(r => (
+                              <option key={r} value={r}>{SETTINGS_ROLE_LABELS[r]}</option>
+                            ))}
+                          </select>
                         </div>
 
                         {/* PIN row */}
@@ -429,7 +476,7 @@ export default function Settings() {
                           )}
                         </div>
 
-                        {/* Manager toggle + actions */}
+                        {/* Manager badge + actions */}
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <Toggle checked={!!s.isManager} onChange={() => toggleManager(s.id)} size="small" />
@@ -710,6 +757,71 @@ export default function Settings() {
           </div>
         )}
 
+        {/* ═══ TAB — TASK TEMPLATES ═══ */}
+        {activeTab === 'templates' && (
+          <div style={{ ...CARD, overflow: 'hidden' }}>
+            <DashCardHeader gradient="linear-gradient(90deg, #7c3aed, #a78bfa)" icon="📝" title="Task Templates" right={<span style={{ fontSize: 11, fontFamily: MONO }}>{taskTemplates.length} templates</span>} />
+
+            {taskTemplates.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-muted)', fontSize: 13 }}>No task templates found. Re-seed to restore defaults.</div>
+            ) : (
+              <div>
+                {['opening', 'clinical', 'dispensary', 'stock', 'compliance', 'closing', 'admin'].map(cat => {
+                  const catTemplates = taskTemplates.filter(t => t.category === cat)
+                  if (catTemplates.length === 0) return null
+                  const catLabels = { opening: 'Opening', clinical: 'Clinical', dispensary: 'Dispensary', stock: 'Stock', compliance: 'Compliance', closing: 'Closing', admin: 'Admin & H&S' }
+                  return (
+                    <div key={cat} style={{ marginBottom: 12 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 0 4px' }}>
+                        {catLabels[cat] || cat} ({catTemplates.length})
+                      </div>
+                      {catTemplates.map(t => (
+                        <div key={t.id} style={{
+                          display: 'flex', alignItems: 'center', gap: 10, padding: '8px 4px',
+                          borderBottom: '1px solid var(--border-card)',
+                        }}>
+                          <Toggle
+                            checked={t.isActive !== false}
+                            onChange={() => setTaskTemplates(taskTemplates.map(x => x.id === t.id ? { ...x, isActive: !x.isActive } : x))}
+                            size="small"
+                          />
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{
+                              fontSize: 12, fontWeight: 600, color: t.isActive !== false ? 'var(--text-primary)' : 'var(--text-muted)',
+                              textDecoration: t.isActive === false ? 'line-through' : 'none',
+                            }}>{t.name}</div>
+                            {t.description && (
+                              <div style={{ fontSize: 10, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.description}</div>
+                            )}
+                          </div>
+                          <span style={{
+                            fontSize: 9, fontWeight: 600, padding: '1px 7px', borderRadius: 20,
+                            background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe',
+                            textTransform: 'capitalize',
+                          }}>{t.frequency}</span>
+                          <span style={{
+                            fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 20,
+                            fontFamily: MONO, letterSpacing: '0.05em', textTransform: 'uppercase',
+                            ...(t.priority === 'urgent' ? { background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' } :
+                               t.priority === 'high' ? { background: '#fff7ed', color: '#ea580c', border: '1px solid #fed7aa' } :
+                               t.priority === 'normal' ? { background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0' } :
+                               { background: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0' }),
+                          }}>{t.priority}</span>
+                          {t.applicableRoles && (
+                            <span style={{ fontSize: 9, color: 'var(--text-muted)' }} title={t.applicableRoles.join(', ')}>
+                              {t.applicableRoles.length} roles
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* ═══ TAB 5 — NOTIFICATIONS ═══ */}
         {activeTab === 'notifications' && (
           <div style={{ ...CARD, overflow: 'hidden' }}>
@@ -748,6 +860,7 @@ export default function Settings() {
                       const updated = { ...notifPrefs, [key]: !notifPrefs[key] }
                       setNotifPrefs(updated)
                       localStorage.setItem('ipd_notification_prefs', JSON.stringify(updated))
+                      updatePharmacyConfig({ notificationPrefs: updated })
                       showToast('Preference saved')
                     }} />
                   </div>

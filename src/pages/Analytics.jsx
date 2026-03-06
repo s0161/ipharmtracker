@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
 import {
   getTrafficLight,
@@ -6,6 +6,7 @@ import {
   getSafeguardingStatus,
   DEFAULT_CLEANING_TASKS,
 } from '../utils/helpers'
+import { calculateComplianceScores } from '../utils/complianceScore'
 import { downloadCsv } from '../utils/exportCsv'
 import SkeletonLoader from '../components/SkeletonLoader'
 
@@ -264,61 +265,33 @@ export default function Analytics() {
   const [rpLogs] = useSupabase('rp_log', [])
   const [staff] = useSupabase('staff_members', [])
   const [cleaningTasks] = useSupabase('cleaning_tasks', DEFAULT_CLEANING_TASKS)
+  const [incidents] = useSupabase('incidents', [])
+  const [nearMisses] = useSupabase('near_misses', [])
 
   const isLoading = docsLoading || trainingLoading || cleaningLoading
 
   const days = useMemo(() => getLast30Days(), [])
-  const history = useMemo(() => getScoreHistory(), [])
+  const [history, setHistory] = useState(() => getScoreHistory())
 
-  // ─── CURRENT SCORES (same logic as ComplianceReport / Dashboard) ───
+  // ─── CURRENT SCORES (shared utility) ───
   const scores = useMemo(() => {
-    // Documents
-    const docStatuses = documents.map((d) => getTrafficLight(d.expiryDate))
-    const greenDocs = docStatuses.filter((s) => s === 'green').length
-    const docScore = documents.length > 0 ? Math.round((greenDocs / documents.length) * 100) : 100
-
-    // Training
-    const trainingScore =
-      staffTraining.length > 0
-        ? Math.round(
-            (staffTraining.filter((e) => e.status === 'Complete').length / staffTraining.length) * 100
-          )
-        : 100
-
-    // Cleaning
-    const seen = new Set()
-    const taskStatuses = cleaningTasks
-      .filter((t) => {
-        if (seen.has(t.name)) return false
-        seen.add(t.name)
-        return true
-      })
-      .map((t) => ({
-        ...t,
-        status: getTaskStatus(t.name, t.frequency, cleaningEntries),
-      }))
-    const cleaningUpToDate = taskStatuses.filter(
-      (t) => t.status === 'done' || t.status === 'upcoming'
-    ).length
-    const cleaningScore =
-      taskStatuses.length > 0
-        ? Math.round((cleaningUpToDate / taskStatuses.length) * 100)
-        : 100
-
-    // Safeguarding
-    const sgCurrent = safeguarding.filter(
-      (r) => getSafeguardingStatus(r.trainingDate) === 'current'
-    ).length
-    const sgScore =
-      safeguarding.length > 0 ? Math.round((sgCurrent / safeguarding.length) * 100) : 100
-
-    return {
-      documents: docScore,
-      training: trainingScore,
-      cleaning: cleaningScore,
-      safeguarding: sgScore,
-    }
+    return calculateComplianceScores({
+      documents, staffTraining, cleaningEntries, safeguardingRecords: safeguarding, cleaningTasks,
+    })
   }, [documents, staffTraining, cleaningEntries, safeguarding, cleaningTasks])
+
+  // ─── Backfill score history on cold-start ───
+  useEffect(() => {
+    if (isLoading) return
+    const today = new Date().toISOString().slice(0, 10)
+    const existing = getScoreHistory()
+    // If today's score is missing or history is empty, seed it with current scores
+    if (!existing[today]) {
+      const updated = { ...existing, [today]: scores }
+      localStorage.setItem('ipd_score_history', JSON.stringify(updated))
+      setHistory(updated)
+    }
+  }, [isLoading, scores])
 
   // ─── 30-DAY AVERAGES & TRENDS ───
   const { averages, trends } = useMemo(() => {
@@ -353,38 +326,72 @@ export default function Analytics() {
     const thirtyAgo = new Date()
     thirtyAgo.setDate(thirtyAgo.getDate() - 30)
     const thirtyAgoStr = thirtyAgo.toISOString()
+    const thirtyAgoDate = thirtyAgo.toISOString().slice(0, 10)
 
-    const recentEntries = cleaningEntries.filter(
-      (e) => e.dateTime && e.dateTime >= thirtyAgoStr
-    )
+    const ensure = (byStaff, name) => {
+      if (!byStaff[name]) byStaff[name] = { name, cleaning: 0, rp: 0, incidents: 0, nearMisses: 0, training: 0, total: 0, lastActive: '' }
+    }
+    const track = (byStaff, name, field, dateVal) => {
+      ensure(byStaff, name)
+      byStaff[name][field]++
+      byStaff[name].total++
+      if (dateVal && dateVal > byStaff[name].lastActive) byStaff[name].lastActive = dateVal
+    }
 
     const byStaff = {}
-    for (const entry of recentEntries) {
-      const name = entry.completedBy || 'Unknown'
-      if (!byStaff[name]) {
-        byStaff[name] = { name, count: 0, lastActive: '' }
-      }
-      byStaff[name].count++
-      if (entry.dateTime > byStaff[name].lastActive) {
-        byStaff[name].lastActive = entry.dateTime
+
+    // Cleaning entries (last 30 days)
+    for (const e of cleaningEntries) {
+      if (e.dateTime && e.dateTime >= thirtyAgoStr && e.completedBy) {
+        track(byStaff, e.completedBy, 'cleaning', e.dateTime)
       }
     }
 
-    // Total possible daily tasks * 30 per staff is hard to know exactly,
-    // so we show rate relative to the top performer
-    const result = Object.values(byStaff).sort((a, b) => b.count - a.count)
-    const maxCount = result.length > 0 ? result[0].count : 1
+    // RP log entries (last 30 days)
+    for (const r of rpLogs) {
+      if (r.date && r.date >= thirtyAgoDate && r.rpName) {
+        track(byStaff, r.rpName, 'rp', r.date)
+      }
+    }
+
+    // Incident reports (last 30 days)
+    for (const inc of incidents) {
+      if (inc.date && inc.date >= thirtyAgoDate && inc.reportedBy) {
+        track(byStaff, inc.reportedBy, 'incidents', inc.date)
+      }
+    }
+
+    // Near misses (last 30 days)
+    for (const nm of nearMisses) {
+      if (nm.date && nm.date >= thirtyAgoDate && nm.actionTakenBy) {
+        track(byStaff, nm.actionTakenBy, 'nearMisses', nm.date)
+      }
+    }
+
+    // Training completions (last 30 days)
+    for (const t of staffTraining) {
+      if (t.status === 'Complete' && t.staffName) {
+        // Use targetDate or completedDate as the activity date
+        const d = t.completedDate || t.targetDate || ''
+        if (d >= thirtyAgoDate) {
+          track(byStaff, t.staffName, 'training', d)
+        }
+      }
+    }
+
+    const result = Object.values(byStaff).sort((a, b) => b.total - a.total)
+    const maxCount = result.length > 0 ? result[0].total : 1
     return result.map((s) => ({
       ...s,
-      rate: Math.round((s.count / maxCount) * 100),
+      rate: Math.round((s.total / maxCount) * 100),
       lastActiveFormatted: s.lastActive
-        ? new Date(s.lastActive).toLocaleDateString('en-GB', {
+        ? new Date(s.lastActive + (s.lastActive.length === 10 ? 'T00:00:00' : '')).toLocaleDateString('en-GB', {
             day: 'numeric',
             month: 'short',
           })
         : '\u2014',
     }))
-  }, [cleaningEntries])
+  }, [cleaningEntries, rpLogs, incidents, nearMisses, staffTraining])
 
   // ─── RISK INDICATORS ───
   const risks = useMemo(() => {
@@ -559,7 +566,7 @@ export default function Analytics() {
         <h2 className="text-sm font-bold text-ec-t1 mb-3">Staff Activity Summary (30 Days)</h2>
         {staffActivity.length === 0 ? (
           <div className="rounded-xl bg-ec-card border border-ec-border p-6 text-center text-sm text-ec-t3 ec-fadeup">
-            No cleaning activity recorded in the last 30 days.
+            No staff activity recorded in the last 30 days.
           </div>
         ) : (
           <div
@@ -572,13 +579,25 @@ export default function Analytics() {
                   <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">
                     Staff Name
                   </th>
-                  <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">
-                    Tasks Completed
+                  <th className="text-center text-xs font-semibold text-ec-t3 px-3 py-2.5 border-b border-ec-border">
+                    Cleaning
                   </th>
-                  <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">
-                    Completion Rate
+                  <th className="text-center text-xs font-semibold text-ec-t3 px-3 py-2.5 border-b border-ec-border">
+                    RP Logs
                   </th>
-                  <th className="text-left text-xs font-semibold text-ec-t3 px-4 py-2.5 border-b border-ec-border">
+                  <th className="text-center text-xs font-semibold text-ec-t3 px-3 py-2.5 border-b border-ec-border">
+                    Incidents
+                  </th>
+                  <th className="text-center text-xs font-semibold text-ec-t3 px-3 py-2.5 border-b border-ec-border">
+                    Near Misses
+                  </th>
+                  <th className="text-center text-xs font-semibold text-ec-t3 px-3 py-2.5 border-b border-ec-border">
+                    Training
+                  </th>
+                  <th className="text-left text-xs font-semibold text-ec-t3 px-3 py-2.5 border-b border-ec-border">
+                    Total
+                  </th>
+                  <th className="text-left text-xs font-semibold text-ec-t3 px-3 py-2.5 border-b border-ec-border">
                     Last Active
                   </th>
                 </tr>
@@ -589,12 +608,25 @@ export default function Analytics() {
                     <td className="px-4 py-2.5 text-ec-t1 border-b border-ec-div font-medium">
                       {s.name}
                     </td>
-                    <td className="px-4 py-2.5 text-ec-t2 border-b border-ec-div tabular-nums">
-                      {s.count}
+                    <td className="px-3 py-2.5 text-ec-t2 border-b border-ec-div tabular-nums text-center">
+                      {s.cleaning || '\u2014'}
                     </td>
-                    <td className="px-4 py-2.5 border-b border-ec-div">
+                    <td className="px-3 py-2.5 text-ec-t2 border-b border-ec-div tabular-nums text-center">
+                      {s.rp || '\u2014'}
+                    </td>
+                    <td className="px-3 py-2.5 text-ec-t2 border-b border-ec-div tabular-nums text-center">
+                      {s.incidents || '\u2014'}
+                    </td>
+                    <td className="px-3 py-2.5 text-ec-t2 border-b border-ec-div tabular-nums text-center">
+                      {s.nearMisses || '\u2014'}
+                    </td>
+                    <td className="px-3 py-2.5 text-ec-t2 border-b border-ec-div tabular-nums text-center">
+                      {s.training || '\u2014'}
+                    </td>
+                    <td className="px-3 py-2.5 border-b border-ec-div">
                       <div className="flex items-center gap-2">
-                        <div className="flex-1 max-w-[120px] h-1.5 rounded-full bg-ec-border overflow-hidden">
+                        <span className="font-semibold text-ec-t1 tabular-nums">{s.total}</span>
+                        <div className="flex-1 max-w-[80px] h-1.5 rounded-full bg-ec-border overflow-hidden">
                           <div
                             className="h-full rounded-full transition-all duration-500"
                             style={{
@@ -608,10 +640,9 @@ export default function Analytics() {
                             }}
                           />
                         </div>
-                        <span className="text-xs text-ec-t3 tabular-nums">{s.rate}%</span>
                       </div>
                     </td>
-                    <td className="px-4 py-2.5 text-ec-t3 border-b border-ec-div text-xs">
+                    <td className="px-3 py-2.5 text-ec-t3 border-b border-ec-div text-xs">
                       {s.lastActiveFormatted}
                     </td>
                   </tr>
