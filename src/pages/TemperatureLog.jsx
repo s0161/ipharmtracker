@@ -5,7 +5,6 @@
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     fridge_id TEXT DEFAULT 'main',
     date DATE NOT NULL,
-    slot TEXT DEFAULT 'morning',
     temp_min NUMERIC,
     temp_max NUMERIC,
     temp_current NUMERIC,
@@ -64,8 +63,6 @@ const NOT_CHECKED_REASONS = [
   'Power Outage',
   'Other',
 ]
-
-const SLOT_AUTO = () => new Date().getHours() < 12 ? 'morning' : 'evening'
 
 // ── Section Header (left-border accent, same pattern as RPLog) ──
 function SectionHeader({ accent, icon, title, right }) {
@@ -290,7 +287,6 @@ export default function TemperatureLog() {
 
   // ── UI state ──
   const [selectedFridge, setSelectedFridge] = useState('main')
-  const [selectedSlot, setSelectedSlot] = useState(SLOT_AUTO)
   const [notChecked, setNotChecked] = useState(false)
   const [notCheckedReason, setNotCheckedReason] = useState('')
   const [tempMin, setTempMin] = useState('')
@@ -315,14 +311,10 @@ export default function TemperatureLog() {
     [logs, selectedFridge]
   )
 
-  const todayEntries = useMemo(() =>
-    fridgeLogs.filter(l => l.date === today),
+  const todayEntry = useMemo(() =>
+    fridgeLogs.find(l => l.date === today),
     [fridgeLogs, today]
   )
-
-  const todayMorning = useMemo(() => todayEntries.find(l => (l.slot || 'morning') === 'morning'), [todayEntries])
-  const todayEvening = useMemo(() => todayEntries.find(l => (l.slot || 'morning') === 'evening'), [todayEntries])
-  const currentSlotEntry = selectedSlot === 'morning' ? todayMorning : todayEvening
 
   const sorted = useMemo(() =>
     [...fridgeLogs].sort((a, b) => (b.date || '').localeCompare(a.date || '')),
@@ -384,12 +376,11 @@ export default function TemperatureLog() {
   // Alert banners
   const alerts = useMemo(() => {
     const arr = []
-    // Check all fridges for missing today's readings
+    // Check all fridges for missing today's reading
     for (const fridge of FRIDGES) {
-      const fridgeToday = logs.filter(l => (l.fridgeId || 'main') === fridge.id && l.date === today)
-      const hasMorning = fridgeToday.some(l => (l.slot || 'morning') === 'morning')
-      if (!hasMorning) {
-        arr.push({ type: 'warning', text: `${fridge.name}: Morning reading not yet recorded` })
+      const hasToday = logs.some(l => (l.fridgeId || 'main') === fridge.id && l.date === today)
+      if (!hasToday) {
+        arr.push({ type: 'warning', text: `${fridge.name}: Today's reading not yet recorded` })
       }
     }
     // Unresolved excursions (no reported_to)
@@ -402,18 +393,18 @@ export default function TemperatureLog() {
 
   // ── Populate form when editing ──
   useEffect(() => {
-    if (editing && currentSlotEntry) {
-      setTempMin(currentSlotEntry.tempMin?.toString() || '')
-      setTempMax(currentSlotEntry.tempMax?.toString() || '')
-      setTempCurrent(currentSlotEntry.tempCurrent?.toString() || '')
-      setExcursionReason(currentSlotEntry.excursionReason || '')
-      setNotChecked(!!currentSlotEntry.notChecked)
-      setNotCheckedReason(currentSlotEntry.notCheckedReason || '')
-      setStockQuarantined(!!currentSlotEntry.stockQuarantined)
-      setStockDestroyed(!!currentSlotEntry.stockDestroyed)
-      setReportedTo(currentSlotEntry.reportedTo || '')
+    if (editing && todayEntry) {
+      setTempMin(todayEntry.tempMin?.toString() || '')
+      setTempMax(todayEntry.tempMax?.toString() || '')
+      setTempCurrent(todayEntry.tempCurrent?.toString() || '')
+      setExcursionReason(todayEntry.excursionReason || '')
+      setNotChecked(!!todayEntry.notChecked)
+      setNotCheckedReason(todayEntry.notCheckedReason || '')
+      setStockQuarantined(!!todayEntry.stockQuarantined)
+      setStockDestroyed(!!todayEntry.stockDestroyed)
+      setReportedTo(todayEntry.reportedTo || '')
     }
-  }, [editing, selectedSlot, selectedFridge])
+  }, [editing, selectedFridge])
 
   // Reset form when switching fridge/slot
   const resetForm = useCallback(() => {
@@ -423,7 +414,7 @@ export default function TemperatureLog() {
     setEditing(false)
   }, [])
 
-  useEffect(() => { resetForm() }, [selectedFridge, selectedSlot, resetForm])
+  useEffect(() => { resetForm() }, [selectedFridge, resetForm])
 
   // ── Validation ──
   const hasExcursion = !notChecked && (
@@ -456,7 +447,6 @@ export default function TemperatureLog() {
     const entry = {
       fridgeId: selectedFridge,
       date: today,
-      slot: selectedSlot,
       notChecked,
       notCheckedReason: notChecked ? notCheckedReason : null,
       tempMin: notChecked ? null : parseFloat(tempMin),
@@ -470,13 +460,13 @@ export default function TemperatureLog() {
       reportedTo: hasExcursion ? (reportedTo.trim() || null) : null,
     }
 
-    if (currentSlotEntry) {
-      setLogs(logs.map(l => l.id === currentSlotEntry.id ? { ...l, ...entry } : l))
-      logAudit('Updated', `Fridge temp (${selectedFridge}/${selectedSlot}): ${notChecked ? 'Not checked' : `${entry.tempMin}/${entry.tempMax}/${entry.tempCurrent}°C`}`, 'Temperature Log', user?.name)
+    if (todayEntry) {
+      setLogs(logs.map(l => l.id === todayEntry.id ? { ...l, ...entry } : l))
+      logAudit('Updated', `Fridge temp (${selectedFridge}): ${notChecked ? 'Not checked' : `${entry.tempMin}/${entry.tempMax}/${entry.tempCurrent}°C`}`, 'Temperature Log', user?.name)
       showToast('Reading updated')
     } else {
       setLogs([...logs, { id: generateId(), ...entry, createdAt: new Date().toISOString() }])
-      logAudit('Created', `Fridge temp (${selectedFridge}/${selectedSlot}): ${notChecked ? 'Not checked' : `${entry.tempMin}/${entry.tempMax}/${entry.tempCurrent}°C`}`, 'Temperature Log', user?.name)
+      logAudit('Created', `Fridge temp (${selectedFridge}): ${notChecked ? 'Not checked' : `${entry.tempMin}/${entry.tempMax}/${entry.tempCurrent}°C`}`, 'Temperature Log', user?.name)
       showToast(notChecked ? 'Not-checked recorded' : hasExcursion ? 'Reading saved — excursion recorded' : 'Reading saved')
     }
 
@@ -489,11 +479,10 @@ export default function TemperatureLog() {
     const now = new Date()
     const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
     const monthLogs = sorted.filter(l => l.date?.startsWith(monthStr))
-    const headers = ['Date', 'Fridge', 'Slot', 'Min °C', 'Max °C', 'Current °C', 'In Range', 'Not Checked', 'Excursion', 'Reason', 'Actions', 'Logged By']
+    const headers = ['Date', 'Fridge', 'Min °C', 'Max °C', 'Current °C', 'In Range', 'Not Checked', 'Excursion', 'Reason', 'Actions', 'Logged By']
     const rows = monthLogs.map(l => [
       l.date,
       (FRIDGES.find(f => f.id === (l.fridgeId || 'main'))?.name) || l.fridgeId || 'Main',
-      l.slot || 'morning',
       l.tempMin ?? '',
       l.tempMax ?? '',
       l.tempCurrent ?? '',
@@ -509,17 +498,16 @@ export default function TemperatureLog() {
 
   if (loading) return <SkeletonLoader variant="table" />
 
-  // ── Status pills for each slot ──
-  const slotStatus = (entry) => {
-    if (!entry) return { label: 'Not logged', bg: '#fef2f2', color: '#dc2626', border: '#fecaca' }
-    if (entry.notChecked) return { label: 'Not checked', bg: '#f1f5f9', color: '#475569', border: '#e2e8f0' }
-    if (entry.excursion) return { label: '⚠ Excursion', bg: '#fffbeb', color: '#d97706', border: '#fde68a' }
-    return { label: '✓ In range', bg: '#f0fdf4', color: '#059669', border: '#6ee7b7' }
-  }
+  // ── Status pill ──
+  const statusPill = todayEntry
+    ? todayEntry.notChecked
+      ? { label: 'Not checked', bg: '#f1f5f9', color: '#475569', border: '#e2e8f0' }
+      : todayEntry.excursion
+        ? { label: '⚠ Excursion', bg: '#fffbeb', color: '#d97706', border: '#fde68a' }
+        : { label: '✓ Logged today', bg: '#f0fdf4', color: '#059669', border: '#6ee7b7' }
+    : { label: 'Not logged today', bg: '#fef2f2', color: '#dc2626', border: '#fecaca' }
 
-  const morningStatus = slotStatus(todayMorning)
-  const eveningStatus = slotStatus(todayEvening)
-  const showForm = !currentSlotEntry || editing
+  const showForm = !todayEntry || editing
 
   const tempInput = (label, value, setValue, placeholder) => {
     const ok = value === '' || inRange(value)
@@ -636,36 +624,14 @@ export default function TemperatureLog() {
           {/* ── Today's Reading Card ── */}
           <div style={card}>
             <SectionHeader accent="#0f766e" icon="🌡️" title="Today's Reading" right={
-              <span style={{ ...mono, fontSize: 11, color: 'var(--text-muted)' }}>{today}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{
+                  ...sans, fontSize: 10, fontWeight: 600, padding: '2px 10px', borderRadius: 20,
+                  background: statusPill.bg, color: statusPill.color, border: `1px solid ${statusPill.border}`,
+                }}>{statusPill.label}</span>
+                <span style={{ ...mono, fontSize: 11, color: 'var(--text-muted)' }}>{today}</span>
+              </div>
             } />
-
-            {/* Slot selector */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-              {['morning', 'evening'].map(slot => {
-                const status = slot === 'morning' ? morningStatus : eveningStatus
-                const isActive = selectedSlot === slot
-                return (
-                  <button
-                    key={slot}
-                    onClick={() => setSelectedSlot(slot)}
-                    style={{
-                      ...sans, flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-                      padding: '8px 12px', borderRadius: 10, cursor: 'pointer', transition: 'all 0.15s',
-                      border: isActive ? '2px solid #059669' : '1px solid var(--border-card)',
-                      background: isActive ? '#f0fdf4' : 'var(--bg-card)',
-                    }}
-                  >
-                    <span style={{ fontSize: 12, fontWeight: 700, color: isActive ? '#059669' : 'var(--text-primary)', textTransform: 'capitalize' }}>
-                      {slot === 'morning' ? '☀️' : '🌙'} {slot}
-                    </span>
-                    <span style={{
-                      ...sans, fontSize: 9, fontWeight: 600, padding: '1px 8px', borderRadius: 10,
-                      background: status.bg, color: status.color, border: `1px solid ${status.border}`,
-                    }}>{status.label}</span>
-                  </button>
-                )
-              })}
-            </div>
 
             {showForm ? (
               <form onSubmit={handleSubmit}>
@@ -678,7 +644,7 @@ export default function TemperatureLog() {
                 }}>
                   <AnimatedCheck checked={notChecked} onChange={() => setNotChecked(!notChecked)} />
                   <span style={{ ...sans, fontSize: 12, fontWeight: 600, color: notChecked ? '#475569' : 'var(--text-secondary)' }}>
-                    Not checked this {selectedSlot}
+                    Not checked today
                   </span>
                 </div>
 
@@ -793,7 +759,7 @@ export default function TemperatureLog() {
             ) : (
               /* Read-only view */
               <div>
-                {currentSlotEntry.notChecked ? (
+                {todayEntry.notChecked ? (
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: 8, padding: '12px 14px',
                     borderRadius: 8, background: '#f1f5f9', border: '1px solid #e2e8f0', marginBottom: 8,
@@ -801,39 +767,39 @@ export default function TemperatureLog() {
                     <span style={{ fontSize: 14 }}>⏭️</span>
                     <div>
                       <div style={{ ...sans, fontSize: 13, fontWeight: 600, color: '#475569' }}>Not checked</div>
-                      <div style={{ ...sans, fontSize: 11, color: '#94a3b8' }}>{currentSlotEntry.notCheckedReason || 'No reason given'}</div>
+                      <div style={{ ...sans, fontSize: 11, color: '#94a3b8' }}>{todayEntry.notCheckedReason || 'No reason given'}</div>
                     </div>
                   </div>
                 ) : (
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                     <div style={{ display: 'flex', gap: 24 }}>
-                      {tempDisplay('MIN', currentSlotEntry.tempMin)}
-                      {tempDisplay('MAX', currentSlotEntry.tempMax)}
-                      {tempDisplay('CURRENT', currentSlotEntry.tempCurrent)}
+                      {tempDisplay('MIN', todayEntry.tempMin)}
+                      {tempDisplay('MAX', todayEntry.tempMax)}
+                      {tempDisplay('CURRENT', todayEntry.tempCurrent)}
                     </div>
                   </div>
                 )}
 
-                {currentSlotEntry.excursion && (
+                {todayEntry.excursion && (
                   <div style={{ marginBottom: 8 }}>
-                    {currentSlotEntry.excursionReason && (
+                    {todayEntry.excursionReason && (
                       <div style={{
                         padding: '6px 10px', borderRadius: 6,
                         background: '#fffbeb', border: '1px solid #fde68a',
                         fontSize: 11, color: '#92400e', fontStyle: 'italic', marginBottom: 6,
                       }}>
-                        ⚠️ {currentSlotEntry.excursionReason}
+                        ⚠️ {todayEntry.excursionReason}
                       </div>
                     )}
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                      {currentSlotEntry.stockQuarantined && (
+                      {todayEntry.stockQuarantined && (
                         <span style={{ ...sans, fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 10, background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' }}>Stock quarantined</span>
                       )}
-                      {currentSlotEntry.stockDestroyed && (
+                      {todayEntry.stockDestroyed && (
                         <span style={{ ...sans, fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 10, background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' }}>Stock destroyed</span>
                       )}
-                      {currentSlotEntry.reportedTo && (
-                        <span style={{ ...sans, fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 10, background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe' }}>Reported to {currentSlotEntry.reportedTo}</span>
+                      {todayEntry.reportedTo && (
+                        <span style={{ ...sans, fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 10, background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe' }}>Reported to {todayEntry.reportedTo}</span>
                       )}
                     </div>
                   </div>
@@ -841,9 +807,9 @@ export default function TemperatureLog() {
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Avatar name={currentSlotEntry.loggedBy} size={18} />
+                    <Avatar name={todayEntry.loggedBy} size={18} />
                     <span style={{ ...sans, fontSize: 11, color: 'var(--text-muted)' }}>
-                      Logged by {currentSlotEntry.loggedBy || userInitials}
+                      Logged by {todayEntry.loggedBy || userInitials}
                     </span>
                   </div>
                   <button onClick={() => setEditing(true)} style={{
@@ -930,7 +896,7 @@ export default function TemperatureLog() {
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr>
-                      {['Date', 'Slot', 'Min', 'Max', 'Current', 'By', 'Status'].map(h => (
+                      {['Date', 'Min', 'Max', 'Current', 'By', 'Status'].map(h => (
                         <th key={h} style={{
                           ...sans, fontSize: 9, fontWeight: 600, color: 'var(--text-muted)',
                           textAlign: 'left', padding: '6px 8px',
@@ -978,9 +944,6 @@ export default function TemperatureLog() {
                               padding: '1px 5px', borderRadius: 20,
                               background: '#f0fdf4', color: '#059669', border: '1px solid #6ee7b7',
                             }}>Today</span>}
-                          </td>
-                          <td style={{ ...sans, fontSize: 10, padding: '6px 8px', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-card)', textTransform: 'capitalize' }}>
-                            {(log.slot || 'morning') === 'morning' ? '☀️' : '🌙'} {log.slot || 'AM'}
                           </td>
                           {tempCell(log.tempMin)}
                           {tempCell(log.tempMax)}
@@ -1082,10 +1045,7 @@ export default function TemperatureLog() {
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
                       <span style={{ ...mono, fontSize: 11, fontWeight: 600, color: '#92400e' }}>{formatDate(log.date)}</span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ ...sans, fontSize: 9, color: '#d97706', textTransform: 'capitalize' }}>{log.slot || 'AM'}</span>
-                        <Avatar name={log.loggedBy} size={18} />
-                      </div>
+                      <Avatar name={log.loggedBy} size={18} />
                     </div>
                     <div style={{ ...mono, fontSize: 10, color: '#d97706', marginBottom: 2 }}>
                       Min: {parseFloat(log.tempMin || 0).toFixed(1)}°C &nbsp; Max: {parseFloat(log.tempMax || 0).toFixed(1)}°C &nbsp; Current: {parseFloat(log.tempCurrent || 0).toFixed(1)}°C

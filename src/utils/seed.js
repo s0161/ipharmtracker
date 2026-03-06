@@ -564,16 +564,15 @@ export async function seedIfNeeded() {
     created_at: new Date().toISOString(),
   }))
 
-  // Fridge temperature logs — sample data for past 7 days, both fridges
+  // Fridge temperature logs — sample data for past 7 days, both fridges (one daily reading each)
   const tempLogs = []
   for (let i = 7; i >= 1; i--) {
     const d = dayStr(-i)
-    // Main fridge — morning
+    // Main fridge — daily reading
     tempLogs.push({
       id: generateId(),
       fridge_id: 'main',
       date: d,
-      slot: 'morning',
       temp_min: 2.1 + Math.round(Math.random() * 10) / 10,
       temp_max: 6.5 + Math.round(Math.random() * 15) / 10,
       temp_current: 3.5 + Math.round(Math.random() * 20) / 10,
@@ -582,28 +581,11 @@ export async function seedIfNeeded() {
       not_checked: false,
       created_at: new Date(`${d}T09:00:00`).toISOString(),
     })
-    // Main fridge — evening
-    if (i > 1) {
-      tempLogs.push({
-        id: generateId(),
-        fridge_id: 'main',
-        date: d,
-        slot: 'evening',
-        temp_min: 2.3 + Math.round(Math.random() * 10) / 10,
-        temp_max: 6.8 + Math.round(Math.random() * 15) / 10,
-        temp_current: 4.0 + Math.round(Math.random() * 20) / 10,
-        logged_by: 'MJ',
-        excursion: false,
-        not_checked: false,
-        created_at: new Date(`${d}T17:00:00`).toISOString(),
-      })
-    }
-    // Backup fridge — morning only
+    // Backup fridge — daily reading
     tempLogs.push({
       id: generateId(),
       fridge_id: 'backup',
       date: d,
-      slot: 'morning',
       temp_min: 2.0 + Math.round(Math.random() * 10) / 10,
       temp_max: 5.5 + Math.round(Math.random() * 20) / 10,
       temp_current: 3.0 + Math.round(Math.random() * 25) / 10,
@@ -613,8 +595,8 @@ export async function seedIfNeeded() {
       created_at: new Date(`${d}T09:30:00`).toISOString(),
     })
   }
-  // Add one excursion entry (3 days ago, main, morning)
-  const excursionLog = tempLogs.find(l => l.date === dayStr(-3) && l.fridge_id === 'main' && l.slot === 'morning')
+  // Add one excursion entry (3 days ago, main fridge)
+  const excursionLog = tempLogs.find(l => l.date === dayStr(-3) && l.fridge_id === 'main')
   if (excursionLog) {
     excursionLog.temp_max = 9.2
     excursionLog.excursion = true
@@ -623,18 +605,6 @@ export async function seedIfNeeded() {
     excursionLog.stock_destroyed = false
     excursionLog.reported_to = 'Amjid Shakoor'
   }
-  // Add one "not checked" entry (5 days ago, backup, evening)
-  tempLogs.push({
-    id: generateId(),
-    fridge_id: 'backup',
-    date: dayStr(-5),
-    slot: 'evening',
-    not_checked: true,
-    not_checked_reason: 'Bank Holiday',
-    logged_by: 'SS',
-    excursion: false,
-    created_at: new Date(`${dayStr(-5)}T17:00:00`).toISOString(),
-  })
 
   // Clear old seed data before re-inserting
   // Use .not('id','is',null) instead of .neq('id','') — the latter fails for UUID columns
