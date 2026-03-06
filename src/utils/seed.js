@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { generateId } from './helpers'
 
-const SEED_KEY = 'ipd_seeded_v32'
+const SEED_KEY = 'ipd_seeded_v33'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -11,7 +11,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
   'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13', 'ipd_seeded_v14', 'ipd_seeded_v15', 'ipd_seeded_v16',
   'ipd_seeded_v17', 'ipd_seeded_v18', 'ipd_seeded_v19', 'ipd_seeded_v20', 'ipd_seeded_v21', 'ipd_seeded_v22',
-  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28', 'ipd_seeded_v29', 'ipd_seeded_v30', 'ipd_seeded_v31',
+  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28', 'ipd_seeded_v29', 'ipd_seeded_v30', 'ipd_seeded_v31', 'ipd_seeded_v32',
 ]
 
 export function cleanupOldLocalStorage() {
@@ -47,63 +47,64 @@ export async function seedIfNeeded() {
     { name: 'Sarmad Khalid', pin: '0013', is_manager: false },
   ]
 
-  // Cleaning tasks
+  // Cleaning tasks — 28 enriched tasks matching DEFAULT_CLEANING_TASKS in helpers.js
   const tasks = [
-    // Daily
-    { name: 'Dispensary Clean', frequency: 'daily' },
-    { name: 'Temperature Log', frequency: 'daily' },
-    { name: 'Counter & Surfaces Wipe', frequency: 'daily' },
-    // Weekly
-    { name: 'Kitchen Clean', frequency: 'weekly' },
-    { name: 'Bathroom Clean', frequency: 'weekly' },
-    { name: 'Floor Clean', frequency: 'weekly' },
-    { name: 'Tidy Cream Shelves', frequency: 'weekly' },
-    { name: 'Tidy Liquid Shelf', frequency: 'weekly' },
-    { name: 'Empty Waste', frequency: 'weekly' },
-    { name: 'Empty Confidential Waste', frequency: 'weekly' },
-    { name: 'Put Splits Away', frequency: 'weekly' },
-    { name: 'Extra Stock Away in Robot', frequency: 'weekly' },
-    { name: 'Robot Maintenance', frequency: 'weekly' },
-    { name: 'Consultation Room Clean', frequency: 'weekly' },
-    { name: 'CD Balance Check', frequency: 'weekly' },
-    // Fortnightly
-    { name: 'Fridge Quick Clean', frequency: 'fortnightly' },
-    { name: 'Straighten Up Fridge Stock', frequency: 'fortnightly' },
-    // Monthly
-    { name: 'Deep Fridge Clean', frequency: 'monthly' },
-    { name: 'Monthly To Do List', frequency: 'monthly' },
-    { name: 'Replace Near Miss Record', frequency: 'monthly' },
+    // Dispensary (7)
+    { name: 'Dispensary Clean', frequency: 'daily', area: 'dispensary' },
+    { name: 'Counter & Surfaces Wipe', frequency: 'daily', area: 'dispensary' },
+    { name: 'Robot Maintenance', frequency: 'weekly', area: 'dispensary' },
+    { name: 'Dispensary Deep Clean', frequency: 'monthly', area: 'dispensary' },
+    { name: 'Label Printer Clean', frequency: 'weekly', area: 'dispensary' },
+    { name: 'Scanner Clean', frequency: 'weekly', area: 'dispensary' },
+    { name: 'Dispensary Floor Mop', frequency: 'daily', area: 'dispensary' },
+    // Storage (5)
+    { name: 'Tidy Cream Shelves', frequency: 'weekly', area: 'storage' },
+    { name: 'Tidy Liquid Shelf', frequency: 'weekly', area: 'storage' },
+    { name: 'Put Splits Away', frequency: 'weekly', area: 'storage' },
+    { name: 'Extra Stock Away in Robot', frequency: 'weekly', area: 'storage' },
+    { name: 'Stock Room Tidy', frequency: 'weekly', area: 'storage' },
+    // Customer (3)
+    { name: 'Shop Floor Clean', frequency: 'daily', area: 'customer' },
+    { name: 'Consultation Room Clean', frequency: 'weekly', area: 'customer' },
+    { name: 'Waiting Area Tidy', frequency: 'daily', area: 'customer' },
+    // Kitchen (2)
+    { name: 'Kitchen Clean', frequency: 'weekly', area: 'kitchen' },
+    { name: 'Kitchen Deep Clean', frequency: 'monthly', area: 'kitchen' },
+    // Bathroom (2)
+    { name: 'Bathroom Clean', frequency: 'weekly', area: 'bathroom' },
+    { name: 'Bathroom Deep Clean', frequency: 'monthly', area: 'bathroom' },
+    // Clinical (5)
+    { name: 'Fridge Quick Clean', frequency: 'fortnightly', area: 'clinical' },
+    { name: 'Straighten Up Fridge Stock', frequency: 'fortnightly', area: 'clinical' },
+    { name: 'Deep Fridge Clean', frequency: 'monthly', area: 'clinical' },
+    { name: 'CD Balance Check', frequency: 'weekly', area: 'clinical' },
+    { name: 'Temperature Log', frequency: 'daily', area: 'clinical' },
+    // Admin (4)
+    { name: 'Empty Waste', frequency: 'weekly', area: 'admin' },
+    { name: 'Empty Confidential Waste', frequency: 'weekly', area: 'admin' },
+    { name: 'Monthly To Do List', frequency: 'monthly', area: 'admin' },
+    { name: 'Replace Near Miss Record', frequency: 'monthly', area: 'admin' },
   ]
 
-  // Cleaning log entries (snake_case for DB)
+  // Cleaning log entries (snake_case for DB) — richer demo data
+  const todayISO = new Date().toISOString().slice(0, 10)
   const cleaning = [
-    {
-      id: generateId(),
-      task_name: 'Deep Fridge Clean',
-      date_time: '2026-02-23T10:00',
-      staff_member: 'Salma Shakoor',
-      result: 'Pass',
-      notes: 'Due again in one month (late March 2026)',
-      created_at: '2026-02-23T10:00:00.000Z',
-    },
-    {
-      id: generateId(),
-      task_name: 'Fridge Quick Clean',
-      date_time: '2026-02-15T09:00',
-      staff_member: 'Salma Shakoor',
-      result: 'Pass',
-      notes: 'Fortnightly — next due early March 2026',
-      created_at: '2026-02-15T09:00:00.000Z',
-    },
-    {
-      id: generateId(),
-      task_name: 'Robot Maintenance',
-      date_time: '2026-02-23T09:00',
-      staff_member: 'Salma Shakoor',
-      result: 'Pass',
-      notes: 'Weekly — next due Monday 2 Mar 2026',
-      created_at: '2026-02-23T09:00:00.000Z',
-    },
+    // Historical entries
+    { id: generateId(), task_name: 'Deep Fridge Clean', date_time: '2026-02-23T10:00', staff_member: 'Salma Shakoor', result: 'Pass', notes: 'Due again in one month (late March 2026)', created_at: '2026-02-23T10:00:00.000Z' },
+    { id: generateId(), task_name: 'Fridge Quick Clean', date_time: '2026-02-15T09:00', staff_member: 'Salma Shakoor', result: 'Pass', notes: 'Fortnightly — next due early March 2026', created_at: '2026-02-15T09:00:00.000Z' },
+    { id: generateId(), task_name: 'Robot Maintenance', date_time: '2026-02-23T09:00', staff_member: 'Salma Shakoor', result: 'Pass', notes: 'Weekly — next due Monday 2 Mar 2026', created_at: '2026-02-23T09:00:00.000Z' },
+    { id: generateId(), task_name: 'CD Balance Check', date_time: '2026-03-02T11:00', staff_member: 'Amjid Shakoor', result: 'Pass', notes: 'All CDs balanced', created_at: '2026-03-02T11:00:00.000Z' },
+    { id: generateId(), task_name: 'Kitchen Clean', date_time: '2026-03-02T14:00', staff_member: 'Urooj Khan', result: 'Pass', notes: '', created_at: '2026-03-02T14:00:00.000Z' },
+    { id: generateId(), task_name: 'Bathroom Clean', date_time: '2026-03-02T15:00', staff_member: 'Moniba Jamil', result: 'Pass', notes: '', created_at: '2026-03-02T15:00:00.000Z' },
+    { id: generateId(), task_name: 'Dispensary Clean', date_time: '2026-03-05T09:30', staff_member: 'Umama Khan', result: 'Pass', notes: '', created_at: '2026-03-05T09:30:00.000Z' },
+    { id: generateId(), task_name: 'Counter & Surfaces Wipe', date_time: '2026-03-05T10:00', staff_member: 'Umama Khan', result: 'Pass', notes: '', created_at: '2026-03-05T10:00:00.000Z' },
+    { id: generateId(), task_name: 'Temperature Log', date_time: '2026-03-05T09:00', staff_member: 'Sadaf Subhani', result: 'Pass', notes: 'Min 2.3, Max 5.8, Curr 3.6', created_at: '2026-03-05T09:00:00.000Z' },
+    // Today's entries — mix of done, pending, and missed
+    { id: generateId(), task_name: 'Dispensary Clean', date_time: `${todayISO}T09:15`, staff_member: 'Moniba Jamil', result: 'Pass', notes: 'Morning clean done', created_at: `${todayISO}T09:15:00.000Z` },
+    { id: generateId(), task_name: 'Counter & Surfaces Wipe', date_time: `${todayISO}T09:30`, staff_member: 'Moniba Jamil', result: 'Pass', notes: '', created_at: `${todayISO}T09:30:00.000Z` },
+    { id: generateId(), task_name: 'Temperature Log', date_time: `${todayISO}T09:00`, staff_member: 'Sadaf Subhani', result: 'Pass', notes: 'Min 2.1, Max 6.0, Curr 3.8', created_at: `${todayISO}T09:00:00.000Z` },
+    { id: generateId(), task_name: 'Shop Floor Clean', date_time: `${todayISO}T08:45`, staff_member: 'Marian Hadaway', result: 'Pass', notes: '', created_at: `${todayISO}T08:45:00.000Z` },
+    { id: generateId(), task_name: 'Dispensary Floor Mop', date_time: `${todayISO}T10:00`, staff_member: 'Umama Khan', result: 'Fail', notes: 'Mop head needs replacing — logged for replacement', created_at: `${todayISO}T10:00:00.000Z` },
   ]
 
   // Documents
