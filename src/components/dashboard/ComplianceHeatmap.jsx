@@ -77,7 +77,7 @@ export default function ComplianceHeatmap({ scoreHistory, todayScore }) {
           style={{
             left: tooltip.x + 12,
             top: tooltip.y - 30,
-            backgroundColor: 'var(--ec-sidebar)',
+            backgroundColor: 'var(--ec-card-solid)',
             boxShadow: 'var(--shadow-md)',
           }}
         >
