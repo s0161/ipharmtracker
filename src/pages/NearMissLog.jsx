@@ -38,6 +38,60 @@ const CATEGORIES = [
 const STATUSES = ['Open', 'Action Taken', 'Resolved']
 const SEVERITIES = ['Low', 'Medium', 'High']
 
+// ─── Improvement Steps per Category ──────────────────────────────
+const IMPROVEMENT_STEPS = {
+  'Wrong medication dispensed': [
+    'Notify Responsible Pharmacist immediately',
+    'Review the dispensing workflow for this prescription',
+    'Check if similar-looking/sounding items stored adjacently',
+    'Brief the dispensing team on the specific error',
+    'Consider label, shelf, or storage changes to prevent recurrence',
+  ],
+  'Wrong dose': [
+    'Notify Responsible Pharmacist immediately',
+    'Double-check the calculation method used',
+    'Review dose-checking procedure with staff involved',
+    'Update reference materials or dosing charts if needed',
+    'Brief relevant staff on correct dosing protocol',
+  ],
+  'Wrong patient': [
+    'Notify Responsible Pharmacist immediately',
+    'Review patient identification procedure at handout',
+    'Assess collection/handout process for gaps',
+    'Brief all counter staff on mandatory ID checks',
+    'Consider additional verification steps (DOB, address)',
+  ],
+  'Labelling error': [
+    'Notify Responsible Pharmacist',
+    'Review label generation and PMR data entry process',
+    'Check for system or template issues causing the error',
+    'Brief team on labelling accuracy checks',
+    'Review the final accuracy check procedure',
+  ],
+  'Near miss — controlled drug': [
+    'Notify Responsible Pharmacist immediately',
+    'Review Controlled Drug register entries for discrepancies',
+    'Verify CD SOPs are being followed correctly',
+    'Brief all relevant staff on CD handling procedures',
+    'Document in the CD incident log separately',
+    'Consider additional witness or double-check requirements',
+  ],
+  'Packaging/product issue': [
+    'Notify Responsible Pharmacist',
+    'Quarantine affected stock if applicable',
+    'Report to MHRA Yellow Card Scheme if appropriate',
+    'Check remaining stock of the same batch',
+    'Document and notify supplier if needed',
+  ],
+  'Other': [
+    'Notify Responsible Pharmacist',
+    'Investigate the root cause thoroughly',
+    'Identify specific preventive measures',
+    'Brief relevant team members on findings',
+    'Document all actions taken and lessons learned',
+  ],
+}
+
 const emptyForm = {
   date: new Date().toISOString().slice(0, 10),
   description: '',
@@ -249,6 +303,222 @@ function DetailField({ label, value }) {
   )
 }
 
+// ─── Improvement Checklist (localStorage-persisted) ───────────────
+
+function ImprovementChecklist({ entryId, category }) {
+  const steps = IMPROVEMENT_STEPS[category] || IMPROVEMENT_STEPS['Other']
+  const storageKey = `nm_steps_${entryId}`
+
+  const [checked, setChecked] = useState(() => {
+    try {
+      const stored = localStorage.getItem(storageKey)
+      return stored ? JSON.parse(stored) : []
+    } catch { return [] }
+  })
+
+  const toggle = (idx) => {
+    const next = checked.includes(idx)
+      ? checked.filter((i) => i !== idx)
+      : [...checked, idx]
+    setChecked(next)
+    localStorage.setItem(storageKey, JSON.stringify(next))
+  }
+
+  const completed = checked.length
+  const total = steps.length
+  const pct = Math.round((completed / total) * 100)
+
+  return (
+    <div
+      className="mt-4 rounded-lg p-3"
+      style={{ backgroundColor: 'var(--ec-card)', border: '1px solid var(--ec-border)' }}
+    >
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs font-bold text-ec-t1 uppercase tracking-wide">
+          Improvement Steps
+        </span>
+        <span
+          className="text-xs font-semibold px-2 py-0.5 rounded-full"
+          style={{
+            backgroundColor: pct === 100 ? 'rgba(22,163,74,0.10)' : 'rgba(217,119,6,0.10)',
+            color: pct === 100 ? '#16a34a' : '#d97706',
+          }}
+        >
+          {completed}/{total} complete
+        </span>
+      </div>
+      {/* Progress bar */}
+      <div className="h-1.5 rounded-full mb-3" style={{ backgroundColor: 'var(--ec-border)' }}>
+        <div
+          className="h-full rounded-full transition-all"
+          style={{ width: `${pct}%`, backgroundColor: pct === 100 ? '#16a34a' : '#d97706' }}
+        />
+      </div>
+      <div className="space-y-1.5">
+        {steps.map((step, idx) => {
+          const done = checked.includes(idx)
+          return (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => toggle(idx)}
+              className="w-full flex items-start gap-2.5 px-2 py-1.5 rounded-lg text-left cursor-pointer border-none transition-all hover:bg-ec-card-hover"
+              style={{ backgroundColor: 'transparent' }}
+            >
+              <span
+                className="w-4.5 h-4.5 mt-0.5 rounded flex items-center justify-center flex-shrink-0 text-[10px] font-bold transition-all"
+                style={{
+                  width: 18, height: 18,
+                  backgroundColor: done ? PRIMARY : 'transparent',
+                  border: done ? 'none' : '2px solid var(--ec-border)',
+                  color: done ? '#fff' : 'transparent',
+                  borderRadius: 4,
+                }}
+              >
+                ✓
+              </span>
+              <span
+                className="text-xs leading-relaxed"
+                style={{
+                  color: done ? 'var(--ec-t3)' : 'var(--ec-t1)',
+                  textDecoration: done ? 'line-through' : 'none',
+                }}
+              >
+                {step}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ─── Guidance Panel ───────────────────────────────────────────────
+
+const GUIDANCE_STEPS = [
+  { num: '1', title: 'Identify', desc: 'What happened? Note the exact circumstances immediately.' },
+  { num: '2', title: 'Record', desc: 'Log it here with full details while your memory is fresh.' },
+  { num: '3', title: 'Investigate', desc: 'What was the root cause? System failure, human error, or environmental?' },
+  { num: '4', title: 'Act', desc: 'What corrective actions will prevent this from happening again?' },
+  { num: '5', title: 'Review', desc: 'Share learnings with the team and update SOPs if needed.' },
+]
+
+const GUIDANCE_TIPS = [
+  'Report immediately — details fade quickly',
+  'Be specific: include drug names, strengths, quantities',
+  'Focus on systems, not blame — near miss reporting improves patient safety',
+  'Describe what could have happened if the error was not caught',
+  'Always complete root cause and learning action fields',
+]
+
+function GuidancePanel() {
+  const [dismissed, setDismissed] = useState(() => {
+    try { return localStorage.getItem('nm_guide_dismissed') === '1' } catch { return false }
+  })
+  const [expanded, setExpanded] = useState(false)
+
+  if (dismissed) {
+    return (
+      <button
+        className="text-xs font-medium cursor-pointer border-none bg-transparent transition-colors flex items-center gap-1 font-sans"
+        style={{ color: PRIMARY }}
+        onClick={() => { setDismissed(false); localStorage.removeItem('nm_guide_dismissed') }}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
+        Show reporting guide
+      </button>
+    )
+  }
+
+  return (
+    <div
+      className="rounded-xl overflow-hidden"
+      style={{ backgroundColor: 'var(--ec-card)', border: '1px solid var(--ec-border)' }}
+    >
+      {/* Header */}
+      <div
+        className="flex items-center justify-between px-4 py-3 cursor-pointer"
+        style={{ backgroundColor: `${PRIMARY}08` }}
+        onClick={() => setExpanded(!expanded)}
+      >
+        <div className="flex items-center gap-2">
+          <span
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-sm"
+            style={{ backgroundColor: PRIMARY, color: '#fff' }}
+          >
+            📋
+          </span>
+          <span className="text-sm font-bold text-ec-t1">How to Report a Near Miss</span>
+          <span className="text-xs text-ec-t3 hidden sm:inline">— 5-step guide for accurate reporting</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            className="text-xs text-ec-t3 hover:text-ec-t1 cursor-pointer border-none bg-transparent transition-colors font-sans"
+            onClick={(e) => {
+              e.stopPropagation()
+              setDismissed(true)
+              localStorage.setItem('nm_guide_dismissed', '1')
+            }}
+          >
+            Dismiss
+          </button>
+          <svg
+            className="w-4 h-4 text-ec-t3 transition-transform"
+            style={{ transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Expanded content */}
+      {expanded && (
+        <div className="px-4 pb-4 pt-2">
+          {/* 5 steps */}
+          <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 mb-4">
+            {GUIDANCE_STEPS.map((step) => (
+              <div key={step.num} className="flex sm:flex-col gap-2 sm:gap-1">
+                <span
+                  className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+                  style={{ backgroundColor: PRIMARY, color: '#fff' }}
+                >
+                  {step.num}
+                </span>
+                <div>
+                  <span className="text-xs font-bold text-ec-t1 block">{step.title}</span>
+                  <span className="text-xs text-ec-t3 leading-relaxed">{step.desc}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Tips */}
+          <div
+            className="rounded-lg p-3"
+            style={{ backgroundColor: 'rgba(22,163,74,0.04)', border: '1px solid rgba(22,163,74,0.10)' }}
+          >
+            <span className="text-xs font-bold text-ec-t2 block mb-1.5">Tips for effective reporting</span>
+            <ul className="space-y-1">
+              {GUIDANCE_TIPS.map((tip, i) => (
+                <li key={i} className="text-xs text-ec-t2 flex items-start gap-1.5">
+                  <span style={{ color: PRIMARY }} className="flex-shrink-0 mt-0.5">•</span>
+                  {tip}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Near Miss Card ───────────────────────────────────────────────
 
 function NearMissCard({ entry, expanded, onToggle, onEdit, onDelete }) {
@@ -335,6 +605,9 @@ function NearMissCard({ entry, expanded, onToggle, onEdit, onDelete }) {
             <DetailField label="Action Taken By" value={entry.actionTakenBy} />
             <DetailField label="Action Date" value={formatDate(entry.actionDate)} />
           </div>
+
+          {/* Improvement Steps Checklist */}
+          <ImprovementChecklist entryId={entry.id} category={entry.category} />
 
           <div className="flex items-center gap-2 mt-4 pt-3 border-t" style={{ borderColor: 'var(--ec-border)' }}>
             <button
@@ -567,6 +840,9 @@ export default function NearMissLog() {
         </button>
       </div>
 
+      {/* Reporting Guide */}
+      <GuidancePanel />
+
       {/* 4 Stat Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard icon="⚠️" value={stats.total} label="Total Near Misses" accent={PRIMARY} />
@@ -788,7 +1064,7 @@ export default function NearMissLog() {
             <label className="text-xs font-semibold text-ec-t2 mb-1.5 block">Description *</label>
             <textarea
               className={(formErrors.description ? inputErrorClass : inputClass) + ' resize-none'}
-              placeholder="Describe the near miss in detail..."
+              placeholder="What happened? Include drug name, strength, quantity, and how it was caught..."
               value={form.description}
               onChange={update('description')}
               rows={3}
@@ -813,7 +1089,7 @@ export default function NearMissLog() {
             <label className="text-xs font-semibold text-ec-t2 mb-1.5 block">Root Cause</label>
             <textarea
               className={inputClass + ' resize-none'}
-              placeholder="What caused this near miss?"
+              placeholder="Why did this happen? e.g. similar packaging, busy period, unclear prescription..."
               value={form.rootCause}
               onChange={update('rootCause')}
               rows={2}
@@ -825,7 +1101,7 @@ export default function NearMissLog() {
             <label className="text-xs font-semibold text-ec-t2 mb-1.5 block">Learning Action</label>
             <textarea
               className={inputClass + ' resize-none'}
-              placeholder="What was learned? What changes were made?"
+              placeholder="What steps were taken to prevent recurrence? e.g. shelf rearranged, SOP updated, team briefed..."
               value={form.learningAction}
               onChange={update('learningAction')}
               rows={2}
