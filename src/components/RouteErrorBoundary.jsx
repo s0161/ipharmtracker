@@ -1,10 +1,14 @@
 import { Component } from 'react'
+import { useLocation } from 'react-router-dom'
 
 /**
  * Per-route error boundary — catches crashes in a single page
  * without taking down the Sidebar/Layout.
+ *
+ * Wrapped with RouteGuard which passes `locationKey` so the boundary
+ * auto-resets when the user navigates to a different route.
  */
-export default class RouteErrorBoundary extends Component {
+class ErrorBoundaryInner extends Component {
   constructor(props) {
     super(props)
     this.state = { hasError: false, error: null }
@@ -12,6 +16,13 @@ export default class RouteErrorBoundary extends Component {
 
   static getDerivedStateFromError(error) {
     return { hasError: true, error }
+  }
+
+  componentDidUpdate(prevProps) {
+    // Reset error state when the route changes
+    if (this.state.hasError && prevProps.locationKey !== this.props.locationKey) {
+      this.setState({ hasError: false, error: null })
+    }
   }
 
   componentDidCatch(error, errorInfo) {
@@ -53,4 +64,13 @@ export default class RouteErrorBoundary extends Component {
       </div>
     )
   }
+}
+
+export default function RouteErrorBoundary({ children }) {
+  const location = useLocation()
+  return (
+    <ErrorBoundaryInner locationKey={location.pathname}>
+      {children}
+    </ErrorBoundaryInner>
+  )
 }

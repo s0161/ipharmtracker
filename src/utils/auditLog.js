@@ -5,9 +5,9 @@ export async function logAudit(action, item, page, userName) {
     await supabase.from('audit_log').insert({
       timestamp: new Date().toISOString(),
       action,
-      item,
+      detail: item,
       user: userName || 'System',
-      page,
+      module: page,
     })
   } catch (e) {
     console.warn('Audit log failed:', e)

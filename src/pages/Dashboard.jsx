@@ -459,7 +459,7 @@ export default function Dashboard() {
     const item = {
       id: generateId(),
       title: todoInput.trim(),
-      completed: false,
+      done: false,
       createdAt: new Date().toISOString(),
     };
     setActionItems(prev => [...prev, item]);
@@ -467,7 +467,7 @@ export default function Dashboard() {
   }
 
   function toggleTodo(id) {
-    setActionItems(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
+    setActionItems(prev => prev.map(t => t.id === id ? { ...t, done: !t.done } : t));
   }
 
   function deleteTodo(id) {
@@ -676,8 +676,8 @@ export default function Dashboard() {
           <CardHeader
             gradient="linear-gradient(90deg, #b45309, #d97706)"
             icon={<SvgCheckSquare size={14} />} title="To Do"
-            right={actionItems.filter(t => !t.completed).length > 0
-              ? <span style={{ fontSize: 10, fontFamily: "'DM Mono', monospace", background: "rgba(255,255,255,0.2)", padding: "1px 7px", borderRadius: 20 }}>{actionItems.filter(t => !t.completed).length} remaining</span>
+            right={actionItems.filter(t => !t.done).length > 0
+              ? <span style={{ fontSize: 10, fontFamily: "'DM Mono', monospace", background: "rgba(255,255,255,0.2)", padding: "1px 7px", borderRadius: 20 }}>{actionItems.filter(t => !t.done).length} remaining</span>
               : null}
           />
           <div style={{ display: "flex", gap: 6, marginBottom: actionItems.length ? 8 : 0 }}>
@@ -694,11 +694,11 @@ export default function Dashboard() {
           {actionItems.length === 0
             ? <div style={{ fontSize: 11, color: "#9ca3af", textAlign: "center", padding: "8px 0", fontStyle: "italic" }}>Nothing here yet — add an action item above</div>
             : actionItems.map(todo => (
-              <div key={todo.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", borderRadius: 8, marginBottom: 4, background: todo.completed ? "#f0fdf4" : "#f9fafb", border: `1px solid ${todo.completed ? "#6ee7b7" : "#e2e8f0"}` }}>
-                <div onClick={() => toggleTodo(todo.id)} style={{ width: 17, height: 17, borderRadius: 5, flexShrink: 0, cursor: "pointer", border: todo.completed ? "none" : "2px solid #d1d5db", background: todo.completed ? "#059669" : "white", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  {todo.completed && <SvgCheck size={10} color="white" />}
+              <div key={todo.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", borderRadius: 8, marginBottom: 4, background: todo.done ? "#f0fdf4" : "#f9fafb", border: `1px solid ${todo.done ? "#6ee7b7" : "#e2e8f0"}` }}>
+                <div onClick={() => toggleTodo(todo.id)} style={{ width: 17, height: 17, borderRadius: 5, flexShrink: 0, cursor: "pointer", border: todo.done ? "none" : "2px solid #d1d5db", background: todo.done ? "#059669" : "white", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  {todo.done && <SvgCheck size={10} color="white" />}
                 </div>
-                <span style={{ flex: 1, fontSize: 12, color: todo.completed ? "#6ee7b7" : "#1e293b", textDecoration: todo.completed ? "line-through" : "none" }}>{todo.title}</span>
+                <span style={{ flex: 1, fontSize: 12, color: todo.done ? "#6ee7b7" : "#1e293b", textDecoration: todo.done ? "line-through" : "none" }}>{todo.title}</span>
                 <button onClick={() => deleteTodo(todo.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#cbd5e1", fontSize: 15 }}>×</button>
               </div>
             ))
