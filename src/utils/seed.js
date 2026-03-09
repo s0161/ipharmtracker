@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { generateId } from './helpers'
 
-const SEED_KEY = 'ipd_seeded_v33'
+const SEED_KEY = 'ipd_seeded_v34'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -11,7 +11,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
   'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13', 'ipd_seeded_v14', 'ipd_seeded_v15', 'ipd_seeded_v16',
   'ipd_seeded_v17', 'ipd_seeded_v18', 'ipd_seeded_v19', 'ipd_seeded_v20', 'ipd_seeded_v21', 'ipd_seeded_v22',
-  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28', 'ipd_seeded_v29', 'ipd_seeded_v30', 'ipd_seeded_v31', 'ipd_seeded_v32',
+  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28', 'ipd_seeded_v29', 'ipd_seeded_v30', 'ipd_seeded_v31', 'ipd_seeded_v32', 'ipd_seeded_v33',
 ]
 
 export function cleanupOldLocalStorage() {
@@ -537,6 +537,124 @@ export async function seedIfNeeded() {
     excursionLog.reported_to = 'Amjid Shakoor'
   }
 
+  // ─── Safeguarding Contacts ───
+  const safeguardingContacts = [
+    // Emergency / Urgent
+    { name: 'Tameside MASH', organisation: 'Tameside MBC', phone: '0161 342 4101', phone_secondary: '', email: 'mashreferrals@tameside.gov.uk', website: '', category: 'emergency', concern_types: ['child', 'adult_at_risk', 'domestic_abuse'], description: 'Multi-Agency Safeguarding Hub — first point of contact for all safeguarding concerns about children and adults at risk in Tameside', opening_hours: 'Mon-Fri 8:30am-5pm', region: 'tameside', is_emergency: true, sort_order: 1 },
+    { name: 'Adult Social Care', organisation: 'Tameside MBC', phone: '0161 342 2400', phone_secondary: '', email: '', website: '', category: 'emergency', concern_types: ['adult_at_risk'], description: 'Adult safeguarding referrals for Tameside residents — self-neglect, abuse, exploitation', opening_hours: 'Mon-Fri 8:30am-5pm', region: 'tameside', is_emergency: true, sort_order: 2 },
+    { name: 'Emergency Duty Team', organisation: 'Tameside MBC', phone: '0161 342 2222', phone_secondary: '', email: '', website: '', category: 'emergency', concern_types: ['child', 'adult_at_risk', 'domestic_abuse'], description: 'Out-of-hours emergency social services — use when MASH is closed and there is immediate risk', opening_hours: '5pm-8:30am + weekends/bank holidays', region: 'tameside', is_emergency: true, sort_order: 3 },
+    { name: 'Greater Manchester Police', organisation: 'GMP', phone: '101', phone_secondary: '999', email: '', website: '', category: 'emergency', concern_types: ['child', 'adult_at_risk', 'domestic_abuse'], description: 'Police non-emergency 101 / Emergency 999 — call 999 if someone is in immediate danger', opening_hours: '24/7', region: 'tameside', is_emergency: true, sort_order: 4 },
+    // Domestic Abuse
+    { name: 'MARAC (Tameside)', organisation: 'Tameside MBC', phone: '0161 342 4377', phone_secondary: '', email: '', website: '', category: 'domestic_abuse', concern_types: ['domestic_abuse'], description: 'Multi-Agency Risk Assessment Conference — for high-risk domestic abuse cases. Referral via MASH or police.', opening_hours: 'Mon-Fri 9am-5pm', region: 'tameside', is_emergency: false, sort_order: 5 },
+    { name: 'TDAS (Tameside Domestic Abuse)', organisation: 'TDAS', phone: '0161 366 0109', phone_secondary: '', email: 'info@tdasltd.org.uk', website: 'https://tdasltd.org.uk', category: 'domestic_abuse', concern_types: ['domestic_abuse'], description: 'Tameside Domestic Abuse Services — support, advice, refuge for victims of domestic abuse in Tameside', opening_hours: 'Mon-Fri 9am-5pm', region: 'tameside', is_emergency: false, sort_order: 6 },
+    { name: 'National DA Helpline', organisation: 'Refuge', phone: '0808 2000 247', phone_secondary: '', email: '', website: 'https://www.nationaldahelpline.org.uk', category: 'domestic_abuse', concern_types: ['domestic_abuse'], description: 'Freephone 24-hour National Domestic Abuse Helpline run by Refuge', opening_hours: '24/7', region: 'national', is_emergency: false, sort_order: 7 },
+    { name: "Men's Advice Line", organisation: "Men's Advice Line", phone: '0808 801 0327', phone_secondary: '', email: '', website: 'https://mensadviceline.org.uk', category: 'domestic_abuse', concern_types: ['domestic_abuse'], description: 'Confidential helpline for male victims of domestic abuse', opening_hours: 'Mon-Fri 10am-8pm', region: 'national', is_emergency: false, sort_order: 8 },
+    { name: 'HIDE (DA for disabled people)', organisation: 'HIDE', phone: '0161 636 7525', phone_secondary: '', email: '', website: '', category: 'domestic_abuse', concern_types: ['domestic_abuse', 'adult_at_risk'], description: 'Hidden, Invisible, Domestic abuse for disabled people — specialist support in Greater Manchester', opening_hours: 'Mon-Fri 9am-5pm', region: 'tameside', is_emergency: false, sort_order: 9 },
+    { name: 'Galop (LGBT+ DA)', organisation: 'Galop', phone: '0800 999 5428', phone_secondary: '', email: '', website: 'https://galop.org.uk', category: 'domestic_abuse', concern_types: ['domestic_abuse'], description: 'National LGBT+ domestic abuse helpline', opening_hours: 'Mon-Fri 10am-5pm', region: 'national', is_emergency: false, sort_order: 10 },
+    // Mental Health
+    { name: 'Crisis Line (Tameside)', organisation: 'Pennine Care NHS', phone: '0800 014 9995', phone_secondary: '', email: '', website: '', category: 'mental_health', concern_types: ['mental_health'], description: 'Tameside & Glossop Mental Health Crisis Line — for urgent mental health support', opening_hours: '24/7', region: 'tameside', is_emergency: true, sort_order: 11 },
+    { name: 'Tameside ICFT Mental Health', organisation: 'ICFT', phone: '0161 922 4300', phone_secondary: '', email: '', website: '', category: 'mental_health', concern_types: ['mental_health'], description: 'Tameside Integrated Care Foundation Trust mental health services', opening_hours: 'Mon-Fri 9am-5pm', region: 'tameside', is_emergency: false, sort_order: 12 },
+    { name: 'Samaritans', organisation: 'Samaritans', phone: '116 123', phone_secondary: '', email: 'jo@samaritans.org', website: 'https://www.samaritans.org', category: 'mental_health', concern_types: ['mental_health'], description: 'Free confidential emotional support for anyone in distress — call or email 24/7', opening_hours: '24/7', region: 'national', is_emergency: false, sort_order: 13 },
+    { name: 'MIND', organisation: 'MIND', phone: '0300 123 3393', phone_secondary: '', email: '', website: 'https://www.mind.org.uk', category: 'mental_health', concern_types: ['mental_health'], description: 'Mental health information and support', opening_hours: 'Mon-Fri 9am-6pm', region: 'national', is_emergency: false, sort_order: 14 },
+    { name: 'NHS Urgent Mental Health', organisation: 'NHS', phone: '111', phone_secondary: '', email: '', website: 'https://111.nhs.uk', category: 'mental_health', concern_types: ['mental_health'], description: 'NHS 111 — press option 2 for urgent mental health crisis support', opening_hours: '24/7', region: 'national', is_emergency: false, sort_order: 15 },
+    { name: 'Shout', organisation: 'Shout', phone: '', phone_secondary: '', email: '', website: 'https://giveusashout.org', category: 'mental_health', concern_types: ['mental_health'], description: 'Free text support — text SHOUT to 85258 for confidential crisis support', opening_hours: '24/7', region: 'national', is_emergency: false, sort_order: 16 },
+    // Child Concern
+    { name: 'NSPCC Helpline', organisation: 'NSPCC', phone: '0808 800 5000', phone_secondary: '', email: 'help@nspcc.org.uk', website: 'https://www.nspcc.org.uk', category: 'child_concern', concern_types: ['child'], description: 'National helpline for anyone concerned about a child — confidential advice for adults', opening_hours: '24/7', region: 'national', is_emergency: false, sort_order: 17 },
+    { name: 'Childline', organisation: 'NSPCC', phone: '0800 1111', phone_secondary: '', email: '', website: 'https://www.childline.org.uk', category: 'child_concern', concern_types: ['child'], description: 'Free helpline for children and young people under 19 — advice and support', opening_hours: '24/7', region: 'national', is_emergency: false, sort_order: 18 },
+    { name: 'Early Help (Tameside)', organisation: 'Tameside MBC', phone: '0161 342 4260', phone_secondary: '', email: '', website: '', category: 'child_concern', concern_types: ['child'], description: 'Tameside Early Help service — for families needing support before statutory intervention', opening_hours: 'Mon-Fri 8:30am-5pm', region: 'tameside', is_emergency: false, sort_order: 19 },
+    { name: 'School Nursing (Tameside)', organisation: 'Tameside & Glossop', phone: '0161 342 5150', phone_secondary: '', email: '', website: '', category: 'child_concern', concern_types: ['child'], description: 'Tameside school nursing service — health and wellbeing support for school-age children', opening_hours: 'Mon-Fri 9am-5pm', region: 'tameside', is_emergency: false, sort_order: 20 },
+    // Substance Misuse
+    { name: 'Turning Point (Tameside)', organisation: 'Turning Point', phone: '0161 672 9420', phone_secondary: '', email: '', website: 'https://www.turning-point.co.uk', category: 'substance_misuse', concern_types: ['substance_misuse'], description: 'Drug and alcohol recovery service in Tameside — self-referral accepted', opening_hours: 'Mon-Fri 9am-5pm', region: 'tameside', is_emergency: false, sort_order: 21 },
+    { name: 'CGL (Change Grow Live)', organisation: 'CGL', phone: '0161 672 0200', phone_secondary: '', email: '', website: 'https://www.changegrowlive.org', category: 'substance_misuse', concern_types: ['substance_misuse'], description: 'Substance misuse support services — harm reduction, treatment, recovery', opening_hours: 'Mon-Fri 9am-5pm', region: 'tameside', is_emergency: false, sort_order: 22 },
+    { name: 'Frank', organisation: 'Frank', phone: '0300 123 6600', phone_secondary: '', email: '', website: 'https://www.talktofrank.com', category: 'substance_misuse', concern_types: ['substance_misuse'], description: 'Free national drug information and support helpline', opening_hours: '24/7', region: 'national', is_emergency: false, sort_order: 23 },
+    { name: 'Alcohol Change UK', organisation: 'Alcohol Change', phone: '0300 123 1110', phone_secondary: '', email: '', website: 'https://alcoholchange.org.uk', category: 'substance_misuse', concern_types: ['substance_misuse'], description: 'National advice on alcohol use — self-help tools and support directory', opening_hours: 'Mon-Fri 9am-5pm', region: 'national', is_emergency: false, sort_order: 24 },
+    // General / Vulnerability
+    { name: 'NHS 111', organisation: 'NHS', phone: '111', phone_secondary: '', email: '', website: 'https://111.nhs.uk', category: 'general', concern_types: ['adult_at_risk', 'mental_health'], description: 'NHS 111 — urgent medical advice when it is not a 999 emergency', opening_hours: '24/7', region: 'national', is_emergency: false, sort_order: 25 },
+    { name: 'Tameside A&E', organisation: 'Tameside Hospital', phone: '0161 922 6000', phone_secondary: '', email: '', website: '', category: 'general', concern_types: ['adult_at_risk'], description: 'Tameside General Hospital A&E — for medical emergencies', opening_hours: '24/7', region: 'tameside', is_emergency: true, sort_order: 26 },
+    { name: 'Social Prescribing (Tameside)', organisation: 'Tameside MBC', phone: '0161 342 5000', phone_secondary: '', email: '', website: '', category: 'general', concern_types: ['adult_at_risk', 'mental_health'], description: 'Social prescribing link workers — connecting people to community support for loneliness, isolation, wellbeing', opening_hours: 'Mon-Fri 9am-5pm', region: 'tameside', is_emergency: false, sort_order: 27 },
+    { name: 'Food Banks (Tameside)', organisation: 'Trussell Trust / Tameside', phone: '0161 330 9802', phone_secondary: '', email: '', website: '', category: 'general', concern_types: ['adult_at_risk'], description: 'Tameside food bank referral — emergency food parcels for individuals and families in crisis', opening_hours: 'Mon-Fri 10am-2pm', region: 'tameside', is_emergency: false, sort_order: 28 },
+  ]
+
+  // ─── Safeguarding Concerns (demo) ───
+  const safeguardingConcerns = [
+    {
+      id: generateId(), concern_ref: 'SC-2026-001', concern_date: '2026-03-01', concern_time: '10:30',
+      category: 'adult_at_risk', patient_identifier: 'JB', description: 'Elderly patient presenting with unexplained bruising on forearms. Patient appeared withdrawn and reluctant to discuss home circumstances. Accompanied by family member who answered all questions on patient\'s behalf.',
+      action_taken: 'Spoke to patient privately during MDS consultation. Patient declined further support at this time. Advised patient of available services.', risk_level: 'medium', status: 'open',
+      reported_by: 'Salma Shakoor', escalated_to_superintendent: false, follow_up_required: true, follow_up_date: '2026-03-15', follow_up_notes: 'Check on patient at next MDS collection', outcome: '', created_at: '2026-03-01T10:30:00.000Z',
+    },
+    {
+      id: generateId(), concern_ref: 'SC-2026-002', concern_date: '2026-02-20', concern_time: '14:15',
+      category: 'domestic_abuse', patient_identifier: 'RS', description: 'Regular patient requested to speak privately. Disclosed that partner has been controlling medication access and finances. Patient appeared distressed with visible weight loss since last visit.',
+      action_taken: 'Provided safe space for patient to talk. Shared TDAS leaflet discreetly inside medication bag. Offered to make referral — patient consented.', risk_level: 'high', status: 'referred',
+      reported_by: 'Amjid Shakoor', escalated_to_superintendent: true, escalated_at: '2026-02-20T14:30:00.000Z', follow_up_required: true, follow_up_date: '2026-03-06', follow_up_notes: 'Awaiting MASH feedback on referral', outcome: '', created_at: '2026-02-20T14:15:00.000Z',
+    },
+    {
+      id: generateId(), concern_ref: 'SC-2026-003', concern_date: '2026-01-15', concern_time: '11:00',
+      category: 'child', patient_identifier: 'Child of PT', description: 'Parent collecting prescription appeared intoxicated at 11am. Young child (approx 3-4 years) was unsupervised near shop entrance. Child appeared unkempt.',
+      action_taken: 'Ensured child safety in pharmacy. Manager contacted MASH for advice. MASH confirmed existing case — information shared.', risk_level: 'high', status: 'resolved',
+      reported_by: 'Moniba Jamil', escalated_to_superintendent: true, escalated_at: '2026-01-15T11:15:00.000Z', follow_up_required: false, outcome: 'MASH confirmed they are aware and case is being managed by social worker. No further action required from pharmacy.', closed_at: '2026-01-20', closed_by: 'Amjid Shakoor', created_at: '2026-01-15T11:00:00.000Z',
+    },
+  ]
+
+  // ─── Safeguarding Referrals (demo) ───
+  const safeguardingReferrals = [
+    {
+      id: generateId(), referral_ref: 'REF-2026-001', concern_id: safeguardingConcerns[1].id,
+      referral_date: '2026-02-20', referred_to: 'Tameside MASH', concern_type: 'domestic_abuse',
+      patient_identifier: 'RS', consent_type: 'patient_consent', consent_notes: 'Patient gave verbal consent to referral',
+      reference_number: 'MASH-2026-4521', description: 'Referral made following disclosure of coercive control by partner including controlling medication access and finances. Patient consented to referral.',
+      status: 'in_progress', outcome: '', outcome_notes: '', outcome_date: '',
+      referred_by: 'Amjid Shakoor', created_at: '2026-02-20T15:00:00.000Z',
+    },
+  ]
+
+  // ─── Signposting Resources ───
+  const signpostingResources = [
+    {
+      category: 'domestic_abuse', title: 'Domestic Abuse Support',
+      plain_language_intro: 'Domestic abuse can affect anyone regardless of age, gender, sexuality, or background. It includes physical violence, coercive control, financial abuse, emotional abuse, and stalking. If someone discloses abuse to you, believe them, listen without judgement, and help them access support.',
+      what_to_say: '"I believe you. You are not alone, and this is not your fault. There are people who can help, and I can put you in touch with them if you would like. Everything you tell me is confidential unless I believe someone is in immediate danger."',
+      referral_pathway: '1. IMMEDIATE DANGER: Call 999\n2. HIGH RISK: Refer to Tameside MASH (0161 342 4101) — same day\n3. URGENT: Contact TDAS (0161 366 0109) for specialist support\n4. NON-URGENT: Provide National DA Helpline number (0808 2000 247) and TDAS leaflet',
+      region: 'tameside', is_active: true, sort_order: 1,
+    },
+    {
+      category: 'mental_health', title: 'Mental Health Crisis Support',
+      plain_language_intro: 'Mental health crises can present in many ways — suicidal thoughts, self-harm, extreme anxiety, psychosis, or severe depression. Pharmacy staff may notice changes in behaviour, medication patterns, or direct disclosure. Always take concerns seriously and respond with compassion.',
+      what_to_say: '"I can see you are going through a really difficult time. You do not have to face this alone. Would you like me to help you speak to someone who can support you? There are services available right now that can help."',
+      referral_pathway: '1. IMMEDIATE RISK TO LIFE: Call 999\n2. CRISIS: Call Tameside Crisis Line (0800 014 9995) — 24/7\n3. URGENT: NHS 111 option 2 for mental health crisis\n4. NON-URGENT: Suggest Samaritans (116 123), MIND (0300 123 3393), or text SHOUT to 85258',
+      region: 'tameside', is_active: true, sort_order: 2,
+    },
+    {
+      category: 'child_concern', title: 'Concerns About a Child',
+      plain_language_intro: 'Signs of concern about a child may include unexplained injuries, changes in behaviour, poor hygiene, hunger, fear of going home, or disclosure of abuse. Pharmacy staff may observe these during interactions with families collecting prescriptions. You do not need proof to raise a concern — a reasonable suspicion is enough.',
+      what_to_say: 'If speaking to the child: "You can talk to me. I am here to help and keep you safe." If speaking to a parent/carer: "I have noticed [specific observation]. Is everything okay? We have services that can help families."',
+      referral_pathway: '1. IMMEDIATE DANGER: Call 999\n2. HIGH RISK: Call Tameside MASH (0161 342 4101) — same day\n3. CONCERNED: Contact NSPCC Helpline (0808 800 5000) for advice\n4. EARLY HELP: Refer to Tameside Early Help (0161 342 4260)',
+      region: 'tameside', is_active: true, sort_order: 3,
+    },
+    {
+      category: 'adult_at_risk', title: 'Adult at Risk / Safeguarding Adults',
+      plain_language_intro: 'An adult at risk is someone aged 18+ who has care and support needs and may be unable to protect themselves from abuse or neglect. This includes elderly patients, those with disabilities, learning difficulties, or mental health conditions. Types of abuse include physical, financial, emotional, neglect, self-neglect, and organisational.',
+      what_to_say: '"I have noticed something that concerns me and I want to make sure you are safe. Would you be happy for me to arrange some support? There are services that can help, and you do not have to deal with this alone."',
+      referral_pathway: '1. IMMEDIATE DANGER: Call 999\n2. HIGH RISK: Call Tameside MASH (0161 342 4101) or Adult Social Care (0161 342 2400)\n3. OUT OF HOURS: Emergency Duty Team (0161 342 2222)\n4. NON-URGENT: Contact GP or Social Prescribing (0161 342 5000)',
+      region: 'tameside', is_active: true, sort_order: 4,
+    },
+    {
+      category: 'substance_misuse', title: 'Substance Misuse Concerns',
+      plain_language_intro: 'Pharmacy staff are uniquely placed to identify substance misuse issues — through dispensing patterns, needle exchange services, supervised consumption, or direct observation. Approach with compassion, not judgement. Many people with substance misuse problems also have underlying mental health or social issues.',
+      what_to_say: '"I am not here to judge you. I want to make sure you are getting the support you need. There are services that can help with what you are going through, and I can help you get in touch if you would like."',
+      referral_pathway: '1. MEDICAL EMERGENCY: Call 999 (overdose, collapse)\n2. URGENT: Refer to Turning Point Tameside (0161 672 9420) — self-referral\n3. SUPPORT: CGL (0161 672 0200) for treatment and recovery\n4. INFORMATION: Frank helpline (0300 123 6600) or talktofrank.com',
+      region: 'tameside', is_active: true, sort_order: 5,
+    },
+    {
+      category: 'general_vulnerability', title: 'General Vulnerability & Wellbeing',
+      plain_language_intro: 'Vulnerability can take many forms — isolation, poverty, homelessness, language barriers, or digital exclusion. Pharmacy staff often see people who would not otherwise engage with services. A compassionate conversation can be the first step to connecting someone with support.',
+      what_to_say: '"How are you doing? Is there anything we can help you with today, beyond your medication? We know about local services that might be useful to you."',
+      referral_pathway: '1. HEALTH CONCERN: NHS 111 or suggest GP appointment\n2. SOCIAL ISOLATION: Social Prescribing (0161 342 5000)\n3. FOOD POVERTY: Tameside Food Banks (0161 330 9802)\n4. GENERAL WELLBEING: Signpost to community groups and local support',
+      region: 'tameside', is_active: true, sort_order: 6,
+    },
+  ]
+
   // Clear old seed data before re-inserting
   // Use .not('id','is',null) instead of .neq('id','') — the latter fails for UUID columns
   const delFilter = (q) => q.not('id', 'is', null)
@@ -556,6 +674,10 @@ export async function seedIfNeeded() {
     delFilter(supabase.from('near_misses').delete()),
     delFilter(supabase.from('pharmacy_config').delete()),
     delFilter(supabase.from('fridge_temperature_logs').delete()),
+    delFilter(supabase.from('safeguarding_contacts').delete()),
+    delFilter(supabase.from('safeguarding_concerns').delete()),
+    delFilter(supabase.from('safeguarding_referrals').delete()),
+    delFilter(supabase.from('signposting_resources').delete()),
   ])
 
   // Insert into Supabase tables
@@ -571,6 +693,10 @@ export async function seedIfNeeded() {
     supabase.from('action_items').insert(actionItems),
     supabase.from('staff_tasks').insert(staffTaskSamples),
     supabase.from('fridge_temperature_logs').insert(tempLogs),
+    supabase.from('safeguarding_contacts').insert(safeguardingContacts),
+    supabase.from('safeguarding_concerns').insert(safeguardingConcerns),
+    supabase.from('safeguarding_referrals').insert(safeguardingReferrals),
+    supabase.from('signposting_resources').insert(signpostingResources),
     supabase.from('pharmacy_config').insert({
       pharmacy_name: 'iPharmacy Direct',
       address: 'Manchester, UK',
@@ -579,6 +705,7 @@ export async function seedIfNeeded() {
       gphc_number: 'FED07',
       phone: '',
       email: '',
+      region: 'tameside',
     }),
   ]
 

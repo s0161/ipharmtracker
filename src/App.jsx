@@ -13,6 +13,7 @@ import TemperatureLog from './pages/TemperatureLog'
 import MyTasks from './pages/MyTasks'
 import Incidents from './pages/Incidents'
 import AuditLog from './pages/AuditLog'
+import Safeguarding from './pages/Safeguarding'
 import NearMissLog from './pages/NearMissLog'
 import ComplianceReport from './pages/ComplianceReport'
 import Analytics from './pages/Analytics'
@@ -44,6 +45,7 @@ function AuthedApp() {
             <Route path="/temperature" element={<TemperatureLog />} />
             <Route path="/incidents" element={<Incidents />} />
             <Route path="/near-misses" element={<NearMissLog />} />
+            <Route path="/safeguarding" element={<Safeguarding />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/compliance-report" element={<ComplianceReport />} />
             <Route path="/analytics" element={<Analytics />} />

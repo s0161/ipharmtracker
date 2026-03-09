@@ -17,6 +17,7 @@ const titles = {
   '/temperature': 'Temperature Log',
   '/incidents': 'Incidents',
   '/near-misses': 'Near Miss Log',
+  '/safeguarding': 'Safeguarding',
   '/settings': 'Settings',
   '/compliance-report': 'Compliance Report',
   '/audit-log': 'Audit Log',
@@ -59,7 +60,7 @@ const morePages = [
   { to: '/my-tasks', label: 'My Tasks', icon: 'check-square' },
   { to: '/documents', label: 'Renewals', icon: 'file' },
   { to: '/staff-training', label: 'Staff Training', icon: 'book' },
-
+  { to: '/safeguarding', label: 'Safeguarding', icon: 'shield' },
   { to: '/training', label: 'Training Logs', icon: 'clipboard' },
   { to: '/incidents', label: 'Incidents', icon: 'alert' },
   { to: '/near-misses', label: 'Near Misses', icon: 'alert-triangle' },

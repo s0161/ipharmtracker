@@ -10,6 +10,7 @@ function emptyCounts() {
     '/cleaning': { red: 0, amber: 0 },
     '/temperature': { red: 0, amber: 0 },
     '/my-tasks': { red: 0, amber: 0 },
+    '/safeguarding': { red: 0, amber: 0 },
   }
 }
 
@@ -17,13 +18,14 @@ async function fetchCounts() {
   const counts = emptyCounts()
   const prefs = JSON.parse(localStorage.getItem('ipd_notification_prefs') || '{}')
 
-  const [docsRes, staffRes, tasksRes, entriesRes, tempRes, staffTasksRes] = await Promise.all([
+  const [docsRes, staffRes, tasksRes, entriesRes, tempRes, staffTasksRes, sgConcernsRes] = await Promise.all([
     supabase.from('documents').select('expiry_date'),
     supabase.from('staff_training').select('status, target_date'),
     supabase.from('cleaning_tasks').select('name, frequency'),
     supabase.from('cleaning_entries').select('task_name, date_time'),
     supabase.from('fridge_temperature_logs').select('date'),
     supabase.from('staff_tasks').select('status, due_date'),
+    supabase.from('safeguarding_concerns').select('status'),
   ])
 
   if (docsRes.data) {
@@ -85,12 +87,21 @@ async function fetchCounts() {
     })
   }
 
+  // Safeguarding concerns: open = amber, escalated = red
+  if (sgConcernsRes.data) {
+    sgConcernsRes.data.forEach((c) => {
+      if (c.status === 'open') counts['/safeguarding'].amber++
+      if (c.status === 'referred') counts['/safeguarding'].red++
+    })
+  }
+
   // Zero out counts for disabled notification categories
   if (prefs.documentExpiry === false) counts['/documents'] = { red: 0, amber: 0 }
   if (prefs.trainingOverdue === false) counts['/staff-training'] = { red: 0, amber: 0 }
 
   if (prefs.cleaningOverdue === false) counts['/cleaning'] = { red: 0, amber: 0 }
   if (prefs.temperatureMissing === false) counts['/temperature'] = { red: 0, amber: 0 }
+  if (prefs.safeguardingDue === false) counts['/safeguarding'] = { red: 0, amber: 0 }
 
   return counts
 }

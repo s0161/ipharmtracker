@@ -54,7 +54,7 @@ const sections = [
   {
     label: 'COMPLIANCE',
     items: [
-
+      { to: '/safeguarding', label: 'Safeguarding', icon: 'shield' },
       { to: '/staff-training', label: 'Staff Training', icon: 'users', shortcut: 'S' },
       { to: '/near-misses', label: 'Near Misses', icon: 'shieldAlert' },
       { to: '/compliance-report', label: 'Compliance Report', icon: 'report' },

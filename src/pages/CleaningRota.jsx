@@ -1039,7 +1039,7 @@ export default function CleaningRota() {
 
   return (
     <div style={{ ...sans, maxWidth: 1200, margin: '0 auto', padding: '16px 16px 80px', background: '#fafafa', minHeight: '100vh' }}>
-      <ConfirmDialog />
+      {ConfirmDialog}
 
       {/* ── Page Header ── */}
       <div style={{ marginBottom: 16 }}>
