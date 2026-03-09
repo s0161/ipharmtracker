@@ -8,19 +8,19 @@ export function useToast() {
 
 const TOAST_STYLES = {
   success: {
-    backgroundColor: 'var(--ec-sidebar)',
+    backgroundColor: 'var(--ec-card-solid)',
     borderLeft: '3px solid var(--ec-em)',
     color: 'var(--ec-t1)',
     boxShadow: 'var(--shadow-md)',
   },
   error: {
-    backgroundColor: 'var(--ec-sidebar)',
+    backgroundColor: 'var(--ec-card-solid)',
     borderLeft: '3px solid #ef4444',
     color: '#fca5a5',
     boxShadow: 'var(--shadow-md)',
   },
   info: {
-    backgroundColor: 'var(--ec-sidebar)',
+    backgroundColor: 'var(--ec-card-solid)',
     borderLeft: '3px solid #6366f1',
     color: '#a5b4fc',
     boxShadow: 'var(--shadow-md)',

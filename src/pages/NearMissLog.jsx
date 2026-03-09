@@ -128,10 +128,10 @@ const LEARNING_PROMPTS = [
 
 // ─── Shared Classes ───────────────────────────────────────────────
 const inputClass =
-  'w-full bg-white/60 dark:bg-white/5 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-ec-t1 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-gray-400 font-sans'
+  'w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2.5 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-2 focus:ring-ec-em/20 transition-all placeholder:text-ec-t3 font-sans'
 
 const inputErrorClass =
-  'w-full bg-white/60 dark:bg-white/5 border-2 border-red-400 rounded-lg px-3 py-2.5 text-sm text-ec-t1 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all placeholder:text-gray-400 font-sans'
+  'w-full bg-ec-card border-2 border-red-400 rounded-lg px-3 py-2.5 text-sm text-ec-t1 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all placeholder:text-ec-t3 font-sans'
 
 const selectClass =
   'bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 font-sans focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all'
@@ -253,7 +253,7 @@ function StaffPillSelector({ staffMembers, selected, onChange, label }) {
   }
 
   return (
-    <div className="flex flex-wrap gap-1.5 p-2.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-white/60 dark:bg-white/5 min-h-[44px]">
+    <div className="flex flex-wrap gap-1.5 p-2.5 rounded-lg border border-ec-border bg-ec-card min-h-[44px]">
       {staffMembers.map((name) => {
         const isActive = selectedList.includes(name)
         return (

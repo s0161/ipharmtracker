@@ -57,7 +57,7 @@ export default function NotificationBell({ notifications, onDismissNotification 
       </button>
 
       {bellOpen && (
-        <div className="ec-slidedown absolute top-full right-0 mt-2 w-80 rounded-xl border border-ec-border backdrop-blur-xl z-60 overflow-hidden" style={{ backgroundColor: 'var(--ec-sidebar)', boxShadow: 'var(--shadow-md)' }}>
+        <div className="ec-slidedown absolute top-full right-0 mt-2 w-80 rounded-xl border border-ec-border backdrop-blur-xl z-60 overflow-hidden" style={{ backgroundColor: 'var(--ec-card-solid)', boxShadow: 'var(--shadow-md)' }}>
           <div className="flex items-center justify-between px-4 py-3 border-b border-ec-div">
             <span className="text-[13px] font-bold text-ec-t1">Notifications</span>
             {unreadCount > 0 && (

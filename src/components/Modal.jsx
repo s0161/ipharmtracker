@@ -28,8 +28,8 @@ export default function Modal({ open, onClose, title, children }) {
       <div
         className="w-full max-w-lg rounded-2xl p-6 ec-fadeup"
         style={{
-          backgroundColor: 'var(--ec-sidebar)',
-          border: '1px solid var(--ec-t5)',
+          backgroundColor: 'var(--ec-card-solid)',
+          border: '1px solid var(--ec-border)',
           boxShadow: 'var(--shadow-lg)',
         }}
       >
