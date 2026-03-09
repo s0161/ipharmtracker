@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { generateId } from './helpers'
 
-const SEED_KEY = 'ipd_seeded_v34'
+const SEED_KEY = 'ipd_seeded_v35'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -11,7 +11,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
   'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13', 'ipd_seeded_v14', 'ipd_seeded_v15', 'ipd_seeded_v16',
   'ipd_seeded_v17', 'ipd_seeded_v18', 'ipd_seeded_v19', 'ipd_seeded_v20', 'ipd_seeded_v21', 'ipd_seeded_v22',
-  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28', 'ipd_seeded_v29', 'ipd_seeded_v30', 'ipd_seeded_v31', 'ipd_seeded_v32', 'ipd_seeded_v33',
+  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28', 'ipd_seeded_v29', 'ipd_seeded_v30', 'ipd_seeded_v31', 'ipd_seeded_v32', 'ipd_seeded_v33', 'ipd_seeded_v34',
 ]
 
 export function cleanupOldLocalStorage() {
