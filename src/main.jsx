@@ -6,9 +6,13 @@ import { ToastProvider } from './components/Toast'
 import { seedIfNeeded, cleanupOldLocalStorage, cleanupStaleData } from './utils/seed'
 import './index.css'
 
+window.addEventListener('unhandledrejection', (e) => {
+  console.error('[iPD] Unhandled rejection:', e.reason)
+})
+
 cleanupOldLocalStorage()
-cleanupStaleData().catch(() => {})
-seedIfNeeded().catch(() => {})
+cleanupStaleData().catch((e) => console.error('[iPD] cleanupStaleData failed:', e))
+seedIfNeeded().catch((e) => console.error('[iPD] seedIfNeeded failed:', e))
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

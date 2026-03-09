@@ -87,6 +87,8 @@ export default class ErrorBoundary extends Component {
               maxHeight: 200, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
             }}>
               {this.state.error?.toString()}
+              {'\n\n'}
+              {this.state.error?.stack}
             </pre>
           )}
         </div>
