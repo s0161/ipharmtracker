@@ -1,5 +1,4 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
-import { supabase } from '../lib/supabase'
 import { useSupabase } from '../hooks/useSupabase'
 import { useUser } from '../contexts/UserContext'
 import { generateId, formatDate } from '../utils/helpers'
@@ -29,8 +28,53 @@ const STATUS_COLORS = {
 
 const STATUS_CYCLE = ['pending', 'in_progress', 'complete']
 
+// 30 training modules — hardcoded catalog (no DB table needed)
+const TRAINING_MODULES = [
+  // GPhC & Regulatory (6)
+  { id: 1,  name: 'GPhC Standards of Conduct',        category: 'gphc_regulatory',     mandatory: true,  renewalMonths: 12, applicableRoles: ['superintendent','manager','pharmacist','technician','dispenser'] },
+  { id: 2,  name: 'Responsible Pharmacist Obligations', category: 'gphc_regulatory',     mandatory: true,  renewalMonths: 12, applicableRoles: ['superintendent','pharmacist'] },
+  { id: 3,  name: 'CPD & Revalidation Requirements',   category: 'gphc_regulatory',     mandatory: true,  renewalMonths: 12, applicableRoles: ['superintendent','pharmacist','technician'] },
+  { id: 4,  name: 'Controlled Drugs — Legal Framework', category: 'gphc_regulatory',     mandatory: true,  renewalMonths: 12, applicableRoles: ['superintendent','pharmacist','technician','dispenser'] },
+  { id: 5,  name: 'Prescription Validity & Exemptions', category: 'gphc_regulatory',     mandatory: true,  renewalMonths: 12, applicableRoles: ['superintendent','pharmacist','technician','dispenser'] },
+  { id: 6,  name: 'Clinical Governance & Audit',        category: 'gphc_regulatory',     mandatory: false, renewalMonths: 24, applicableRoles: ['superintendent','manager','pharmacist'] },
+
+  // Dispensing & Clinical (6)
+  { id: 7,  name: 'Dispensing Accuracy & Checking',     category: 'dispensing_clinical', mandatory: true,  renewalMonths: 12, applicableRoles: ['superintendent','pharmacist','technician','dispenser'] },
+  { id: 8,  name: 'Near Miss & Error Reporting',        category: 'dispensing_clinical', mandatory: true,  renewalMonths: 12, applicableRoles: ['superintendent','manager','pharmacist','technician','dispenser'] },
+  { id: 9,  name: 'MDS / Blister Pack Preparation',     category: 'dispensing_clinical', mandatory: false, renewalMonths: 12, applicableRoles: ['technician','dispenser'] },
+  { id: 10, name: 'Methadone & Supervised Consumption', category: 'dispensing_clinical', mandatory: true,  renewalMonths: 12, applicableRoles: ['superintendent','pharmacist','technician','dispenser'] },
+  { id: 11, name: 'Fridge & Cold Chain Management',     category: 'dispensing_clinical', mandatory: true,  renewalMonths: 12, applicableRoles: ['superintendent','pharmacist','technician','dispenser','stock_assistant'] },
+  { id: 12, name: 'Medicines Optimisation',             category: 'dispensing_clinical', mandatory: false, renewalMonths: 24, applicableRoles: ['superintendent','pharmacist','technician'] },
+
+  // Health & Safety (6)
+  { id: 13, name: 'Fire Safety Awareness',              category: 'health_safety',       mandatory: true,  renewalMonths: 12, applicableRoles: ['superintendent','manager','pharmacist','technician','dispenser','stock_assistant','driver','aca','staff'] },
+  { id: 14, name: 'Health & Safety Induction',          category: 'health_safety',       mandatory: true,  renewalMonths: null, applicableRoles: ['superintendent','manager','pharmacist','technician','dispenser','stock_assistant','driver','aca','staff'] },
+  { id: 15, name: 'Manual Handling',                    category: 'health_safety',       mandatory: true,  renewalMonths: 24, applicableRoles: ['dispenser','stock_assistant','driver'] },
+  { id: 16, name: 'COSHH Awareness',                    category: 'health_safety',       mandatory: false, renewalMonths: 24, applicableRoles: ['superintendent','manager','pharmacist','technician','dispenser','stock_assistant'] },
+  { id: 17, name: 'First Aid Awareness',                category: 'health_safety',       mandatory: false, renewalMonths: 36, applicableRoles: ['superintendent','manager','pharmacist','technician','dispenser'] },
+  { id: 18, name: 'Lone Working',                       category: 'health_safety',       mandatory: true,  renewalMonths: 12, applicableRoles: ['superintendent','pharmacist','technician','dispenser'] },
+
+  // Safeguarding & Governance (6)
+  { id: 19, name: 'Safeguarding Adults — Level 1',      category: 'safeguarding_governance', mandatory: true,  renewalMonths: 24, applicableRoles: ['superintendent','manager','pharmacist','technician','dispenser','stock_assistant','driver','aca','staff'] },
+  { id: 20, name: 'Safeguarding Children — Level 1',    category: 'safeguarding_governance', mandatory: true,  renewalMonths: 24, applicableRoles: ['superintendent','manager','pharmacist','technician','dispenser','stock_assistant','driver','aca','staff'] },
+  { id: 21, name: 'Safeguarding — Level 3 (Pharmacist)',category: 'safeguarding_governance', mandatory: true,  renewalMonths: 12, applicableRoles: ['superintendent','pharmacist'] },
+  { id: 22, name: 'Information Governance & GDPR',      category: 'safeguarding_governance', mandatory: true,  renewalMonths: 12, applicableRoles: ['superintendent','manager','pharmacist','technician','dispenser','stock_assistant','driver','aca','staff'] },
+  { id: 23, name: 'Equality, Diversity & Inclusion',    category: 'safeguarding_governance', mandatory: true,  renewalMonths: 24, applicableRoles: ['superintendent','manager','pharmacist','technician','dispenser','stock_assistant','driver','aca','staff'] },
+  { id: 24, name: 'Complaints Handling Procedure',      category: 'safeguarding_governance', mandatory: false, renewalMonths: 12, applicableRoles: ['superintendent','manager','pharmacist','technician','dispenser'] },
+
+  // Operational (6)
+  { id: 25, name: 'Delivery & Transport Procedures',    category: 'operational',         mandatory: true,  renewalMonths: 12, applicableRoles: ['driver'] },
+  { id: 26, name: 'Stock Management & Ordering',        category: 'operational',         mandatory: false, renewalMonths: 12, applicableRoles: ['manager','dispenser','stock_assistant'] },
+  { id: 27, name: 'Customer Service & Communication',   category: 'operational',         mandatory: false, renewalMonths: 24, applicableRoles: ['superintendent','manager','pharmacist','technician','dispenser','stock_assistant','aca','staff'] },
+  { id: 28, name: 'Confidential Waste Procedures',      category: 'operational',         mandatory: true,  renewalMonths: 12, applicableRoles: ['superintendent','manager','pharmacist','technician','dispenser'] },
+  { id: 29, name: 'IT Systems & PMR Training',          category: 'operational',         mandatory: false, renewalMonths: null, applicableRoles: ['superintendent','manager','pharmacist','technician','dispenser'] },
+  { id: 30, name: 'Emergency Procedures & Business Continuity', category: 'operational', mandatory: true,  renewalMonths: 24, applicableRoles: ['superintendent','manager','pharmacist','technician','dispenser','stock_assistant','driver','aca','staff'] },
+]
+
+// Quick lookup by name
+const MODULE_BY_NAME = Object.fromEntries(TRAINING_MODULES.map(m => [m.name, m]))
+
 const inputClass = "w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans"
-const btnPrimary = "px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors font-sans"
 const btnSecondary = "px-3 py-1.5 bg-ec-card-hover text-ec-t2 rounded-lg text-xs border border-ec-border cursor-pointer hover:bg-ec-t5 hover:text-ec-t1 transition-colors font-sans"
 
 // ─── Helpers ─────────────────────────────────────────────────────
@@ -53,12 +97,45 @@ function daysUntil(dateStr) {
   return Math.floor((target - now) / (1000 * 60 * 60 * 24))
 }
 
+// Map DB record (staff_training table) to our internal format
+// DB columns: id, staffName, role, trainingItem, targetDate, status
+// We use: trainingItem = module name, targetDate = completed date,
+// status = pending|in_progress|complete, role = "category|expiryDate"
+function dbToRecord(row) {
+  const mod = MODULE_BY_NAME[row.trainingItem] || null
+  // Parse role field: "category|expiryDate" or just plain role
+  const parts = (row.role || '').split('|')
+  const category = parts[0] || mod?.category || 'operational'
+  const expiryDate = parts[1] || null
+  return {
+    id: row.id,
+    staffId: row.staffName,
+    moduleName: row.trainingItem,
+    moduleId: mod?.id || 0,
+    category,
+    status: row.status,
+    completedDate: row.targetDate || null,
+    expiryDate,
+  }
+}
+
+// Convert our internal format back to DB row
+function recordToDb(rec) {
+  return {
+    id: rec.id,
+    staffName: rec.staffId,
+    trainingItem: rec.moduleName,
+    targetDate: rec.completedDate || '',
+    status: rec.status,
+    role: `${rec.category}|${rec.expiryDate || ''}`,
+  }
+}
+
 // ─── Main Component ──────────────────────────────────────────────
 
 export default function StaffTraining() {
   const { user } = useUser()
-  const [modules, , modulesLoading] = useSupabase('training_modules', [])
-  const [records, setRecords, recordsLoading] = useSupabase('staff_training_records', [])
+  const [rawRecords, setRawRecords, recordsLoading] = useSupabase('staff_training', [])
   const [staffMembers] = useSupabase('staff_members', [])
   const showToast = useToast()
   const { confirm, ConfirmDialog } = useConfirm()
@@ -69,10 +146,9 @@ export default function StaffTraining() {
   const [filterCategory, setFilterCategory] = useState('')
   const [filterMandatory, setFilterMandatory] = useState('')
   const [search, setSearch] = useState('')
-  const [uploading, setUploading] = useState(null)
 
   const generatedRef = useRef(false)
-  const loading = modulesLoading || recordsLoading
+  const modules = TRAINING_MODULES
 
   // Staff name list
   const staffNames = useMemo(() => {
@@ -82,6 +158,9 @@ export default function StaffTraining() {
       .map(s => s.name)
       .sort()
   }, [staffMembers])
+
+  // Convert DB rows to internal records
+  const records = useMemo(() => rawRecords.map(dbToRecord), [rawRecords])
 
   // Derive effective records — override expired complete → overdue
   const effectiveRecords = useMemo(() => {
@@ -119,59 +198,60 @@ export default function StaffTraining() {
 
   // Auto-generate pending records for staff x module combos that don't exist
   useEffect(() => {
-    if (loading || generatedRef.current || !modules.length || !staffNames.length) return
+    if (recordsLoading || generatedRef.current || !staffNames.length) return
 
-    const existingKeys = new Set(records.map(r => `${r.staffId}|${r.moduleId}`))
+    const existingKeys = new Set(rawRecords.map(r => `${r.staffName}|${r.trainingItem}`))
     const toAdd = []
 
     for (const staff of staffNames) {
-      // Get staff role from staffMembers
       const staffObj = staffMembers.find(s => typeof s === 'object' && s.name === staff)
       const role = staffObj?.role || 'staff'
 
       for (const mod of modules) {
-        const key = `${staff}|${mod.id}`
+        const key = `${staff}|${mod.name}`
         if (existingKeys.has(key)) continue
 
-        // Check if module applies to this role
         const roles = mod.applicableRoles || []
         if (roles.length > 0 && !roles.includes(role)) continue
 
         toAdd.push({
           id: generateId(),
-          staffId: staff,
-          moduleId: mod.id,
-          moduleName: mod.name,
-          category: mod.category,
+          staffName: staff,
+          trainingItem: mod.name,
+          targetDate: '',
           status: 'pending',
-          completedDate: null,
-          expiryDate: null,
-          evidenceFileName: null,
-          evidenceFilePath: null,
+          role: `${mod.category}|`,
         })
       }
     }
 
+    generatedRef.current = true
     if (toAdd.length > 0) {
-      generatedRef.current = true
-      setRecords([...records, ...toAdd])
-    } else {
-      generatedRef.current = true
+      setRawRecords([...rawRecords, ...toAdd])
     }
-  }, [loading, modules, staffNames, staffMembers]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [recordsLoading, staffNames, staffMembers]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── Actions ─────────────────────────────────────────────────
 
-  const cycleStatus = useCallback((recordId) => {
-    const rec = records.find(r => r.id === recordId)
-    if (!rec) return
+  const updateRecord = useCallback((recordId, updates) => {
+    setRawRecords(rawRecords.map(r => {
+      if (r.id !== recordId) return r
+      const rec = dbToRecord(r)
+      const merged = { ...rec, ...updates }
+      return recordToDb(merged)
+    }))
+  }, [rawRecords, setRawRecords])
 
+  const cycleStatus = useCallback((recordId) => {
+    const raw = rawRecords.find(r => r.id === recordId)
+    if (!raw) return
+
+    const rec = dbToRecord(raw)
     const currentStatus = rec.status === 'overdue' ? 'complete' : rec.status
     const idx = STATUS_CYCLE.indexOf(currentStatus)
     const next = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length]
 
-    // Find the module for renewal info
-    const mod = modules.find(m => m.id === rec.moduleId)
+    const mod = MODULE_BY_NAME[rec.moduleName]
     const renewalMonths = mod?.renewalMonths
 
     let updates = { status: next }
@@ -184,72 +264,14 @@ export default function StaffTraining() {
       updates.expiryDate = null
     }
 
-    setRecords(records.map(r => r.id === recordId ? { ...r, ...updates } : r))
+    updateRecord(recordId, updates)
     logAudit('Updated', `Training: ${rec.moduleName} for ${rec.staffId} → ${next}`, 'Staff Training', user?.name)
-  }, [records, modules, setRecords, user])
-
-  const handleUpload = useCallback(async (recordId, file) => {
-    if (!file) return
-    if (file.size > 10 * 1024 * 1024) {
-      showToast('File must be under 10MB', 'error')
-      return
-    }
-
-    const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
-    if (!allowed.includes(file.type)) {
-      showToast('Only PDF, JPG, PNG, DOC files accepted', 'error')
-      return
-    }
-
-    const rec = records.find(r => r.id === recordId)
-    if (!rec) return
-
-    setUploading(recordId)
-    const ext = file.name.split('.').pop()
-    const safeName = rec.staffId.replace(/\s+/g, '-').toLowerCase()
-    const path = `${safeName}/${rec.moduleId}-${Date.now()}.${ext}`
-
-    const { error } = await supabase.storage.from('training-evidence').upload(path, file)
-    if (error) {
-      showToast('Upload failed: ' + error.message, 'error')
-      setUploading(null)
-      return
-    }
-
-    const { data: urlData } = supabase.storage.from('training-evidence').getPublicUrl(path)
-
-    setRecords(records.map(r =>
-      r.id === recordId
-        ? { ...r, evidenceFileName: file.name, evidenceFilePath: urlData.publicUrl }
-        : r
-    ))
-    showToast('Evidence uploaded')
-    logAudit('Uploaded', `Evidence for ${rec.moduleName} — ${rec.staffId}`, 'Staff Training', user?.name)
-    setUploading(null)
-  }, [records, setRecords, showToast, user])
-
-  const handleDeleteEvidence = useCallback(async (recordId) => {
-    const rec = records.find(r => r.id === recordId)
-    if (!rec?.evidenceFilePath) return
-
-    const ok = await confirm({
-      title: 'Remove evidence?',
-      message: `Remove "${rec.evidenceFileName}" from ${rec.staffId}?`,
-      confirmLabel: 'Remove',
-      variant: 'danger',
-    })
-    if (!ok) return
-
-    setRecords(records.map(r =>
-      r.id === recordId ? { ...r, evidenceFileName: null, evidenceFilePath: null } : r
-    ))
-    showToast('Evidence removed', 'info')
-  }, [records, setRecords, confirm, showToast])
+  }, [rawRecords, updateRecord, user])
 
   const handleCsvDownload = useCallback(() => {
-    const headers = ['Staff', 'Module', 'Category', 'Mandatory', 'Status', 'Completed', 'Expiry', 'Evidence']
+    const headers = ['Staff', 'Module', 'Category', 'Mandatory', 'Status', 'Completed', 'Expiry']
     const rows = effectiveRecords.map(r => {
-      const mod = modules.find(m => m.id === r.moduleId)
+      const mod = MODULE_BY_NAME[r.moduleName]
       const cat = CATEGORIES[r.category]?.label || r.category
       return [
         r.staffId,
@@ -259,16 +281,15 @@ export default function StaffTraining() {
         STATUS_COLORS[r.status]?.label || r.status,
         r.completedDate || '',
         r.expiryDate || 'No expiry',
-        r.evidenceFileName || '',
       ]
     })
     downloadCsv('staff-training', headers, rows)
     showToast('CSV downloaded')
-  }, [effectiveRecords, modules, showToast])
+  }, [effectiveRecords, showToast])
 
   // ─── Loading guard (AFTER all hooks) ──────────────────────────
 
-  if (loading) {
+  if (recordsLoading) {
     return <SkeletonLoader variant="table" />
   }
 
@@ -329,9 +350,6 @@ export default function StaffTraining() {
           search={search}
           setSearch={setSearch}
           cycleStatus={cycleStatus}
-          handleUpload={handleUpload}
-          handleDeleteEvidence={handleDeleteEvidence}
-          uploading={uploading}
         />
       )}
 
@@ -353,9 +371,6 @@ export default function StaffTraining() {
           selectedStaff={selectedStaff}
           setSelectedStaff={setSelectedStaff}
           cycleStatus={cycleStatus}
-          handleUpload={handleUpload}
-          handleDeleteEvidence={handleDeleteEvidence}
-          uploading={uploading}
         />
       )}
 
@@ -442,7 +457,7 @@ function TabBar({ tab, setTab }) {
 function LibraryView({
   modules, effectiveRecords, staffNames, expandedModule, setExpandedModule,
   filterCategory, setFilterCategory, filterMandatory, setFilterMandatory,
-  search, setSearch, cycleStatus, handleUpload, handleDeleteEvidence, uploading,
+  search, setSearch, cycleStatus,
 }) {
   const filtered = useMemo(() => {
     const q = search.toLowerCase()
@@ -520,9 +535,6 @@ function LibraryView({
                   effectiveRecords={effectiveRecords}
                   staffNames={staffNames}
                   cycleStatus={cycleStatus}
-                  handleUpload={handleUpload}
-                  handleDeleteEvidence={handleDeleteEvidence}
-                  uploading={uploading}
                 />
               ))}
             </div>
@@ -535,11 +547,8 @@ function LibraryView({
 
 // ─── ModuleRow ───────────────────────────────────────────────────
 
-function ModuleRow({
-  mod, catColor, expanded, onToggle, effectiveRecords, staffNames,
-  cycleStatus, handleUpload, handleDeleteEvidence, uploading,
-}) {
-  const moduleRecords = effectiveRecords.filter(r => r.moduleId === mod.id)
+function ModuleRow({ mod, catColor, expanded, onToggle, effectiveRecords, staffNames, cycleStatus }) {
+  const moduleRecords = effectiveRecords.filter(r => r.moduleName === mod.name)
   const completeCount = moduleRecords.filter(r => r.status === 'complete').length
   const overdueCount = moduleRecords.filter(r => r.status === 'overdue').length
 
@@ -569,7 +578,7 @@ function ModuleRow({
         </div>
         <div className="flex items-center gap-3 flex-shrink-0 ml-2">
           {mod.renewalMonths && (
-            <span className="text-xs text-ec-t3">{mod.renewalMonths}mo renewal</span>
+            <span className="text-xs text-ec-t3 hidden sm:inline">{mod.renewalMonths}mo renewal</span>
           )}
           <span className="text-xs text-ec-t3">{completeCount}/{moduleRecords.length}</span>
           {overdueCount > 0 && (
@@ -582,11 +591,7 @@ function ModuleRow({
         <ModuleExpander
           mod={mod}
           moduleRecords={moduleRecords}
-          staffNames={staffNames}
           cycleStatus={cycleStatus}
-          handleUpload={handleUpload}
-          handleDeleteEvidence={handleDeleteEvidence}
-          uploading={uploading}
         />
       )}
     </div>
@@ -595,7 +600,7 @@ function ModuleRow({
 
 // ─── ModuleExpander ──────────────────────────────────────────────
 
-function ModuleExpander({ mod, moduleRecords, staffNames, cycleStatus, handleUpload, handleDeleteEvidence, uploading }) {
+function ModuleExpander({ mod, moduleRecords, cycleStatus }) {
   return (
     <div className="border-t border-ec-div px-4 py-3">
       <div className="overflow-x-auto">
@@ -606,7 +611,6 @@ function ModuleExpander({ mod, moduleRecords, staffNames, cycleStatus, handleUpl
               <th className="text-left text-xs font-semibold text-ec-t3 px-3 py-1.5">Status</th>
               <th className="text-left text-xs font-semibold text-ec-t3 px-3 py-1.5 hidden sm:table-cell">Completed</th>
               <th className="text-left text-xs font-semibold text-ec-t3 px-3 py-1.5 hidden sm:table-cell">Expiry</th>
-              <th className="text-left text-xs font-semibold text-ec-t3 px-3 py-1.5">Evidence</th>
             </tr>
           </thead>
           <tbody>
@@ -622,20 +626,10 @@ function ModuleExpander({ mod, moduleRecords, staffNames, cycleStatus, handleUpl
                 <td className="px-3 py-2 text-xs hidden sm:table-cell">
                   <ExpiryLabel expiryDate={rec.expiryDate} renewalMonths={mod.renewalMonths} />
                 </td>
-                <td className="px-3 py-2">
-                  <EvidenceUploader
-                    recordId={rec.id}
-                    evidenceFileName={rec.evidenceFileName}
-                    evidenceFilePath={rec.evidenceFilePath}
-                    onUpload={handleUpload}
-                    onDelete={handleDeleteEvidence}
-                    uploading={uploading === rec.id}
-                  />
-                </td>
               </tr>
             ))}
             {moduleRecords.length === 0 && (
-              <tr><td colSpan={5} className="px-3 py-4 text-ec-t3 text-xs text-center">No staff assigned to this module</td></tr>
+              <tr><td colSpan={4} className="px-3 py-4 text-ec-t3 text-xs text-center">No staff assigned to this module</td></tr>
             )}
           </tbody>
         </table>
@@ -647,7 +641,6 @@ function ModuleExpander({ mod, moduleRecords, staffNames, cycleStatus, handleUpl
 // ─── MatrixView ──────────────────────────────────────────────────
 
 function MatrixView({ modules, effectiveRecords, staffNames, cycleStatus }) {
-  // Group modules by category
   const grouped = useMemo(() => {
     const g = {}
     for (const cat of Object.keys(CATEGORIES)) g[cat] = []
@@ -657,11 +650,10 @@ function MatrixView({ modules, effectiveRecords, staffNames, cycleStatus }) {
     return g
   }, [modules])
 
-  // Build lookup: moduleId+staffId → record
   const lookup = useMemo(() => {
     const map = {}
     effectiveRecords.forEach(r => {
-      map[`${r.moduleId}|${r.staffId}`] = r
+      map[`${r.moduleName}|${r.staffId}`] = r
     })
     return map
   }, [effectiveRecords])
@@ -706,8 +698,8 @@ function MatrixView({ modules, effectiveRecords, staffNames, cycleStatus }) {
                     </div>
                   </td>
                   {staffNames.map(staff => {
-                    const rec = lookup[`${mod.id}|${staff}`]
-                    if (!rec) return <td key={staff} className="px-2 py-1.5 text-center border-b border-ec-div">—</td>
+                    const rec = lookup[`${mod.name}|${staff}`]
+                    if (!rec) return <td key={staff} className="px-2 py-1.5 text-center border-b border-ec-div"><span className="text-ec-t3">—</span></td>
                     const sc = STATUS_COLORS[rec.status] || STATUS_COLORS.pending
                     return (
                       <td key={staff} className="px-2 py-1.5 text-center border-b border-ec-div">
@@ -746,7 +738,6 @@ function MatrixView({ modules, effectiveRecords, staffNames, cycleStatus }) {
 function ByStaffView({
   modules, effectiveRecords, staffNames, staffProgress,
   selectedStaff, setSelectedStaff, cycleStatus,
-  handleUpload, handleDeleteEvidence, uploading,
 }) {
   const staff = selectedStaff || staffNames[0] || ''
   const sp = staffProgress.find(s => s.name === staff)
@@ -765,8 +756,7 @@ function ByStaffView({
 
   return (
     <div>
-      {/* Staff selector */}
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex items-center gap-3 mb-4 flex-wrap">
         <select
           className={inputClass + ' !w-auto'}
           value={staff}
@@ -787,7 +777,6 @@ function ByStaffView({
         )}
       </div>
 
-      {/* Modules grouped by category */}
       {Object.entries(grouped).map(([catKey, recs]) => {
         if (recs.length === 0) return null
         const cat = CATEGORIES[catKey]
@@ -799,7 +788,7 @@ function ByStaffView({
             </div>
             <div className="space-y-1">
               {recs.map(rec => {
-                const mod = modules.find(m => m.id === rec.moduleId)
+                const mod = MODULE_BY_NAME[rec.moduleName]
                 return (
                   <div
                     key={rec.id}
@@ -824,15 +813,6 @@ function ByStaffView({
                     </div>
 
                     <StatusBadge status={rec.status} onClick={() => cycleStatus(rec.id)} />
-
-                    <EvidenceUploader
-                      recordId={rec.id}
-                      evidenceFileName={rec.evidenceFileName}
-                      evidenceFilePath={rec.evidenceFilePath}
-                      onUpload={handleUpload}
-                      onDelete={handleDeleteEvidence}
-                      uploading={uploading === rec.id}
-                    />
                   </div>
                 )
               })}
@@ -880,69 +860,4 @@ function ExpiryLabel({ expiryDate, renewalMonths }) {
     return <span className="text-xs font-semibold" style={{ color: '#f59e0b' }}>Expires {formatDate(expiryDate)}</span>
   }
   return <span className="text-xs text-ec-t3">{formatDate(expiryDate)}</span>
-}
-
-function EvidenceUploader({ recordId, evidenceFileName, evidenceFilePath, onUpload, onDelete, uploading }) {
-  const fileRef = useRef(null)
-
-  if (evidenceFilePath) {
-    return (
-      <div className="flex items-center gap-1.5">
-        <a
-          href={evidenceFilePath}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs text-ec-em hover:underline truncate max-w-[100px]"
-          title={evidenceFileName}
-        >
-          {evidenceFileName}
-        </a>
-        <button
-          className="text-ec-t3 hover:text-ec-crit transition-colors border-none bg-transparent cursor-pointer p-0"
-          onClick={() => onDelete(recordId)}
-          title="Remove evidence"
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-      </div>
-    )
-  }
-
-  return (
-    <div>
-      <input
-        ref={fileRef}
-        type="file"
-        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-        className="hidden"
-        onChange={e => {
-          if (e.target.files[0]) onUpload(recordId, e.target.files[0])
-          e.target.value = ''
-        }}
-      />
-      <button
-        className={`${btnSecondary} text-[11px] px-2 py-1 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
-        onClick={() => fileRef.current?.click()}
-        disabled={uploading}
-      >
-        {uploading ? (
-          <span className="flex items-center gap-1">
-            <svg className="animate-spin" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10" strokeDasharray="56" strokeDashoffset="14" />
-            </svg>
-            Uploading...
-          </span>
-        ) : (
-          <span className="flex items-center gap-1">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
-            </svg>
-            Upload
-          </span>
-        )}
-      </button>
-    </div>
-  )
 }
