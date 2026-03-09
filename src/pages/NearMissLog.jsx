@@ -105,6 +105,27 @@ const emptyForm = {
   status: 'Open',
 }
 
+// ─── Form Prompt Suggestions ─────────────────────────────────────
+const DESCRIPTION_PROMPTS = [
+  'What medication was involved?',
+  'What was the error?',
+  'At what stage? (dispensing, checking, labelling, handout)',
+  'How was it caught before reaching the patient?',
+  'Was the patient affected in any way?',
+  'What would have happened if not caught?',
+]
+
+const LEARNING_PROMPTS = [
+  'Team briefed on this incident',
+  'SOP reviewed and updated',
+  'Shelf/storage rearranged to separate similar items',
+  'Additional checking step introduced',
+  'Staff retraining completed',
+  'Prescription handling process changed',
+  'PMR/labelling system updated',
+  'Escalated to Superintendent Pharmacist',
+]
+
 // ─── Shared Classes ───────────────────────────────────────────────
 const inputClass =
   'w-full bg-white/60 dark:bg-white/5 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-ec-t1 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-gray-400 font-sans'
@@ -125,6 +146,42 @@ function getInitials(name) {
 function parseStaffList(str) {
   if (!str) return []
   return str.split(',').map((s) => s.trim()).filter(Boolean)
+}
+
+// ─── Prompt Chips ─────────────────────────────────────────────────
+
+function PromptChips({ prompts, currentValue, onAppend, mode = 'question' }) {
+  return (
+    <div className="flex flex-wrap gap-1.5 mt-1.5">
+      {prompts.map((prompt) => {
+        const alreadyUsed = currentValue.toLowerCase().includes(prompt.toLowerCase().slice(0, 20))
+        return (
+          <button
+            key={prompt}
+            type="button"
+            onClick={() => {
+              if (alreadyUsed) return
+              const prefix = currentValue.trim()
+              const sep = mode === 'question'
+                ? (prefix ? '\n' : '')
+                : (prefix ? '\n• ' : '• ')
+              onAppend(prefix + sep + prompt)
+            }}
+            className="px-2 py-0.5 rounded-full text-[11px] font-medium cursor-pointer border transition-all"
+            style={{
+              backgroundColor: alreadyUsed ? 'rgba(22,163,74,0.08)' : 'transparent',
+              borderColor: alreadyUsed ? 'rgba(22,163,74,0.20)' : 'var(--ec-border)',
+              color: alreadyUsed ? PRIMARY : 'var(--ec-t3)',
+              opacity: alreadyUsed ? 0.6 : 1,
+            }}
+            title={alreadyUsed ? 'Already included' : `Add: ${prompt}`}
+          >
+            {alreadyUsed ? '✓ ' : '+ '}{prompt}
+          </button>
+        )
+      })}
+    </div>
+  )
 }
 
 // ─── Badge Components ─────────────────────────────────────────────
@@ -1059,7 +1116,7 @@ export default function NearMissLog() {
             </div>
           </div>
 
-          {/* Description (full-width) */}
+          {/* Description (full-width) + prompt chips */}
           <div>
             <label className="text-xs font-semibold text-ec-t2 mb-1.5 block">Description *</label>
             <textarea
@@ -1071,6 +1128,13 @@ export default function NearMissLog() {
               required
             />
             {formErrors.description && <p className="text-xs text-red-500 mt-1">{formErrors.description}</p>}
+            <p className="text-[10px] text-ec-t3 mt-1 mb-0.5">Tap to add prompts:</p>
+            <PromptChips
+              prompts={DESCRIPTION_PROMPTS}
+              currentValue={form.description}
+              onAppend={(val) => updateDirect('description', val)}
+              mode="question"
+            />
           </div>
 
           {/* Who Involved (pill selector) */}
@@ -1096,7 +1160,7 @@ export default function NearMissLog() {
             />
           </div>
 
-          {/* Learning Action (full-width) */}
+          {/* Learning Action (full-width) + prompt chips */}
           <div>
             <label className="text-xs font-semibold text-ec-t2 mb-1.5 block">Learning Action</label>
             <textarea
@@ -1105,6 +1169,13 @@ export default function NearMissLog() {
               value={form.learningAction}
               onChange={update('learningAction')}
               rows={2}
+            />
+            <p className="text-[10px] text-ec-t3 mt-1 mb-0.5">Tap to add actions taken:</p>
+            <PromptChips
+              prompts={LEARNING_PROMPTS}
+              currentValue={form.learningAction}
+              onAppend={(val) => updateDirect('learningAction', val)}
+              mode="action"
             />
           </div>
 
