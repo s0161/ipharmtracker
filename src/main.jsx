@@ -7,8 +7,8 @@ import { seedIfNeeded, cleanupOldLocalStorage, cleanupStaleData } from './utils/
 import './index.css'
 
 cleanupOldLocalStorage()
-cleanupStaleData()
-seedIfNeeded()
+cleanupStaleData().catch(() => {})
+seedIfNeeded().catch(() => {})
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

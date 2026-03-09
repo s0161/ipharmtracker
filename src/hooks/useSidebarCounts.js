@@ -18,15 +18,21 @@ async function fetchCounts() {
   const counts = emptyCounts()
   const prefs = JSON.parse(localStorage.getItem('ipd_notification_prefs') || '{}')
 
-  const [docsRes, staffRes, tasksRes, entriesRes, tempRes, staffTasksRes, sgConcernsRes] = await Promise.all([
-    supabase.from('documents').select('expiry_date'),
-    supabase.from('staff_training').select('status, target_date'),
-    supabase.from('cleaning_tasks').select('name, frequency'),
-    supabase.from('cleaning_entries').select('task_name, date_time'),
-    supabase.from('fridge_temperature_logs').select('date'),
-    supabase.from('staff_tasks').select('status, due_date'),
-    supabase.from('safeguarding_concerns').select('status'),
-  ])
+  let docsRes, staffRes, tasksRes, entriesRes, tempRes, staffTasksRes, sgConcernsRes
+  try {
+    ;[docsRes, staffRes, tasksRes, entriesRes, tempRes, staffTasksRes, sgConcernsRes] = await Promise.all([
+      supabase.from('documents').select('expiry_date'),
+      supabase.from('staff_training').select('status, target_date'),
+      supabase.from('cleaning_tasks').select('name, frequency'),
+      supabase.from('cleaning_entries').select('task_name, date_time'),
+      supabase.from('fridge_temperature_logs').select('date'),
+      supabase.from('staff_tasks').select('status, due_date'),
+      supabase.from('safeguarding_concerns').select('status'),
+    ])
+  } catch (e) {
+    console.error('Failed to fetch sidebar counts:', e)
+    return counts
+  }
 
   if (docsRes.data) {
     docsRes.data.forEach((d) => {
@@ -110,8 +116,8 @@ export function useSidebarCounts() {
   const [counts, setCounts] = useState(emptyCounts)
 
   useEffect(() => {
-    fetchCounts().then(setCounts)
-    const id = setInterval(() => fetchCounts().then(setCounts), 30000)
+    fetchCounts().then(setCounts).catch(() => {})
+    const id = setInterval(() => fetchCounts().then(setCounts).catch(() => {}), 30000)
     return () => clearInterval(id)
   }, [])
 
