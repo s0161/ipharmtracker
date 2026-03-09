@@ -49,6 +49,7 @@ const sections = [
       { to: '/cleaning', label: 'Cleaning Rota', icon: 'spark', shortcut: 'C' },
       { to: '/documents', label: 'Renewals', icon: 'file' },
       { to: '/incidents', label: 'Incidents', icon: 'alertTri' },
+      { to: '/cd-register', label: 'CD Register', icon: 'file', badge: 'soon' },
     ],
   },
   {
@@ -168,7 +169,11 @@ export default function Sidebar({ open, onClose }) {
                       <>
                         <NI name={item.icon} color={isActive ? 'var(--ec-t1)' : 'var(--ec-z6)'} />
                         <span className="flex-1">{item.label}</span>
-                        {total > 0 && (
+                        {item.badge === 'soon' ? (
+                          <span className="bg-amber-500/10 text-amber-500 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                            Soon
+                          </span>
+                        ) : total > 0 && (
                           <span
                             className={`text-[10px] font-bold px-1.5 py-px rounded-lg min-w-[18px] text-center
                               ${badgeType === 'red'

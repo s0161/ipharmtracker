@@ -17,6 +17,7 @@ import Safeguarding from './pages/Safeguarding'
 import NearMissLog from './pages/NearMissLog'
 import ComplianceReport from './pages/ComplianceReport'
 import Analytics from './pages/Analytics'
+import CDRegister from './pages/CDRegister'
 import Login, { isAuthenticated } from './pages/Login'
 import PinSelect from './pages/PinSelect'
 import { UserProvider, useUser } from './contexts/UserContext'
@@ -50,6 +51,7 @@ function AuthedApp() {
             <Route path="/compliance-report" element={<RouteErrorBoundary><ComplianceReport /></RouteErrorBoundary>} />
             <Route path="/analytics" element={<RouteErrorBoundary><Analytics /></RouteErrorBoundary>} />
             <Route path="/audit-log" element={<RouteErrorBoundary><AuditLog /></RouteErrorBoundary>} />
+            <Route path="/cd-register" element={<RouteErrorBoundary><CDRegister /></RouteErrorBoundary>} />
           </Routes>
         </Layout>
       } />
