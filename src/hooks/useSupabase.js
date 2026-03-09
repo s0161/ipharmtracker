@@ -73,23 +73,31 @@ export function useSupabase(table, initialValue = [], options = {}) {
           setLoading(false)
           return
         }
-        applyRows(rows)
+        applyRows(rows ?? [])
         setLoading(false)
+      })
+      .catch(() => {
+        if (!cancelled) setLoading(false)
       })
 
     // Realtime subscription — re-fetch on any change
-    const channel = supabase
-      .channel(`${table}-changes`)
-      .on('postgres_changes', { event: '*', schema: 'public', table }, () => {
-        supabase.from(table).select('*').then(({ data: rows, error }) => {
-          if (!error && rows) applyRows(rows)
+    let channel
+    try {
+      channel = supabase
+        .channel(`${table}-changes`)
+        .on('postgres_changes', { event: '*', schema: 'public', table }, () => {
+          supabase.from(table).select('*').then(({ data: rows, error }) => {
+            if (!error && rows) applyRows(rows)
+          }).catch(() => {})
         })
-      })
-      .subscribe()
+        .subscribe()
+    } catch (e) {
+      console.error(`[useSupabase] Realtime subscription failed for "${table}":`, e)
+    }
 
     return () => {
       cancelled = true
-      supabase.removeChannel(channel)
+      if (channel) supabase.removeChannel(channel)
     }
   }, [table, applyRows])
 
