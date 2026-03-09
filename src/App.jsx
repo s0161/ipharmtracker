@@ -21,6 +21,7 @@ import Login, { isAuthenticated } from './pages/Login'
 import PinSelect from './pages/PinSelect'
 import { UserProvider, useUser } from './contexts/UserContext'
 import ErrorBoundary from './components/ErrorBoundary'
+import RouteErrorBoundary from './components/RouteErrorBoundary'
 
 function AuthedApp() {
   const { user } = useUser()
@@ -34,22 +35,21 @@ function AuthedApp() {
       <Route path="*" element={
         <Layout>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/my-tasks" element={<MyTasks />} />
-            <Route path="/rp-log" element={<RPLog />} />
-            <Route path="/training" element={<TrainingLogs />} />
-            <Route path="/cleaning" element={<CleaningRota />} />
-            <Route path="/documents" element={<Renewals />} />
-            <Route path="/staff-training" element={<StaffTraining />} />
-
-            <Route path="/temperature" element={<TemperatureLog />} />
-            <Route path="/incidents" element={<Incidents />} />
-            <Route path="/near-misses" element={<NearMissLog />} />
-            <Route path="/safeguarding" element={<Safeguarding />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/compliance-report" element={<ComplianceReport />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/audit-log" element={<AuditLog />} />
+            <Route path="/" element={<RouteErrorBoundary><Dashboard /></RouteErrorBoundary>} />
+            <Route path="/my-tasks" element={<RouteErrorBoundary><MyTasks /></RouteErrorBoundary>} />
+            <Route path="/rp-log" element={<RouteErrorBoundary><RPLog /></RouteErrorBoundary>} />
+            <Route path="/training" element={<RouteErrorBoundary><TrainingLogs /></RouteErrorBoundary>} />
+            <Route path="/cleaning" element={<RouteErrorBoundary><CleaningRota /></RouteErrorBoundary>} />
+            <Route path="/documents" element={<RouteErrorBoundary><Renewals /></RouteErrorBoundary>} />
+            <Route path="/staff-training" element={<RouteErrorBoundary><StaffTraining /></RouteErrorBoundary>} />
+            <Route path="/temperature" element={<RouteErrorBoundary><TemperatureLog /></RouteErrorBoundary>} />
+            <Route path="/incidents" element={<RouteErrorBoundary><Incidents /></RouteErrorBoundary>} />
+            <Route path="/near-misses" element={<RouteErrorBoundary><NearMissLog /></RouteErrorBoundary>} />
+            <Route path="/safeguarding" element={<RouteErrorBoundary><Safeguarding /></RouteErrorBoundary>} />
+            <Route path="/settings" element={<RouteErrorBoundary><Settings /></RouteErrorBoundary>} />
+            <Route path="/compliance-report" element={<RouteErrorBoundary><ComplianceReport /></RouteErrorBoundary>} />
+            <Route path="/analytics" element={<RouteErrorBoundary><Analytics /></RouteErrorBoundary>} />
+            <Route path="/audit-log" element={<RouteErrorBoundary><AuditLog /></RouteErrorBoundary>} />
           </Routes>
         </Layout>
       } />
