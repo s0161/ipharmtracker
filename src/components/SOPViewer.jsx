@@ -10,6 +10,10 @@ const CATEGORY_STYLES = {
   'HR & Training': 'bg-pink-500/10 text-pink-600 dark:text-pink-400',
   Facilities: 'bg-slate-500/10 text-slate-600 dark:text-slate-400',
   Delivery: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400',
+  'IT & Systems': 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400',
+  'NHS Services': 'bg-green-500/10 text-green-600 dark:text-green-400',
+  'Controlled Stationery': 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400',
+  'Internet Pharmacy': 'bg-violet-500/10 text-violet-600 dark:text-violet-400',
 }
 
 const STATUS_STYLES = {
