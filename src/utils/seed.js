@@ -3,7 +3,7 @@ import { generateId } from './helpers'
 import DUMMY_SOPS from '../data/sopData'
 import INDUCTION_MODULES from '../data/inductionModules'
 
-const SEED_KEY = 'ipd_seeded_v38'
+const SEED_KEY = 'ipd_seeded_v39'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -13,7 +13,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
   'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13', 'ipd_seeded_v14', 'ipd_seeded_v15', 'ipd_seeded_v16',
   'ipd_seeded_v17', 'ipd_seeded_v18', 'ipd_seeded_v19', 'ipd_seeded_v20', 'ipd_seeded_v21', 'ipd_seeded_v22',
-  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28', 'ipd_seeded_v29', 'ipd_seeded_v30', 'ipd_seeded_v31', 'ipd_seeded_v32', 'ipd_seeded_v33', 'ipd_seeded_v34', 'ipd_seeded_v35', 'ipd_seeded_v36', 'ipd_seeded_v37',
+  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28', 'ipd_seeded_v29', 'ipd_seeded_v30', 'ipd_seeded_v31', 'ipd_seeded_v32', 'ipd_seeded_v33', 'ipd_seeded_v34', 'ipd_seeded_v35', 'ipd_seeded_v36', 'ipd_seeded_v37', 'ipd_seeded_v38',
 ]
 
 // ─── SOP conversion helpers ───
@@ -895,6 +895,136 @@ export async function seedIfNeeded() {
     }
   } else {
     console.warn('[seed] Induction tables not yet created — skipping. Run create-induction-tables.sql first.')
+  }
+
+  // ─── Staff Appraisals ───
+  const { error: apprCheck } = await supabase.from('appraisals').select('id').limit(1)
+  if (!apprCheck) {
+    // Tables exist — seed appraisal data
+    await supabase.from('peer_feedback_responses').delete().not('id', 'is', null)
+    await supabase.from('peer_feedback_requests').delete().not('id', 'is', null)
+    await supabase.from('appraisal_actions').delete().not('id', 'is', null)
+    await supabase.from('appraisal_goals').delete().not('id', 'is', null)
+    await supabase.from('appraisal_ratings').delete().not('id', 'is', null)
+    await supabase.from('appraisals').delete().not('id', 'is', null)
+    await supabase.from('appraisal_templates').delete().not('id', 'is', null)
+
+    // Seed templates
+    const templates = [
+      { id: generateId(), name: 'Annual Appraisal', appraisal_type: 'Annual', competencies: JSON.stringify(['clinical_knowledge','dispensing_accuracy','communication','teamwork','sop_adherence','time_management','professionalism','patient_safety']), suggested_goals: JSON.stringify(['Complete all mandatory training modules by next review','Identify one area for professional development','Contribute to at least one pharmacy improvement initiative']) },
+      { id: generateId(), name: 'Probation Review', appraisal_type: 'Probation Review', competencies: JSON.stringify(['clinical_knowledge','dispensing_accuracy','communication','teamwork','sop_adherence','time_management','professionalism','patient_safety']), suggested_goals: JSON.stringify(['Complete all induction modules within probation period','Demonstrate competency in core dispensing tasks','Build effective working relationships with all team members']) },
+      { id: generateId(), name: 'Performance Improvement Plan', appraisal_type: 'Performance Improvement', competencies: JSON.stringify(['clinical_knowledge','dispensing_accuracy','communication','teamwork','sop_adherence','time_management','professionalism','patient_safety']), suggested_goals: JSON.stringify(['Address identified areas of concern within 4 weeks','Attend relevant training sessions as agreed','Achieve satisfactory rating in follow-up review']) },
+    ]
+    await supabase.from('appraisal_templates').insert(templates)
+
+    // Appraisal 1: Jamila Adwan — Annual, Acknowledged
+    const appr1Id = generateId()
+    // Appraisal 2: Marian Hadaway — 6-Month, Completed
+    const appr2Id = generateId()
+    // Appraisal 3: Sadaf Subhani — Probation Review, Draft
+    const appr3Id = generateId()
+
+    await supabase.from('appraisals').insert([
+      {
+        id: appr1Id,
+        staff_name: 'Jamila Adwan',
+        conducted_by: 'Amjid Shakoor',
+        appraisal_date: '2024-11-15',
+        appraisal_type: 'Annual',
+        status: 'Acknowledged',
+        overall_rating: 4,
+        summary: 'Jamila has had an excellent year. She consistently demonstrates strong clinical knowledge and dispensing accuracy. Her dedication to completing all induction modules is commendable.',
+        strengths: 'Thorough and methodical in dispensing processes. Excellent attention to detail with labelling and checking. Always willing to help colleagues and share knowledge. Completed all 12 induction modules with high scores.',
+        areas_for_development: 'Could be more confident in dealing with patient queries independently. Time management during peak hours could improve. Would benefit from taking on more responsibility for stock management.',
+        staff_comments: 'Thank you for the thorough review. I agree with the development areas and will work on my confidence with patient-facing tasks.',
+        staff_acknowledged: true,
+        staff_acknowledged_at: '2024-11-20T10:30:00Z',
+        next_appraisal_date: '2025-11-15',
+        is_confidential: false,
+      },
+      {
+        id: appr2Id,
+        staff_name: 'Marian Hadaway',
+        conducted_by: 'Amjid Shakoor',
+        appraisal_date: '2024-09-01',
+        appraisal_type: '6-Month',
+        status: 'Completed',
+        overall_rating: 3,
+        summary: 'Marian is settling into her role well. She has made good progress in stock management but needs to improve her understanding of dispensing processes and SOP adherence.',
+        strengths: 'Reliable and punctual. Good organisational skills for stock management. Positive attitude and willingness to learn.',
+        areas_for_development: 'Needs to complete remaining induction modules. Should improve understanding of dispensing accuracy checks. SOPs need more consistent following.',
+        staff_comments: null,
+        staff_acknowledged: false,
+        staff_acknowledged_at: null,
+        next_appraisal_date: '2025-03-01',
+        is_confidential: false,
+      },
+      {
+        id: appr3Id,
+        staff_name: 'Sadaf Subhani',
+        conducted_by: 'Salma Shakoor',
+        appraisal_date: '2025-01-10',
+        appraisal_type: 'Probation Review',
+        status: 'Draft',
+        overall_rating: null,
+        summary: null,
+        strengths: null,
+        areas_for_development: null,
+        staff_comments: null,
+        staff_acknowledged: false,
+        staff_acknowledged_at: null,
+        next_appraisal_date: null,
+        is_confidential: false,
+      },
+    ])
+
+    // Competency ratings for Jamila (appr1)
+    const jamRatings = [
+      { competency: 'clinical_knowledge', rating: 4, comment: 'Strong understanding of medicines and interactions' },
+      { competency: 'dispensing_accuracy', rating: 5, comment: 'Consistently accurate, minimal errors recorded' },
+      { competency: 'communication', rating: 3, comment: 'Good with colleagues, could be more confident with patients' },
+      { competency: 'teamwork', rating: 4, comment: 'Always willing to support others' },
+      { competency: 'sop_adherence', rating: 4, comment: 'Follows procedures consistently' },
+      { competency: 'time_management', rating: 3, comment: 'Can struggle during peak dispensing hours' },
+      { competency: 'professionalism', rating: 5, comment: 'Exemplary conduct and appearance' },
+      { competency: 'patient_safety', rating: 4, comment: 'Good awareness and reporting of near misses' },
+    ]
+    await supabase.from('appraisal_ratings').insert(
+      jamRatings.map(r => ({ id: generateId(), appraisal_id: appr1Id, ...r }))
+    )
+
+    // Goals for Jamila
+    await supabase.from('appraisal_goals').insert([
+      { id: generateId(), appraisal_id: appr1Id, goal_text: 'Complete MUR accreditation training', target_date: '2025-03-31', status: 'Completed', progress_notes: 'Completed online course in January 2025. Certificate filed.' },
+      { id: generateId(), appraisal_id: appr1Id, goal_text: 'Shadow pharmacist on 10 patient consultations', target_date: '2025-06-30', status: 'Completed', progress_notes: 'Completed 12 shadowing sessions by April 2025.' },
+      { id: generateId(), appraisal_id: appr1Id, goal_text: 'Lead stock take process independently', target_date: '2025-09-30', status: 'In Progress', progress_notes: 'Has assisted with 2 stock takes so far. On track.' },
+    ])
+
+    // Actions for Marian (appr2) — 2 outstanding
+    await supabase.from('appraisal_actions').insert([
+      { id: generateId(), appraisal_id: appr2Id, action_text: 'Complete induction modules IND-003 to IND-008', owner: 'Marian Hadaway', due_date: '2025-01-15', completed: false },
+      { id: generateId(), appraisal_id: appr2Id, action_text: 'Attend dispensing accuracy workshop', owner: 'Marian Hadaway', due_date: '2025-02-01', completed: false },
+    ])
+
+    // Peer feedback for Jamila (from Moniba and Sadaf)
+    const fb1Id = generateId()
+    const fb2Id = generateId()
+    await supabase.from('peer_feedback_requests').insert([
+      { id: fb1Id, appraisal_id: appr1Id, requested_from: 'Moniba Jamil', submitted: true, submitted_at: '2024-11-18T14:00:00Z' },
+      { id: fb2Id, appraisal_id: appr1Id, requested_from: 'Sadaf Subhani', submitted: true, submitted_at: '2024-11-19T09:30:00Z' },
+    ])
+    await supabase.from('peer_feedback_responses').insert([
+      { id: generateId(), request_id: fb1Id, question_index: 0, response: 'Jamila is very thorough and always double-checks her work. She is a great team player.' },
+      { id: generateId(), request_id: fb1Id, question_index: 1, response: 'She could speak up more in team meetings and share her ideas.' },
+      { id: generateId(), request_id: fb1Id, question_index: 2, response: 'Very well — she is always ready to help and cover for colleagues.' },
+      { id: generateId(), request_id: fb2Id, question_index: 0, response: 'Excellent accuracy and attention to detail in dispensing.' },
+      { id: generateId(), request_id: fb2Id, question_index: 1, response: 'Could improve confidence when handling patient queries at the counter.' },
+      { id: generateId(), request_id: fb2Id, question_index: 2, response: 'She fits in brilliantly with the team. Always positive and supportive.' },
+    ])
+
+    console.log('[seed] Seeded 3 appraisals, 3 templates, ratings, goals, actions, and peer feedback')
+  } else {
+    console.warn('[seed] Appraisal tables not yet created — skipping. Run create-appraisal-tables.sql first.')
   }
 
   localStorage.setItem(SEED_KEY, 'true')
