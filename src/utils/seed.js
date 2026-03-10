@@ -16,10 +16,6 @@ const ORPHANED_KEYS = [
 
 export function cleanupOldLocalStorage() {
   ORPHANED_KEYS.forEach((k) => localStorage.removeItem(k))
-  // Reset theme to light if stuck on old dark default
-  if (localStorage.getItem('ipd_theme') === 'dark') {
-    localStorage.removeItem('ipd_theme')
-  }
 }
 
 // Remove renamed/stale tasks that may linger from broken earlier seeds
