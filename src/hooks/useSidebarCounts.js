@@ -11,7 +11,6 @@ function emptyCounts() {
     '/temperature': { red: 0, amber: 0 },
     '/my-tasks': { red: 0, amber: 0 },
     '/safeguarding': { red: 0, amber: 0 },
-    '/sop-library': { red: 0, amber: 0 },
   }
 }
 
@@ -19,9 +18,9 @@ async function fetchCounts() {
   const counts = emptyCounts()
   const prefs = JSON.parse(localStorage.getItem('ipd_notification_prefs') || '{}')
 
-  let docsRes, staffRes, tasksRes, entriesRes, tempRes, staffTasksRes, sgConcernsRes, sopsRes
+  let docsRes, staffRes, tasksRes, entriesRes, tempRes, staffTasksRes, sgConcernsRes
   try {
-    ;[docsRes, staffRes, tasksRes, entriesRes, tempRes, staffTasksRes, sgConcernsRes, sopsRes] = await Promise.all([
+    ;[docsRes, staffRes, tasksRes, entriesRes, tempRes, staffTasksRes, sgConcernsRes] = await Promise.all([
       supabase.from('documents').select('expiry_date'),
       supabase.from('staff_training').select('status, target_date'),
       supabase.from('cleaning_tasks').select('name, frequency'),
@@ -29,7 +28,6 @@ async function fetchCounts() {
       supabase.from('fridge_temperature_logs').select('date'),
       supabase.from('staff_tasks').select('status, due_date'),
       supabase.from('safeguarding_concerns').select('status'),
-      supabase.from('sops').select('review_date'),
     ])
   } catch (e) {
     console.error('Failed to fetch sidebar counts:', e)
@@ -100,21 +98,6 @@ async function fetchCounts() {
     sgConcernsRes.data.forEach((c) => {
       if (c.status === 'open') counts['/safeguarding'].amber++
       if (c.status === 'referred') counts['/safeguarding'].red++
-    })
-  }
-
-  // SOP review dates: overdue = red, within 90 days = amber
-  if (sopsRes.data) {
-    const todayStr = new Date().toISOString().slice(0, 10)
-    sopsRes.data.forEach((s) => {
-      if (!s.review_date) return
-      if (s.review_date < todayStr) {
-        counts['/sop-library'].red++
-      } else {
-        const diffMs = new Date(s.review_date) - new Date(todayStr)
-        const days = Math.ceil(diffMs / (1000 * 60 * 60 * 24))
-        if (days <= 90) counts['/sop-library'].amber++
-      }
     })
   }
 
