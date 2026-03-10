@@ -1,7 +1,9 @@
 import { useState, useMemo } from 'react'
 import { useToast } from '../components/Toast'
+import { useUser } from '../contexts/UserContext'
+import { useSOPData } from '../hooks/useSOPData'
 import SOPViewer from '../components/SOPViewer'
-import DUMMY_SOPS from '../data/sopData'
+import { STAFF_ROLES } from '../utils/taskEngine'
 
 // ─── CONSTANTS ───
 const CATEGORY_TABS = ['All', 'Dispensing', 'CD', 'Clinical', 'Governance', 'H&S', 'HR & Training', 'Facilities', 'Delivery', 'IT & Systems', 'NHS Services', 'Controlled Stationery', 'Internet Pharmacy']
@@ -25,6 +27,13 @@ const STATUS_STYLES = {
   Current: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
   'Due Review': 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
   Overdue: 'bg-red-500/10 text-red-600 dark:text-red-400',
+}
+
+const RISK_BADGE = {
+  Critical: 'bg-red-600/10 text-red-600 dark:text-red-400',
+  High: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+  Medium: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400',
+  Low: 'bg-slate-500/10 text-slate-500 dark:text-slate-400',
 }
 
 const ROLE_TABS = ['All Roles', 'Pharmacist', 'Technician', 'Dispenser', 'ACA', 'Driver', 'Stock', 'All Staff']
@@ -52,6 +61,11 @@ const ROLE_DISPLAY = {
   driver: 'Driver',
 }
 
+function getRelevantStaffCount(roles) {
+  if (!roles || roles.length === 0) return Object.keys(STAFF_ROLES).length
+  if (roles.includes('all')) return Object.keys(STAFF_ROLES).length
+  return Object.entries(STAFF_ROLES).filter(([, role]) => roles.includes(role)).length
+}
 
 // ─── STAT ICONS ───
 function StatIcon({ name, color }) {
@@ -72,50 +86,99 @@ function StatIcon({ name, color }) {
   )
 }
 
+// ─── LOADING SKELETON ───
+function CardSkeleton() {
+  return (
+    <div className="bg-ec-card border border-ec-border rounded-xl p-4 animate-pulse">
+      <div className="flex gap-1.5 mb-2">
+        <div className="h-4 w-16 bg-ec-border rounded-full" />
+        <div className="h-4 w-14 bg-ec-border rounded-full" />
+      </div>
+      <div className="h-3 w-20 bg-ec-border rounded mb-2" />
+      <div className="h-4 w-3/4 bg-ec-border rounded mb-3" />
+      <div className="h-1.5 w-full bg-ec-border rounded-full mb-3" />
+      <div className="flex gap-2">
+        <div className="flex-1 h-7 bg-ec-border rounded-lg" />
+        <div className="flex-1 h-7 bg-ec-border rounded-lg" />
+      </div>
+    </div>
+  )
+}
+
 // ─── MAIN COMPONENT ───
 export default function SOPLibrary() {
   const showToast = useToast()
+  const { user } = useUser()
+  const { sops, acksBySop, loading, acknowledge, flagForReview } = useSOPData()
+
   const [search, setSearch] = useState('')
   const [activeTab, setActiveTab] = useState('All')
   const [activeRole, setActiveRole] = useState('All Roles')
   const [selectedSop, setSelectedSop] = useState(null)
-  const [bannerVisible, setBannerVisible] = useState(() => {
-    return localStorage.getItem('sop_banner_dismissed') !== 'true'
-  })
 
-  const dismissBanner = () => {
-    setBannerVisible(false)
-    localStorage.setItem('sop_banner_dismissed', 'true')
-  }
-
-  // Dynamic stats
+  // Dynamic stats from live data
   const stats = useMemo(() => {
-    const total = DUMMY_SOPS.length
-    const acknowledged = DUMMY_SOPS.filter(s => s.acked >= 10).length
-    const overdue = DUMMY_SOPS.filter(s => s.status === 'Overdue').length
-    const avgCoverage = DUMMY_SOPS.reduce((sum, s) => sum + (s.acked / 13), 0) / total
+    const total = sops.length
+    if (total === 0) return [
+      { label: 'Total SOPs', value: '—', icon: 'book', color: 'emerald' },
+      { label: 'Fully Ack\'d', value: '—', icon: 'check', color: 'blue' },
+      { label: 'Overdue Review', value: '—', icon: 'alert', color: 'amber' },
+      { label: 'Coverage', value: '—', icon: 'chart', color: 'emerald' },
+    ]
+    const fullyAcked = sops.filter(s => {
+      const relevant = getRelevantStaffCount(s.roles)
+      const acked = (acksBySop[s.id] || []).length
+      return acked >= relevant
+    }).length
+    const overdue = sops.filter(s => s.status === 'Overdue').length
+    const avgCoverage = sops.reduce((sum, s) => {
+      const relevant = getRelevantStaffCount(s.roles)
+      const acked = Math.min((acksBySop[s.id] || []).length, relevant)
+      return sum + (relevant > 0 ? acked / relevant : 0)
+    }, 0) / total
     return [
       { label: 'Total SOPs', value: String(total), icon: 'book', color: 'emerald' },
-      { label: 'Acknowledged', value: String(acknowledged), icon: 'check', color: 'blue' },
+      { label: 'Fully Ack\'d', value: String(fullyAcked), icon: 'check', color: 'blue' },
       { label: 'Overdue Review', value: String(overdue), icon: 'alert', color: 'amber' },
       { label: 'Coverage', value: Math.round(avgCoverage * 100) + '%', icon: 'chart', color: 'emerald' },
     ]
-  }, [])
+  }, [sops, acksBySop])
 
   // Filter SOPs
   const filtered = useMemo(() => {
     const roleKey = ROLE_TAB_MAP[activeRole]
-    return DUMMY_SOPS.filter(sop => {
+    return sops.filter(sop => {
       const matchesSearch = !search || sop.title.toLowerCase().includes(search.toLowerCase()) || sop.code.toLowerCase().includes(search.toLowerCase())
       const matchesTab = activeTab === 'All' || sop.category === activeTab
       const matchesRole = !roleKey
         ? true
         : roleKey === 'all'
-          ? sop.roles.includes('all')
-          : sop.roles.includes('all') || sop.roles.includes(roleKey)
+          ? (sop.roles || []).includes('all')
+          : (sop.roles || []).includes('all') || (sop.roles || []).includes(roleKey)
       return matchesSearch && matchesTab && matchesRole
     })
-  }, [search, activeTab, activeRole])
+  }, [sops, search, activeTab, activeRole])
+
+  const handleAcknowledge = async (sopId) => {
+    if (!user?.name) {
+      showToast('Please log in to acknowledge SOPs', 'error')
+      return
+    }
+    const existing = acksBySop[sopId] || []
+    if (existing.some(a => a.name === user.name)) {
+      showToast('You have already acknowledged this SOP', 'info')
+      return
+    }
+    const ok = await acknowledge(sopId, user.name)
+    if (ok) showToast('SOP acknowledged successfully!', 'success')
+    else showToast('Failed to acknowledge SOP', 'error')
+  }
+
+  const handleFlag = async (sopId, reason) => {
+    const ok = await flagForReview(sopId, reason)
+    if (ok) showToast('SOP flagged for review', 'success')
+    else showToast('Failed to flag SOP', 'error')
+  }
 
   return (
     <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-6 ec-fadeup">
@@ -124,39 +187,15 @@ export default function SOPLibrary() {
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-ec-t1 m-0">SOP Library</h1>
-            <span className="bg-amber-500/10 text-amber-600 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">
-              Preview
-            </span>
           </div>
           <p className="text-sm text-ec-t3 mt-1 mb-0">Standard Operating Procedures — view, acknowledge &amp; track compliance</p>
         </div>
       </div>
 
-      {/* Amber Banner */}
-      {bannerVisible && (
-        <div className="flex items-start gap-3 px-4 py-3 rounded-xl mb-5 border"
-          style={{ backgroundColor: '#fffbeb', borderColor: '#f59e0b', color: '#92400e' }}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0 mt-0.5">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
-          <div className="flex-1 text-sm">
-            <span className="font-semibold">Coming Soon — </span>
-            This is a preview of the SOP Library feature. The data shown is sample data for demonstration purposes only. Full functionality including acknowledgement tracking and inspection mode will be available in a future update.
-          </div>
-          <button onClick={dismissBanner}
-            className="bg-transparent border-none cursor-pointer text-lg leading-none p-0 shrink-0"
-            style={{ color: '#92400e' }} aria-label="Dismiss banner">
-            ✕
-          </button>
-        </div>
-      )}
-
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         {stats.map(card => (
-          <div key={card.label} className="bg-ec-card border border-ec-border rounded-xl p-4 relative overflow-hidden">
+          <div key={card.label} className="bg-ec-card border border-ec-border rounded-xl p-4">
             <div className="flex items-center gap-3">
               <StatIcon name={card.icon} color={card.color} />
               <div>
@@ -164,10 +203,6 @@ export default function SOPLibrary() {
                 <div className="text-xl font-bold text-ec-t1 mt-0.5">{card.value}</div>
               </div>
             </div>
-            {/* DUMMY watermark */}
-            <span className="absolute top-2 right-2 text-[8px] font-bold px-1.5 py-0.5 rounded-full border border-amber-400/30 text-amber-500/40 uppercase tracking-wider">
-              Dummy
-            </span>
           </div>
         ))}
       </div>
@@ -228,98 +263,116 @@ export default function SOPLibrary() {
 
       {/* SOP Card Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-        {filtered.length === 0 ? (
+        {loading ? (
+          Array.from({ length: 8 }).map((_, i) => <CardSkeleton key={i} />)
+        ) : filtered.length === 0 ? (
           <div className="col-span-full text-center py-12 text-ec-t3 text-sm">
             No SOPs match your filters
           </div>
         ) : (
-          filtered.map(sop => (
-            <div key={sop.id} className="bg-ec-card border border-ec-border rounded-xl p-4 relative overflow-hidden group hover:shadow-md transition-shadow">
-              {/* Category + Status badges */}
-              <div className="flex items-center gap-1.5 mb-2">
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${CATEGORY_STYLES[sop.category]}`}>
-                  {sop.category}
-                </span>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_STYLES[sop.status]}`}>
-                  {sop.status}
-                </span>
-              </div>
+          filtered.map(sop => {
+            const acks = acksBySop[sop.id] || []
+            const relevantCount = getRelevantStaffCount(sop.roles)
+            const ackCount = acks.length
+            const ackPct = relevantCount > 0 ? Math.round((ackCount / relevantCount) * 100) : 0
 
-              {/* Role badges */}
-              <div className="flex flex-wrap gap-1 mb-2">
-                {sop.roles.includes('all') ? (
-                  <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-500 dark:text-slate-400">
-                    All Staff
+            return (
+              <div key={sop.id} className="bg-ec-card border border-ec-border rounded-xl p-4 relative overflow-hidden group hover:shadow-md transition-shadow">
+                {/* Category + Status + Risk badges */}
+                <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${CATEGORY_STYLES[sop.category] || 'bg-slate-500/10 text-slate-500'}`}>
+                    {sop.category}
                   </span>
-                ) : (
-                  sop.roles.map(r => (
-                    <span key={r} className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-500 dark:text-slate-400">
-                      {ROLE_DISPLAY[r] || r}
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_STYLES[sop.status] || ''}`}>
+                    {sop.status}
+                  </span>
+                  {sop.riskLevel && (
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${RISK_BADGE[sop.riskLevel] || ''}`}>
+                      {sop.riskLevel}
                     </span>
-                  ))
+                  )}
+                </div>
+
+                {/* Role badges */}
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {(sop.roles || []).includes('all') ? (
+                    <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-500 dark:text-slate-400">
+                      All Staff
+                    </span>
+                  ) : (
+                    (sop.roles || []).map(r => (
+                      <span key={r} className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-500 dark:text-slate-400">
+                        {ROLE_DISPLAY[r] || r}
+                      </span>
+                    ))
+                  )}
+                </div>
+
+                {/* Code + Title */}
+                <div className="text-[11px] font-mono text-ec-t3 mb-1">{sop.code}</div>
+                <h3 className="text-sm font-semibold text-ec-t1 m-0 mb-3 leading-snug">{sop.title}</h3>
+
+                {/* Meta */}
+                <div className="flex items-center justify-between text-[11px] text-ec-t3 mb-3">
+                  <span>v{sop.version}</span>
+                  <span>Review: {formatDate(sop.reviewDate)}</span>
+                </div>
+
+                {/* Ack bar */}
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="flex-1 h-1.5 rounded-full bg-ec-border overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-emerald-500 transition-all"
+                      style={{ width: `${Math.min(ackPct, 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-[10px] font-medium text-ec-t3">{ackCount}/{relevantCount}</span>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setSelectedSop(sop)}
+                    className="flex-1 px-3 py-1.5 rounded-lg text-[11px] font-medium bg-ec-card text-ec-t2 border border-ec-border cursor-pointer hover:bg-ec-card-hover transition"
+                  >
+                    View
+                  </button>
+                  <button
+                    onClick={() => handleAcknowledge(sop.id)}
+                    className="flex-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-emerald-600 text-white border-none cursor-pointer hover:bg-emerald-700 transition"
+                  >
+                    Acknowledge
+                  </button>
+                </div>
+
+                {/* Flag indicator */}
+                {sop.flaggedForReview && (
+                  <div className="absolute top-2 right-2" title={sop.flagReason || 'Flagged for review'}>
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-amber-500">
+                      <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+                      <line x1="4" y1="22" x2="4" y2="15" stroke="currentColor" strokeWidth="2" fill="none" />
+                    </svg>
+                  </div>
                 )}
               </div>
-
-              {/* Code + Title */}
-              <div className="text-[11px] font-mono text-ec-t3 mb-1">{sop.code}</div>
-              <h3 className="text-sm font-semibold text-ec-t1 m-0 mb-3 leading-snug">{sop.title}</h3>
-
-              {/* Meta */}
-              <div className="flex items-center justify-between text-[11px] text-ec-t3 mb-3">
-                <span>v{sop.version}</span>
-                <span>Review: {formatDate(sop.reviewDate)}</span>
-              </div>
-
-              {/* Ack bar */}
-              <div className="flex items-center gap-2 mb-3">
-                <div className="flex-1 h-1.5 rounded-full bg-ec-border overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-emerald-500 transition-all"
-                    style={{ width: `${Math.round((sop.acked / 13) * 100)}%` }}
-                  />
-                </div>
-                <span className="text-[10px] font-medium text-ec-t3">{sop.acked}/13</span>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setSelectedSop(sop)}
-                  className="flex-1 px-3 py-1.5 rounded-lg text-[11px] font-medium bg-ec-card text-ec-t2 border border-ec-border cursor-pointer hover:bg-ec-card-hover transition"
-                >
-                  View
-                </button>
-                <button
-                  onClick={() => showToast('SOP acknowledgement coming soon!', 'info')}
-                  className="flex-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-emerald-600 text-white border-none cursor-pointer hover:bg-emerald-700 transition"
-                >
-                  Acknowledge
-                </button>
-              </div>
-
-              {/* Subtle DUMMY watermark */}
-              <span className="absolute top-2 right-2 text-[7px] font-bold text-amber-400/20 uppercase tracking-widest pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
-                Sample
-              </span>
-            </div>
-          ))
+            )
+          })
         )}
       </div>
 
       {/* Footer */}
       <div className="flex items-center justify-between mt-4 px-1 text-xs text-ec-t3">
-        <span>Showing {filtered.length} of {DUMMY_SOPS.length} sample SOPs</span>
-        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-400/30 text-amber-500/50 uppercase">
-          Dummy Data
-        </span>
+        <span>Showing {filtered.length} of {sops.length} SOPs</span>
       </div>
 
       {/* SOP Viewer slide-over */}
       {selectedSop && (
         <SOPViewer
           sop={selectedSop}
+          acks={acksBySop[selectedSop.id] || []}
           onClose={() => setSelectedSop(null)}
-          onAcknowledge={() => showToast('SOP acknowledgement coming soon!', 'info')}
+          onAcknowledge={() => handleAcknowledge(selectedSop.id)}
+          onFlag={(reason) => handleFlag(selectedSop.id, reason)}
         />
       )}
     </div>
@@ -328,6 +381,7 @@ export default function SOPLibrary() {
 
 // ─── HELPERS ───
 function formatDate(dateStr) {
+  if (!dateStr) return '—'
   const d = new Date(dateStr + 'T00:00:00')
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 }

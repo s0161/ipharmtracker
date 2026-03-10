@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { STAFF_ROLES } from '../utils/taskEngine'
 
 const CATEGORY_STYLES = {
   Dispensing: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
@@ -22,6 +23,20 @@ const STATUS_STYLES = {
   Overdue: 'bg-red-500/10 text-red-600 dark:text-red-400',
 }
 
+const RISK_STYLES = {
+  Critical: 'bg-red-600/10 text-red-600 dark:text-red-400 border-red-600/20',
+  High: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
+  Medium: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20',
+  Low: 'bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20',
+}
+
+const FREQ_STYLES = {
+  Daily: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+  Weekly: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+  Monthly: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
+  'As Required': 'bg-slate-500/10 text-slate-500 dark:text-slate-400',
+}
+
 const ROLE_DISPLAY = {
   all: 'All Staff', superintendent: 'Superintendent', manager: 'Manager',
   pharmacist: 'Pharmacist', technician: 'Technician', dispenser: 'Dispenser',
@@ -29,14 +44,24 @@ const ROLE_DISPLAY = {
 }
 
 function formatDate(dateStr) {
-  const d = new Date(dateStr + 'T00:00:00')
+  if (!dateStr) return '—'
+  const d = new Date(dateStr.includes('T') ? dateStr : dateStr + 'T00:00:00')
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+function getRelevantStaff(sopRoles) {
+  if (!sopRoles || sopRoles.length === 0 || sopRoles.includes('all')) {
+    return Object.entries(STAFF_ROLES).map(([name, role]) => ({ name, role }))
+  }
+  return Object.entries(STAFF_ROLES)
+    .filter(([, role]) => sopRoles.includes(role))
+    .map(([name, role]) => ({ name, role }))
 }
 
 // ─── SECTION HEADER COMPONENT ───
 function SectionHeader({ icon, children }) {
   return (
-    <h3 className="text-[11px] font-bold text-ec-t3 uppercase tracking-widest mb-2 flex items-center gap-2">
+    <h3 className="text-[11px] font-bold text-ec-t3 uppercase tracking-widest mb-2 flex items-center gap-2 sop-section-header">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
         {icon}
       </svg>
@@ -47,7 +72,6 @@ function SectionHeader({ icon, children }) {
 
 // ─── ICONS ───
 const ICONS = {
-  // Existing
   people: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>,
   info: <><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></>,
   scope: <><circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" /></>,
@@ -57,7 +81,6 @@ const ICONS = {
   book: <><path d="M2 3h8a2 2 0 0 1 2 2v14a1.5 1.5 0 0 0-1.5-1.5H2V3z" /><path d="M22 3h-8a2 2 0 0 0-2 2v14a1.5 1.5 0 0 1 1.5-1.5H22V3z" /></>,
   file: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></>,
   shield: <><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></>,
-  // New — 8 icons for new sections
   clipboard: <><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" ry="1" /></>,
   alert: <><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></>,
   arrowUp: <><circle cx="12" cy="12" r="10" /><polyline points="16 12 12 8 8 12" /><line x1="12" y1="16" x2="12" y2="8" /></>,
@@ -66,10 +89,13 @@ const ICONS = {
   clock: <><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></>,
   refresh: <><polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" /><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" /></>,
   paperclip: <><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" /></>,
+  userCheck: <><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="8.5" cy="7" r="4" /><polyline points="17 11 19 13 23 9" /></>,
 }
 
-export default function SOPViewer({ sop, onClose, onAcknowledge }) {
+export default function SOPViewer({ sop, acks = [], onClose, onAcknowledge, onFlag }) {
   const backdropRef = useRef()
+  const [showFlagInput, setShowFlagInput] = useState(false)
+  const [flagText, setFlagText] = useState('')
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
@@ -83,18 +109,30 @@ export default function SOPViewer({ sop, onClose, onAcknowledge }) {
 
   if (!sop) return null
 
-  const ackPercent = Math.round((sop.acked / 13) * 100)
+  const relevantStaff = getRelevantStaff(sop.roles)
+  const ackedNames = new Set(acks.map(a => a.name))
+  const acknowledged = relevantStaff.filter(s => ackedNames.has(s.name))
+  const pending = relevantStaff.filter(s => !ackedNames.has(s.name))
+  const ackPct = relevantStaff.length > 0 ? Math.round((acknowledged.length / relevantStaff.length) * 100) : 0
+
+  const handleSubmitFlag = () => {
+    if (flagText.trim() && onFlag) {
+      onFlag(flagText.trim())
+      setShowFlagInput(false)
+      setFlagText('')
+    }
+  }
 
   return createPortal(
     <div
       ref={backdropRef}
       onClick={(e) => { if (e.target === backdropRef.current) onClose() }}
-      className="fixed inset-0 z-50 flex justify-end"
+      className="fixed inset-0 z-50 flex justify-end sop-backdrop"
       style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
     >
       {/* Slide-over panel */}
       <div
-        className="w-full max-w-2xl h-full flex flex-col"
+        className="w-full max-w-2xl h-full flex flex-col sop-panel"
         style={{
           backgroundColor: 'var(--ec-card-solid, #fff)',
           borderLeft: '1px solid var(--ec-border, #d1fae5)',
@@ -104,45 +142,96 @@ export default function SOPViewer({ sop, onClose, onAcknowledge }) {
       >
         {/* ── Sticky header ── */}
         <div
-          className="flex items-center gap-3 px-6 py-4 border-b shrink-0"
+          className="px-6 py-4 border-b shrink-0 sop-header"
           style={{ borderColor: 'var(--ec-border)' }}
         >
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-ec-t3 hover:text-ec-t1 hover:bg-ec-card-hover transition-colors border-none cursor-pointer bg-transparent"
-            aria-label="Close"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-0.5">
-              <span className="text-xs font-mono font-bold text-ec-t3">{sop.code}</span>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${CATEGORY_STYLES[sop.category]}`}>
-                {sop.category}
-              </span>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_STYLES[sop.status]}`}>
-                {sop.status}
-              </span>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-ec-t3 hover:text-ec-t1 hover:bg-ec-card-hover transition-colors border-none cursor-pointer bg-transparent sop-close-btn"
+              aria-label="Close"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                <span className="text-xs font-mono font-bold text-ec-t3">{sop.code}</span>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${CATEGORY_STYLES[sop.category]}`}>
+                  {sop.category}
+                </span>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_STYLES[sop.status]}`}>
+                  {sop.status}
+                </span>
+                {/* 5a. Risk Rating badge */}
+                {sop.riskLevel && (
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${RISK_STYLES[sop.riskLevel] || ''}`}>
+                    {sop.riskLevel} Risk
+                  </span>
+                )}
+              </div>
+              <h2 className="text-base font-bold text-ec-t1 m-0 truncate sop-title">{sop.title}</h2>
             </div>
-            <h2 className="text-base font-bold text-ec-t1 m-0 truncate">{sop.title}</h2>
+            {/* 5e. Print button */}
+            <button
+              onClick={() => window.print()}
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-ec-t3 hover:text-ec-t1 hover:bg-ec-card-hover transition-colors border-none cursor-pointer bg-transparent sop-print-btn"
+              aria-label="Export to PDF"
+              title="Print / Export to PDF"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="6 9 6 2 18 2 18 9" />
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                <rect x="6" y="14" width="12" height="8" />
+              </svg>
+            </button>
+          </div>
+
+          {/* 5b. Ack progress bar in header */}
+          <div className="mt-2 flex items-center gap-2">
+            <div className="flex-1 h-1.5 rounded-full bg-ec-border overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all"
+                style={{
+                  width: `${ackPct}%`,
+                  backgroundColor: ackPct === 100 ? '#059669' : ackPct >= 70 ? '#10b981' : '#f59e0b',
+                }}
+              />
+            </div>
+            <span className="text-[10px] font-bold text-ec-t2 tabular-nums whitespace-nowrap">
+              {acknowledged.length}/{relevantStaff.length} acknowledged
+            </span>
           </div>
         </div>
 
         {/* ── Scrollable content ── */}
-        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
+        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6 sop-content">
+
+          {/* Flagged banner */}
+          {sop.flaggedForReview && (
+            <div className="flex items-start gap-3 p-3 rounded-xl border border-amber-400/30 bg-amber-500/10 dark:bg-amber-500/5">
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-amber-500 shrink-0 mt-0.5">
+                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+                <line x1="4" y1="22" x2="4" y2="15" stroke="currentColor" strokeWidth="2" fill="none" />
+              </svg>
+              <div>
+                <p className="text-sm font-semibold text-amber-700 dark:text-amber-400 m-0">Flagged for Review</p>
+                {sop.flagReason && <p className="text-sm text-amber-600 dark:text-amber-300 m-0 mt-1">{sop.flagReason}</p>}
+              </div>
+            </div>
+          )}
 
           {/* 1. Applies-to row */}
           <section>
             <SectionHeader icon={ICONS.people}>Applies To</SectionHeader>
             <div className="flex flex-wrap gap-1.5">
-              {sop.roles.includes('all') ? (
+              {(sop.roles || []).includes('all') ? (
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                   All Staff
                 </span>
               ) : (
-                sop.roles.map(r => (
+                (sop.roles || []).map(r => (
                   <span key={r} className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-500/10 text-slate-600 dark:text-slate-400">
                     {ROLE_DISPLAY[r] || r}
                   </span>
@@ -151,7 +240,7 @@ export default function SOPViewer({ sop, onClose, onAcknowledge }) {
             </div>
           </section>
 
-          {/* 2. Responsibilities (NEW) */}
+          {/* 2. Responsibilities */}
           {sop.responsibilities && Object.keys(sop.responsibilities).length > 0 && (
             <section>
               <SectionHeader icon={ICONS.clipboard}>Responsibilities</SectionHeader>
@@ -184,25 +273,38 @@ export default function SOPViewer({ sop, onClose, onAcknowledge }) {
             </section>
           )}
 
-          {/* 5. Key Procedural Steps */}
+          {/* 5. Key Procedural Steps — with 5d frequency tags */}
           <section>
             <SectionHeader icon={ICONS.check}>Key Procedural Steps</SectionHeader>
             <div className="space-y-2">
-              {sop.keyPoints.map((point, i) => (
-                <div
-                  key={i}
-                  className="flex items-start gap-3 p-3 rounded-xl border border-ec-border bg-emerald-500/[0.03]"
-                >
-                  <div className="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
-                    <span className="text-[11px] font-bold text-emerald-600">{i + 1}</span>
+              {(sop.keyPoints || []).map((point, i) => {
+                const isObj = typeof point === 'object' && point !== null && point.step
+                const stepText = isObj ? point.step : point
+                const freq = isObj ? point.frequency : null
+
+                return (
+                  <div
+                    key={i}
+                    className="flex items-start gap-3 p-3 rounded-xl border border-ec-border bg-emerald-500/[0.03]"
+                  >
+                    <div className="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <span className="text-[11px] font-bold text-emerald-600">{i + 1}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm text-ec-t1 leading-relaxed">{stepText}</span>
+                      {freq && (
+                        <span className={`ml-2 inline-flex text-[9px] font-bold px-1.5 py-0.5 rounded-full ${FREQ_STYLES[freq] || FREQ_STYLES['As Required']}`}>
+                          {freq}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <span className="text-sm text-ec-t1 leading-relaxed">{point}</span>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </section>
 
-          {/* 6. Risk Assessment (NEW) */}
+          {/* 6. Risk Assessment */}
           {sop.riskAssessment && sop.riskAssessment.length > 0 && (
             <section>
               <SectionHeader icon={ICONS.alert}>Risk Assessment</SectionHeader>
@@ -223,7 +325,7 @@ export default function SOPViewer({ sop, onClose, onAcknowledge }) {
             </section>
           )}
 
-          {/* 7. Escalation Pathway (NEW) */}
+          {/* 7. Escalation Pathway */}
           {sop.escalation && (
             <section>
               <SectionHeader icon={ICONS.arrowUp}>Escalation Pathway</SectionHeader>
@@ -235,7 +337,7 @@ export default function SOPViewer({ sop, onClose, onAcknowledge }) {
 
           <hr className="border-ec-border m-0" />
 
-          {/* 8. Training Requirements (NEW) */}
+          {/* 8. Training Requirements */}
           {sop.trainingRequirements && sop.trainingRequirements.length > 0 && (
             <section>
               <SectionHeader icon={ICONS.graduation}>Training Requirements</SectionHeader>
@@ -250,7 +352,7 @@ export default function SOPViewer({ sop, onClose, onAcknowledge }) {
             </section>
           )}
 
-          {/* 9. Monitoring & Audit (NEW) */}
+          {/* 9. Monitoring & Audit */}
           {sop.monitoring && (
             <section>
               <SectionHeader icon={ICONS.eye}>Monitoring &amp; Audit</SectionHeader>
@@ -273,26 +375,62 @@ export default function SOPViewer({ sop, onClose, onAcknowledge }) {
               {sop.author && <MetaCard label="Author" value={sop.author} />}
               {sop.approvedBy && <MetaCard label="Approved By" value={sop.approvedBy} />}
             </div>
-
-            {/* Ack progress */}
-            <div className="mt-4 p-3 rounded-xl border border-ec-border">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-bold text-ec-t3 uppercase tracking-wider">Staff Acknowledgement</span>
-                <span className="text-xs font-bold text-ec-t2 tabular-nums">{sop.acked}/13 ({ackPercent}%)</span>
-              </div>
-              <div className="h-2 rounded-full bg-ec-border overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all"
-                  style={{
-                    width: `${ackPercent}%`,
-                    backgroundColor: ackPercent === 100 ? '#059669' : ackPercent >= 70 ? '#10b981' : '#f59e0b',
-                  }}
-                />
-              </div>
-            </div>
           </section>
 
-          {/* 11. Revision History (NEW) */}
+          {/* 5c. Staff Acknowledgements — named lists */}
+          <section>
+            <SectionHeader icon={ICONS.userCheck}>Staff Acknowledgements</SectionHeader>
+
+            {acknowledged.length > 0 && (
+              <div className="mb-3">
+                <div className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1.5">
+                  Acknowledged ({acknowledged.length})
+                </div>
+                <div className="space-y-1">
+                  {acknowledged.map(s => {
+                    const ack = acks.find(a => a.name === s.name)
+                    return (
+                      <div key={s.name} className="flex items-center gap-2.5 py-1.5 px-3 rounded-lg bg-emerald-500/[0.04]">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-emerald-500 shrink-0">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        <span className="text-sm text-ec-t1 font-medium">{s.name}</span>
+                        <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-500 dark:text-slate-400">
+                          {ROLE_DISPLAY[s.role] || s.role}
+                        </span>
+                        {ack?.date && (
+                          <span className="text-[10px] text-ec-t3 ml-auto">{formatDate(ack.date)}</span>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {pending.length > 0 && (
+              <div>
+                <div className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-1.5">
+                  Pending ({pending.length})
+                </div>
+                <div className="space-y-1">
+                  {pending.map(s => (
+                    <div key={s.name} className="flex items-center gap-2.5 py-1.5 px-3 rounded-lg bg-amber-500/[0.04]">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-amber-500 shrink-0">
+                        <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+                      </svg>
+                      <span className="text-sm text-ec-t1 font-medium">{s.name}</span>
+                      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-500 dark:text-slate-400">
+                        {ROLE_DISPLAY[s.role] || s.role}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+
+          {/* 11. Revision History */}
           {sop.revisionHistory && sop.revisionHistory.length > 0 && (
             <section>
               <SectionHeader icon={ICONS.clock}>Revision History</SectionHeader>
@@ -319,7 +457,7 @@ export default function SOPViewer({ sop, onClose, onAcknowledge }) {
             </section>
           )}
 
-          {/* 12. Review Triggers (NEW) */}
+          {/* 12. Review Triggers */}
           {sop.reviewTriggers && sop.reviewTriggers.length > 0 && (
             <section>
               <SectionHeader icon={ICONS.refresh}>Review Triggers</SectionHeader>
@@ -371,7 +509,7 @@ export default function SOPViewer({ sop, onClose, onAcknowledge }) {
             </section>
           )}
 
-          {/* 15. Appendices (NEW) */}
+          {/* 15. Appendices */}
           {sop.appendices && sop.appendices.length > 0 && (
             <section>
               <SectionHeader icon={ICONS.paperclip}>Appendices</SectionHeader>
@@ -395,7 +533,7 @@ export default function SOPViewer({ sop, onClose, onAcknowledge }) {
 
         {/* ── Sticky footer ── */}
         <div
-          className="flex items-center gap-3 px-6 py-4 border-t shrink-0"
+          className="flex items-center gap-3 px-6 py-4 border-t shrink-0 sop-footer"
           style={{ borderColor: 'var(--ec-border)' }}
         >
           <button
@@ -404,20 +542,81 @@ export default function SOPViewer({ sop, onClose, onAcknowledge }) {
           >
             Acknowledge SOP
           </button>
-          <button
-            onClick={onClose}
-            className="px-4 py-2.5 rounded-xl text-sm font-medium bg-transparent text-ec-t2 border border-ec-border cursor-pointer hover:bg-ec-card-hover transition"
-          >
-            Close
-          </button>
+
+          {/* 5f. Flag for Review */}
+          {showFlagInput ? (
+            <div className="flex items-center gap-2 flex-1">
+              <input
+                type="text"
+                value={flagText}
+                onChange={e => setFlagText(e.target.value)}
+                placeholder="Reason for flagging..."
+                className="flex-1 px-3 py-2 rounded-lg border border-amber-400/50 bg-ec-card text-sm text-ec-t1 placeholder:text-ec-t3 outline-none focus:ring-2 focus:ring-amber-400/30"
+                autoFocus
+                onKeyDown={e => { if (e.key === 'Enter') handleSubmitFlag() }}
+              />
+              <button onClick={handleSubmitFlag}
+                className="px-3 py-2 rounded-lg text-sm font-medium bg-amber-500 text-white border-none cursor-pointer hover:bg-amber-600 transition">
+                Submit
+              </button>
+              <button onClick={() => { setShowFlagInput(false); setFlagText('') }}
+                className="px-3 py-2 rounded-lg text-sm font-medium bg-transparent text-ec-t3 border border-ec-border cursor-pointer hover:bg-ec-card-hover transition">
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <>
+              <button
+                onClick={() => setShowFlagInput(true)}
+                className="px-4 py-2.5 rounded-xl text-sm font-medium bg-transparent text-amber-600 dark:text-amber-400 border border-amber-400/30 cursor-pointer hover:bg-amber-500/10 transition"
+              >
+                Flag for Review
+              </button>
+              <button
+                onClick={onClose}
+                className="px-4 py-2.5 rounded-xl text-sm font-medium bg-transparent text-ec-t2 border border-ec-border cursor-pointer hover:bg-ec-card-hover transition"
+              >
+                Close
+              </button>
+            </>
+          )}
         </div>
       </div>
 
-      {/* Keyframe for slide-in */}
+      {/* Keyframe + Print styles */}
       <style>{`
         @keyframes slideInRight {
           from { transform: translateX(100%); opacity: 0.8; }
           to   { transform: translateX(0);    opacity: 1; }
+        }
+
+        @media print {
+          body * { visibility: hidden; }
+          .sop-panel, .sop-panel * { visibility: visible; }
+          .sop-panel {
+            position: fixed;
+            left: 0; top: 0;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            box-shadow: none !important;
+            border: none !important;
+            animation: none !important;
+          }
+          .sop-backdrop {
+            background: transparent !important;
+            backdrop-filter: none !important;
+            position: static !important;
+          }
+          .sop-footer, .sop-close-btn, .sop-print-btn { display: none !important; }
+          .sop-content { overflow: visible !important; }
+          .sop-header::before {
+            content: 'iPharmacy Direct — ' attr(data-code) ' — Exported ' attr(data-date);
+            display: block;
+            font-size: 10px;
+            color: #666;
+            margin-bottom: 4px;
+          }
         }
       `}</style>
     </div>,
