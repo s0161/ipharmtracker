@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-export default function Modal({ open, onClose, title, children }) {
+export default function Modal({ open, onClose, title, children, wide = false }) {
   const overlayRef = useRef()
 
   useEffect(() => {
@@ -26,7 +26,7 @@ export default function Modal({ open, onClose, title, children }) {
       }}
     >
       <div
-        className="w-full max-w-lg rounded-2xl p-6 ec-fadeup"
+        className={`w-full ${wide ? 'max-w-2xl' : 'max-w-lg'} rounded-2xl p-6 ec-fadeup`}
         style={{
           backgroundColor: 'var(--ec-card-solid)',
           border: '1px solid var(--ec-border)',
@@ -46,7 +46,7 @@ export default function Modal({ open, onClose, title, children }) {
             </svg>
           </button>
         </div>
-        <div>{children}</div>
+        <div className={wide ? 'max-h-[85vh] overflow-y-auto' : ''}>{children}</div>
       </div>
     </div>
   )
