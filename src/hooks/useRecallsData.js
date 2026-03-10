@@ -13,23 +13,40 @@ const xmlParser = new XMLParser({
   attributeNamePrefix: '@_',
 })
 
-// ── Classify alert from title ──
+// ── Classify alert from title (Arabic numerals: "Class 2 Medicines Recall") ──
 function classifyAlert(title) {
   const t = (title || '').toLowerCase()
-  if (t.includes('class i') && !t.includes('class ii') && !t.includes('class iii'))
-    return 'Class 1'
-  if (t.includes('class ii') && !t.includes('class iii')) return 'Class 2'
-  if (t.includes('class iii')) return 'Class 3'
+  if (t.includes('class 1')) return 'Class 1'
+  if (t.includes('class 2')) return 'Class 2'
+  if (t.includes('class 3')) return 'Class 3'
+  if (t.includes('class 4')) return 'Class 4'
   return 'N/A'
 }
 
+// ── Detect category from title text ──
 function detectAlertType(title) {
   const t = (title || '').toLowerCase()
-  if (t.includes('drug alert')) return 'Drug Alert'
-  if (t.includes('device alert')) return 'Device Alert'
-  if (t.includes('safety update') || t.includes('safety alert')) return 'Safety Update'
-  if (t.includes('recall')) return 'Recall'
-  return 'Other'
+  if (t.includes('medicines recall') || t.includes('medicines defect') || /class [1-4]/.test(t))
+    return 'Medicine Recalls'
+  if (t.includes('field safety notice') || t.includes('device safety'))
+    return 'Device Alerts'
+  if (t.includes('safety roundup') || t.includes('safety update'))
+    return 'Drug Safety Updates'
+  return 'News'
+}
+
+// ── Detect category from search API format field + title, returns null for noise ──
+const NOISE_FORMATS = new Set([
+  'finder', 'organisation', 'corporate_report', 'guidance',
+  'detailed_guide', 'html_publication', 'document_collection',
+])
+
+function detectAlertTypeFromFormat(format, title) {
+  if (NOISE_FORMATS.has(format)) return null
+  if (format === 'drug_safety_update') return 'Drug Safety Updates'
+  if (format === 'medical_safety_alert') return detectAlertType(title)
+  if (format === 'press_release' || format === 'news_story') return 'News'
+  return detectAlertType(title)
 }
 
 // ── Parse GOV.UK Atom feed entries ──
@@ -62,25 +79,29 @@ function parseAtomEntries(xml) {
   }
 }
 
-// ── Parse GOV.UK search API results ──
+// ── Parse GOV.UK search API results (filters noise formats) ──
 function parseSearchResults(json) {
   try {
     const results = json?.results || []
-    return results.map((r) => {
+    const mapped = []
+    for (const r of results) {
       const title = r.title || ''
+      const alertType = detectAlertTypeFromFormat(r.format, title)
+      if (alertType === null) continue // skip noise (finder, org pages, etc.)
       const url = r.link ? `https://www.gov.uk${r.link}` : ''
-      return {
+      mapped.push({
         id: url,
         title,
         published: r.public_timestamp || '',
         updated: r.public_timestamp || '',
         summary: (r.description || '').trim(),
         url,
-        alertType: detectAlertType(title),
+        alertType,
         classification: classifyAlert(title),
         relevance: getRelevanceTag(title, r.description || ''),
-      }
-    })
+      })
+    }
+    return mapped
   } catch {
     return []
   }
