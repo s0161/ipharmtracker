@@ -22,6 +22,7 @@ const titles = {
   '/compliance-report': 'Compliance Report',
   '/audit-log': 'Audit Log',
   '/analytics': 'Analytics',
+  '/sop-library': 'SOP Library',
 }
 
 const SHORTCUTS = {
@@ -66,6 +67,7 @@ const morePages = [
   { to: '/near-misses', label: 'Near Misses', icon: 'alert-triangle' },
   { to: '/analytics', label: 'Analytics', icon: 'bar-chart' },
   { to: '/compliance-report', label: 'Compliance Report', icon: 'printer' },
+  { to: '/sop-library', label: 'SOP Library', icon: 'book' },
   { to: '/audit-log', label: 'Audit Log', icon: 'list' },
   { to: '/settings', label: 'Settings', icon: 'settings' },
 ]

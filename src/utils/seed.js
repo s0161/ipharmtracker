@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { generateId } from './helpers'
 
-const SEED_KEY = 'ipd_seeded_v35'
+const SEED_KEY = 'ipd_seeded_v36'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -11,7 +11,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
   'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13', 'ipd_seeded_v14', 'ipd_seeded_v15', 'ipd_seeded_v16',
   'ipd_seeded_v17', 'ipd_seeded_v18', 'ipd_seeded_v19', 'ipd_seeded_v20', 'ipd_seeded_v21', 'ipd_seeded_v22',
-  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28', 'ipd_seeded_v29', 'ipd_seeded_v30', 'ipd_seeded_v31', 'ipd_seeded_v32', 'ipd_seeded_v33', 'ipd_seeded_v34',
+  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28', 'ipd_seeded_v29', 'ipd_seeded_v30', 'ipd_seeded_v31', 'ipd_seeded_v32', 'ipd_seeded_v33', 'ipd_seeded_v34', 'ipd_seeded_v35',
 ]
 
 export function cleanupOldLocalStorage() {
@@ -655,6 +655,34 @@ export async function seedIfNeeded() {
     },
   ]
 
+  // ─── SOPs ───
+  const sops = [
+    { id: generateId(), code: 'SOP-001', title: 'Receipt and Checking of Dispensed Medicines', category: 'Dispensing', version: '3.1', effective_date: '2023-01-15', review_date: '2025-01-15', owner: 'Amjid Shakoor', summary: 'Covers the end-to-end process for receiving dispensed medicines, performing accuracy checks, and recording discrepancies. Includes the four-eyes check procedure and escalation steps for identified errors.', status: 'Active' },
+    { id: generateId(), code: 'SOP-002', title: 'Responsible Pharmacist (RP) Register', category: 'Governance', version: '2.0', effective_date: '2024-03-01', review_date: '2026-03-01', owner: 'Amjid Shakoor', summary: 'Defines the requirements for maintaining the RP register, including sign-on/sign-off procedures, absence cover arrangements, and GPhC notification obligations under the Medicines Act 2007.', status: 'Active' },
+    { id: generateId(), code: 'SOP-003', title: 'Fridge Temperature Monitoring', category: 'Clinical', version: '2.2', effective_date: '2022-06-01', review_date: '2024-06-01', owner: 'Salma Shakoor', summary: 'Describes the daily procedure for monitoring, recording, and acting on fridge temperatures. Covers excursion handling, quarantine of affected stock, and escalation to the superintendent pharmacist.', status: 'Active' },
+    { id: generateId(), code: 'SOP-004', title: 'Controlled Drugs Register and Destruction', category: 'CD & Controlled Drugs', version: '4.0', effective_date: '2025-01-01', review_date: '2026-07-01', owner: 'Amjid Shakoor', summary: 'Comprehensive procedure for maintaining the CD register, performing balance checks, witnessing destruction using T2 denaturing kits, and reporting discrepancies to the Accountable Officer.', status: 'Active' },
+    { id: generateId(), code: 'SOP-005', title: 'Near Miss and Dispensing Error Reporting', category: 'Governance', version: '2.1', effective_date: '2023-02-10', review_date: '2025-02-10', owner: 'Amjid Shakoor', summary: 'Outlines the process for identifying, documenting, and learning from near misses and dispensing errors. Includes root cause analysis templates and quarterly trend review procedures.', status: 'Active' },
+    { id: generateId(), code: 'SOP-006', title: 'Patient Confidentiality and GDPR', category: 'Governance', version: '1.3', effective_date: '2022-09-01', review_date: '2024-09-01', owner: 'Salma Shakoor', summary: 'Sets out the pharmacy\'s obligations under GDPR and the Data Protection Act 2018. Covers patient consent, data access requests, breach notification, and secure handling of prescription information.', status: 'Active' },
+    { id: generateId(), code: 'SOP-007', title: 'Induction and Training of New Staff', category: 'HR & Training', version: '1.5', effective_date: '2024-05-01', review_date: '2026-05-01', owner: 'Salma Shakoor', summary: 'Describes the structured induction programme for all new starters, including mandatory training modules, competency sign-off requirements, and probationary review milestones.', status: 'Active' },
+    { id: generateId(), code: 'SOP-008', title: 'Confidential Waste and Document Shredding', category: 'Facilities', version: '1.1', effective_date: '2023-07-01', review_date: '2025-07-01', owner: 'Salma Shakoor', summary: 'Covers the secure handling and destruction of confidential documents including prescriptions, patient records, and PMR printouts. Specifies approved shredding methods and collection contractor details.', status: 'Active' },
+    { id: generateId(), code: 'SOP-009', title: 'Lone Working Policy', category: 'HR & Training', version: '1.0', effective_date: '2023-04-01', review_date: '2025-04-01', owner: 'Amjid Shakoor', summary: 'Risk assessment and safety procedures for staff working alone in the pharmacy, including emergency contact protocols, check-in schedules, and personal safety measures.', status: 'Active' },
+    { id: generateId(), code: 'SOP-010', title: 'Safeguarding Vulnerable Adults and Children', category: 'Clinical', version: '3.0', effective_date: '2025-06-01', review_date: '2026-06-01', owner: 'Amjid Shakoor', summary: 'Defines the pharmacy\'s safeguarding responsibilities, recognition of abuse indicators, referral pathways to MASH and social services, and mandatory reporting obligations.', status: 'Active' },
+    { id: generateId(), code: 'SOP-011', title: 'Fire Safety and Emergency Evacuation', category: 'Facilities', version: '2.0', effective_date: '2023-03-15', review_date: '2025-03-15', owner: 'Salma Shakoor', summary: 'Emergency evacuation procedures, fire warden responsibilities, assembly point locations, and monthly fire drill schedule. Includes visitor and disabled person evacuation arrangements.', status: 'Active' },
+    { id: generateId(), code: 'SOP-012', title: 'Distance Selling and Internet Pharmacy Compliance', category: 'Governance', version: '1.2', effective_date: '2023-01-20', review_date: '2025-01-20', owner: 'Amjid Shakoor', summary: 'GPhC requirements for distance selling pharmacies, including website content obligations, EU logo display, patient identity verification for online orders, and complaint handling for remote services.', status: 'Active' },
+  ]
+
+  // Sample acknowledgements
+  const sopAcks = [
+    { id: generateId(), sop_id: sops[0].id, acknowledged_by: 'Amjid Shakoor', acknowledged_at: '2025-01-20T09:00:00.000Z' },
+    { id: generateId(), sop_id: sops[0].id, acknowledged_by: 'Salma Shakoor', acknowledged_at: '2025-01-21T10:30:00.000Z' },
+    { id: generateId(), sop_id: sops[1].id, acknowledged_by: 'Amjid Shakoor', acknowledged_at: '2024-03-05T08:15:00.000Z' },
+    { id: generateId(), sop_id: sops[1].id, acknowledged_by: 'Salma Shakoor', acknowledged_at: '2024-03-06T11:00:00.000Z' },
+    { id: generateId(), sop_id: sops[3].id, acknowledged_by: 'Amjid Shakoor', acknowledged_at: '2025-01-10T14:00:00.000Z' },
+    { id: generateId(), sop_id: sops[3].id, acknowledged_by: 'Salma Shakoor', acknowledged_at: '2025-01-12T09:45:00.000Z' },
+    { id: generateId(), sop_id: sops[3].id, acknowledged_by: 'Moniba Jamil', acknowledged_at: '2025-01-15T10:00:00.000Z' },
+    { id: generateId(), sop_id: sops[9].id, acknowledged_by: 'Amjid Shakoor', acknowledged_at: '2025-06-05T09:00:00.000Z' },
+  ]
+
   // Clear old seed data before re-inserting
   // Use .not('id','is',null) instead of .neq('id','') — the latter fails for UUID columns
   const delFilter = (q) => q.not('id', 'is', null)
@@ -678,6 +706,8 @@ export async function seedIfNeeded() {
     delFilter(supabase.from('safeguarding_concerns').delete()),
     delFilter(supabase.from('safeguarding_referrals').delete()),
     delFilter(supabase.from('signposting_resources').delete()),
+    delFilter(supabase.from('sop_acknowledgements').delete()),
+    delFilter(supabase.from('sops').delete()),
   ])
 
   // Insert into Supabase tables
@@ -697,6 +727,8 @@ export async function seedIfNeeded() {
     supabase.from('safeguarding_concerns').insert(safeguardingConcerns),
     supabase.from('safeguarding_referrals').insert(safeguardingReferrals),
     supabase.from('signposting_resources').insert(signpostingResources),
+    supabase.from('sops').insert(sops),
+    supabase.from('sop_acknowledgements').insert(sopAcks),
     supabase.from('pharmacy_config').insert({
       pharmacy_name: 'iPharmacy Direct',
       address: 'Manchester, UK',
