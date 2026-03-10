@@ -57,7 +57,7 @@ const sections = [
     items: [
       { to: '/safeguarding', label: 'Safeguarding', icon: 'shield' },
       { to: '/staff-training', label: 'Staff Training', icon: 'users', shortcut: 'S' },
-      { to: '/sop-library', label: 'SOP Library', icon: 'book' },
+      { to: '/sop-library', label: 'SOP Library', icon: 'book', badge: 'soon' },
       { to: '/near-misses', label: 'Near Misses', icon: 'shieldAlert' },
       { to: '/compliance-report', label: 'Compliance Report', icon: 'report' },
       { to: '/analytics', label: 'Analytics', icon: 'barChart' },
