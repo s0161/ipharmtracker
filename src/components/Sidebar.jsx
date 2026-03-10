@@ -65,6 +65,7 @@ const sections = [
       { to: '/analytics', label: 'Analytics', icon: 'barChart' },
       { to: '/induction', label: 'Induction', icon: 'grad' },
       { to: '/appraisals', label: 'Appraisals', icon: 'star' },
+      { to: '/mhra-recalls', label: 'MHRA Recalls', icon: 'shieldAlert' },
     ],
   },
   {
