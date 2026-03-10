@@ -1,5 +1,7 @@
 // ─── SOP DATA — UK Community Pharmacy SOPs ───
-// Enhanced with scope, references, related SOPs, and document control
+// Enhanced with scope, references, related SOPs, document control,
+// responsibilities, revision history, training, monitoring, risks,
+// escalation, review triggers, and appendices
 
 const DUMMY_SOPS = [
   {
@@ -43,7 +45,55 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-03-15"
+    effectiveDate:  "2025-03-15",
+    responsibilities:  {
+      pharmacist:  "Perform final clinical check on all dispensed items and authorise handout",
+      technician:  "Accurately label and assemble prescriptions according to SOP steps",
+      dispenser:  "Receive prescriptions, generate labels, and assist with assembly"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2023-03-15",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.0",
+        date:  "2024-03-15",
+        changes:  "Added enhanced clinical screening steps"
+      },
+      {
+        version:  "3.2",
+        date:  "2025-03-15",
+        changes:  "Updated dispensing workflow to align with latest GPhC guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "Annual dispensing accuracy refresher",
+      "GPhC-accredited dispensing competency assessment"
+    ],
+    monitoring:  "Monthly dispensing accuracy audit conducted by the Responsible Pharmacist, with results reported at team meetings",
+    riskAssessment:  [
+      {
+        risk:  "Prescription not meeting legal requirements",
+        mitigation:  "Prescription validity checklist applied at intake stage"
+      },
+      {
+        risk:  "Incorrect labelling or dosage instructions",
+        mitigation:  "Standardised label generation and mandatory label verification step"
+      }
+    ],
+    escalation:  "Report any dispensing error or near miss to the Responsible Pharmacist immediately. If RP unavailable, contact the Superintendent Pharmacist. Complete an incident form within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Dispensing error resulting in patient harm",
+      "Change to NHS dispensing contractual requirements"
+    ],
+    appendices:  [
+      "Patient Counselling Record",
+      "Prescription Validity Checklist"
+    ]
   },
   {
     id:  2,
@@ -87,7 +137,57 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-05-31"
+    effectiveDate:  "2025-05-31",
+    responsibilities:  {
+      pharmacist:  "Perform final clinical check on all dispensed items and authorise handout",
+      technician:  "Accurately label and assemble prescriptions according to SOP steps",
+      dispenser:  "Receive prescriptions, generate labels, and assist with assembly",
+      aca:  "Perform accuracy checking on assembled items before pharmacist sign-off"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2024-05-30",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.0",
+        date:  "2025-05-30",
+        changes:  "Updated dispensing workflow to align with latest GPhC guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "Medicines labelling and patient counselling training",
+      "Annual dispensing accuracy refresher",
+      "UK GDPR and data protection awareness training"
+    ],
+    monitoring:  "Monthly dispensing accuracy audit conducted by the Responsible Pharmacist, with results reported at team meetings",
+    riskAssessment:  [
+      {
+        risk:  "Patient allergy or interaction missed",
+        mitigation:  "PMR clinical screening and pharmacist clinical check before handout"
+      },
+      {
+        risk:  "Incorrect labelling or dosage instructions",
+        mitigation:  "Standardised label generation and mandatory label verification step"
+      },
+      {
+        risk:  "Unauthorised disclosure of patient data",
+        mitigation:  "Access controls, encryption, and mandatory data protection training"
+      }
+    ],
+    escalation:  "Report any dispensing error or near miss to the Responsible Pharmacist immediately. If RP unavailable, contact the Superintendent Pharmacist. Complete an incident form within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Dispensing error resulting in patient harm",
+      "Change to NHS dispensing contractual requirements"
+    ],
+    appendices:  [
+      "Prescription Validity Checklist",
+      "Near Miss Report Form",
+      "Data Subject Access Request Form"
+    ]
   },
   {
     id:  3,
@@ -130,7 +230,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-04-19"
+    effectiveDate:  "2025-04-19",
+    responsibilities:  {
+      pharmacist:  "Perform final clinical check on all dispensed items and authorise handout",
+      technician:  "Accurately label and assemble prescriptions according to SOP steps",
+      dispenser:  "Receive prescriptions, generate labels, and assist with assembly"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.5",
+        date:  "2025-04-18",
+        changes:  "Updated dispensing workflow to align with latest GPhC guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "GPhC-accredited dispensing competency assessment",
+      "Annual dispensing accuracy refresher",
+      "Electronic Prescription Service (EPS) operational training"
+    ],
+    monitoring:  "Monthly dispensing accuracy audit conducted by the Responsible Pharmacist, with results reported at team meetings",
+    riskAssessment:  [
+      {
+        risk:  "Incorrect labelling or dosage instructions",
+        mitigation:  "Standardised label generation and mandatory label verification step"
+      },
+      {
+        risk:  "Patient allergy or interaction missed",
+        mitigation:  "PMR clinical screening and pharmacist clinical check before handout"
+      },
+      {
+        risk:  "EPS token not matched to correct patient",
+        mitigation:  "Patient identity verification before downloading and processing EPS prescriptions"
+      }
+    ],
+    escalation:  "Report any dispensing error or near miss to the Responsible Pharmacist immediately. If RP unavailable, contact the Superintendent Pharmacist. Complete an incident form within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Dispensing error resulting in patient harm",
+      "Change to NHS dispensing contractual requirements"
+    ],
+    appendices:  [
+      "Dispensing Error Log",
+      "Prescription Validity Checklist"
+    ]
   },
   {
     id:  4,
@@ -173,7 +316,55 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-04-11"
+    effectiveDate:  "2025-04-11",
+    responsibilities:  {
+      pharmacist:  "Perform final clinical check on all dispensed items and authorise handout",
+      technician:  "Accurately label and assemble prescriptions according to SOP steps",
+      dispenser:  "Receive prescriptions, generate labels, and assist with assembly"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2024-04-10",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.3",
+        date:  "2025-04-10",
+        changes:  "Added enhanced clinical screening steps"
+      }
+    ],
+    trainingRequirements:  [
+      "Annual dispensing accuracy refresher",
+      "Medicines labelling and patient counselling training",
+      "Electronic Prescription Service (EPS) operational training"
+    ],
+    monitoring:  "Monthly dispensing accuracy audit conducted by the Responsible Pharmacist, with results reported at team meetings",
+    riskAssessment:  [
+      {
+        risk:  "Wrong medicine dispensed to patient",
+        mitigation:  "Two-stage accuracy checking process with independent final check"
+      },
+      {
+        risk:  "Patient allergy or interaction missed",
+        mitigation:  "PMR clinical screening and pharmacist clinical check before handout"
+      },
+      {
+        risk:  "EPS token not matched to correct patient",
+        mitigation:  "Patient identity verification before downloading and processing EPS prescriptions"
+      }
+    ],
+    escalation:  "Report any dispensing error or near miss to the Responsible Pharmacist immediately. If RP unavailable, contact the Superintendent Pharmacist. Complete an incident form within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Dispensing error resulting in patient harm",
+      "Change to NHS dispensing contractual requirements"
+    ],
+    appendices:  [
+      "Near Miss Report Form",
+      "Patient Counselling Record"
+    ]
   },
   {
     id:  5,
@@ -216,7 +407,51 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-01-10"
+    effectiveDate:  "2025-01-10",
+    responsibilities:  {
+      pharmacist:  "Perform final clinical check on all dispensed items and authorise handout",
+      technician:  "Accurately label and assemble prescriptions according to SOP steps",
+      dispenser:  "Receive prescriptions, generate labels, and assist with assembly"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.8",
+        date:  "2025-01-10",
+        changes:  "Added enhanced clinical screening steps"
+      }
+    ],
+    trainingRequirements:  [
+      "Medicines labelling and patient counselling training",
+      "GPhC-accredited dispensing competency assessment",
+      "Internal audit methodology and GPhC inspection preparation"
+    ],
+    monitoring:  "Monthly dispensing accuracy audit conducted by the Responsible Pharmacist, with results reported at team meetings",
+    riskAssessment:  [
+      {
+        risk:  "Prescription not meeting legal requirements",
+        mitigation:  "Prescription validity checklist applied at intake stage"
+      },
+      {
+        risk:  "Incorrect labelling or dosage instructions",
+        mitigation:  "Standardised label generation and mandatory label verification step"
+      },
+      {
+        risk:  "Audit findings not addressed within timescale",
+        mitigation:  "CAPA tracker with escalation for overdue actions"
+      }
+    ],
+    escalation:  "Report any dispensing error or near miss to the Responsible Pharmacist immediately. If RP unavailable, contact the Superintendent Pharmacist. Complete an incident form within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Dispensing error resulting in patient harm",
+      "Change to NHS dispensing contractual requirements"
+    ],
+    appendices:  [
+      "Patient Counselling Record",
+      "Near Miss Report Form",
+      "Audit Action Plan Template"
+    ]
   },
   {
     id:  6,
@@ -259,7 +494,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-07-29"
+    effectiveDate:  "2025-07-29",
+    responsibilities:  {
+      pharmacist:  "Perform final clinical check on all dispensed items and authorise handout",
+      technician:  "Accurately label and assemble prescriptions according to SOP steps",
+      dispenser:  "Receive prescriptions, generate labels, and assist with assembly"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2024-07-28",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.1",
+        date:  "2025-07-28",
+        changes:  "Incorporated PMR system upgrade requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "GPhC-accredited dispensing competency assessment",
+      "Medicines labelling and patient counselling training"
+    ],
+    monitoring:  "Monthly dispensing accuracy audit conducted by the Responsible Pharmacist, with results reported at team meetings",
+    riskAssessment:  [
+      {
+        risk:  "Patient allergy or interaction missed",
+        mitigation:  "PMR clinical screening and pharmacist clinical check before handout"
+      },
+      {
+        risk:  "Incorrect labelling or dosage instructions",
+        mitigation:  "Standardised label generation and mandatory label verification step"
+      }
+    ],
+    escalation:  "Report any dispensing error or near miss to the Responsible Pharmacist immediately. If RP unavailable, contact the Superintendent Pharmacist. Complete an incident form within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Dispensing error resulting in patient harm",
+      "Change to NHS dispensing contractual requirements"
+    ],
+    appendices:  [
+      "Prescription Validity Checklist",
+      "Dispensing Error Log"
+    ]
   },
   {
     id:  7,
@@ -300,7 +578,43 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-04-14"
+    effectiveDate:  "2025-04-14",
+    responsibilities:  {
+      pharmacist:  "Perform final clinical check on all dispensed items and authorise handout"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.4",
+        date:  "2025-04-13",
+        changes:  "Incorporated PMR system upgrade requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "Annual dispensing accuracy refresher",
+      "GPhC-accredited dispensing competency assessment"
+    ],
+    monitoring:  "Monthly dispensing accuracy audit conducted by the Responsible Pharmacist, with results reported at team meetings",
+    riskAssessment:  [
+      {
+        risk:  "Incorrect labelling or dosage instructions",
+        mitigation:  "Standardised label generation and mandatory label verification step"
+      },
+      {
+        risk:  "Patient allergy or interaction missed",
+        mitigation:  "PMR clinical screening and pharmacist clinical check before handout"
+      }
+    ],
+    escalation:  "Report any dispensing error or near miss to the Responsible Pharmacist immediately. If RP unavailable, contact the Superintendent Pharmacist. Complete an incident form within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Dispensing error resulting in patient harm",
+      "Change to NHS dispensing contractual requirements"
+    ],
+    appendices:  [
+      "Dispensing Error Log",
+      "Patient Counselling Record"
+    ]
   },
   {
     id:  8,
@@ -341,7 +655,43 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-09-30"
+    effectiveDate:  "2025-09-30",
+    responsibilities:  {
+      pharmacist:  "Perform final clinical check on all dispensed items and authorise handout"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.2",
+        date:  "2025-09-29",
+        changes:  "Added enhanced clinical screening steps"
+      }
+    ],
+    trainingRequirements:  [
+      "Medicines labelling and patient counselling training",
+      "Annual dispensing accuracy refresher"
+    ],
+    monitoring:  "Monthly dispensing accuracy audit conducted by the Responsible Pharmacist, with results reported at team meetings",
+    riskAssessment:  [
+      {
+        risk:  "Wrong medicine dispensed to patient",
+        mitigation:  "Two-stage accuracy checking process with independent final check"
+      },
+      {
+        risk:  "Patient allergy or interaction missed",
+        mitigation:  "PMR clinical screening and pharmacist clinical check before handout"
+      }
+    ],
+    escalation:  "Report any dispensing error or near miss to the Responsible Pharmacist immediately. If RP unavailable, contact the Superintendent Pharmacist. Complete an incident form within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Dispensing error resulting in patient harm",
+      "Change to NHS dispensing contractual requirements"
+    ],
+    appendices:  [
+      "Near Miss Report Form",
+      "Dispensing Error Log"
+    ]
   },
   {
     id:  9,
@@ -383,7 +733,55 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2024-12-20"
+    effectiveDate:  "2024-12-20",
+    responsibilities:  {
+      pharmacist:  "Perform final clinical check on all dispensed items and authorise handout",
+      technician:  "Accurately label and assemble prescriptions according to SOP steps"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2023-12-20",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.6",
+        date:  "2024-12-20",
+        changes:  "Incorporated PMR system upgrade requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "GPhC-accredited dispensing competency assessment",
+      "Annual dispensing accuracy refresher",
+      "Substance misuse service and supervised consumption training"
+    ],
+    monitoring:  "Monthly dispensing accuracy audit conducted by the Responsible Pharmacist, with results reported at team meetings",
+    riskAssessment:  [
+      {
+        risk:  "Prescription not meeting legal requirements",
+        mitigation:  "Prescription validity checklist applied at intake stage"
+      },
+      {
+        risk:  "Incorrect labelling or dosage instructions",
+        mitigation:  "Standardised label generation and mandatory label verification step"
+      },
+      {
+        risk:  "Patient diversion of supervised medication",
+        mitigation:  "Direct observation protocol, patient identity verification, consumption recording"
+      }
+    ],
+    escalation:  "Report any dispensing error or near miss to the Responsible Pharmacist immediately. If RP unavailable, contact the Superintendent Pharmacist. Complete an incident form within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Dispensing error resulting in patient harm",
+      "Change to NHS dispensing contractual requirements"
+    ],
+    appendices:  [
+      "Patient Counselling Record",
+      "Dispensing Error Log",
+      "Supervised Consumption Record Form"
+    ]
   },
   {
     id:  10,
@@ -426,7 +824,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2024-12-28"
+    effectiveDate:  "2024-12-28",
+    responsibilities:  {
+      pharmacist:  "Perform final clinical check on all dispensed items and authorise handout",
+      technician:  "Accurately label and assemble prescriptions according to SOP steps",
+      dispenser:  "Receive prescriptions, generate labels, and assist with assembly"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.9",
+        date:  "2024-12-28",
+        changes:  "Incorporated PMR system upgrade requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "Annual dispensing accuracy refresher",
+      "Medicines labelling and patient counselling training",
+      "Medicine delivery chain of custody and patient verification training"
+    ],
+    monitoring:  "Monthly dispensing accuracy audit conducted by the Responsible Pharmacist, with results reported at team meetings",
+    riskAssessment:  [
+      {
+        risk:  "Patient allergy or interaction missed",
+        mitigation:  "PMR clinical screening and pharmacist clinical check before handout"
+      },
+      {
+        risk:  "Incorrect labelling or dosage instructions",
+        mitigation:  "Standardised label generation and mandatory label verification step"
+      },
+      {
+        risk:  "Medicine left unattended at delivery location",
+        mitigation:  "Safe place agreement with patient consent, delivery confirmation process"
+      }
+    ],
+    escalation:  "Report any dispensing error or near miss to the Responsible Pharmacist immediately. If RP unavailable, contact the Superintendent Pharmacist. Complete an incident form within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Dispensing error resulting in patient harm",
+      "Change to NHS dispensing contractual requirements"
+    ],
+    appendices:  [
+      "Prescription Validity Checklist",
+      "Patient Counselling Record"
+    ]
   },
   {
     id:  56,
@@ -468,7 +909,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-04-29"
+    effectiveDate:  "2025-04-29",
+    responsibilities:  {
+      pharmacist:  "Perform final clinical check on all dispensed items and authorise handout",
+      technician:  "Accurately label and assemble prescriptions according to SOP steps"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.1",
+        date:  "2025-04-28",
+        changes:  "Added enhanced clinical screening steps"
+      }
+    ],
+    trainingRequirements:  [
+      "Medicines labelling and patient counselling training",
+      "Annual dispensing accuracy refresher",
+      "Stock management and medicines procurement procedures"
+    ],
+    monitoring:  "Monthly dispensing accuracy audit conducted by the Responsible Pharmacist, with results reported at team meetings",
+    riskAssessment:  [
+      {
+        risk:  "Wrong medicine dispensed to patient",
+        mitigation:  "Two-stage accuracy checking process with independent final check"
+      },
+      {
+        risk:  "Patient allergy or interaction missed",
+        mitigation:  "PMR clinical screening and pharmacist clinical check before handout"
+      },
+      {
+        risk:  "Expired or recalled medicines remaining on shelves",
+        mitigation:  "Monthly date-checking programme and MHRA alerts monitoring"
+      }
+    ],
+    escalation:  "Report any dispensing error or near miss to the Responsible Pharmacist immediately. If RP unavailable, contact the Superintendent Pharmacist. Complete an incident form within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Dispensing error resulting in patient harm",
+      "Change to NHS dispensing contractual requirements"
+    ],
+    appendices:  [
+      "Near Miss Report Form",
+      "Prescription Validity Checklist",
+      "Stock Check Record"
+    ]
   },
   {
     id:  57,
@@ -511,7 +995,51 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-07-09"
+    effectiveDate:  "2025-07-09",
+    responsibilities:  {
+      pharmacist:  "Perform final clinical check on all dispensed items and authorise handout",
+      technician:  "Accurately label and assemble prescriptions according to SOP steps",
+      dispenser:  "Receive prescriptions, generate labels, and assist with assembly"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.3",
+        date:  "2025-07-08",
+        changes:  "Updated dispensing workflow to align with latest GPhC guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "GPhC-accredited dispensing competency assessment",
+      "Annual dispensing accuracy refresher",
+      "FP10 security, handling, and accountability training"
+    ],
+    monitoring:  "Monthly dispensing accuracy audit conducted by the Responsible Pharmacist, with results reported at team meetings",
+    riskAssessment:  [
+      {
+        risk:  "Prescription not meeting legal requirements",
+        mitigation:  "Prescription validity checklist applied at intake stage"
+      },
+      {
+        risk:  "Incorrect labelling or dosage instructions",
+        mitigation:  "Standardised label generation and mandatory label verification step"
+      },
+      {
+        risk:  "FP10 form theft or misuse",
+        mitigation:  "Secure storage, sequential numbering, and immediate loss reporting to NHSBSA"
+      }
+    ],
+    escalation:  "Report any dispensing error or near miss to the Responsible Pharmacist immediately. If RP unavailable, contact the Superintendent Pharmacist. Complete an incident form within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Dispensing error resulting in patient harm",
+      "Change to NHS dispensing contractual requirements"
+    ],
+    appendices:  [
+      "Patient Counselling Record",
+      "Prescription Validity Checklist",
+      "FP10 Tracking Log"
+    ]
   },
   {
     id:  58,
@@ -555,7 +1083,52 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-05-14"
+    effectiveDate:  "2025-05-14",
+    responsibilities:  {
+      pharmacist:  "Perform final clinical check on all dispensed items and authorise handout",
+      technician:  "Accurately label and assemble prescriptions according to SOP steps",
+      dispenser:  "Receive prescriptions, generate labels, and assist with assembly",
+      aca:  "Perform accuracy checking on assembled items before pharmacist sign-off"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-05-13",
+        changes:  "Incorporated PMR system upgrade requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "Annual dispensing accuracy refresher",
+      "Medicines labelling and patient counselling training",
+      "Pharmaceutical waste segregation and disposal procedures"
+    ],
+    monitoring:  "Monthly dispensing accuracy audit conducted by the Responsible Pharmacist, with results reported at team meetings",
+    riskAssessment:  [
+      {
+        risk:  "Patient allergy or interaction missed",
+        mitigation:  "PMR clinical screening and pharmacist clinical check before handout"
+      },
+      {
+        risk:  "Incorrect labelling or dosage instructions",
+        mitigation:  "Standardised label generation and mandatory label verification step"
+      },
+      {
+        risk:  "Incorrect waste segregation causing contamination",
+        mitigation:  "Colour-coded bins, wall charts, and staff training on waste categories"
+      }
+    ],
+    escalation:  "Report any dispensing error or near miss to the Responsible Pharmacist immediately. If RP unavailable, contact the Superintendent Pharmacist. Complete an incident form within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Dispensing error resulting in patient harm",
+      "Change to NHS dispensing contractual requirements"
+    ],
+    appendices:  [
+      "Prescription Validity Checklist",
+      "Near Miss Report Form",
+      "Waste Segregation Guide"
+    ]
   },
   {
     id:  59,
@@ -597,7 +1170,44 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-06-24"
+    effectiveDate:  "2025-06-24",
+    responsibilities:  {
+      pharmacist:  "Perform final clinical check on all dispensed items and authorise handout",
+      technician:  "Accurately label and assemble prescriptions according to SOP steps"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.4",
+        date:  "2025-06-23",
+        changes:  "Added enhanced clinical screening steps"
+      }
+    ],
+    trainingRequirements:  [
+      "Medicines labelling and patient counselling training",
+      "GPhC-accredited dispensing competency assessment"
+    ],
+    monitoring:  "Monthly dispensing accuracy audit conducted by the Responsible Pharmacist, with results reported at team meetings",
+    riskAssessment:  [
+      {
+        risk:  "Incorrect labelling or dosage instructions",
+        mitigation:  "Standardised label generation and mandatory label verification step"
+      },
+      {
+        risk:  "Patient allergy or interaction missed",
+        mitigation:  "PMR clinical screening and pharmacist clinical check before handout"
+      }
+    ],
+    escalation:  "Report any dispensing error or near miss to the Responsible Pharmacist immediately. If RP unavailable, contact the Superintendent Pharmacist. Complete an incident form within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Dispensing error resulting in patient harm",
+      "Change to NHS dispensing contractual requirements"
+    ],
+    appendices:  [
+      "Dispensing Error Log",
+      "Prescription Validity Checklist"
+    ]
   },
   {
     id:  60,
@@ -640,7 +1250,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-06-04"
+    effectiveDate:  "2025-06-04",
+    responsibilities:  {
+      pharmacist:  "Perform final clinical check on all dispensed items and authorise handout",
+      technician:  "Accurately label and assemble prescriptions according to SOP steps",
+      dispenser:  "Receive prescriptions, generate labels, and assist with assembly"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2024-06-03",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.0",
+        date:  "2025-06-03",
+        changes:  "Incorporated PMR system upgrade requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "GPhC-accredited dispensing competency assessment",
+      "Medicines labelling and patient counselling training"
+    ],
+    monitoring:  "Monthly dispensing accuracy audit conducted by the Responsible Pharmacist, with results reported at team meetings",
+    riskAssessment:  [
+      {
+        risk:  "Wrong medicine dispensed to patient",
+        mitigation:  "Two-stage accuracy checking process with independent final check"
+      },
+      {
+        risk:  "Patient allergy or interaction missed",
+        mitigation:  "PMR clinical screening and pharmacist clinical check before handout"
+      }
+    ],
+    escalation:  "Report any dispensing error or near miss to the Responsible Pharmacist immediately. If RP unavailable, contact the Superintendent Pharmacist. Complete an incident form within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Dispensing error resulting in patient harm",
+      "Change to NHS dispensing contractual requirements"
+    ],
+    appendices:  [
+      "Near Miss Report Form",
+      "Patient Counselling Record"
+    ]
   },
   {
     id:  61,
@@ -682,7 +1335,44 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-09-19"
+    effectiveDate:  "2025-09-19",
+    responsibilities:  {
+      pharmacist:  "Perform final clinical check on all dispensed items and authorise handout",
+      technician:  "Accurately label and assemble prescriptions according to SOP steps"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.2",
+        date:  "2025-09-18",
+        changes:  "Incorporated PMR system upgrade requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "Annual dispensing accuracy refresher",
+      "GPhC-accredited dispensing competency assessment"
+    ],
+    monitoring:  "Monthly dispensing accuracy audit conducted by the Responsible Pharmacist, with results reported at team meetings",
+    riskAssessment:  [
+      {
+        risk:  "Prescription not meeting legal requirements",
+        mitigation:  "Prescription validity checklist applied at intake stage"
+      },
+      {
+        risk:  "Incorrect labelling or dosage instructions",
+        mitigation:  "Standardised label generation and mandatory label verification step"
+      }
+    ],
+    escalation:  "Report any dispensing error or near miss to the Responsible Pharmacist immediately. If RP unavailable, contact the Superintendent Pharmacist. Complete an incident form within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Dispensing error resulting in patient harm",
+      "Change to NHS dispensing contractual requirements"
+    ],
+    appendices:  [
+      "Patient Counselling Record",
+      "Near Miss Report Form"
+    ]
   },
   {
     id:  11,
@@ -722,7 +1412,49 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2024-12-01"
+    effectiveDate:  "2024-12-01",
+    responsibilities:  {
+      pharmacist:  "Verify CD prescriptions meet legal requirements and authorise supply",
+      technician:  "Assist with CD receipt, storage, and register entries under pharmacist supervision"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2023-12-01",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.1",
+        date:  "2024-12-01",
+        changes:  "Revised to reflect latest Misuse of Drugs Regulations amendments"
+      }
+    ],
+    trainingRequirements:  [
+      "Annual CD governance refresher",
+      "Controlled Drugs handling and legislation training"
+    ],
+    monitoring:  "Weekly CD register reconciliation and quarterly audit by superintendent, with records retained for 2 years",
+    riskAssessment:  [
+      {
+        risk:  "Unauthorised access to CD cabinet",
+        mitigation:  "Restricted key access, CCTV monitoring, and access log maintenance"
+      },
+      {
+        risk:  "CD register recording error",
+        mitigation:  "Real-time register entries with independent pharmacist verification"
+      }
+    ],
+    escalation:  "Report any CD discrepancy to the Responsible Pharmacist immediately. Contact the Superintendent Pharmacist and consider reporting to the Home Office CD Liaison Officer within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "CD-related incident or Home Office enquiry",
+      "Amendment to Misuse of Drugs Regulations"
+    ],
+    appendices:  [
+      "CD Destruction Record",
+      "CD Register Template"
+    ]
   },
   {
     id:  12,
@@ -761,7 +1493,43 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-04-29"
+    effectiveDate:  "2025-04-29",
+    responsibilities:  {
+      pharmacist:  "Verify CD prescriptions meet legal requirements and authorise supply"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.3",
+        date:  "2025-04-28",
+        changes:  "Revised to reflect latest Misuse of Drugs Regulations amendments"
+      }
+    ],
+    trainingRequirements:  [
+      "Controlled Drugs handling and legislation training",
+      "Annual CD governance refresher"
+    ],
+    monitoring:  "Weekly CD register reconciliation and quarterly audit by superintendent, with records retained for 2 years",
+    riskAssessment:  [
+      {
+        risk:  "CD stock discrepancy or loss",
+        mitigation:  "Daily running balance checks and dual-witness stock counts"
+      },
+      {
+        risk:  "CD register recording error",
+        mitigation:  "Real-time register entries with independent pharmacist verification"
+      }
+    ],
+    escalation:  "Report any CD discrepancy to the Responsible Pharmacist immediately. Contact the Superintendent Pharmacist and consider reporting to the Home Office CD Liaison Officer within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "CD-related incident or Home Office enquiry",
+      "Amendment to Misuse of Drugs Regulations"
+    ],
+    appendices:  [
+      "CD Register Template",
+      "CD Discrepancy Report Form"
+    ]
   },
   {
     id:  13,
@@ -801,7 +1569,55 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-04-14"
+    effectiveDate:  "2025-04-14",
+    responsibilities:  {
+      pharmacist:  "Verify CD prescriptions meet legal requirements and authorise supply",
+      technician:  "Assist with CD receipt, storage, and register entries under pharmacist supervision"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2024-04-13",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.4",
+        date:  "2025-04-13",
+        changes:  "Enhanced CD register audit requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "CD register maintenance certification",
+      "Controlled Drugs handling and legislation training",
+      "Stock management and medicines procurement procedures"
+    ],
+    monitoring:  "Weekly CD register reconciliation and quarterly audit by superintendent, with records retained for 2 years",
+    riskAssessment:  [
+      {
+        risk:  "CD prescription forgery",
+        mitigation:  "Prescriber verification protocol and CD prescription checklist"
+      },
+      {
+        risk:  "Unauthorised access to CD cabinet",
+        mitigation:  "Restricted key access, CCTV monitoring, and access log maintenance"
+      },
+      {
+        risk:  "Expired or recalled medicines remaining on shelves",
+        mitigation:  "Monthly date-checking programme and MHRA alerts monitoring"
+      }
+    ],
+    escalation:  "Report any CD discrepancy to the Responsible Pharmacist immediately. Contact the Superintendent Pharmacist and consider reporting to the Home Office CD Liaison Officer within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "CD-related incident or Home Office enquiry",
+      "Amendment to Misuse of Drugs Regulations"
+    ],
+    appendices:  [
+      "CD Cabinet Key Log",
+      "CD Discrepancy Report Form",
+      "Stock Check Record"
+    ]
   },
   {
     id:  14,
@@ -843,7 +1659,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2024-11-15"
+    effectiveDate:  "2024-11-15",
+    responsibilities:  {
+      pharmacist:  "Verify CD prescriptions meet legal requirements and authorise supply",
+      manager:  "Conduct monthly CD register audits and manage access controls"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.7",
+        date:  "2024-11-15",
+        changes:  "Enhanced CD register audit requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "Annual CD governance refresher",
+      "CD register maintenance certification",
+      "Internal audit methodology and GPhC inspection preparation"
+    ],
+    monitoring:  "Weekly CD register reconciliation and quarterly audit by superintendent, with records retained for 2 years",
+    riskAssessment:  [
+      {
+        risk:  "CD register recording error",
+        mitigation:  "Real-time register entries with independent pharmacist verification"
+      },
+      {
+        risk:  "Unauthorised access to CD cabinet",
+        mitigation:  "Restricted key access, CCTV monitoring, and access log maintenance"
+      },
+      {
+        risk:  "Audit findings not addressed within timescale",
+        mitigation:  "CAPA tracker with escalation for overdue actions"
+      }
+    ],
+    escalation:  "Report any CD discrepancy to the Responsible Pharmacist immediately. Contact the Superintendent Pharmacist and consider reporting to the Home Office CD Liaison Officer within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "CD-related incident or Home Office enquiry",
+      "Amendment to Misuse of Drugs Regulations"
+    ],
+    appendices:  [
+      "CD Discrepancy Report Form",
+      "CD Register Template",
+      "Audit Action Plan Template"
+    ]
   },
   {
     id:  15,
@@ -883,7 +1742,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-06-30"
+    effectiveDate:  "2025-06-30",
+    responsibilities:  {
+      pharmacist:  "Verify CD prescriptions meet legal requirements and authorise supply",
+      technician:  "Assist with CD receipt, storage, and register entries under pharmacist supervision"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.1",
+        date:  "2025-06-29",
+        changes:  "Revised to reflect latest Misuse of Drugs Regulations amendments"
+      }
+    ],
+    trainingRequirements:  [
+      "Controlled Drugs handling and legislation training",
+      "CD register maintenance certification",
+      "Stock management and medicines procurement procedures"
+    ],
+    monitoring:  "Weekly CD register reconciliation and quarterly audit by superintendent, with records retained for 2 years",
+    riskAssessment:  [
+      {
+        risk:  "Unauthorised access to CD cabinet",
+        mitigation:  "Restricted key access, CCTV monitoring, and access log maintenance"
+      },
+      {
+        risk:  "CD register recording error",
+        mitigation:  "Real-time register entries with independent pharmacist verification"
+      },
+      {
+        risk:  "Expired or recalled medicines remaining on shelves",
+        mitigation:  "Monthly date-checking programme and MHRA alerts monitoring"
+      }
+    ],
+    escalation:  "Report any CD discrepancy to the Responsible Pharmacist immediately. Contact the Superintendent Pharmacist and consider reporting to the Home Office CD Liaison Officer within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "CD-related incident or Home Office enquiry",
+      "Amendment to Misuse of Drugs Regulations"
+    ],
+    appendices:  [
+      "CD Destruction Record",
+      "CD Discrepancy Report Form",
+      "Stock Check Record"
+    ]
   },
   {
     id:  16,
@@ -924,7 +1826,49 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-09-09"
+    effectiveDate:  "2025-09-09",
+    responsibilities:  {
+      pharmacist:  "Verify CD prescriptions meet legal requirements and authorise supply"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-09-08",
+        changes:  "Updated CD destruction procedures"
+      }
+    ],
+    trainingRequirements:  [
+      "CD register maintenance certification",
+      "Annual CD governance refresher",
+      "Emergency first aid at work certification"
+    ],
+    monitoring:  "Weekly CD register reconciliation and quarterly audit by superintendent, with records retained for 2 years",
+    riskAssessment:  [
+      {
+        risk:  "CD stock discrepancy or loss",
+        mitigation:  "Daily running balance checks and dual-witness stock counts"
+      },
+      {
+        risk:  "CD register recording error",
+        mitigation:  "Real-time register entries with independent pharmacist verification"
+      },
+      {
+        risk:  "Delayed response to medical emergency in pharmacy",
+        mitigation:  "First aid kit maintained, trained first aiders on every shift, emergency protocol displayed"
+      }
+    ],
+    escalation:  "Report any CD discrepancy to the Responsible Pharmacist immediately. Contact the Superintendent Pharmacist and consider reporting to the Home Office CD Liaison Officer within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "CD-related incident or Home Office enquiry",
+      "Amendment to Misuse of Drugs Regulations"
+    ],
+    appendices:  [
+      "CD Register Template",
+      "CD Cabinet Key Log",
+      "Emergency Contact List"
+    ]
   },
   {
     id:  17,
@@ -966,7 +1910,55 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-03-05"
+    effectiveDate:  "2025-03-05",
+    responsibilities:  {
+      pharmacist:  "Verify CD prescriptions meet legal requirements and authorise supply",
+      technician:  "Assist with CD receipt, storage, and register entries under pharmacist supervision"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2024-03-05",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.2",
+        date:  "2025-03-05",
+        changes:  "Revised to reflect latest Misuse of Drugs Regulations amendments"
+      }
+    ],
+    trainingRequirements:  [
+      "Annual CD governance refresher",
+      "Controlled Drugs handling and legislation training",
+      "Substance misuse service and supervised consumption training"
+    ],
+    monitoring:  "Weekly CD register reconciliation and quarterly audit by superintendent, with records retained for 2 years",
+    riskAssessment:  [
+      {
+        risk:  "CD prescription forgery",
+        mitigation:  "Prescriber verification protocol and CD prescription checklist"
+      },
+      {
+        risk:  "Unauthorised access to CD cabinet",
+        mitigation:  "Restricted key access, CCTV monitoring, and access log maintenance"
+      },
+      {
+        risk:  "Patient diversion of supervised medication",
+        mitigation:  "Direct observation protocol, patient identity verification, consumption recording"
+      }
+    ],
+    escalation:  "Report any CD discrepancy to the Responsible Pharmacist immediately. Contact the Superintendent Pharmacist and consider reporting to the Home Office CD Liaison Officer within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "CD-related incident or Home Office enquiry",
+      "Amendment to Misuse of Drugs Regulations"
+    ],
+    appendices:  [
+      "CD Cabinet Key Log",
+      "CD Register Template",
+      "Supervised Consumption Record Form"
+    ]
   },
   {
     id:  62,
@@ -1007,7 +1999,45 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-08-19"
+    effectiveDate:  "2025-08-19",
+    responsibilities:  {
+      pharmacist:  "Verify CD prescriptions meet legal requirements and authorise supply",
+      technician:  "Assist with CD receipt, storage, and register entries under pharmacist supervision",
+      dispenser:  "Prepare CD prescriptions for pharmacist verification"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-08-18",
+        changes:  "Enhanced CD register audit requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "Annual CD governance refresher",
+      "CD register maintenance certification"
+    ],
+    monitoring:  "Weekly CD register reconciliation and quarterly audit by superintendent, with records retained for 2 years",
+    riskAssessment:  [
+      {
+        risk:  "CD register recording error",
+        mitigation:  "Real-time register entries with independent pharmacist verification"
+      },
+      {
+        risk:  "Unauthorised access to CD cabinet",
+        mitigation:  "Restricted key access, CCTV monitoring, and access log maintenance"
+      }
+    ],
+    escalation:  "Report any CD discrepancy to the Responsible Pharmacist immediately. Contact the Superintendent Pharmacist and consider reporting to the Home Office CD Liaison Officer within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "CD-related incident or Home Office enquiry",
+      "Amendment to Misuse of Drugs Regulations"
+    ],
+    appendices:  [
+      "CD Discrepancy Report Form",
+      "CD Destruction Record"
+    ]
   },
   {
     id:  63,
@@ -1050,7 +2080,45 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-10-04"
+    effectiveDate:  "2025-10-04",
+    responsibilities:  {
+      pharmacist:  "Verify CD prescriptions meet legal requirements and authorise supply",
+      technician:  "Assist with CD receipt, storage, and register entries under pharmacist supervision",
+      dispenser:  "Prepare CD prescriptions for pharmacist verification"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-10-03",
+        changes:  "Revised to reflect latest Misuse of Drugs Regulations amendments"
+      }
+    ],
+    trainingRequirements:  [
+      "Controlled Drugs handling and legislation training",
+      "CD register maintenance certification"
+    ],
+    monitoring:  "Weekly CD register reconciliation and quarterly audit by superintendent, with records retained for 2 years",
+    riskAssessment:  [
+      {
+        risk:  "Unauthorised access to CD cabinet",
+        mitigation:  "Restricted key access, CCTV monitoring, and access log maintenance"
+      },
+      {
+        risk:  "CD register recording error",
+        mitigation:  "Real-time register entries with independent pharmacist verification"
+      }
+    ],
+    escalation:  "Report any CD discrepancy to the Responsible Pharmacist immediately. Contact the Superintendent Pharmacist and consider reporting to the Home Office CD Liaison Officer within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "CD-related incident or Home Office enquiry",
+      "Amendment to Misuse of Drugs Regulations"
+    ],
+    appendices:  [
+      "CD Destruction Record",
+      "CD Cabinet Key Log"
+    ]
   },
   {
     id:  64,
@@ -1091,7 +2159,49 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-03-15"
+    effectiveDate:  "2025-03-15",
+    responsibilities:  {
+      pharmacist:  "Verify CD prescriptions meet legal requirements and authorise supply"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.2",
+        date:  "2025-03-15",
+        changes:  "Updated CD destruction procedures"
+      }
+    ],
+    trainingRequirements:  [
+      "CD register maintenance certification",
+      "Annual CD governance refresher",
+      "Internal audit methodology and GPhC inspection preparation"
+    ],
+    monitoring:  "Weekly CD register reconciliation and quarterly audit by superintendent, with records retained for 2 years",
+    riskAssessment:  [
+      {
+        risk:  "CD stock discrepancy or loss",
+        mitigation:  "Daily running balance checks and dual-witness stock counts"
+      },
+      {
+        risk:  "CD register recording error",
+        mitigation:  "Real-time register entries with independent pharmacist verification"
+      },
+      {
+        risk:  "Audit findings not addressed within timescale",
+        mitigation:  "CAPA tracker with escalation for overdue actions"
+      }
+    ],
+    escalation:  "Report any CD discrepancy to the Responsible Pharmacist immediately. Contact the Superintendent Pharmacist and consider reporting to the Home Office CD Liaison Officer within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "CD-related incident or Home Office enquiry",
+      "Amendment to Misuse of Drugs Regulations"
+    ],
+    appendices:  [
+      "CD Register Template",
+      "CD Destruction Record",
+      "Audit Action Plan Template"
+    ]
   },
   {
     id:  65,
@@ -1133,7 +2243,44 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-02-20"
+    effectiveDate:  "2025-02-20",
+    responsibilities:  {
+      pharmacist:  "Verify CD prescriptions meet legal requirements and authorise supply",
+      manager:  "Conduct monthly CD register audits and manage access controls"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.1",
+        date:  "2025-02-20",
+        changes:  "Enhanced CD register audit requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "Annual CD governance refresher",
+      "Controlled Drugs handling and legislation training"
+    ],
+    monitoring:  "Weekly CD register reconciliation and quarterly audit by superintendent, with records retained for 2 years",
+    riskAssessment:  [
+      {
+        risk:  "CD prescription forgery",
+        mitigation:  "Prescriber verification protocol and CD prescription checklist"
+      },
+      {
+        risk:  "Unauthorised access to CD cabinet",
+        mitigation:  "Restricted key access, CCTV monitoring, and access log maintenance"
+      }
+    ],
+    escalation:  "Report any CD discrepancy to the Responsible Pharmacist immediately. Contact the Superintendent Pharmacist and consider reporting to the Home Office CD Liaison Officer within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "CD-related incident or Home Office enquiry",
+      "Amendment to Misuse of Drugs Regulations"
+    ],
+    appendices:  [
+      "CD Cabinet Key Log",
+      "CD Destruction Record"
+    ]
   },
   {
     id:  66,
@@ -1176,7 +2323,45 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-05-31"
+    effectiveDate:  "2025-05-31",
+    responsibilities:  {
+      pharmacist:  "Verify CD prescriptions meet legal requirements and authorise supply",
+      manager:  "Conduct monthly CD register audits and manage access controls",
+      superintendent:  "Ensure full compliance with Misuse of Drugs legislation"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-05-30",
+        changes:  "Revised to reflect latest Misuse of Drugs Regulations amendments"
+      }
+    ],
+    trainingRequirements:  [
+      "Controlled Drugs handling and legislation training",
+      "Annual CD governance refresher"
+    ],
+    monitoring:  "Weekly CD register reconciliation and quarterly audit by superintendent, with records retained for 2 years",
+    riskAssessment:  [
+      {
+        risk:  "CD register recording error",
+        mitigation:  "Real-time register entries with independent pharmacist verification"
+      },
+      {
+        risk:  "Unauthorised access to CD cabinet",
+        mitigation:  "Restricted key access, CCTV monitoring, and access log maintenance"
+      }
+    ],
+    escalation:  "Report any CD discrepancy to the Responsible Pharmacist immediately. Contact the Superintendent Pharmacist and consider reporting to the Home Office CD Liaison Officer within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "CD-related incident or Home Office enquiry",
+      "Amendment to Misuse of Drugs Regulations"
+    ],
+    appendices:  [
+      "CD Discrepancy Report Form",
+      "CD Cabinet Key Log"
+    ]
   },
   {
     id:  18,
@@ -1217,7 +2402,48 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-05-19"
+    effectiveDate:  "2025-05-19",
+    responsibilities:  {
+      pharmacist:  "Deliver clinical services, perform patient assessments, and document outcomes"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2024-05-18",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.5",
+        date:  "2025-05-18",
+        changes:  "Added Pharmacy First consultation framework"
+      }
+    ],
+    trainingRequirements:  [
+      "Clinical assessment and consultation skills training",
+      "Relevant clinical service accreditation"
+    ],
+    monitoring:  "Quarterly clinical outcomes audit against NICE benchmarks, with peer review of consultation records",
+    riskAssessment:  [
+      {
+        risk:  "Inadequate patient records",
+        mitigation:  "Mandatory documentation at point of care with audit trail"
+      },
+      {
+        risk:  "Adverse reaction during service delivery",
+        mitigation:  "Emergency medicine kit availability and anaphylaxis training"
+      }
+    ],
+    escalation:  "Escalate clinical concerns to the Responsible Pharmacist on duty. For medical emergencies, call 999. Report adverse reactions via the Yellow Card Scheme within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Adverse clinical outcome or patient complaint",
+      "Update to NICE clinical guidelines or pathways"
+    ],
+    appendices:  [
+      "Referral Letter Template",
+      "Clinical Intervention Record"
+    ]
   },
   {
     id:  19,
@@ -1259,7 +2485,44 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-06-04"
+    effectiveDate:  "2025-06-04",
+    responsibilities:  {
+      pharmacist:  "Deliver clinical services, perform patient assessments, and document outcomes",
+      technician:  "Support clinical service delivery and patient record maintenance"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.8",
+        date:  "2025-06-03",
+        changes:  "Added Pharmacy First consultation framework"
+      }
+    ],
+    trainingRequirements:  [
+      "Safeguarding awareness (Level 2 minimum)",
+      "Clinical assessment and consultation skills training"
+    ],
+    monitoring:  "Quarterly clinical outcomes audit against NICE benchmarks, with peer review of consultation records",
+    riskAssessment:  [
+      {
+        risk:  "Adverse reaction during service delivery",
+        mitigation:  "Emergency medicine kit availability and anaphylaxis training"
+      },
+      {
+        risk:  "Inadequate patient records",
+        mitigation:  "Mandatory documentation at point of care with audit trail"
+      }
+    ],
+    escalation:  "Escalate clinical concerns to the Responsible Pharmacist on duty. For medical emergencies, call 999. Report adverse reactions via the Yellow Card Scheme within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Adverse clinical outcome or patient complaint",
+      "Update to NICE clinical guidelines or pathways"
+    ],
+    appendices:  [
+      "Clinical Intervention Record",
+      "Yellow Card Reporting Form"
+    ]
   },
   {
     id:  20,
@@ -1300,7 +2563,59 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2024-12-01"
+    effectiveDate:  "2024-12-01",
+    responsibilities:  {
+      all:  "Support clinical service delivery within scope of competence"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2022-12-01",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.0",
+        date:  "2023-12-01",
+        changes:  "Updated clinical pathways per latest NICE guidance"
+      },
+      {
+        version:  "3.1",
+        date:  "2024-12-01",
+        changes:  "Added Pharmacy First consultation framework"
+      }
+    ],
+    trainingRequirements:  [
+      "Relevant clinical service accreditation",
+      "Safeguarding awareness (Level 2 minimum)",
+      "Vaccination and immunisation administration accreditation"
+    ],
+    monitoring:  "Post-vaccination adverse reaction monitoring and Yellow Card reporting after each vaccination clinic",
+    riskAssessment:  [
+      {
+        risk:  "Incorrect clinical assessment or diagnosis",
+        mitigation:  "Standardised assessment frameworks and referral pathways"
+      },
+      {
+        risk:  "Inadequate patient records",
+        mitigation:  "Mandatory documentation at point of care with audit trail"
+      },
+      {
+        risk:  "Anaphylactic reaction post-vaccination",
+        mitigation:  "Anaphylaxis kit available, staff trained in emergency response, 15-minute observation period"
+      }
+    ],
+    escalation:  "Escalate clinical concerns to the Responsible Pharmacist on duty. For medical emergencies, call 999. Report adverse reactions via the Yellow Card Scheme within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Adverse clinical outcome or patient complaint",
+      "Update to NICE clinical guidelines or pathways"
+    ],
+    appendices:  [
+      "Patient Assessment Form",
+      "Clinical Intervention Record",
+      "Vaccination Patient Group Direction (PGD)"
+    ]
   },
   {
     id:  21,
@@ -1342,7 +2657,55 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-01-15"
+    effectiveDate:  "2025-01-15",
+    responsibilities:  {
+      pharmacist:  "Deliver clinical services, perform patient assessments, and document outcomes",
+      technician:  "Support clinical service delivery and patient record maintenance"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2024-01-15",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.0",
+        date:  "2025-01-15",
+        changes:  "Added Pharmacy First consultation framework"
+      }
+    ],
+    trainingRequirements:  [
+      "Clinical assessment and consultation skills training",
+      "Safeguarding awareness (Level 2 minimum)",
+      "Vaccination and immunisation administration accreditation"
+    ],
+    monitoring:  "Post-vaccination adverse reaction monitoring and Yellow Card reporting after each vaccination clinic",
+    riskAssessment:  [
+      {
+        risk:  "Safeguarding concern not identified",
+        mitigation:  "Safeguarding training and escalation protocol for all staff"
+      },
+      {
+        risk:  "Adverse reaction during service delivery",
+        mitigation:  "Emergency medicine kit availability and anaphylaxis training"
+      },
+      {
+        risk:  "Anaphylactic reaction post-vaccination",
+        mitigation:  "Anaphylaxis kit available, staff trained in emergency response, 15-minute observation period"
+      }
+    ],
+    escalation:  "Escalate clinical concerns to the Responsible Pharmacist on duty. For medical emergencies, call 999. Report adverse reactions via the Yellow Card Scheme within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Adverse clinical outcome or patient complaint",
+      "Update to NICE clinical guidelines or pathways"
+    ],
+    appendices:  [
+      "Yellow Card Reporting Form",
+      "Clinical Intervention Record",
+      "Vaccination Patient Group Direction (PGD)"
+    ]
   },
   {
     id:  22,
@@ -1383,7 +2746,43 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-09-19"
+    effectiveDate:  "2025-09-19",
+    responsibilities:  {
+      pharmacist:  "Deliver clinical services, perform patient assessments, and document outcomes"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.4",
+        date:  "2025-09-18",
+        changes:  "Added Pharmacy First consultation framework"
+      }
+    ],
+    trainingRequirements:  [
+      "Safeguarding awareness (Level 2 minimum)",
+      "Relevant clinical service accreditation"
+    ],
+    monitoring:  "Quarterly clinical outcomes audit against NICE benchmarks, with peer review of consultation records",
+    riskAssessment:  [
+      {
+        risk:  "Inadequate patient records",
+        mitigation:  "Mandatory documentation at point of care with audit trail"
+      },
+      {
+        risk:  "Adverse reaction during service delivery",
+        mitigation:  "Emergency medicine kit availability and anaphylaxis training"
+      }
+    ],
+    escalation:  "Escalate clinical concerns to the Responsible Pharmacist on duty. For medical emergencies, call 999. Report adverse reactions via the Yellow Card Scheme within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Adverse clinical outcome or patient complaint",
+      "Update to NICE clinical guidelines or pathways"
+    ],
+    appendices:  [
+      "Referral Letter Template",
+      "Yellow Card Reporting Form"
+    ]
   },
   {
     id:  23,
@@ -1424,7 +2823,43 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-05-24"
+    effectiveDate:  "2025-05-24",
+    responsibilities:  {
+      pharmacist:  "Deliver clinical services, perform patient assessments, and document outcomes"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.6",
+        date:  "2025-05-23",
+        changes:  "Enhanced documentation requirements for clinical services"
+      }
+    ],
+    trainingRequirements:  [
+      "Relevant clinical service accreditation",
+      "Clinical assessment and consultation skills training"
+    ],
+    monitoring:  "Quarterly clinical outcomes audit against NICE benchmarks, with peer review of consultation records",
+    riskAssessment:  [
+      {
+        risk:  "Adverse reaction during service delivery",
+        mitigation:  "Emergency medicine kit availability and anaphylaxis training"
+      },
+      {
+        risk:  "Inadequate patient records",
+        mitigation:  "Mandatory documentation at point of care with audit trail"
+      }
+    ],
+    escalation:  "Escalate clinical concerns to the Responsible Pharmacist on duty. For medical emergencies, call 999. Report adverse reactions via the Yellow Card Scheme within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Adverse clinical outcome or patient complaint",
+      "Update to NICE clinical guidelines or pathways"
+    ],
+    appendices:  [
+      "Clinical Intervention Record",
+      "Patient Assessment Form"
+    ]
   },
   {
     id:  24,
@@ -1465,7 +2900,54 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2024-11-10"
+    effectiveDate:  "2024-11-10",
+    responsibilities:  {
+      pharmacist:  "Deliver clinical services, perform patient assessments, and document outcomes"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2023-11-10",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.2",
+        date:  "2024-11-10",
+        changes:  "Added Pharmacy First consultation framework"
+      }
+    ],
+    trainingRequirements:  [
+      "Clinical assessment and consultation skills training",
+      "Relevant clinical service accreditation",
+      "Emergency first aid at work certification"
+    ],
+    monitoring:  "Quarterly clinical outcomes audit against NICE benchmarks, with peer review of consultation records",
+    riskAssessment:  [
+      {
+        risk:  "Incorrect clinical assessment or diagnosis",
+        mitigation:  "Standardised assessment frameworks and referral pathways"
+      },
+      {
+        risk:  "Inadequate patient records",
+        mitigation:  "Mandatory documentation at point of care with audit trail"
+      },
+      {
+        risk:  "Delayed response to medical emergency in pharmacy",
+        mitigation:  "First aid kit maintained, trained first aiders on every shift, emergency protocol displayed"
+      }
+    ],
+    escalation:  "Escalate clinical concerns to the Responsible Pharmacist on duty. For medical emergencies, call 999. Report adverse reactions via the Yellow Card Scheme within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Adverse clinical outcome or patient complaint",
+      "Update to NICE clinical guidelines or pathways"
+    ],
+    appendices:  [
+      "Patient Assessment Form",
+      "Referral Letter Template",
+      "Emergency Contact List"
+    ]
   },
   {
     id:  25,
@@ -1506,7 +2988,49 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2024-11-20"
+    effectiveDate:  "2024-11-20",
+    responsibilities:  {
+      all:  "Support clinical service delivery within scope of competence"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.9",
+        date:  "2024-11-20",
+        changes:  "Added Pharmacy First consultation framework"
+      }
+    ],
+    trainingRequirements:  [
+      "Safeguarding awareness (Level 2 minimum)",
+      "Clinical assessment and consultation skills training",
+      "Safeguarding Level 2 certification (adults and children)"
+    ],
+    monitoring:  "Quarterly clinical outcomes audit against NICE benchmarks, with peer review of consultation records",
+    riskAssessment:  [
+      {
+        risk:  "Safeguarding concern not identified",
+        mitigation:  "Safeguarding training and escalation protocol for all staff"
+      },
+      {
+        risk:  "Adverse reaction during service delivery",
+        mitigation:  "Emergency medicine kit availability and anaphylaxis training"
+      },
+      {
+        risk:  "Failure to identify safeguarding concern",
+        mitigation:  "Safeguarding training, professional curiosity framework, and clear escalation pathway"
+      }
+    ],
+    escalation:  "Escalate clinical concerns to the Responsible Pharmacist on duty. For medical emergencies, call 999. Report adverse reactions via the Yellow Card Scheme within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Adverse clinical outcome or patient complaint",
+      "Update to NICE clinical guidelines or pathways"
+    ],
+    appendices:  [
+      "Yellow Card Reporting Form",
+      "Referral Letter Template",
+      "Safeguarding Referral Form"
+    ]
   },
   {
     id:  67,
@@ -1547,7 +3071,43 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-05-09"
+    effectiveDate:  "2025-05-09",
+    responsibilities:  {
+      pharmacist:  "Deliver clinical services, perform patient assessments, and document outcomes"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-05-08",
+        changes:  "Added Pharmacy First consultation framework"
+      }
+    ],
+    trainingRequirements:  [
+      "Safeguarding awareness (Level 2 minimum)",
+      "Clinical assessment and consultation skills training"
+    ],
+    monitoring:  "Quarterly clinical outcomes audit against NICE benchmarks, with peer review of consultation records",
+    riskAssessment:  [
+      {
+        risk:  "Adverse reaction during service delivery",
+        mitigation:  "Emergency medicine kit availability and anaphylaxis training"
+      },
+      {
+        risk:  "Inadequate patient records",
+        mitigation:  "Mandatory documentation at point of care with audit trail"
+      }
+    ],
+    escalation:  "Escalate clinical concerns to the Responsible Pharmacist on duty. For medical emergencies, call 999. Report adverse reactions via the Yellow Card Scheme within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Adverse clinical outcome or patient complaint",
+      "Update to NICE clinical guidelines or pathways"
+    ],
+    appendices:  [
+      "Clinical Intervention Record",
+      "Patient Assessment Form"
+    ]
   },
   {
     id:  68,
@@ -1588,7 +3148,54 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-05-14"
+    effectiveDate:  "2025-05-14",
+    responsibilities:  {
+      pharmacist:  "Deliver clinical services, perform patient assessments, and document outcomes"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2024-05-13",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.1",
+        date:  "2025-05-13",
+        changes:  "Updated clinical pathways per latest NICE guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "Relevant clinical service accreditation",
+      "Safeguarding awareness (Level 2 minimum)",
+      "Pharmaceutical waste segregation and disposal procedures"
+    ],
+    monitoring:  "Quarterly clinical outcomes audit against NICE benchmarks, with peer review of consultation records",
+    riskAssessment:  [
+      {
+        risk:  "Incorrect clinical assessment or diagnosis",
+        mitigation:  "Standardised assessment frameworks and referral pathways"
+      },
+      {
+        risk:  "Inadequate patient records",
+        mitigation:  "Mandatory documentation at point of care with audit trail"
+      },
+      {
+        risk:  "Incorrect waste segregation causing contamination",
+        mitigation:  "Colour-coded bins, wall charts, and staff training on waste categories"
+      }
+    ],
+    escalation:  "Escalate clinical concerns to the Responsible Pharmacist on duty. For medical emergencies, call 999. Report adverse reactions via the Yellow Card Scheme within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Adverse clinical outcome or patient complaint",
+      "Update to NICE clinical guidelines or pathways"
+    ],
+    appendices:  [
+      "Patient Assessment Form",
+      "Referral Letter Template",
+      "Waste Segregation Guide"
+    ]
   },
   {
     id:  69,
@@ -1629,7 +3236,49 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-03-20"
+    effectiveDate:  "2025-03-20",
+    responsibilities:  {
+      pharmacist:  "Deliver clinical services, perform patient assessments, and document outcomes"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.5",
+        date:  "2025-03-20",
+        changes:  "Updated clinical pathways per latest NICE guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "Clinical assessment and consultation skills training",
+      "Safeguarding awareness (Level 2 minimum)",
+      "Infection prevention and control procedures"
+    ],
+    monitoring:  "Quarterly clinical outcomes audit against NICE benchmarks, with peer review of consultation records",
+    riskAssessment:  [
+      {
+        risk:  "Safeguarding concern not identified",
+        mitigation:  "Safeguarding training and escalation protocol for all staff"
+      },
+      {
+        risk:  "Adverse reaction during service delivery",
+        mitigation:  "Emergency medicine kit availability and anaphylaxis training"
+      },
+      {
+        risk:  "Cross-contamination between preparation areas",
+        mitigation:  "Cleaning schedules, surface disinfection protocol, and hand hygiene compliance"
+      }
+    ],
+    escalation:  "Escalate clinical concerns to the Responsible Pharmacist on duty. For medical emergencies, call 999. Report adverse reactions via the Yellow Card Scheme within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Adverse clinical outcome or patient complaint",
+      "Update to NICE clinical guidelines or pathways"
+    ],
+    appendices:  [
+      "Yellow Card Reporting Form",
+      "Referral Letter Template",
+      "Cleaning Verification Record"
+    ]
   },
   {
     id:  70,
@@ -1670,7 +3319,54 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2024-12-01"
+    effectiveDate:  "2024-12-01",
+    responsibilities:  {
+      pharmacist:  "Deliver clinical services, perform patient assessments, and document outcomes"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2023-12-01",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.3",
+        date:  "2024-12-01",
+        changes:  "Enhanced documentation requirements for clinical services"
+      }
+    ],
+    trainingRequirements:  [
+      "Safeguarding awareness (Level 2 minimum)",
+      "Relevant clinical service accreditation",
+      "Vaccination and immunisation administration accreditation"
+    ],
+    monitoring:  "Post-vaccination adverse reaction monitoring and Yellow Card reporting after each vaccination clinic",
+    riskAssessment:  [
+      {
+        risk:  "Inadequate patient records",
+        mitigation:  "Mandatory documentation at point of care with audit trail"
+      },
+      {
+        risk:  "Adverse reaction during service delivery",
+        mitigation:  "Emergency medicine kit availability and anaphylaxis training"
+      },
+      {
+        risk:  "Anaphylactic reaction post-vaccination",
+        mitigation:  "Anaphylaxis kit available, staff trained in emergency response, 15-minute observation period"
+      }
+    ],
+    escalation:  "Escalate clinical concerns to the Responsible Pharmacist on duty. For medical emergencies, call 999. Report adverse reactions via the Yellow Card Scheme within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Adverse clinical outcome or patient complaint",
+      "Update to NICE clinical guidelines or pathways"
+    ],
+    appendices:  [
+      "Referral Letter Template",
+      "Patient Assessment Form",
+      "Vaccination Patient Group Direction (PGD)"
+    ]
   },
   {
     id:  71,
@@ -1711,7 +3407,59 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2024-09-24"
+    effectiveDate:  "2024-09-24",
+    responsibilities:  {
+      pharmacist:  "Deliver clinical services, perform patient assessments, and document outcomes"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2022-09-23",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.0",
+        date:  "2023-09-23",
+        changes:  "Updated clinical pathways per latest NICE guidance"
+      },
+      {
+        version:  "3.0",
+        date:  "2024-09-23",
+        changes:  "Added Pharmacy First consultation framework"
+      }
+    ],
+    trainingRequirements:  [
+      "Relevant clinical service accreditation",
+      "Clinical assessment and consultation skills training",
+      "Vaccination and immunisation administration accreditation"
+    ],
+    monitoring:  "Post-vaccination adverse reaction monitoring and Yellow Card reporting after each vaccination clinic",
+    riskAssessment:  [
+      {
+        risk:  "Adverse reaction during service delivery",
+        mitigation:  "Emergency medicine kit availability and anaphylaxis training"
+      },
+      {
+        risk:  "Inadequate patient records",
+        mitigation:  "Mandatory documentation at point of care with audit trail"
+      },
+      {
+        risk:  "Anaphylactic reaction post-vaccination",
+        mitigation:  "Anaphylaxis kit available, staff trained in emergency response, 15-minute observation period"
+      }
+    ],
+    escalation:  "Escalate clinical concerns to the Responsible Pharmacist on duty. For medical emergencies, call 999. Report adverse reactions via the Yellow Card Scheme within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Adverse clinical outcome or patient complaint",
+      "Update to NICE clinical guidelines or pathways"
+    ],
+    appendices:  [
+      "Clinical Intervention Record",
+      "Referral Letter Template",
+      "Vaccination Patient Group Direction (PGD)"
+    ]
   },
   {
     id:  72,
@@ -1753,7 +3501,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-08-31"
+    effectiveDate:  "2025-08-31",
+    responsibilities:  {
+      pharmacist:  "Deliver clinical services, perform patient assessments, and document outcomes",
+      technician:  "Support clinical service delivery and patient record maintenance"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.2",
+        date:  "2025-08-30",
+        changes:  "Updated clinical pathways per latest NICE guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "Clinical assessment and consultation skills training",
+      "Relevant clinical service accreditation",
+      "Blood pressure measurement and interpretation training"
+    ],
+    monitoring:  "Quarterly clinical outcomes audit against NICE benchmarks, with peer review of consultation records",
+    riskAssessment:  [
+      {
+        risk:  "Incorrect clinical assessment or diagnosis",
+        mitigation:  "Standardised assessment frameworks and referral pathways"
+      },
+      {
+        risk:  "Inadequate patient records",
+        mitigation:  "Mandatory documentation at point of care with audit trail"
+      },
+      {
+        risk:  "Incorrect blood pressure reading due to technique error",
+        mitigation:  "Standardised measurement protocol and calibrated equipment"
+      }
+    ],
+    escalation:  "Escalate clinical concerns to the Responsible Pharmacist on duty. For medical emergencies, call 999. Report adverse reactions via the Yellow Card Scheme within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Adverse clinical outcome or patient complaint",
+      "Update to NICE clinical guidelines or pathways"
+    ],
+    appendices:  [
+      "Patient Assessment Form",
+      "Yellow Card Reporting Form",
+      "Blood Pressure Screening Record Form"
+    ]
   },
   {
     id:  73,
@@ -1794,7 +3585,48 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-03-30"
+    effectiveDate:  "2025-03-30",
+    responsibilities:  {
+      pharmacist:  "Deliver clinical services, perform patient assessments, and document outcomes"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.4",
+        date:  "2025-03-30",
+        changes:  "Added Pharmacy First consultation framework"
+      }
+    ],
+    trainingRequirements:  [
+      "Safeguarding awareness (Level 2 minimum)",
+      "Clinical assessment and consultation skills training",
+      "Smoking cessation counselling and NRT product training"
+    ],
+    monitoring:  "Quarterly clinical outcomes audit against NICE benchmarks, with peer review of consultation records",
+    riskAssessment:  [
+      {
+        risk:  "Safeguarding concern not identified",
+        mitigation:  "Safeguarding training and escalation protocol for all staff"
+      },
+      {
+        risk:  "Adverse reaction during service delivery",
+        mitigation:  "Emergency medicine kit availability and anaphylaxis training"
+      },
+      {
+        risk:  "Inappropriate NRT recommendation",
+        mitigation:  "Patient assessment checklist and contraindication screening"
+      }
+    ],
+    escalation:  "Escalate clinical concerns to the Responsible Pharmacist on duty. For medical emergencies, call 999. Report adverse reactions via the Yellow Card Scheme within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Adverse clinical outcome or patient complaint",
+      "Update to NICE clinical guidelines or pathways"
+    ],
+    appendices:  [
+      "Yellow Card Reporting Form",
+      "Patient Assessment Form"
+    ]
   },
   {
     id:  74,
@@ -1835,7 +3667,49 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-08-09"
+    effectiveDate:  "2025-08-09",
+    responsibilities:  {
+      pharmacist:  "Deliver clinical services, perform patient assessments, and document outcomes"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.1",
+        date:  "2025-08-08",
+        changes:  "Enhanced documentation requirements for clinical services"
+      }
+    ],
+    trainingRequirements:  [
+      "Relevant clinical service accreditation",
+      "Safeguarding awareness (Level 2 minimum)",
+      "Stock management and medicines procurement procedures"
+    ],
+    monitoring:  "Quarterly clinical outcomes audit against NICE benchmarks, with peer review of consultation records",
+    riskAssessment:  [
+      {
+        risk:  "Inadequate patient records",
+        mitigation:  "Mandatory documentation at point of care with audit trail"
+      },
+      {
+        risk:  "Adverse reaction during service delivery",
+        mitigation:  "Emergency medicine kit availability and anaphylaxis training"
+      },
+      {
+        risk:  "Expired or recalled medicines remaining on shelves",
+        mitigation:  "Monthly date-checking programme and MHRA alerts monitoring"
+      }
+    ],
+    escalation:  "Escalate clinical concerns to the Responsible Pharmacist on duty. For medical emergencies, call 999. Report adverse reactions via the Yellow Card Scheme within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Adverse clinical outcome or patient complaint",
+      "Update to NICE clinical guidelines or pathways"
+    ],
+    appendices:  [
+      "Referral Letter Template",
+      "Clinical Intervention Record",
+      "Stock Check Record"
+    ]
   },
   {
     id:  75,
@@ -1877,7 +3751,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-05-19"
+    effectiveDate:  "2025-05-19",
+    responsibilities:  {
+      pharmacist:  "Deliver clinical services, perform patient assessments, and document outcomes",
+      technician:  "Support clinical service delivery and patient record maintenance"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.8",
+        date:  "2025-05-18",
+        changes:  "Updated clinical pathways per latest NICE guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "Clinical assessment and consultation skills training",
+      "Safeguarding awareness (Level 2 minimum)",
+      "UK GDPR and data protection awareness training"
+    ],
+    monitoring:  "Quarterly clinical outcomes audit against NICE benchmarks, with peer review of consultation records",
+    riskAssessment:  [
+      {
+        risk:  "Adverse reaction during service delivery",
+        mitigation:  "Emergency medicine kit availability and anaphylaxis training"
+      },
+      {
+        risk:  "Inadequate patient records",
+        mitigation:  "Mandatory documentation at point of care with audit trail"
+      },
+      {
+        risk:  "Unauthorised disclosure of patient data",
+        mitigation:  "Access controls, encryption, and mandatory data protection training"
+      }
+    ],
+    escalation:  "Escalate clinical concerns to the Responsible Pharmacist on duty. For medical emergencies, call 999. Report adverse reactions via the Yellow Card Scheme within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Adverse clinical outcome or patient complaint",
+      "Update to NICE clinical guidelines or pathways"
+    ],
+    appendices:  [
+      "Clinical Intervention Record",
+      "Yellow Card Reporting Form",
+      "Data Subject Access Request Form"
+    ]
   },
   {
     id:  26,
@@ -1919,7 +3836,49 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-08-14"
+    effectiveDate:  "2025-08-14",
+    responsibilities:  {
+      pharmacist:  "Act as Responsible Pharmacist and ensure governance compliance on shift",
+      manager:  "Maintain governance documentation and conduct internal audits"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2024-08-13",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.0",
+        date:  "2025-08-13",
+        changes:  "Revised governance framework following GPhC inspection feedback"
+      }
+    ],
+    trainingRequirements:  [
+      "Responsible Pharmacist awareness module",
+      "Incident reporting and root cause analysis"
+    ],
+    monitoring:  "Annual governance framework review and bi-monthly compliance spot-checks by the superintendent",
+    riskAssessment:  [
+      {
+        risk:  "Outdated SOPs in use",
+        mitigation:  "Automated review date tracking and version control system"
+      },
+      {
+        risk:  "Failure to report notifiable incident",
+        mitigation:  "Incident classification matrix and mandatory reporting flowchart"
+      }
+    ],
+    escalation:  "Report governance breaches to the Pharmacy Manager. For serious regulatory concerns, escalate to the Superintendent Pharmacist immediately. Consider GPhC notification if required.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC inspection finding or enforcement action",
+      "Organisational restructure or change of superintendent"
+    ],
+    appendices:  [
+      "Audit Checklist Template",
+      "Incident Report Form"
+    ]
   },
   {
     id:  27,
@@ -1960,7 +3919,48 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-03-30"
+    effectiveDate:  "2025-03-30",
+    responsibilities:  {
+      all:  "Follow governance procedures and report any compliance concerns"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2024-03-30",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.3",
+        date:  "2025-03-30",
+        changes:  "Updated incident reporting classifications"
+      }
+    ],
+    trainingRequirements:  [
+      "GPhC regulatory framework awareness training",
+      "Incident reporting and root cause analysis"
+    ],
+    monitoring:  "Annual governance framework review and bi-monthly compliance spot-checks by the superintendent",
+    riskAssessment:  [
+      {
+        risk:  "Failure to report notifiable incident",
+        mitigation:  "Incident classification matrix and mandatory reporting flowchart"
+      },
+      {
+        risk:  "Outdated SOPs in use",
+        mitigation:  "Automated review date tracking and version control system"
+      }
+    ],
+    escalation:  "Report governance breaches to the Pharmacy Manager. For serious regulatory concerns, escalate to the Superintendent Pharmacist immediately. Consider GPhC notification if required.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC inspection finding or enforcement action",
+      "Organisational restructure or change of superintendent"
+    ],
+    appendices:  [
+      "SOP Acknowledgement Record",
+      "Audit Checklist Template"
+    ]
   },
   {
     id:  28,
@@ -2001,7 +4001,59 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-05-31"
+    effectiveDate:  "2025-05-31",
+    responsibilities:  {
+      all:  "Follow governance procedures and report any compliance concerns"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2023-05-30",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.0",
+        date:  "2024-05-30",
+        changes:  "Enhanced SOP review and version control process"
+      },
+      {
+        version:  "3.0",
+        date:  "2025-05-30",
+        changes:  "Revised governance framework following GPhC inspection feedback"
+      }
+    ],
+    trainingRequirements:  [
+      "Incident reporting and root cause analysis",
+      "Responsible Pharmacist awareness module",
+      "UK GDPR and data protection awareness training"
+    ],
+    monitoring:  "Annual governance framework review and bi-monthly compliance spot-checks by the superintendent",
+    riskAssessment:  [
+      {
+        risk:  "Regulatory non-compliance identified during inspection",
+        mitigation:  "Scheduled internal audits and pre-inspection readiness checks"
+      },
+      {
+        risk:  "Outdated SOPs in use",
+        mitigation:  "Automated review date tracking and version control system"
+      },
+      {
+        risk:  "Unauthorised disclosure of patient data",
+        mitigation:  "Access controls, encryption, and mandatory data protection training"
+      }
+    ],
+    escalation:  "Report governance breaches to the Pharmacy Manager. For serious regulatory concerns, escalate to the Superintendent Pharmacist immediately. Consider GPhC notification if required.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC inspection finding or enforcement action",
+      "Organisational restructure or change of superintendent"
+    ],
+    appendices:  [
+      "Incident Report Form",
+      "Complaints Log",
+      "Data Subject Access Request Form"
+    ]
   },
   {
     id:  29,
@@ -2044,7 +4096,51 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-01-20"
+    effectiveDate:  "2025-01-20",
+    responsibilities:  {
+      pharmacist:  "Act as Responsible Pharmacist and ensure governance compliance on shift",
+      manager:  "Maintain governance documentation and conduct internal audits",
+      superintendent:  "Oversee all governance frameworks and regulatory compliance"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.5",
+        date:  "2025-01-20",
+        changes:  "Enhanced SOP review and version control process"
+      }
+    ],
+    trainingRequirements:  [
+      "Responsible Pharmacist awareness module",
+      "GPhC regulatory framework awareness training",
+      "Complaint handling and patient communication skills"
+    ],
+    monitoring:  "Annual governance framework review and bi-monthly compliance spot-checks by the superintendent",
+    riskAssessment:  [
+      {
+        risk:  "Staff unaware of policy changes",
+        mitigation:  "Mandatory SOP acknowledgement system with completion tracking"
+      },
+      {
+        risk:  "Failure to report notifiable incident",
+        mitigation:  "Incident classification matrix and mandatory reporting flowchart"
+      },
+      {
+        risk:  "Complaint not resolved within required timeframe",
+        mitigation:  "Complaint tracking system with escalation at 48-hour and 20-day checkpoints"
+      }
+    ],
+    escalation:  "Report governance breaches to the Pharmacy Manager. For serious regulatory concerns, escalate to the Superintendent Pharmacist immediately. Consider GPhC notification if required.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC inspection finding or enforcement action",
+      "Organisational restructure or change of superintendent"
+    ],
+    appendices:  [
+      "Complaints Log",
+      "Incident Report Form",
+      "Complaint Record Form"
+    ]
   },
   {
     id:  30,
@@ -2086,7 +4182,44 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-08-09"
+    effectiveDate:  "2025-08-09",
+    responsibilities:  {
+      pharmacist:  "Act as Responsible Pharmacist and ensure governance compliance on shift",
+      superintendent:  "Oversee all governance frameworks and regulatory compliance"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.2",
+        date:  "2025-08-08",
+        changes:  "Revised governance framework following GPhC inspection feedback"
+      }
+    ],
+    trainingRequirements:  [
+      "GPhC regulatory framework awareness training",
+      "Responsible Pharmacist awareness module"
+    ],
+    monitoring:  "Annual governance framework review and bi-monthly compliance spot-checks by the superintendent",
+    riskAssessment:  [
+      {
+        risk:  "Outdated SOPs in use",
+        mitigation:  "Automated review date tracking and version control system"
+      },
+      {
+        risk:  "Failure to report notifiable incident",
+        mitigation:  "Incident classification matrix and mandatory reporting flowchart"
+      }
+    ],
+    escalation:  "Report governance breaches to the Pharmacy Manager. For serious regulatory concerns, escalate to the Superintendent Pharmacist immediately. Consider GPhC notification if required.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC inspection finding or enforcement action",
+      "Organisational restructure or change of superintendent"
+    ],
+    appendices:  [
+      "Audit Checklist Template",
+      "SOP Acknowledgement Record"
+    ]
   },
   {
     id:  31,
@@ -2127,7 +4260,49 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-09-04"
+    effectiveDate:  "2025-09-04",
+    responsibilities:  {
+      all:  "Follow governance procedures and report any compliance concerns"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-09-03",
+        changes:  "Updated incident reporting classifications"
+      }
+    ],
+    trainingRequirements:  [
+      "Incident reporting and root cause analysis",
+      "GPhC regulatory framework awareness training",
+      "UK GDPR and data protection awareness training"
+    ],
+    monitoring:  "Annual governance framework review and bi-monthly compliance spot-checks by the superintendent",
+    riskAssessment:  [
+      {
+        risk:  "Failure to report notifiable incident",
+        mitigation:  "Incident classification matrix and mandatory reporting flowchart"
+      },
+      {
+        risk:  "Outdated SOPs in use",
+        mitigation:  "Automated review date tracking and version control system"
+      },
+      {
+        risk:  "Unauthorised disclosure of patient data",
+        mitigation:  "Access controls, encryption, and mandatory data protection training"
+      }
+    ],
+    escalation:  "Report governance breaches to the Pharmacy Manager. For serious regulatory concerns, escalate to the Superintendent Pharmacist immediately. Consider GPhC notification if required.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC inspection finding or enforcement action",
+      "Organisational restructure or change of superintendent"
+    ],
+    appendices:  [
+      "SOP Acknowledgement Record",
+      "Complaints Log",
+      "Data Subject Access Request Form"
+    ]
   },
   {
     id:  32,
@@ -2169,7 +4344,49 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2024-09-30"
+    effectiveDate:  "2024-09-30",
+    responsibilities:  {
+      superintendent:  "Oversee all governance frameworks and regulatory compliance",
+      manager:  "Maintain governance documentation and conduct internal audits"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2023-09-29",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.1",
+        date:  "2024-09-29",
+        changes:  "Revised governance framework following GPhC inspection feedback"
+      }
+    ],
+    trainingRequirements:  [
+      "Responsible Pharmacist awareness module",
+      "Incident reporting and root cause analysis"
+    ],
+    monitoring:  "Annual governance framework review and bi-monthly compliance spot-checks by the superintendent",
+    riskAssessment:  [
+      {
+        risk:  "Regulatory non-compliance identified during inspection",
+        mitigation:  "Scheduled internal audits and pre-inspection readiness checks"
+      },
+      {
+        risk:  "Outdated SOPs in use",
+        mitigation:  "Automated review date tracking and version control system"
+      }
+    ],
+    escalation:  "Report governance breaches to the Pharmacy Manager. For serious regulatory concerns, escalate to the Superintendent Pharmacist immediately. Consider GPhC notification if required.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC inspection finding or enforcement action",
+      "Organisational restructure or change of superintendent"
+    ],
+    appendices:  [
+      "Incident Report Form",
+      "SOP Acknowledgement Record"
+    ]
   },
   {
     id:  33,
@@ -2212,7 +4429,51 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-07-19"
+    effectiveDate:  "2025-07-19",
+    responsibilities:  {
+      pharmacist:  "Act as Responsible Pharmacist and ensure governance compliance on shift",
+      manager:  "Maintain governance documentation and conduct internal audits",
+      dispenser:  "Adhere to governance policies and escalate concerns"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.3",
+        date:  "2025-07-18",
+        changes:  "Revised governance framework following GPhC inspection feedback"
+      }
+    ],
+    trainingRequirements:  [
+      "GPhC regulatory framework awareness training",
+      "Incident reporting and root cause analysis",
+      "Stock management and medicines procurement procedures"
+    ],
+    monitoring:  "Annual governance framework review and bi-monthly compliance spot-checks by the superintendent",
+    riskAssessment:  [
+      {
+        risk:  "Staff unaware of policy changes",
+        mitigation:  "Mandatory SOP acknowledgement system with completion tracking"
+      },
+      {
+        risk:  "Failure to report notifiable incident",
+        mitigation:  "Incident classification matrix and mandatory reporting flowchart"
+      },
+      {
+        risk:  "Expired or recalled medicines remaining on shelves",
+        mitigation:  "Monthly date-checking programme and MHRA alerts monitoring"
+      }
+    ],
+    escalation:  "Report governance breaches to the Pharmacy Manager. For serious regulatory concerns, escalate to the Superintendent Pharmacist immediately. Consider GPhC notification if required.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC inspection finding or enforcement action",
+      "Organisational restructure or change of superintendent"
+    ],
+    appendices:  [
+      "Complaints Log",
+      "SOP Acknowledgement Record",
+      "Stock Check Record"
+    ]
   },
   {
     id:  76,
@@ -2254,7 +4515,44 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-04-14"
+    effectiveDate:  "2025-04-14",
+    responsibilities:  {
+      superintendent:  "Oversee all governance frameworks and regulatory compliance",
+      manager:  "Maintain governance documentation and conduct internal audits"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-04-13",
+        changes:  "Updated incident reporting classifications"
+      }
+    ],
+    trainingRequirements:  [
+      "Incident reporting and root cause analysis",
+      "Responsible Pharmacist awareness module"
+    ],
+    monitoring:  "Annual governance framework review and bi-monthly compliance spot-checks by the superintendent",
+    riskAssessment:  [
+      {
+        risk:  "Regulatory non-compliance identified during inspection",
+        mitigation:  "Scheduled internal audits and pre-inspection readiness checks"
+      },
+      {
+        risk:  "Outdated SOPs in use",
+        mitigation:  "Automated review date tracking and version control system"
+      }
+    ],
+    escalation:  "Report governance breaches to the Pharmacy Manager. For serious regulatory concerns, escalate to the Superintendent Pharmacist immediately. Consider GPhC notification if required.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC inspection finding or enforcement action",
+      "Organisational restructure or change of superintendent"
+    ],
+    appendices:  [
+      "Incident Report Form",
+      "SOP Acknowledgement Record"
+    ]
   },
   {
     id:  77,
@@ -2297,7 +4595,51 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-06-09"
+    effectiveDate:  "2025-06-09",
+    responsibilities:  {
+      superintendent:  "Oversee all governance frameworks and regulatory compliance",
+      manager:  "Maintain governance documentation and conduct internal audits",
+      pharmacist:  "Act as Responsible Pharmacist and ensure governance compliance on shift"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.2",
+        date:  "2025-06-08",
+        changes:  "Enhanced SOP review and version control process"
+      }
+    ],
+    trainingRequirements:  [
+      "Responsible Pharmacist awareness module",
+      "GPhC regulatory framework awareness training",
+      "Internal audit methodology and GPhC inspection preparation"
+    ],
+    monitoring:  "Annual governance framework review and bi-monthly compliance spot-checks by the superintendent",
+    riskAssessment:  [
+      {
+        risk:  "Staff unaware of policy changes",
+        mitigation:  "Mandatory SOP acknowledgement system with completion tracking"
+      },
+      {
+        risk:  "Failure to report notifiable incident",
+        mitigation:  "Incident classification matrix and mandatory reporting flowchart"
+      },
+      {
+        risk:  "Audit findings not addressed within timescale",
+        mitigation:  "CAPA tracker with escalation for overdue actions"
+      }
+    ],
+    escalation:  "Report governance breaches to the Pharmacy Manager. For serious regulatory concerns, escalate to the Superintendent Pharmacist immediately. Consider GPhC notification if required.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC inspection finding or enforcement action",
+      "Organisational restructure or change of superintendent"
+    ],
+    appendices:  [
+      "Complaints Log",
+      "SOP Acknowledgement Record",
+      "Audit Action Plan Template"
+    ]
   },
   {
     id:  78,
@@ -2339,7 +4681,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2024-12-28"
+    effectiveDate:  "2024-12-28",
+    responsibilities:  {
+      superintendent:  "Oversee all governance frameworks and regulatory compliance",
+      manager:  "Maintain governance documentation and conduct internal audits"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.1",
+        date:  "2024-12-28",
+        changes:  "Revised governance framework following GPhC inspection feedback"
+      }
+    ],
+    trainingRequirements:  [
+      "GPhC regulatory framework awareness training",
+      "Responsible Pharmacist awareness module",
+      "Internal audit methodology and GPhC inspection preparation"
+    ],
+    monitoring:  "Annual governance framework review and bi-monthly compliance spot-checks by the superintendent",
+    riskAssessment:  [
+      {
+        risk:  "Outdated SOPs in use",
+        mitigation:  "Automated review date tracking and version control system"
+      },
+      {
+        risk:  "Failure to report notifiable incident",
+        mitigation:  "Incident classification matrix and mandatory reporting flowchart"
+      },
+      {
+        risk:  "Audit findings not addressed within timescale",
+        mitigation:  "CAPA tracker with escalation for overdue actions"
+      }
+    ],
+    escalation:  "Report governance breaches to the Pharmacy Manager. For serious regulatory concerns, escalate to the Superintendent Pharmacist immediately. Consider GPhC notification if required.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC inspection finding or enforcement action",
+      "Organisational restructure or change of superintendent"
+    ],
+    appendices:  [
+      "Audit Checklist Template",
+      "Complaints Log",
+      "Audit Action Plan Template"
+    ]
   },
   {
     id:  79,
@@ -2381,7 +4766,44 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-08-24"
+    effectiveDate:  "2025-08-24",
+    responsibilities:  {
+      superintendent:  "Oversee all governance frameworks and regulatory compliance",
+      manager:  "Maintain governance documentation and conduct internal audits"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-08-23",
+        changes:  "Updated incident reporting classifications"
+      }
+    ],
+    trainingRequirements:  [
+      "Incident reporting and root cause analysis",
+      "GPhC regulatory framework awareness training"
+    ],
+    monitoring:  "Annual governance framework review and bi-monthly compliance spot-checks by the superintendent",
+    riskAssessment:  [
+      {
+        risk:  "Failure to report notifiable incident",
+        mitigation:  "Incident classification matrix and mandatory reporting flowchart"
+      },
+      {
+        risk:  "Outdated SOPs in use",
+        mitigation:  "Automated review date tracking and version control system"
+      }
+    ],
+    escalation:  "Report governance breaches to the Pharmacy Manager. For serious regulatory concerns, escalate to the Superintendent Pharmacist immediately. Consider GPhC notification if required.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC inspection finding or enforcement action",
+      "Organisational restructure or change of superintendent"
+    ],
+    appendices:  [
+      "SOP Acknowledgement Record",
+      "Incident Report Form"
+    ]
   },
   {
     id:  80,
@@ -2423,7 +4845,44 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-05-19"
+    effectiveDate:  "2025-05-19",
+    responsibilities:  {
+      superintendent:  "Oversee all governance frameworks and regulatory compliance",
+      manager:  "Maintain governance documentation and conduct internal audits"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-05-18",
+        changes:  "Enhanced SOP review and version control process"
+      }
+    ],
+    trainingRequirements:  [
+      "Responsible Pharmacist awareness module",
+      "Incident reporting and root cause analysis"
+    ],
+    monitoring:  "Annual governance framework review and bi-monthly compliance spot-checks by the superintendent",
+    riskAssessment:  [
+      {
+        risk:  "Regulatory non-compliance identified during inspection",
+        mitigation:  "Scheduled internal audits and pre-inspection readiness checks"
+      },
+      {
+        risk:  "Outdated SOPs in use",
+        mitigation:  "Automated review date tracking and version control system"
+      }
+    ],
+    escalation:  "Report governance breaches to the Pharmacy Manager. For serious regulatory concerns, escalate to the Superintendent Pharmacist immediately. Consider GPhC notification if required.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC inspection finding or enforcement action",
+      "Organisational restructure or change of superintendent"
+    ],
+    appendices:  [
+      "Incident Report Form",
+      "Audit Checklist Template"
+    ]
   },
   {
     id:  81,
@@ -2465,7 +4924,44 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-10-19"
+    effectiveDate:  "2025-10-19",
+    responsibilities:  {
+      pharmacist:  "Act as Responsible Pharmacist and ensure governance compliance on shift",
+      superintendent:  "Oversee all governance frameworks and regulatory compliance"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-10-18",
+        changes:  "Revised governance framework following GPhC inspection feedback"
+      }
+    ],
+    trainingRequirements:  [
+      "GPhC regulatory framework awareness training",
+      "Incident reporting and root cause analysis"
+    ],
+    monitoring:  "Annual governance framework review and bi-monthly compliance spot-checks by the superintendent",
+    riskAssessment:  [
+      {
+        risk:  "Staff unaware of policy changes",
+        mitigation:  "Mandatory SOP acknowledgement system with completion tracking"
+      },
+      {
+        risk:  "Failure to report notifiable incident",
+        mitigation:  "Incident classification matrix and mandatory reporting flowchart"
+      }
+    ],
+    escalation:  "Report governance breaches to the Pharmacy Manager. For serious regulatory concerns, escalate to the Superintendent Pharmacist immediately. Consider GPhC notification if required.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC inspection finding or enforcement action",
+      "Organisational restructure or change of superintendent"
+    ],
+    appendices:  [
+      "Complaints Log",
+      "Audit Checklist Template"
+    ]
   },
   {
     id:  34,
@@ -2506,7 +5002,49 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-05-09"
+    effectiveDate:  "2025-05-09",
+    responsibilities:  {
+      all:  "Follow health and safety policies and report hazards immediately"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.8",
+        date:  "2025-05-08",
+        changes:  "Revised fire safety procedures per local authority guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "Fire safety and emergency evacuation training",
+      "Manual handling assessment",
+      "Fire safety awareness and evacuation drill certification"
+    ],
+    monitoring:  "Monthly H&S walkthrough inspection and quarterly incident trend analysis",
+    riskAssessment:  [
+      {
+        risk:  "Sharps injury or needlestick",
+        mitigation:  "Sharps bins, PPE provision, and post-exposure protocol"
+      },
+      {
+        risk:  "Fire or emergency evacuation failure",
+        mitigation:  "Quarterly fire drills, maintained equipment, and visible exit routes"
+      },
+      {
+        risk:  "Delayed evacuation during fire emergency",
+        mitigation:  "Quarterly fire drills, clear signage, maintained fire exits, and designated fire marshals"
+      }
+    ],
+    escalation:  "Report injuries or dangerous occurrences to the Pharmacy Manager immediately. For RIDDOR-reportable incidents, contact the Superintendent within 1 hour. Call emergency services if needed.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Workplace accident or RIDDOR-reportable incident",
+      "Change to health and safety legislation"
+    ],
+    appendices:  [
+      "COSHH Assessment Sheet",
+      "Fire Drill Record",
+      "Fire Evacuation Plan"
+    ]
   },
   {
     id:  35,
@@ -2547,7 +5085,54 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2024-10-14"
+    effectiveDate:  "2024-10-14",
+    responsibilities:  {
+      all:  "Follow health and safety policies and report hazards immediately"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2023-10-13",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.5",
+        date:  "2024-10-13",
+        changes:  "Updated risk assessments following annual review"
+      }
+    ],
+    trainingRequirements:  [
+      "Manual handling assessment",
+      "Health & Safety induction and annual refresher",
+      "Infection prevention and control procedures"
+    ],
+    monitoring:  "Monthly H&S walkthrough inspection and quarterly incident trend analysis",
+    riskAssessment:  [
+      {
+        risk:  "Fire or emergency evacuation failure",
+        mitigation:  "Quarterly fire drills, maintained equipment, and visible exit routes"
+      },
+      {
+        risk:  "Sharps injury or needlestick",
+        mitigation:  "Sharps bins, PPE provision, and post-exposure protocol"
+      },
+      {
+        risk:  "Cross-contamination between preparation areas",
+        mitigation:  "Cleaning schedules, surface disinfection protocol, and hand hygiene compliance"
+      }
+    ],
+    escalation:  "Report injuries or dangerous occurrences to the Pharmacy Manager immediately. For RIDDOR-reportable incidents, contact the Superintendent within 1 hour. Call emergency services if needed.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Workplace accident or RIDDOR-reportable incident",
+      "Change to health and safety legislation"
+    ],
+    appendices:  [
+      "Accident Report Form (BI 510)",
+      "Risk Assessment Template",
+      "Cleaning Verification Record"
+    ]
   },
   {
     id:  36,
@@ -2588,7 +5173,43 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-04-19"
+    effectiveDate:  "2025-04-19",
+    responsibilities:  {
+      all:  "Follow health and safety policies and report hazards immediately"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.4",
+        date:  "2025-04-18",
+        changes:  "Updated risk assessments following annual review"
+      }
+    ],
+    trainingRequirements:  [
+      "Health & Safety induction and annual refresher",
+      "Manual handling assessment"
+    ],
+    monitoring:  "Monthly H&S walkthrough inspection and quarterly incident trend analysis",
+    riskAssessment:  [
+      {
+        risk:  "Staff injury from manual handling",
+        mitigation:  "Manual handling training and risk assessment for heavy items"
+      },
+      {
+        risk:  "Sharps injury or needlestick",
+        mitigation:  "Sharps bins, PPE provision, and post-exposure protocol"
+      }
+    ],
+    escalation:  "Report injuries or dangerous occurrences to the Pharmacy Manager immediately. For RIDDOR-reportable incidents, contact the Superintendent within 1 hour. Call emergency services if needed.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Workplace accident or RIDDOR-reportable incident",
+      "Change to health and safety legislation"
+    ],
+    appendices:  [
+      "Risk Assessment Template",
+      "COSHH Assessment Sheet"
+    ]
   },
   {
     id:  37,
@@ -2629,7 +5250,54 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-06-29"
+    effectiveDate:  "2025-06-29",
+    responsibilities:  {
+      all:  "Follow health and safety policies and report hazards immediately"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2024-06-28",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.0",
+        date:  "2025-06-28",
+        changes:  "Added lone working provisions"
+      }
+    ],
+    trainingRequirements:  [
+      "Fire safety and emergency evacuation training",
+      "Health & Safety induction and annual refresher",
+      "Emergency first aid at work certification"
+    ],
+    monitoring:  "Monthly H&S walkthrough inspection and quarterly incident trend analysis",
+    riskAssessment:  [
+      {
+        risk:  "Slip, trip, or fall hazard",
+        mitigation:  "Regular floor inspections, prompt spill cleanup, and hazard reporting"
+      },
+      {
+        risk:  "Fire or emergency evacuation failure",
+        mitigation:  "Quarterly fire drills, maintained equipment, and visible exit routes"
+      },
+      {
+        risk:  "Delayed response to medical emergency in pharmacy",
+        mitigation:  "First aid kit maintained, trained first aiders on every shift, emergency protocol displayed"
+      }
+    ],
+    escalation:  "Report injuries or dangerous occurrences to the Pharmacy Manager immediately. For RIDDOR-reportable incidents, contact the Superintendent within 1 hour. Call emergency services if needed.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Workplace accident or RIDDOR-reportable incident",
+      "Change to health and safety legislation"
+    ],
+    appendices:  [
+      "Fire Drill Record",
+      "COSHH Assessment Sheet",
+      "Emergency Contact List"
+    ]
   },
   {
     id:  38,
@@ -2672,7 +5340,51 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-02-05"
+    effectiveDate:  "2025-02-05",
+    responsibilities:  {
+      pharmacist:  "Report hazards and ensure patient safety during service delivery",
+      technician:  "Follow H&S procedures and maintain safe working practices",
+      dispenser:  "Report hazards and follow safe working procedures"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.6",
+        date:  "2025-02-05",
+        changes:  "Added lone working provisions"
+      }
+    ],
+    trainingRequirements:  [
+      "Manual handling assessment",
+      "Fire safety and emergency evacuation training",
+      "Pharmaceutical waste segregation and disposal procedures"
+    ],
+    monitoring:  "Monthly H&S walkthrough inspection and quarterly incident trend analysis",
+    riskAssessment:  [
+      {
+        risk:  "Sharps injury or needlestick",
+        mitigation:  "Sharps bins, PPE provision, and post-exposure protocol"
+      },
+      {
+        risk:  "Fire or emergency evacuation failure",
+        mitigation:  "Quarterly fire drills, maintained equipment, and visible exit routes"
+      },
+      {
+        risk:  "Incorrect waste segregation causing contamination",
+        mitigation:  "Colour-coded bins, wall charts, and staff training on waste categories"
+      }
+    ],
+    escalation:  "Report injuries or dangerous occurrences to the Pharmacy Manager immediately. For RIDDOR-reportable incidents, contact the Superintendent within 1 hour. Call emergency services if needed.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Workplace accident or RIDDOR-reportable incident",
+      "Change to health and safety legislation"
+    ],
+    appendices:  [
+      "COSHH Assessment Sheet",
+      "Risk Assessment Template",
+      "Waste Segregation Guide"
+    ]
   },
   {
     id:  39,
@@ -2713,7 +5425,43 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2024-12-01"
+    effectiveDate:  "2024-12-01",
+    responsibilities:  {
+      all:  "Follow health and safety policies and report hazards immediately"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.1",
+        date:  "2024-12-01",
+        changes:  "Updated risk assessments following annual review"
+      }
+    ],
+    trainingRequirements:  [
+      "Health & Safety induction and annual refresher",
+      "Fire safety and emergency evacuation training"
+    ],
+    monitoring:  "Monthly H&S walkthrough inspection and quarterly incident trend analysis",
+    riskAssessment:  [
+      {
+        risk:  "Fire or emergency evacuation failure",
+        mitigation:  "Quarterly fire drills, maintained equipment, and visible exit routes"
+      },
+      {
+        risk:  "Sharps injury or needlestick",
+        mitigation:  "Sharps bins, PPE provision, and post-exposure protocol"
+      }
+    ],
+    escalation:  "Report injuries or dangerous occurrences to the Pharmacy Manager immediately. For RIDDOR-reportable incidents, contact the Superintendent within 1 hour. Call emergency services if needed.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Workplace accident or RIDDOR-reportable incident",
+      "Change to health and safety legislation"
+    ],
+    appendices:  [
+      "Accident Report Form (BI 510)",
+      "COSHH Assessment Sheet"
+    ]
   },
   {
     id:  40,
@@ -2754,7 +5502,54 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-03-15"
+    effectiveDate:  "2025-03-15",
+    responsibilities:  {
+      all:  "Follow health and safety policies and report hazards immediately"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2024-03-15",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.3",
+        date:  "2025-03-15",
+        changes:  "Added lone working provisions"
+      }
+    ],
+    trainingRequirements:  [
+      "Fire safety and emergency evacuation training",
+      "Manual handling assessment",
+      "Pharmaceutical waste segregation and disposal procedures"
+    ],
+    monitoring:  "Monthly H&S walkthrough inspection and quarterly incident trend analysis",
+    riskAssessment:  [
+      {
+        risk:  "Staff injury from manual handling",
+        mitigation:  "Manual handling training and risk assessment for heavy items"
+      },
+      {
+        risk:  "Sharps injury or needlestick",
+        mitigation:  "Sharps bins, PPE provision, and post-exposure protocol"
+      },
+      {
+        risk:  "Incorrect waste segregation causing contamination",
+        mitigation:  "Colour-coded bins, wall charts, and staff training on waste categories"
+      }
+    ],
+    escalation:  "Report injuries or dangerous occurrences to the Pharmacy Manager immediately. For RIDDOR-reportable incidents, contact the Superintendent within 1 hour. Call emergency services if needed.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Workplace accident or RIDDOR-reportable incident",
+      "Change to health and safety legislation"
+    ],
+    appendices:  [
+      "Risk Assessment Template",
+      "Fire Drill Record",
+      "Waste Segregation Guide"
+    ]
   },
   {
     id:  82,
@@ -2795,7 +5590,43 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-07-14"
+    effectiveDate:  "2025-07-14",
+    responsibilities:  {
+      all:  "Follow health and safety policies and report hazards immediately"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-07-13",
+        changes:  "Revised fire safety procedures per local authority guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "Fire safety and emergency evacuation training",
+      "Manual handling assessment"
+    ],
+    monitoring:  "Monthly H&S walkthrough inspection and quarterly incident trend analysis",
+    riskAssessment:  [
+      {
+        risk:  "Sharps injury or needlestick",
+        mitigation:  "Sharps bins, PPE provision, and post-exposure protocol"
+      },
+      {
+        risk:  "Fire or emergency evacuation failure",
+        mitigation:  "Quarterly fire drills, maintained equipment, and visible exit routes"
+      }
+    ],
+    escalation:  "Report injuries or dangerous occurrences to the Pharmacy Manager immediately. For RIDDOR-reportable incidents, contact the Superintendent within 1 hour. Call emergency services if needed.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Workplace accident or RIDDOR-reportable incident",
+      "Change to health and safety legislation"
+    ],
+    appendices:  [
+      "COSHH Assessment Sheet",
+      "Risk Assessment Template"
+    ]
   },
   {
     id:  83,
@@ -2837,7 +5668,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-09-09"
+    effectiveDate:  "2025-09-09",
+    responsibilities:  {
+      manager:  "Conduct risk assessments and ensure H&S policies are implemented",
+      stock_assistant:  "Follow manual handling procedures and maintain safe storage"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.1",
+        date:  "2025-09-08",
+        changes:  "Added lone working provisions"
+      }
+    ],
+    trainingRequirements:  [
+      "Manual handling assessment",
+      "Health & Safety induction and annual refresher",
+      "Fire safety awareness and evacuation drill certification"
+    ],
+    monitoring:  "Monthly H&S walkthrough inspection and quarterly incident trend analysis",
+    riskAssessment:  [
+      {
+        risk:  "Fire or emergency evacuation failure",
+        mitigation:  "Quarterly fire drills, maintained equipment, and visible exit routes"
+      },
+      {
+        risk:  "Sharps injury or needlestick",
+        mitigation:  "Sharps bins, PPE provision, and post-exposure protocol"
+      },
+      {
+        risk:  "Delayed evacuation during fire emergency",
+        mitigation:  "Quarterly fire drills, clear signage, maintained fire exits, and designated fire marshals"
+      }
+    ],
+    escalation:  "Report injuries or dangerous occurrences to the Pharmacy Manager immediately. For RIDDOR-reportable incidents, contact the Superintendent within 1 hour. Call emergency services if needed.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Workplace accident or RIDDOR-reportable incident",
+      "Change to health and safety legislation"
+    ],
+    appendices:  [
+      "Accident Report Form (BI 510)",
+      "COSHH Assessment Sheet",
+      "Fire Evacuation Plan"
+    ]
   },
   {
     id:  84,
@@ -2877,7 +5751,43 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-03-20"
+    effectiveDate:  "2025-03-20",
+    responsibilities:  {
+      all:  "Follow health and safety policies and report hazards immediately"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-03-20",
+        changes:  "Updated risk assessments following annual review"
+      }
+    ],
+    trainingRequirements:  [
+      "Health & Safety induction and annual refresher",
+      "Manual handling assessment"
+    ],
+    monitoring:  "Monthly H&S walkthrough inspection and quarterly incident trend analysis",
+    riskAssessment:  [
+      {
+        risk:  "Staff injury from manual handling",
+        mitigation:  "Manual handling training and risk assessment for heavy items"
+      },
+      {
+        risk:  "Sharps injury or needlestick",
+        mitigation:  "Sharps bins, PPE provision, and post-exposure protocol"
+      }
+    ],
+    escalation:  "Report injuries or dangerous occurrences to the Pharmacy Manager immediately. For RIDDOR-reportable incidents, contact the Superintendent within 1 hour. Call emergency services if needed.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Workplace accident or RIDDOR-reportable incident",
+      "Change to health and safety legislation"
+    ],
+    appendices:  [
+      "Risk Assessment Template",
+      "Fire Drill Record"
+    ]
   },
   {
     id:  85,
@@ -2918,7 +5828,43 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-02-15"
+    effectiveDate:  "2025-02-15",
+    responsibilities:  {
+      all:  "Follow health and safety policies and report hazards immediately"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.2",
+        date:  "2025-02-15",
+        changes:  "Revised fire safety procedures per local authority guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "Fire safety and emergency evacuation training",
+      "Health & Safety induction and annual refresher"
+    ],
+    monitoring:  "Monthly H&S walkthrough inspection and quarterly incident trend analysis",
+    riskAssessment:  [
+      {
+        risk:  "Slip, trip, or fall hazard",
+        mitigation:  "Regular floor inspections, prompt spill cleanup, and hazard reporting"
+      },
+      {
+        risk:  "Fire or emergency evacuation failure",
+        mitigation:  "Quarterly fire drills, maintained equipment, and visible exit routes"
+      }
+    ],
+    escalation:  "Report injuries or dangerous occurrences to the Pharmacy Manager immediately. For RIDDOR-reportable incidents, contact the Superintendent within 1 hour. Call emergency services if needed.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Workplace accident or RIDDOR-reportable incident",
+      "Change to health and safety legislation"
+    ],
+    appendices:  [
+      "Fire Drill Record",
+      "Risk Assessment Template"
+    ]
   },
   {
     id:  86,
@@ -2959,7 +5905,48 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-07-29"
+    effectiveDate:  "2025-07-29",
+    responsibilities:  {
+      all:  "Follow health and safety policies and report hazards immediately"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-07-28",
+        changes:  "Added lone working provisions"
+      }
+    ],
+    trainingRequirements:  [
+      "Manual handling assessment",
+      "Fire safety and emergency evacuation training",
+      "Electronic Prescription Service (EPS) operational training"
+    ],
+    monitoring:  "Monthly H&S walkthrough inspection and quarterly incident trend analysis",
+    riskAssessment:  [
+      {
+        risk:  "Sharps injury or needlestick",
+        mitigation:  "Sharps bins, PPE provision, and post-exposure protocol"
+      },
+      {
+        risk:  "Fire or emergency evacuation failure",
+        mitigation:  "Quarterly fire drills, maintained equipment, and visible exit routes"
+      },
+      {
+        risk:  "EPS token not matched to correct patient",
+        mitigation:  "Patient identity verification before downloading and processing EPS prescriptions"
+      }
+    ],
+    escalation:  "Report injuries or dangerous occurrences to the Pharmacy Manager immediately. For RIDDOR-reportable incidents, contact the Superintendent within 1 hour. Call emergency services if needed.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Workplace accident or RIDDOR-reportable incident",
+      "Change to health and safety legislation"
+    ],
+    appendices:  [
+      "COSHH Assessment Sheet",
+      "Accident Report Form (BI 510)"
+    ]
   },
   {
     id:  41,
@@ -3001,7 +5988,49 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-05-24"
+    effectiveDate:  "2025-05-24",
+    responsibilities:  {
+      manager:  "Manage staff training records, appraisals, and development plans",
+      superintendent:  "Ensure GPhC CPD and training requirements are met across the team"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2024-05-23",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.0",
+        date:  "2025-05-23",
+        changes:  "Updated training matrix for new service requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "GDPR data handling for HR records",
+      "Staff management and appraisal skills"
+    ],
+    monitoring:  "Quarterly training compliance review and annual appraisal completion audit",
+    riskAssessment:  [
+      {
+        risk:  "Discrimination or harassment in workplace",
+        mitigation:  "Equality policy, reporting channels, and annual awareness training"
+      },
+      {
+        risk:  "Training records incomplete or lost",
+        mitigation:  "Centralised digital training record system with backup"
+      }
+    ],
+    escalation:  "Raise HR concerns with the Pharmacy Manager in the first instance. For grievances, follow the formal procedure. Escalate safeguarding concerns to the designated safeguarding lead.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Employment tribunal or formal grievance outcome",
+      "Change to GPhC CPD or training requirements"
+    ],
+    appendices:  [
+      "Induction Checklist",
+      "Training Record Template"
+    ]
   },
   {
     id:  42,
@@ -3043,7 +6072,44 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-08-14"
+    effectiveDate:  "2025-08-14",
+    responsibilities:  {
+      pharmacist:  "Mentor junior staff and maintain personal CPD portfolio",
+      technician:  "Complete required training modules and maintain competency records"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.5",
+        date:  "2025-08-13",
+        changes:  "Updated training matrix for new service requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "Staff management and appraisal skills",
+      "GDPR data handling for HR records"
+    ],
+    monitoring:  "Quarterly training compliance review and annual appraisal completion audit",
+    riskAssessment:  [
+      {
+        risk:  "Non-compliance with CPD requirements",
+        mitigation:  "CPD tracker with automated reminders and manager oversight"
+      },
+      {
+        risk:  "Training records incomplete or lost",
+        mitigation:  "Centralised digital training record system with backup"
+      }
+    ],
+    escalation:  "Raise HR concerns with the Pharmacy Manager in the first instance. For grievances, follow the formal procedure. Escalate safeguarding concerns to the designated safeguarding lead.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Employment tribunal or formal grievance outcome",
+      "Change to GPhC CPD or training requirements"
+    ],
+    appendices:  [
+      "CPD Log Template",
+      "Appraisal Form"
+    ]
   },
   {
     id:  43,
@@ -3085,7 +6151,44 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-03-02"
+    effectiveDate:  "2025-03-02",
+    responsibilities:  {
+      manager:  "Manage staff training records, appraisals, and development plans",
+      superintendent:  "Ensure GPhC CPD and training requirements are met across the team"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.3",
+        date:  "2025-03-02",
+        changes:  "Revised appraisal process per ACAS guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "Equality and diversity awareness",
+      "Staff management and appraisal skills"
+    ],
+    monitoring:  "Quarterly training compliance review and annual appraisal completion audit",
+    riskAssessment:  [
+      {
+        risk:  "Training records incomplete or lost",
+        mitigation:  "Centralised digital training record system with backup"
+      },
+      {
+        risk:  "Non-compliance with CPD requirements",
+        mitigation:  "CPD tracker with automated reminders and manager oversight"
+      }
+    ],
+    escalation:  "Raise HR concerns with the Pharmacy Manager in the first instance. For grievances, follow the formal procedure. Escalate safeguarding concerns to the designated safeguarding lead.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Employment tribunal or formal grievance outcome",
+      "Change to GPhC CPD or training requirements"
+    ],
+    appendices:  [
+      "Appraisal Form",
+      "Induction Checklist"
+    ]
   },
   {
     id:  44,
@@ -3126,7 +6229,48 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-05-04"
+    effectiveDate:  "2025-05-04",
+    responsibilities:  {
+      all:  "Engage with training programmes and maintain personal development"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.8",
+        date:  "2025-05-03",
+        changes:  "Enhanced CPD tracking and reporting"
+      }
+    ],
+    trainingRequirements:  [
+      "GDPR data handling for HR records",
+      "Equality and diversity awareness",
+      "Medicine delivery chain of custody and patient verification training"
+    ],
+    monitoring:  "Quarterly training compliance review and annual appraisal completion audit",
+    riskAssessment:  [
+      {
+        risk:  "Staff operating beyond competence",
+        mitigation:  "Role-based training matrix and supervised practice periods"
+      },
+      {
+        risk:  "Non-compliance with CPD requirements",
+        mitigation:  "CPD tracker with automated reminders and manager oversight"
+      },
+      {
+        risk:  "Medicine left unattended at delivery location",
+        mitigation:  "Safe place agreement with patient consent, delivery confirmation process"
+      }
+    ],
+    escalation:  "Raise HR concerns with the Pharmacy Manager in the first instance. For grievances, follow the formal procedure. Escalate safeguarding concerns to the designated safeguarding lead.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Employment tribunal or formal grievance outcome",
+      "Change to GPhC CPD or training requirements"
+    ],
+    appendices:  [
+      "Training Record Template",
+      "Appraisal Form"
+    ]
   },
   {
     id:  45,
@@ -3168,7 +6312,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2024-11-20"
+    effectiveDate:  "2024-11-20",
+    responsibilities:  {
+      manager:  "Manage staff training records, appraisals, and development plans",
+      superintendent:  "Ensure GPhC CPD and training requirements are met across the team"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.2",
+        date:  "2024-11-20",
+        changes:  "Updated training matrix for new service requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "Staff management and appraisal skills",
+      "Equality and diversity awareness",
+      "UK GDPR and data protection awareness training"
+    ],
+    monitoring:  "Quarterly training compliance review and annual appraisal completion audit",
+    riskAssessment:  [
+      {
+        risk:  "Discrimination or harassment in workplace",
+        mitigation:  "Equality policy, reporting channels, and annual awareness training"
+      },
+      {
+        risk:  "Training records incomplete or lost",
+        mitigation:  "Centralised digital training record system with backup"
+      },
+      {
+        risk:  "Unauthorised disclosure of patient data",
+        mitigation:  "Access controls, encryption, and mandatory data protection training"
+      }
+    ],
+    escalation:  "Raise HR concerns with the Pharmacy Manager in the first instance. For grievances, follow the formal procedure. Escalate safeguarding concerns to the designated safeguarding lead.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Employment tribunal or formal grievance outcome",
+      "Change to GPhC CPD or training requirements"
+    ],
+    appendices:  [
+      "Induction Checklist",
+      "Appraisal Form",
+      "Data Subject Access Request Form"
+    ]
   },
   {
     id:  46,
@@ -3208,7 +6395,48 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-10-09"
+    effectiveDate:  "2025-10-09",
+    responsibilities:  {
+      all:  "Engage with training programmes and maintain personal development"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-10-08",
+        changes:  "Revised appraisal process per ACAS guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "Equality and diversity awareness",
+      "GDPR data handling for HR records",
+      "Medicine delivery chain of custody and patient verification training"
+    ],
+    monitoring:  "Quarterly training compliance review and annual appraisal completion audit",
+    riskAssessment:  [
+      {
+        risk:  "Non-compliance with CPD requirements",
+        mitigation:  "CPD tracker with automated reminders and manager oversight"
+      },
+      {
+        risk:  "Training records incomplete or lost",
+        mitigation:  "Centralised digital training record system with backup"
+      },
+      {
+        risk:  "Medicine left unattended at delivery location",
+        mitigation:  "Safe place agreement with patient consent, delivery confirmation process"
+      }
+    ],
+    escalation:  "Raise HR concerns with the Pharmacy Manager in the first instance. For grievances, follow the formal procedure. Escalate safeguarding concerns to the designated safeguarding lead.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Employment tribunal or formal grievance outcome",
+      "Change to GPhC CPD or training requirements"
+    ],
+    appendices:  [
+      "CPD Log Template",
+      "Induction Checklist"
+    ]
   },
   {
     id:  87,
@@ -3249,7 +6477,44 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-04-24"
+    effectiveDate:  "2025-04-24",
+    responsibilities:  {
+      manager:  "Manage staff training records, appraisals, and development plans",
+      superintendent:  "Ensure GPhC CPD and training requirements are met across the team"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.1",
+        date:  "2025-04-23",
+        changes:  "Updated training matrix for new service requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "Staff management and appraisal skills",
+      "Equality and diversity awareness"
+    ],
+    monitoring:  "Quarterly training compliance review and annual appraisal completion audit",
+    riskAssessment:  [
+      {
+        risk:  "Training records incomplete or lost",
+        mitigation:  "Centralised digital training record system with backup"
+      },
+      {
+        risk:  "Non-compliance with CPD requirements",
+        mitigation:  "CPD tracker with automated reminders and manager oversight"
+      }
+    ],
+    escalation:  "Raise HR concerns with the Pharmacy Manager in the first instance. For grievances, follow the formal procedure. Escalate safeguarding concerns to the designated safeguarding lead.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Employment tribunal or formal grievance outcome",
+      "Change to GPhC CPD or training requirements"
+    ],
+    appendices:  [
+      "Appraisal Form",
+      "Induction Checklist"
+    ]
   },
   {
     id:  88,
@@ -3290,7 +6555,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-08-14"
+    effectiveDate:  "2025-08-14",
+    responsibilities:  {
+      manager:  "Manage staff training records, appraisals, and development plans",
+      superintendent:  "Ensure GPhC CPD and training requirements are met across the team"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-08-13",
+        changes:  "Revised appraisal process per ACAS guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "Equality and diversity awareness",
+      "GDPR data handling for HR records",
+      "UK GDPR and data protection awareness training"
+    ],
+    monitoring:  "Quarterly training compliance review and annual appraisal completion audit",
+    riskAssessment:  [
+      {
+        risk:  "Staff operating beyond competence",
+        mitigation:  "Role-based training matrix and supervised practice periods"
+      },
+      {
+        risk:  "Non-compliance with CPD requirements",
+        mitigation:  "CPD tracker with automated reminders and manager oversight"
+      },
+      {
+        risk:  "Unauthorised disclosure of patient data",
+        mitigation:  "Access controls, encryption, and mandatory data protection training"
+      }
+    ],
+    escalation:  "Raise HR concerns with the Pharmacy Manager in the first instance. For grievances, follow the formal procedure. Escalate safeguarding concerns to the designated safeguarding lead.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Employment tribunal or formal grievance outcome",
+      "Change to GPhC CPD or training requirements"
+    ],
+    appendices:  [
+      "Training Record Template",
+      "Appraisal Form",
+      "Data Subject Access Request Form"
+    ]
   },
   {
     id:  89,
@@ -3332,7 +6640,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-01-30"
+    effectiveDate:  "2025-01-30",
+    responsibilities:  {
+      manager:  "Manage staff training records, appraisals, and development plans",
+      superintendent:  "Ensure GPhC CPD and training requirements are met across the team"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-01-30",
+        changes:  "Enhanced CPD tracking and reporting"
+      }
+    ],
+    trainingRequirements:  [
+      "GDPR data handling for HR records",
+      "Staff management and appraisal skills",
+      "Safeguarding Level 2 certification (adults and children)"
+    ],
+    monitoring:  "Quarterly training compliance review and annual appraisal completion audit",
+    riskAssessment:  [
+      {
+        risk:  "Discrimination or harassment in workplace",
+        mitigation:  "Equality policy, reporting channels, and annual awareness training"
+      },
+      {
+        risk:  "Training records incomplete or lost",
+        mitigation:  "Centralised digital training record system with backup"
+      },
+      {
+        risk:  "Failure to identify safeguarding concern",
+        mitigation:  "Safeguarding training, professional curiosity framework, and clear escalation pathway"
+      }
+    ],
+    escalation:  "Raise HR concerns with the Pharmacy Manager in the first instance. For grievances, follow the formal procedure. Escalate safeguarding concerns to the designated safeguarding lead.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Employment tribunal or formal grievance outcome",
+      "Change to GPhC CPD or training requirements"
+    ],
+    appendices:  [
+      "Induction Checklist",
+      "Appraisal Form",
+      "Safeguarding Referral Form"
+    ]
   },
   {
     id:  90,
@@ -3374,7 +6725,44 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-05-04"
+    effectiveDate:  "2025-05-04",
+    responsibilities:  {
+      pharmacist:  "Mentor junior staff and maintain personal CPD portfolio",
+      superintendent:  "Ensure GPhC CPD and training requirements are met across the team"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.3",
+        date:  "2025-05-03",
+        changes:  "Updated training matrix for new service requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "Staff management and appraisal skills",
+      "GDPR data handling for HR records"
+    ],
+    monitoring:  "Quarterly training compliance review and annual appraisal completion audit",
+    riskAssessment:  [
+      {
+        risk:  "Non-compliance with CPD requirements",
+        mitigation:  "CPD tracker with automated reminders and manager oversight"
+      },
+      {
+        risk:  "Training records incomplete or lost",
+        mitigation:  "Centralised digital training record system with backup"
+      }
+    ],
+    escalation:  "Raise HR concerns with the Pharmacy Manager in the first instance. For grievances, follow the formal procedure. Escalate safeguarding concerns to the designated safeguarding lead.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Employment tribunal or formal grievance outcome",
+      "Change to GPhC CPD or training requirements"
+    ],
+    appendices:  [
+      "CPD Log Template",
+      "Induction Checklist"
+    ]
   },
   {
     id:  47,
@@ -3415,7 +6803,49 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-03-10"
+    effectiveDate:  "2025-03-10",
+    responsibilities:  {
+      all:  "Maintain a clean, safe working environment"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.7",
+        date:  "2025-03-10",
+        changes:  "Added sustainability and waste reduction measures"
+      }
+    ],
+    trainingRequirements:  [
+      "Waste segregation and disposal procedures",
+      "Premises maintenance and hygiene standards",
+      "Pharmaceutical waste segregation and disposal procedures"
+    ],
+    monitoring:  "Weekly premises inspection and monthly deep-clean verification against checklist",
+    riskAssessment:  [
+      {
+        risk:  "Pest contamination of stock",
+        mitigation:  "Pest control contract and monthly inspection schedule"
+      },
+      {
+        risk:  "Equipment failure affecting operations",
+        mitigation:  "Planned preventive maintenance schedule and backup procedures"
+      },
+      {
+        risk:  "Incorrect waste segregation causing contamination",
+        mitigation:  "Colour-coded bins, wall charts, and staff training on waste categories"
+      }
+    ],
+    escalation:  "Report facility failures to the Pharmacy Manager. For urgent issues affecting patient safety (e.g., fridge failure), contact the Superintendent immediately and implement contingency plan.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Major equipment failure or premises damage",
+      "Change to pharmacy premises standards"
+    ],
+    appendices:  [
+      "Temperature Monitoring Log",
+      "Maintenance Request Form",
+      "Waste Segregation Guide"
+    ]
   },
   {
     id:  48,
@@ -3456,7 +6886,55 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2024-11-20"
+    effectiveDate:  "2024-11-20",
+    responsibilities:  {
+      manager:  "Schedule and oversee facility maintenance and cleaning programmes",
+      stock_assistant:  "Maintain clean and organised storage areas"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2023-11-20",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.1",
+        date:  "2024-11-20",
+        changes:  "Updated temperature monitoring procedures"
+      }
+    ],
+    trainingRequirements:  [
+      "Premises maintenance and hygiene standards",
+      "Waste segregation and disposal procedures",
+      "Internal audit methodology and GPhC inspection preparation"
+    ],
+    monitoring:  "Weekly premises inspection and monthly deep-clean verification against checklist",
+    riskAssessment:  [
+      {
+        risk:  "Temperature excursion in storage areas",
+        mitigation:  "Continuous temperature monitoring with automated alerts"
+      },
+      {
+        risk:  "Equipment failure affecting operations",
+        mitigation:  "Planned preventive maintenance schedule and backup procedures"
+      },
+      {
+        risk:  "Audit findings not addressed within timescale",
+        mitigation:  "CAPA tracker with escalation for overdue actions"
+      }
+    ],
+    escalation:  "Report facility failures to the Pharmacy Manager. For urgent issues affecting patient safety (e.g., fridge failure), contact the Superintendent immediately and implement contingency plan.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Major equipment failure or premises damage",
+      "Change to pharmacy premises standards"
+    ],
+    appendices:  [
+      "Cleaning Schedule Template",
+      "Waste Transfer Note",
+      "Audit Action Plan Template"
+    ]
   },
   {
     id:  49,
@@ -3498,7 +6976,44 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-08-14"
+    effectiveDate:  "2025-08-14",
+    responsibilities:  {
+      manager:  "Schedule and oversee facility maintenance and cleaning programmes",
+      stock_assistant:  "Maintain clean and organised storage areas"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-08-13",
+        changes:  "Updated temperature monitoring procedures"
+      }
+    ],
+    trainingRequirements:  [
+      "COSHH awareness and chemical handling",
+      "Premises maintenance and hygiene standards"
+    ],
+    monitoring:  "Weekly premises inspection and monthly deep-clean verification against checklist",
+    riskAssessment:  [
+      {
+        risk:  "Inadequate waste segregation",
+        mitigation:  "Colour-coded waste streams and staff waste training"
+      },
+      {
+        risk:  "Pest contamination of stock",
+        mitigation:  "Pest control contract and monthly inspection schedule"
+      }
+    ],
+    escalation:  "Report facility failures to the Pharmacy Manager. For urgent issues affecting patient safety (e.g., fridge failure), contact the Superintendent immediately and implement contingency plan.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Major equipment failure or premises damage",
+      "Change to pharmacy premises standards"
+    ],
+    appendices:  [
+      "Waste Transfer Note",
+      "Cleaning Schedule Template"
+    ]
   },
   {
     id:  50,
@@ -3539,7 +7054,48 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-01-25"
+    effectiveDate:  "2025-01-25",
+    responsibilities:  {
+      all:  "Maintain a clean, safe working environment"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2024-01-25",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.4",
+        date:  "2025-01-25",
+        changes:  "Revised cleaning schedules per infection control update"
+      }
+    ],
+    trainingRequirements:  [
+      "Waste segregation and disposal procedures",
+      "COSHH awareness and chemical handling"
+    ],
+    monitoring:  "Weekly premises inspection and monthly deep-clean verification against checklist",
+    riskAssessment:  [
+      {
+        risk:  "Equipment failure affecting operations",
+        mitigation:  "Planned preventive maintenance schedule and backup procedures"
+      },
+      {
+        risk:  "Pest contamination of stock",
+        mitigation:  "Pest control contract and monthly inspection schedule"
+      }
+    ],
+    escalation:  "Report facility failures to the Pharmacy Manager. For urgent issues affecting patient safety (e.g., fridge failure), contact the Superintendent immediately and implement contingency plan.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Major equipment failure or premises damage",
+      "Change to pharmacy premises standards"
+    ],
+    appendices:  [
+      "Maintenance Request Form",
+      "Temperature Monitoring Log"
+    ]
   },
   {
     id:  51,
@@ -3582,7 +7138,51 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-03-31"
+    effectiveDate:  "2025-03-31",
+    responsibilities:  {
+      technician:  "Report facility issues and maintain dispensary cleanliness",
+      dispenser:  "Maintain clean workstation and report maintenance needs",
+      stock_assistant:  "Maintain clean and organised storage areas"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.9",
+        date:  "2025-03-30",
+        changes:  "Revised cleaning schedules per infection control update"
+      }
+    ],
+    trainingRequirements:  [
+      "Premises maintenance and hygiene standards",
+      "COSHH awareness and chemical handling",
+      "Stock management and medicines procurement procedures"
+    ],
+    monitoring:  "Weekly premises inspection and monthly deep-clean verification against checklist",
+    riskAssessment:  [
+      {
+        risk:  "Pest contamination of stock",
+        mitigation:  "Pest control contract and monthly inspection schedule"
+      },
+      {
+        risk:  "Equipment failure affecting operations",
+        mitigation:  "Planned preventive maintenance schedule and backup procedures"
+      },
+      {
+        risk:  "Expired or recalled medicines remaining on shelves",
+        mitigation:  "Monthly date-checking programme and MHRA alerts monitoring"
+      }
+    ],
+    escalation:  "Report facility failures to the Pharmacy Manager. For urgent issues affecting patient safety (e.g., fridge failure), contact the Superintendent immediately and implement contingency plan.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Major equipment failure or premises damage",
+      "Change to pharmacy premises standards"
+    ],
+    appendices:  [
+      "Temperature Monitoring Log",
+      "Waste Transfer Note",
+      "Stock Check Record"
+    ]
   },
   {
     id:  91,
@@ -3623,7 +7223,49 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-06-14"
+    effectiveDate:  "2025-06-14",
+    responsibilities:  {
+      all:  "Maintain a clean, safe working environment"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.4",
+        date:  "2025-06-13",
+        changes:  "Updated temperature monitoring procedures"
+      }
+    ],
+    trainingRequirements:  [
+      "COSHH awareness and chemical handling",
+      "Premises maintenance and hygiene standards",
+      "Pharmaceutical waste segregation and disposal procedures"
+    ],
+    monitoring:  "Weekly premises inspection and monthly deep-clean verification against checklist",
+    riskAssessment:  [
+      {
+        risk:  "Pest contamination of stock",
+        mitigation:  "Pest control contract and monthly inspection schedule"
+      },
+      {
+        risk:  "Equipment failure affecting operations",
+        mitigation:  "Planned preventive maintenance schedule and backup procedures"
+      },
+      {
+        risk:  "Incorrect waste segregation causing contamination",
+        mitigation:  "Colour-coded bins, wall charts, and staff training on waste categories"
+      }
+    ],
+    escalation:  "Report facility failures to the Pharmacy Manager. For urgent issues affecting patient safety (e.g., fridge failure), contact the Superintendent immediately and implement contingency plan.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Major equipment failure or premises damage",
+      "Change to pharmacy premises standards"
+    ],
+    appendices:  [
+      "Temperature Monitoring Log",
+      "Cleaning Schedule Template",
+      "Waste Segregation Guide"
+    ]
   },
   {
     id:  92,
@@ -3664,7 +7306,49 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-09-24"
+    effectiveDate:  "2025-09-24",
+    responsibilities:  {
+      manager:  "Schedule and oversee facility maintenance and cleaning programmes"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-09-23",
+        changes:  "Added sustainability and waste reduction measures"
+      }
+    ],
+    trainingRequirements:  [
+      "Waste segregation and disposal procedures",
+      "COSHH awareness and chemical handling",
+      "Emergency first aid at work certification"
+    ],
+    monitoring:  "Weekly premises inspection and monthly deep-clean verification against checklist",
+    riskAssessment:  [
+      {
+        risk:  "Temperature excursion in storage areas",
+        mitigation:  "Continuous temperature monitoring with automated alerts"
+      },
+      {
+        risk:  "Equipment failure affecting operations",
+        mitigation:  "Planned preventive maintenance schedule and backup procedures"
+      },
+      {
+        risk:  "Delayed response to medical emergency in pharmacy",
+        mitigation:  "First aid kit maintained, trained first aiders on every shift, emergency protocol displayed"
+      }
+    ],
+    escalation:  "Report facility failures to the Pharmacy Manager. For urgent issues affecting patient safety (e.g., fridge failure), contact the Superintendent immediately and implement contingency plan.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Major equipment failure or premises damage",
+      "Change to pharmacy premises standards"
+    ],
+    appendices:  [
+      "Cleaning Schedule Template",
+      "Maintenance Request Form",
+      "Emergency Contact List"
+    ]
   },
   {
     id:  93,
@@ -3705,7 +7389,49 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-02-05"
+    effectiveDate:  "2025-02-05",
+    responsibilities:  {
+      manager:  "Schedule and oversee facility maintenance and cleaning programmes"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-02-05",
+        changes:  "Revised cleaning schedules per infection control update"
+      }
+    ],
+    trainingRequirements:  [
+      "Premises maintenance and hygiene standards",
+      "COSHH awareness and chemical handling",
+      "Emergency first aid at work certification"
+    ],
+    monitoring:  "Weekly premises inspection and monthly deep-clean verification against checklist",
+    riskAssessment:  [
+      {
+        risk:  "Inadequate waste segregation",
+        mitigation:  "Colour-coded waste streams and staff waste training"
+      },
+      {
+        risk:  "Pest contamination of stock",
+        mitigation:  "Pest control contract and monthly inspection schedule"
+      },
+      {
+        risk:  "Delayed response to medical emergency in pharmacy",
+        mitigation:  "First aid kit maintained, trained first aiders on every shift, emergency protocol displayed"
+      }
+    ],
+    escalation:  "Report facility failures to the Pharmacy Manager. For urgent issues affecting patient safety (e.g., fridge failure), contact the Superintendent immediately and implement contingency plan.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Major equipment failure or premises damage",
+      "Change to pharmacy premises standards"
+    ],
+    appendices:  [
+      "Waste Transfer Note",
+      "Cleaning Schedule Template",
+      "Emergency Contact List"
+    ]
   },
   {
     id:  94,
@@ -3747,7 +7473,44 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-07-04"
+    effectiveDate:  "2025-07-04",
+    responsibilities:  {
+      manager:  "Schedule and oversee facility maintenance and cleaning programmes",
+      superintendent:  "Ensure premises meet GPhC registered pharmacy standards"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.3",
+        date:  "2025-07-03",
+        changes:  "Updated temperature monitoring procedures"
+      }
+    ],
+    trainingRequirements:  [
+      "COSHH awareness and chemical handling",
+      "Waste segregation and disposal procedures"
+    ],
+    monitoring:  "Weekly premises inspection and monthly deep-clean verification against checklist",
+    riskAssessment:  [
+      {
+        risk:  "Equipment failure affecting operations",
+        mitigation:  "Planned preventive maintenance schedule and backup procedures"
+      },
+      {
+        risk:  "Pest contamination of stock",
+        mitigation:  "Pest control contract and monthly inspection schedule"
+      }
+    ],
+    escalation:  "Report facility failures to the Pharmacy Manager. For urgent issues affecting patient safety (e.g., fridge failure), contact the Superintendent immediately and implement contingency plan.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Major equipment failure or premises damage",
+      "Change to pharmacy premises standards"
+    ],
+    appendices:  [
+      "Maintenance Request Form",
+      "Temperature Monitoring Log"
+    ]
   },
   {
     id:  95,
@@ -3788,7 +7551,49 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-10-14"
+    effectiveDate:  "2025-10-14",
+    responsibilities:  {
+      manager:  "Schedule and oversee facility maintenance and cleaning programmes"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.1",
+        date:  "2025-10-13",
+        changes:  "Added sustainability and waste reduction measures"
+      }
+    ],
+    trainingRequirements:  [
+      "Waste segregation and disposal procedures",
+      "Premises maintenance and hygiene standards",
+      "Fire safety awareness and evacuation drill certification"
+    ],
+    monitoring:  "Weekly premises inspection and monthly deep-clean verification against checklist",
+    riskAssessment:  [
+      {
+        risk:  "Pest contamination of stock",
+        mitigation:  "Pest control contract and monthly inspection schedule"
+      },
+      {
+        risk:  "Equipment failure affecting operations",
+        mitigation:  "Planned preventive maintenance schedule and backup procedures"
+      },
+      {
+        risk:  "Delayed evacuation during fire emergency",
+        mitigation:  "Quarterly fire drills, clear signage, maintained fire exits, and designated fire marshals"
+      }
+    ],
+    escalation:  "Report facility failures to the Pharmacy Manager. For urgent issues affecting patient safety (e.g., fridge failure), contact the Superintendent immediately and implement contingency plan.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Major equipment failure or premises damage",
+      "Change to pharmacy premises standards"
+    ],
+    appendices:  [
+      "Temperature Monitoring Log",
+      "Waste Transfer Note",
+      "Fire Evacuation Plan"
+    ]
   },
   {
     id:  52,
@@ -3828,7 +7633,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-05-19"
+    effectiveDate:  "2025-05-19",
+    responsibilities:  {
+      driver:  "Deliver medicines safely, obtain signatures, and maintain chain of custody",
+      manager:  "Schedule delivery routes and monitor service performance"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.6",
+        date:  "2025-05-18",
+        changes:  "Updated vehicle safety requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "Vehicle safety and maintenance checks",
+      "Patient identity verification at delivery",
+      "UK GDPR and data protection awareness training"
+    ],
+    monitoring:  "Weekly delivery log review and monthly patient feedback analysis",
+    riskAssessment:  [
+      {
+        risk:  "Medicine delivered to wrong patient",
+        mitigation:  "Patient identity verification at point of delivery with photo ID check"
+      },
+      {
+        risk:  "Delivery driver road traffic incident",
+        mitigation:  "Vehicle maintenance checks, driver training, and insurance verification"
+      },
+      {
+        risk:  "Unauthorised disclosure of patient data",
+        mitigation:  "Access controls, encryption, and mandatory data protection training"
+      }
+    ],
+    escalation:  "Report delivery incidents to the Pharmacy Manager. For missing controlled drugs, notify the Responsible Pharmacist immediately. Contact the patient if delivery is delayed beyond agreed timeframe.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Delivery-related patient safety incident",
+      "Change to delivery service contractual terms"
+    ],
+    appendices:  [
+      "Delivery Log Template",
+      "Patient Signature Record",
+      "Data Subject Access Request Form"
+    ]
   },
   {
     id:  53,
@@ -3870,7 +7718,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-02-15"
+    effectiveDate:  "2025-02-15",
+    responsibilities:  {
+      driver:  "Deliver medicines safely, obtain signatures, and maintain chain of custody",
+      pharmacist:  "Authorise deliveries and ensure clinical appropriateness of delivery items"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.3",
+        date:  "2025-02-15",
+        changes:  "Added cold chain management during transit"
+      }
+    ],
+    trainingRequirements:  [
+      "Patient identity verification at delivery",
+      "Delivery chain of custody procedures",
+      "Vaccination and immunisation administration accreditation"
+    ],
+    monitoring:  "Post-vaccination adverse reaction monitoring and Yellow Card reporting after each vaccination clinic",
+    riskAssessment:  [
+      {
+        risk:  "Missed or failed delivery attempt",
+        mitigation:  "Safe place protocol and patient contact procedures"
+      },
+      {
+        risk:  "Temperature-sensitive item compromised during transit",
+        mitigation:  "Cool bags with temperature indicators and maximum transit time limits"
+      },
+      {
+        risk:  "Anaphylactic reaction post-vaccination",
+        mitigation:  "Anaphylaxis kit available, staff trained in emergency response, 15-minute observation period"
+      }
+    ],
+    escalation:  "Report delivery incidents to the Pharmacy Manager. For missing controlled drugs, notify the Responsible Pharmacist immediately. Contact the patient if delivery is delayed beyond agreed timeframe.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Delivery-related patient safety incident",
+      "Change to delivery service contractual terms"
+    ],
+    appendices:  [
+      "Failed Delivery Report",
+      "Patient Signature Record",
+      "Vaccination Patient Group Direction (PGD)"
+    ]
   },
   {
     id:  54,
@@ -3909,7 +7800,48 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-08-31"
+    effectiveDate:  "2025-08-31",
+    responsibilities:  {
+      driver:  "Deliver medicines safely, obtain signatures, and maintain chain of custody"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.1",
+        date:  "2025-08-30",
+        changes:  "Enhanced delivery tracking and chain of custody procedures"
+      }
+    ],
+    trainingRequirements:  [
+      "Delivery chain of custody procedures",
+      "Patient identity verification at delivery",
+      "Medicine delivery chain of custody and patient verification training"
+    ],
+    monitoring:  "Weekly delivery log review and monthly patient feedback analysis",
+    riskAssessment:  [
+      {
+        risk:  "Delivery driver road traffic incident",
+        mitigation:  "Vehicle maintenance checks, driver training, and insurance verification"
+      },
+      {
+        risk:  "Temperature-sensitive item compromised during transit",
+        mitigation:  "Cool bags with temperature indicators and maximum transit time limits"
+      },
+      {
+        risk:  "Medicine left unattended at delivery location",
+        mitigation:  "Safe place agreement with patient consent, delivery confirmation process"
+      }
+    ],
+    escalation:  "Report delivery incidents to the Pharmacy Manager. For missing controlled drugs, notify the Responsible Pharmacist immediately. Contact the patient if delivery is delayed beyond agreed timeframe.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Delivery-related patient safety incident",
+      "Change to delivery service contractual terms"
+    ],
+    appendices:  [
+      "Vehicle Inspection Checklist",
+      "Failed Delivery Report"
+    ]
   },
   {
     id:  55,
@@ -3951,7 +7883,49 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2024-12-10"
+    effectiveDate:  "2024-12-10",
+    responsibilities:  {
+      driver:  "Deliver medicines safely, obtain signatures, and maintain chain of custody",
+      manager:  "Schedule delivery routes and monitor service performance"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2024-12-10",
+        changes:  "Updated vehicle safety requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "Vehicle safety and maintenance checks",
+      "Delivery chain of custody procedures",
+      "Medicine delivery chain of custody and patient verification training"
+    ],
+    monitoring:  "Weekly delivery log review and monthly patient feedback analysis",
+    riskAssessment:  [
+      {
+        risk:  "Temperature-sensitive item compromised during transit",
+        mitigation:  "Cool bags with temperature indicators and maximum transit time limits"
+      },
+      {
+        risk:  "Delivery driver road traffic incident",
+        mitigation:  "Vehicle maintenance checks, driver training, and insurance verification"
+      },
+      {
+        risk:  "Medicine left unattended at delivery location",
+        mitigation:  "Safe place agreement with patient consent, delivery confirmation process"
+      }
+    ],
+    escalation:  "Report delivery incidents to the Pharmacy Manager. For missing controlled drugs, notify the Responsible Pharmacist immediately. Contact the patient if delivery is delayed beyond agreed timeframe.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Delivery-related patient safety incident",
+      "Change to delivery service contractual terms"
+    ],
+    appendices:  [
+      "Patient Signature Record",
+      "Delivery Log Template"
+    ]
   },
   {
     id:  96,
@@ -3993,7 +7967,49 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-04-04"
+    effectiveDate:  "2025-04-04",
+    responsibilities:  {
+      driver:  "Deliver medicines safely, obtain signatures, and maintain chain of custody",
+      pharmacist:  "Authorise deliveries and ensure clinical appropriateness of delivery items"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-04-03",
+        changes:  "Enhanced delivery tracking and chain of custody procedures"
+      }
+    ],
+    trainingRequirements:  [
+      "Delivery chain of custody procedures",
+      "Patient identity verification at delivery",
+      "Medicine delivery chain of custody and patient verification training"
+    ],
+    monitoring:  "Weekly delivery log review and monthly patient feedback analysis",
+    riskAssessment:  [
+      {
+        risk:  "Medicine delivered to wrong patient",
+        mitigation:  "Patient identity verification at point of delivery with photo ID check"
+      },
+      {
+        risk:  "Delivery driver road traffic incident",
+        mitigation:  "Vehicle maintenance checks, driver training, and insurance verification"
+      },
+      {
+        risk:  "Medicine left unattended at delivery location",
+        mitigation:  "Safe place agreement with patient consent, delivery confirmation process"
+      }
+    ],
+    escalation:  "Report delivery incidents to the Pharmacy Manager. For missing controlled drugs, notify the Responsible Pharmacist immediately. Contact the patient if delivery is delayed beyond agreed timeframe.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Delivery-related patient safety incident",
+      "Change to delivery service contractual terms"
+    ],
+    appendices:  [
+      "Delivery Log Template",
+      "Patient Signature Record"
+    ]
   },
   {
     id:  97,
@@ -4035,7 +8051,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-07-31"
+    effectiveDate:  "2025-07-31",
+    responsibilities:  {
+      driver:  "Deliver medicines safely, obtain signatures, and maintain chain of custody",
+      manager:  "Schedule delivery routes and monitor service performance"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-07-30",
+        changes:  "Updated vehicle safety requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "Vehicle safety and maintenance checks",
+      "Delivery chain of custody procedures",
+      "Cold chain management and temperature monitoring procedures"
+    ],
+    monitoring:  "Continuous fridge temperature monitoring with twice-daily manual verification and automated alert system",
+    riskAssessment:  [
+      {
+        risk:  "Missed or failed delivery attempt",
+        mitigation:  "Safe place protocol and patient contact procedures"
+      },
+      {
+        risk:  "Temperature-sensitive item compromised during transit",
+        mitigation:  "Cool bags with temperature indicators and maximum transit time limits"
+      },
+      {
+        risk:  "Cold chain breach affecting vaccine or medicine viability",
+        mitigation:  "Continuous monitoring, automated alerts, quarantine procedure, and manufacturer contact for stability data"
+      }
+    ],
+    escalation:  "Report delivery incidents to the Pharmacy Manager. For missing controlled drugs, notify the Responsible Pharmacist immediately. Contact the patient if delivery is delayed beyond agreed timeframe.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Delivery-related patient safety incident",
+      "Change to delivery service contractual terms"
+    ],
+    appendices:  [
+      "Failed Delivery Report",
+      "Patient Signature Record",
+      "Temperature Excursion Report Form"
+    ]
   },
   {
     id:  98,
@@ -4078,7 +8137,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-04-19"
+    effectiveDate:  "2025-04-19",
+    responsibilities:  {
+      driver:  "Deliver medicines safely, obtain signatures, and maintain chain of custody",
+      pharmacist:  "Authorise deliveries and ensure clinical appropriateness of delivery items",
+      technician:  "Prepare delivery bags with correct labelling and documentation"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.5",
+        date:  "2025-04-18",
+        changes:  "Added cold chain management during transit"
+      }
+    ],
+    trainingRequirements:  [
+      "Patient identity verification at delivery",
+      "Vehicle safety and maintenance checks",
+      "Medicine delivery chain of custody and patient verification training"
+    ],
+    monitoring:  "Weekly delivery log review and monthly patient feedback analysis",
+    riskAssessment:  [
+      {
+        risk:  "Delivery driver road traffic incident",
+        mitigation:  "Vehicle maintenance checks, driver training, and insurance verification"
+      },
+      {
+        risk:  "Temperature-sensitive item compromised during transit",
+        mitigation:  "Cool bags with temperature indicators and maximum transit time limits"
+      },
+      {
+        risk:  "Medicine left unattended at delivery location",
+        mitigation:  "Safe place agreement with patient consent, delivery confirmation process"
+      }
+    ],
+    escalation:  "Report delivery incidents to the Pharmacy Manager. For missing controlled drugs, notify the Responsible Pharmacist immediately. Contact the patient if delivery is delayed beyond agreed timeframe.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Delivery-related patient safety incident",
+      "Change to delivery service contractual terms"
+    ],
+    appendices:  [
+      "Vehicle Inspection Checklist",
+      "Failed Delivery Report"
+    ]
   },
   {
     id:  99,
@@ -4120,7 +8222,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-03-10"
+    effectiveDate:  "2025-03-10",
+    responsibilities:  {
+      driver:  "Deliver medicines safely, obtain signatures, and maintain chain of custody",
+      dispenser:  "Assist with delivery preparation and patient notification"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-03-10",
+        changes:  "Enhanced delivery tracking and chain of custody procedures"
+      }
+    ],
+    trainingRequirements:  [
+      "Delivery chain of custody procedures",
+      "Vehicle safety and maintenance checks",
+      "Internal audit methodology and GPhC inspection preparation"
+    ],
+    monitoring:  "Weekly delivery log review and monthly patient feedback analysis",
+    riskAssessment:  [
+      {
+        risk:  "Temperature-sensitive item compromised during transit",
+        mitigation:  "Cool bags with temperature indicators and maximum transit time limits"
+      },
+      {
+        risk:  "Delivery driver road traffic incident",
+        mitigation:  "Vehicle maintenance checks, driver training, and insurance verification"
+      },
+      {
+        risk:  "Audit findings not addressed within timescale",
+        mitigation:  "CAPA tracker with escalation for overdue actions"
+      }
+    ],
+    escalation:  "Report delivery incidents to the Pharmacy Manager. For missing controlled drugs, notify the Responsible Pharmacist immediately. Contact the patient if delivery is delayed beyond agreed timeframe.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Delivery-related patient safety incident",
+      "Change to delivery service contractual terms"
+    ],
+    appendices:  [
+      "Patient Signature Record",
+      "Delivery Log Template",
+      "Audit Action Plan Template"
+    ]
   },
   {
     id:  100,
@@ -4164,7 +8309,51 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-05-19"
+    effectiveDate:  "2025-05-19",
+    responsibilities:  {
+      pharmacist:  "Use clinical systems accurately and report IT issues promptly",
+      technician:  "Follow IT procedures and maintain system data integrity",
+      dispenser:  "Use pharmacy systems correctly and report faults immediately",
+      manager:  "Manage IT systems, user access, and data security compliance"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2024-05-18",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.0",
+        date:  "2025-05-18",
+        changes:  "Added remote working IT security guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "Pharmacy system (PMR) operational training",
+      "Cyber security awareness and phishing prevention"
+    ],
+    monitoring:  "Monthly access log review and annual DSPT self-assessment submission",
+    riskAssessment:  [
+      {
+        risk:  "Data breach or unauthorised access",
+        mitigation:  "Role-based access control, encryption, and security audit logging"
+      },
+      {
+        risk:  "Phishing or cyber attack",
+        mitigation:  "Staff cyber awareness training and email filtering systems"
+      }
+    ],
+    escalation:  "Report IT failures to the Pharmacy Manager. For suspected data breaches, notify the Superintendent Pharmacist and Data Protection Officer within 1 hour. Activate business continuity plan if needed.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Data breach or significant IT security incident",
+      "Change to DSPT or data protection legislation"
+    ],
+    appendices:  [
+      "User Access Request Form",
+      "System Downtime Log"
+    ]
   },
   {
     id:  101,
@@ -4206,7 +8395,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-04-14"
+    effectiveDate:  "2025-04-14",
+    responsibilities:  {
+      manager:  "Manage IT systems, user access, and data security compliance",
+      superintendent:  "Ensure IT systems meet NHS DSPT and regulatory requirements"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.3",
+        date:  "2025-04-13",
+        changes:  "Added remote working IT security guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "Cyber security awareness and phishing prevention",
+      "NHS Data Security and Protection Toolkit modules",
+      "UK GDPR and data protection awareness training"
+    ],
+    monitoring:  "Monthly access log review and annual DSPT self-assessment submission",
+    riskAssessment:  [
+      {
+        risk:  "Loss of patient data",
+        mitigation:  "Automated daily backups with tested restore procedures"
+      },
+      {
+        risk:  "System downtime affecting dispensing",
+        mitigation:  "Business continuity plan with manual dispensing backup procedure"
+      },
+      {
+        risk:  "Unauthorised disclosure of patient data",
+        mitigation:  "Access controls, encryption, and mandatory data protection training"
+      }
+    ],
+    escalation:  "Report IT failures to the Pharmacy Manager. For suspected data breaches, notify the Superintendent Pharmacist and Data Protection Officer within 1 hour. Activate business continuity plan if needed.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Data breach or significant IT security incident",
+      "Change to DSPT or data protection legislation"
+    ],
+    appendices:  [
+      "DSPT Evidence Checklist",
+      "System Downtime Log",
+      "Data Subject Access Request Form"
+    ]
   },
   {
     id:  102,
@@ -4249,7 +8481,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-01-25"
+    effectiveDate:  "2025-01-25",
+    responsibilities:  {
+      pharmacist:  "Use clinical systems accurately and report IT issues promptly",
+      technician:  "Follow IT procedures and maintain system data integrity",
+      dispenser:  "Use pharmacy systems correctly and report faults immediately"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.5",
+        date:  "2025-01-25",
+        changes:  "Updated cyber security measures per DSPT requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "NHS Data Security and Protection Toolkit modules",
+      "Cyber security awareness and phishing prevention",
+      "Electronic Prescription Service (EPS) operational training"
+    ],
+    monitoring:  "Monthly access log review and annual DSPT self-assessment submission",
+    riskAssessment:  [
+      {
+        risk:  "Phishing or cyber attack",
+        mitigation:  "Staff cyber awareness training and email filtering systems"
+      },
+      {
+        risk:  "System downtime affecting dispensing",
+        mitigation:  "Business continuity plan with manual dispensing backup procedure"
+      },
+      {
+        risk:  "EPS token not matched to correct patient",
+        mitigation:  "Patient identity verification before downloading and processing EPS prescriptions"
+      }
+    ],
+    escalation:  "Report IT failures to the Pharmacy Manager. For suspected data breaches, notify the Superintendent Pharmacist and Data Protection Officer within 1 hour. Activate business continuity plan if needed.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Data breach or significant IT security incident",
+      "Change to DSPT or data protection legislation"
+    ],
+    appendices:  [
+      "System Downtime Log",
+      "User Access Request Form"
+    ]
   },
   {
     id:  103,
@@ -4290,7 +8565,43 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-09-29"
+    effectiveDate:  "2025-09-29",
+    responsibilities:  {
+      all:  "Follow IT security policies and protect patient data"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.2",
+        date:  "2025-09-28",
+        changes:  "Revised access control and password policies"
+      }
+    ],
+    trainingRequirements:  [
+      "Pharmacy system (PMR) operational training",
+      "NHS Data Security and Protection Toolkit modules"
+    ],
+    monitoring:  "Monthly access log review and annual DSPT self-assessment submission",
+    riskAssessment:  [
+      {
+        risk:  "System downtime affecting dispensing",
+        mitigation:  "Business continuity plan with manual dispensing backup procedure"
+      },
+      {
+        risk:  "Phishing or cyber attack",
+        mitigation:  "Staff cyber awareness training and email filtering systems"
+      }
+    ],
+    escalation:  "Report IT failures to the Pharmacy Manager. For suspected data breaches, notify the Superintendent Pharmacist and Data Protection Officer within 1 hour. Activate business continuity plan if needed.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Data breach or significant IT security incident",
+      "Change to DSPT or data protection legislation"
+    ],
+    appendices:  [
+      "Data Breach Incident Form",
+      "System Downtime Log"
+    ]
   },
   {
     id:  104,
@@ -4332,7 +8643,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-06-04"
+    effectiveDate:  "2025-06-04",
+    responsibilities:  {
+      manager:  "Manage IT systems, user access, and data security compliance",
+      superintendent:  "Ensure IT systems meet NHS DSPT and regulatory requirements"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.1",
+        date:  "2025-06-03",
+        changes:  "Added remote working IT security guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "Cyber security awareness and phishing prevention",
+      "Pharmacy system (PMR) operational training",
+      "UK GDPR and data protection awareness training"
+    ],
+    monitoring:  "Monthly access log review and annual DSPT self-assessment submission",
+    riskAssessment:  [
+      {
+        risk:  "Data breach or unauthorised access",
+        mitigation:  "Role-based access control, encryption, and security audit logging"
+      },
+      {
+        risk:  "Phishing or cyber attack",
+        mitigation:  "Staff cyber awareness training and email filtering systems"
+      },
+      {
+        risk:  "Unauthorised disclosure of patient data",
+        mitigation:  "Access controls, encryption, and mandatory data protection training"
+      }
+    ],
+    escalation:  "Report IT failures to the Pharmacy Manager. For suspected data breaches, notify the Superintendent Pharmacist and Data Protection Officer within 1 hour. Activate business continuity plan if needed.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Data breach or significant IT security incident",
+      "Change to DSPT or data protection legislation"
+    ],
+    appendices:  [
+      "User Access Request Form",
+      "DSPT Evidence Checklist",
+      "Data Subject Access Request Form"
+    ]
   },
   {
     id:  105,
@@ -4373,7 +8727,48 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-08-09"
+    effectiveDate:  "2025-08-09",
+    responsibilities:  {
+      manager:  "Manage IT systems, user access, and data security compliance"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-08-08",
+        changes:  "Updated cyber security measures per DSPT requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "NHS Data Security and Protection Toolkit modules",
+      "Pharmacy system (PMR) operational training",
+      "Electronic Prescription Service (EPS) operational training"
+    ],
+    monitoring:  "Monthly access log review and annual DSPT self-assessment submission",
+    riskAssessment:  [
+      {
+        risk:  "Loss of patient data",
+        mitigation:  "Automated daily backups with tested restore procedures"
+      },
+      {
+        risk:  "System downtime affecting dispensing",
+        mitigation:  "Business continuity plan with manual dispensing backup procedure"
+      },
+      {
+        risk:  "EPS token not matched to correct patient",
+        mitigation:  "Patient identity verification before downloading and processing EPS prescriptions"
+      }
+    ],
+    escalation:  "Report IT failures to the Pharmacy Manager. For suspected data breaches, notify the Superintendent Pharmacist and Data Protection Officer within 1 hour. Activate business continuity plan if needed.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Data breach or significant IT security incident",
+      "Change to DSPT or data protection legislation"
+    ],
+    appendices:  [
+      "DSPT Evidence Checklist",
+      "User Access Request Form"
+    ]
   },
   {
     id:  106,
@@ -4414,7 +8809,43 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-05-24"
+    effectiveDate:  "2025-05-24",
+    responsibilities:  {
+      manager:  "Manage IT systems, user access, and data security compliance"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-05-23",
+        changes:  "Revised access control and password policies"
+      }
+    ],
+    trainingRequirements:  [
+      "Pharmacy system (PMR) operational training",
+      "Cyber security awareness and phishing prevention"
+    ],
+    monitoring:  "Monthly access log review and annual DSPT self-assessment submission",
+    riskAssessment:  [
+      {
+        risk:  "Phishing or cyber attack",
+        mitigation:  "Staff cyber awareness training and email filtering systems"
+      },
+      {
+        risk:  "System downtime affecting dispensing",
+        mitigation:  "Business continuity plan with manual dispensing backup procedure"
+      }
+    ],
+    escalation:  "Report IT failures to the Pharmacy Manager. For suspected data breaches, notify the Superintendent Pharmacist and Data Protection Officer within 1 hour. Activate business continuity plan if needed.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Data breach or significant IT security incident",
+      "Change to DSPT or data protection legislation"
+    ],
+    appendices:  [
+      "System Downtime Log",
+      "Data Breach Incident Form"
+    ]
   },
   {
     id:  107,
@@ -4455,7 +8886,49 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-03-15"
+    effectiveDate:  "2025-03-15",
+    responsibilities:  {
+      all:  "Follow IT security policies and protect patient data"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.1",
+        date:  "2025-03-15",
+        changes:  "Added remote working IT security guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "Cyber security awareness and phishing prevention",
+      "NHS Data Security and Protection Toolkit modules",
+      "UK GDPR and data protection awareness training"
+    ],
+    monitoring:  "Monthly access log review and annual DSPT self-assessment submission",
+    riskAssessment:  [
+      {
+        risk:  "System downtime affecting dispensing",
+        mitigation:  "Business continuity plan with manual dispensing backup procedure"
+      },
+      {
+        risk:  "Phishing or cyber attack",
+        mitigation:  "Staff cyber awareness training and email filtering systems"
+      },
+      {
+        risk:  "Unauthorised disclosure of patient data",
+        mitigation:  "Access controls, encryption, and mandatory data protection training"
+      }
+    ],
+    escalation:  "Report IT failures to the Pharmacy Manager. For suspected data breaches, notify the Superintendent Pharmacist and Data Protection Officer within 1 hour. Activate business continuity plan if needed.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Data breach or significant IT security incident",
+      "Change to DSPT or data protection legislation"
+    ],
+    appendices:  [
+      "Data Breach Incident Form",
+      "DSPT Evidence Checklist",
+      "Data Subject Access Request Form"
+    ]
   },
   {
     id:  108,
@@ -4496,7 +8969,53 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-04-30"
+    effectiveDate:  "2025-04-30",
+    responsibilities:  {
+      pharmacist:  "Deliver NHS services within scope and document all consultations"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2024-04-29",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.0",
+        date:  "2025-04-29",
+        changes:  "Enhanced clinical documentation templates"
+      }
+    ],
+    trainingRequirements:  [
+      "NHS service specification and pathway training",
+      "Clinical governance for NHS services",
+      "Medicine delivery chain of custody and patient verification training"
+    ],
+    monitoring:  "Monthly service activity review against NHS targets with quarterly quality audit",
+    riskAssessment:  [
+      {
+        risk:  "NHS claim rejection due to documentation error",
+        mitigation:  "Standardised recording templates and pre-submission validation"
+      },
+      {
+        risk:  "Patient complaint about service quality",
+        mitigation:  "Patient feedback mechanism and complaint handling procedure"
+      },
+      {
+        risk:  "Medicine left unattended at delivery location",
+        mitigation:  "Safe place agreement with patient consent, delivery confirmation process"
+      }
+    ],
+    escalation:  "Escalate NHS service concerns to the Pharmacy Manager. For serious patient safety issues, contact the Responsible Pharmacist immediately. Report to NHS England if contractual breach is identified.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "NHS contract breach notification or service decommission",
+      "Change to NHS service specification"
+    ],
+    appendices:  [
+      "Service Consultation Record",
+      "NHS Claim Submission Log"
+    ]
   },
   {
     id:  109,
@@ -4537,7 +9056,48 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-04-14"
+    effectiveDate:  "2025-04-14",
+    responsibilities:  {
+      pharmacist:  "Deliver NHS services within scope and document all consultations"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.8",
+        date:  "2025-04-13",
+        changes:  "Enhanced clinical documentation templates"
+      }
+    ],
+    trainingRequirements:  [
+      "PharmOutcomes or equivalent recording system",
+      "NHS service specification and pathway training",
+      "Medicine delivery chain of custody and patient verification training"
+    ],
+    monitoring:  "Monthly service activity review against NHS targets with quarterly quality audit",
+    riskAssessment:  [
+      {
+        risk:  "Patient complaint about service quality",
+        mitigation:  "Patient feedback mechanism and complaint handling procedure"
+      },
+      {
+        risk:  "Target shortfall affecting contract",
+        mitigation:  "Monthly activity tracking and proactive patient engagement"
+      },
+      {
+        risk:  "Medicine left unattended at delivery location",
+        mitigation:  "Safe place agreement with patient consent, delivery confirmation process"
+      }
+    ],
+    escalation:  "Escalate NHS service concerns to the Pharmacy Manager. For serious patient safety issues, contact the Responsible Pharmacist immediately. Report to NHS England if contractual breach is identified.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "NHS contract breach notification or service decommission",
+      "Change to NHS service specification"
+    ],
+    appendices:  [
+      "Service Activity Tracker",
+      "NHS Claim Submission Log"
+    ]
   },
   {
     id:  110,
@@ -4579,7 +9139,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-08-19"
+    effectiveDate:  "2025-08-19",
+    responsibilities:  {
+      pharmacist:  "Deliver NHS services within scope and document all consultations",
+      technician:  "Support NHS service delivery and patient record maintenance"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.2",
+        date:  "2025-08-18",
+        changes:  "Added new Pharmacy First service pathways"
+      }
+    ],
+    trainingRequirements:  [
+      "Clinical governance for NHS services",
+      "PharmOutcomes or equivalent recording system",
+      "Medicine delivery chain of custody and patient verification training"
+    ],
+    monitoring:  "Monthly service activity review against NHS targets with quarterly quality audit",
+    riskAssessment:  [
+      {
+        risk:  "Target shortfall affecting contract",
+        mitigation:  "Monthly activity tracking and proactive patient engagement"
+      },
+      {
+        risk:  "Patient complaint about service quality",
+        mitigation:  "Patient feedback mechanism and complaint handling procedure"
+      },
+      {
+        risk:  "Medicine left unattended at delivery location",
+        mitigation:  "Safe place agreement with patient consent, delivery confirmation process"
+      }
+    ],
+    escalation:  "Escalate NHS service concerns to the Pharmacy Manager. For serious patient safety issues, contact the Responsible Pharmacist immediately. Report to NHS England if contractual breach is identified.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "NHS contract breach notification or service decommission",
+      "Change to NHS service specification"
+    ],
+    appendices:  [
+      "Patient Feedback Form",
+      "Service Activity Tracker",
+      "Blood Pressure Screening Record Form"
+    ]
   },
   {
     id:  111,
@@ -4620,7 +9223,49 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-06-09"
+    effectiveDate:  "2025-06-09",
+    responsibilities:  {
+      pharmacist:  "Deliver NHS services within scope and document all consultations"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-06-08",
+        changes:  "Updated service pathways per NHS contract changes"
+      }
+    ],
+    trainingRequirements:  [
+      "NHS service specification and pathway training",
+      "PharmOutcomes or equivalent recording system",
+      "UK GDPR and data protection awareness training"
+    ],
+    monitoring:  "Monthly service activity review against NHS targets with quarterly quality audit",
+    riskAssessment:  [
+      {
+        risk:  "Patient pathway not followed correctly",
+        mitigation:  "Decision support tools and clinical pathway checklists"
+      },
+      {
+        risk:  "Patient complaint about service quality",
+        mitigation:  "Patient feedback mechanism and complaint handling procedure"
+      },
+      {
+        risk:  "Unauthorised disclosure of patient data",
+        mitigation:  "Access controls, encryption, and mandatory data protection training"
+      }
+    ],
+    escalation:  "Escalate NHS service concerns to the Pharmacy Manager. For serious patient safety issues, contact the Responsible Pharmacist immediately. Report to NHS England if contractual breach is identified.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "NHS contract breach notification or service decommission",
+      "Change to NHS service specification"
+    ],
+    appendices:  [
+      "NHS Claim Submission Log",
+      "Service Consultation Record",
+      "Data Subject Access Request Form"
+    ]
   },
   {
     id:  112,
@@ -4663,7 +9308,45 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-03-01"
+    effectiveDate:  "2025-03-01",
+    responsibilities:  {
+      pharmacist:  "Deliver NHS services within scope and document all consultations",
+      technician:  "Support NHS service delivery and patient record maintenance",
+      dispenser:  "Assist with NHS service administration and patient booking"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.5",
+        date:  "2025-03-01",
+        changes:  "Enhanced clinical documentation templates"
+      }
+    ],
+    trainingRequirements:  [
+      "PharmOutcomes or equivalent recording system",
+      "Clinical governance for NHS services"
+    ],
+    monitoring:  "Monthly service activity review against NHS targets with quarterly quality audit",
+    riskAssessment:  [
+      {
+        risk:  "NHS claim rejection due to documentation error",
+        mitigation:  "Standardised recording templates and pre-submission validation"
+      },
+      {
+        risk:  "Patient complaint about service quality",
+        mitigation:  "Patient feedback mechanism and complaint handling procedure"
+      }
+    ],
+    escalation:  "Escalate NHS service concerns to the Pharmacy Manager. For serious patient safety issues, contact the Responsible Pharmacist immediately. Report to NHS England if contractual breach is identified.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "NHS contract breach notification or service decommission",
+      "Change to NHS service specification"
+    ],
+    appendices:  [
+      "Service Consultation Record",
+      "Patient Feedback Form"
+    ]
   },
   {
     id:  113,
@@ -4705,7 +9388,55 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2024-12-10"
+    effectiveDate:  "2024-12-10",
+    responsibilities:  {
+      pharmacist:  "Deliver NHS services within scope and document all consultations",
+      manager:  "Monitor NHS service targets, claims, and quality metrics"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2023-12-10",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.1",
+        date:  "2024-12-10",
+        changes:  "Updated service pathways per NHS contract changes"
+      }
+    ],
+    trainingRequirements:  [
+      "Clinical governance for NHS services",
+      "NHS service specification and pathway training",
+      "Vaccination and immunisation administration accreditation"
+    ],
+    monitoring:  "Post-vaccination adverse reaction monitoring and Yellow Card reporting after each vaccination clinic",
+    riskAssessment:  [
+      {
+        risk:  "Patient complaint about service quality",
+        mitigation:  "Patient feedback mechanism and complaint handling procedure"
+      },
+      {
+        risk:  "Target shortfall affecting contract",
+        mitigation:  "Monthly activity tracking and proactive patient engagement"
+      },
+      {
+        risk:  "Anaphylactic reaction post-vaccination",
+        mitigation:  "Anaphylaxis kit available, staff trained in emergency response, 15-minute observation period"
+      }
+    ],
+    escalation:  "Escalate NHS service concerns to the Pharmacy Manager. For serious patient safety issues, contact the Responsible Pharmacist immediately. Report to NHS England if contractual breach is identified.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "NHS contract breach notification or service decommission",
+      "Change to NHS service specification"
+    ],
+    appendices:  [
+      "Service Activity Tracker",
+      "Patient Feedback Form",
+      "Vaccination Patient Group Direction (PGD)"
+    ]
   },
   {
     id:  114,
@@ -4746,7 +9477,48 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-09-30"
+    effectiveDate:  "2025-09-30",
+    responsibilities:  {
+      pharmacist:  "Deliver NHS services within scope and document all consultations"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-09-29",
+        changes:  "Updated service pathways per NHS contract changes"
+      }
+    ],
+    trainingRequirements:  [
+      "NHS service specification and pathway training",
+      "Clinical governance for NHS services",
+      "Medicine delivery chain of custody and patient verification training"
+    ],
+    monitoring:  "Monthly service activity review against NHS targets with quarterly quality audit",
+    riskAssessment:  [
+      {
+        risk:  "Target shortfall affecting contract",
+        mitigation:  "Monthly activity tracking and proactive patient engagement"
+      },
+      {
+        risk:  "Patient complaint about service quality",
+        mitigation:  "Patient feedback mechanism and complaint handling procedure"
+      },
+      {
+        risk:  "Medicine left unattended at delivery location",
+        mitigation:  "Safe place agreement with patient consent, delivery confirmation process"
+      }
+    ],
+    escalation:  "Escalate NHS service concerns to the Pharmacy Manager. For serious patient safety issues, contact the Responsible Pharmacist immediately. Report to NHS England if contractual breach is identified.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "NHS contract breach notification or service decommission",
+      "Change to NHS service specification"
+    ],
+    appendices:  [
+      "Patient Feedback Form",
+      "Service Consultation Record"
+    ]
   },
   {
     id:  115,
@@ -4787,7 +9559,48 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-02-20"
+    effectiveDate:  "2025-02-20",
+    responsibilities:  {
+      pharmacist:  "Deliver NHS services within scope and document all consultations"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.6",
+        date:  "2025-02-20",
+        changes:  "Enhanced clinical documentation templates"
+      }
+    ],
+    trainingRequirements:  [
+      "PharmOutcomes or equivalent recording system",
+      "NHS service specification and pathway training",
+      "Medicine delivery chain of custody and patient verification training"
+    ],
+    monitoring:  "Monthly service activity review against NHS targets with quarterly quality audit",
+    riskAssessment:  [
+      {
+        risk:  "Patient pathway not followed correctly",
+        mitigation:  "Decision support tools and clinical pathway checklists"
+      },
+      {
+        risk:  "Patient complaint about service quality",
+        mitigation:  "Patient feedback mechanism and complaint handling procedure"
+      },
+      {
+        risk:  "Medicine left unattended at delivery location",
+        mitigation:  "Safe place agreement with patient consent, delivery confirmation process"
+      }
+    ],
+    escalation:  "Escalate NHS service concerns to the Pharmacy Manager. For serious patient safety issues, contact the Responsible Pharmacist immediately. Report to NHS England if contractual breach is identified.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "NHS contract breach notification or service decommission",
+      "Change to NHS service specification"
+    ],
+    appendices:  [
+      "NHS Claim Submission Log",
+      "Patient Feedback Form"
+    ]
   },
   {
     id:  116,
@@ -4828,7 +9641,49 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-09-14"
+    effectiveDate:  "2025-09-14",
+    responsibilities:  {
+      pharmacist:  "Deliver NHS services within scope and document all consultations"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-09-13",
+        changes:  "Added new Pharmacy First service pathways"
+      }
+    ],
+    trainingRequirements:  [
+      "Clinical governance for NHS services",
+      "PharmOutcomes or equivalent recording system",
+      "Vaccination and immunisation administration accreditation"
+    ],
+    monitoring:  "Post-vaccination adverse reaction monitoring and Yellow Card reporting after each vaccination clinic",
+    riskAssessment:  [
+      {
+        risk:  "NHS claim rejection due to documentation error",
+        mitigation:  "Standardised recording templates and pre-submission validation"
+      },
+      {
+        risk:  "Patient complaint about service quality",
+        mitigation:  "Patient feedback mechanism and complaint handling procedure"
+      },
+      {
+        risk:  "Anaphylactic reaction post-vaccination",
+        mitigation:  "Anaphylaxis kit available, staff trained in emergency response, 15-minute observation period"
+      }
+    ],
+    escalation:  "Escalate NHS service concerns to the Pharmacy Manager. For serious patient safety issues, contact the Responsible Pharmacist immediately. Report to NHS England if contractual breach is identified.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "NHS contract breach notification or service decommission",
+      "Change to NHS service specification"
+    ],
+    appendices:  [
+      "Service Consultation Record",
+      "Service Activity Tracker",
+      "Vaccination Patient Group Direction (PGD)"
+    ]
   },
   {
     id:  117,
@@ -4869,7 +9724,48 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-01-15"
+    effectiveDate:  "2025-01-15",
+    responsibilities:  {
+      pharmacist:  "Deliver NHS services within scope and document all consultations"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.3",
+        date:  "2025-01-15",
+        changes:  "Updated service pathways per NHS contract changes"
+      }
+    ],
+    trainingRequirements:  [
+      "NHS service specification and pathway training",
+      "PharmOutcomes or equivalent recording system",
+      "Medicine delivery chain of custody and patient verification training"
+    ],
+    monitoring:  "Monthly service activity review against NHS targets with quarterly quality audit",
+    riskAssessment:  [
+      {
+        risk:  "Patient complaint about service quality",
+        mitigation:  "Patient feedback mechanism and complaint handling procedure"
+      },
+      {
+        risk:  "Target shortfall affecting contract",
+        mitigation:  "Monthly activity tracking and proactive patient engagement"
+      },
+      {
+        risk:  "Medicine left unattended at delivery location",
+        mitigation:  "Safe place agreement with patient consent, delivery confirmation process"
+      }
+    ],
+    escalation:  "Escalate NHS service concerns to the Pharmacy Manager. For serious patient safety issues, contact the Responsible Pharmacist immediately. Report to NHS England if contractual breach is identified.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "NHS contract breach notification or service decommission",
+      "Change to NHS service specification"
+    ],
+    appendices:  [
+      "Service Activity Tracker",
+      "Service Consultation Record"
+    ]
   },
   {
     id:  118,
@@ -4911,7 +9807,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-04-19"
+    effectiveDate:  "2025-04-19",
+    responsibilities:  {
+      pharmacist:  "Authorise controlled stationery usage and verify stock levels",
+      manager:  "Audit controlled stationery usage and manage procurement"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.4",
+        date:  "2025-04-18",
+        changes:  "Revised destruction and disposal procedures"
+      }
+    ],
+    trainingRequirements:  [
+      "Audit and reconciliation procedures",
+      "FP10 security and destruction protocols",
+      "Emergency first aid at work certification"
+    ],
+    monitoring:  "Weekly stationery stock check and monthly audit trail reconciliation",
+    riskAssessment:  [
+      {
+        risk:  "Destruction records incomplete",
+        mitigation:  "Witnessed destruction protocol with dual-signature records"
+      },
+      {
+        risk:  "Stationery stock-out affecting operations",
+        mitigation:  "Minimum stock levels and reorder point system"
+      },
+      {
+        risk:  "Delayed response to medical emergency in pharmacy",
+        mitigation:  "First aid kit maintained, trained first aiders on every shift, emergency protocol displayed"
+      }
+    ],
+    escalation:  "Report missing or stolen stationery to the Pharmacy Manager and Superintendent immediately. For FP10 losses, notify NHS Counter Fraud Authority within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Loss, theft, or misuse of controlled stationery",
+      "Change to NHS stationery governance requirements"
+    ],
+    appendices:  [
+      "Stock Reconciliation Form",
+      "FP10 Destruction Record",
+      "Emergency Contact List"
+    ]
   },
   {
     id:  119,
@@ -4953,7 +9892,44 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-07-09"
+    effectiveDate:  "2025-07-09",
+    responsibilities:  {
+      pharmacist:  "Authorise controlled stationery usage and verify stock levels",
+      manager:  "Audit controlled stationery usage and manage procurement"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-07-08",
+        changes:  "Enhanced reconciliation frequency and reporting"
+      }
+    ],
+    trainingRequirements:  [
+      "FP10 security and destruction protocols",
+      "Controlled stationery handling and security"
+    ],
+    monitoring:  "Weekly stationery stock check and monthly audit trail reconciliation",
+    riskAssessment:  [
+      {
+        risk:  "Unauthorised use of controlled stationery",
+        mitigation:  "Access restricted to authorised personnel with usage log"
+      },
+      {
+        risk:  "Stationery stock-out affecting operations",
+        mitigation:  "Minimum stock levels and reorder point system"
+      }
+    ],
+    escalation:  "Report missing or stolen stationery to the Pharmacy Manager and Superintendent immediately. For FP10 losses, notify NHS Counter Fraud Authority within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Loss, theft, or misuse of controlled stationery",
+      "Change to NHS stationery governance requirements"
+    ],
+    appendices:  [
+      "FP10 Destruction Record",
+      "Loss Report Template"
+    ]
   },
   {
     id:  120,
@@ -4995,7 +9971,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-03-02"
+    effectiveDate:  "2025-03-02",
+    responsibilities:  {
+      pharmacist:  "Authorise controlled stationery usage and verify stock levels",
+      superintendent:  "Ensure controlled stationery governance meets regulatory standards"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.1",
+        date:  "2025-03-02",
+        changes:  "Updated FP10 tracking requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "Controlled stationery handling and security",
+      "FP10 security and destruction protocols",
+      "Internal audit methodology and GPhC inspection preparation"
+    ],
+    monitoring:  "Weekly stationery stock check and monthly audit trail reconciliation",
+    riskAssessment:  [
+      {
+        risk:  "FP10 forms lost or stolen",
+        mitigation:  "Secure storage, sequential tracking, and immediate loss reporting"
+      },
+      {
+        risk:  "Stationery stock-out affecting operations",
+        mitigation:  "Minimum stock levels and reorder point system"
+      },
+      {
+        risk:  "Audit findings not addressed within timescale",
+        mitigation:  "CAPA tracker with escalation for overdue actions"
+      }
+    ],
+    escalation:  "Report missing or stolen stationery to the Pharmacy Manager and Superintendent immediately. For FP10 losses, notify NHS Counter Fraud Authority within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Loss, theft, or misuse of controlled stationery",
+      "Change to NHS stationery governance requirements"
+    ],
+    appendices:  [
+      "Stationery Issue Log",
+      "FP10 Destruction Record",
+      "Audit Action Plan Template"
+    ]
   },
   {
     id:  121,
@@ -5037,7 +10056,44 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-06-24"
+    effectiveDate:  "2025-06-24",
+    responsibilities:  {
+      pharmacist:  "Authorise controlled stationery usage and verify stock levels",
+      superintendent:  "Ensure controlled stationery governance meets regulatory standards"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-06-23",
+        changes:  "Revised destruction and disposal procedures"
+      }
+    ],
+    trainingRequirements:  [
+      "Audit and reconciliation procedures",
+      "Controlled stationery handling and security"
+    ],
+    monitoring:  "Weekly stationery stock check and monthly audit trail reconciliation",
+    riskAssessment:  [
+      {
+        risk:  "Stationery stock-out affecting operations",
+        mitigation:  "Minimum stock levels and reorder point system"
+      },
+      {
+        risk:  "Destruction records incomplete",
+        mitigation:  "Witnessed destruction protocol with dual-signature records"
+      }
+    ],
+    escalation:  "Report missing or stolen stationery to the Pharmacy Manager and Superintendent immediately. For FP10 losses, notify NHS Counter Fraud Authority within 24 hours.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "Loss, theft, or misuse of controlled stationery",
+      "Change to NHS stationery governance requirements"
+    ],
+    appendices:  [
+      "Loss Report Template",
+      "FP10 Destruction Record"
+    ]
   },
   {
     id:  122,
@@ -5080,7 +10136,56 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-03-15"
+    effectiveDate:  "2025-03-15",
+    responsibilities:  {
+      superintendent:  "Ensure internet pharmacy operations meet GPhC distance-selling standards",
+      manager:  "Monitor online service compliance and patient verification processes",
+      pharmacist:  "Verify online prescriptions and authorise distance-sale supply"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2024-03-15",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.0",
+        date:  "2025-03-15",
+        changes:  "Updated distance-selling compliance per GPhC guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "E-commerce and data security for pharmacy",
+      "Online patient verification and safeguarding",
+      "Complaint handling and patient communication skills"
+    ],
+    monitoring:  "Monthly online transaction audit and quarterly patient verification review",
+    riskAssessment:  [
+      {
+        risk:  "Data protection breach from online transactions",
+        mitigation:  "SSL encryption, PCI compliance, and regular security testing"
+      },
+      {
+        risk:  "Website displaying incorrect medicine information",
+        mitigation:  "Regular content review and version-controlled product data"
+      },
+      {
+        risk:  "Complaint not resolved within required timeframe",
+        mitigation:  "Complaint tracking system with escalation at 48-hour and 20-day checkpoints"
+      }
+    ],
+    escalation:  "Report online pharmacy concerns to the Pharmacy Manager. For suspected fraudulent orders, escalate to the Superintendent and consider reporting to GPhC and MHRA.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC distance-selling inspection finding",
+      "Change to online pharmacy regulations"
+    ],
+    appendices:  [
+      "Website Content Review Log",
+      "Distance Selling Compliance Checklist",
+      "Complaint Record Form"
+    ]
   },
   {
     id:  123,
@@ -5119,7 +10224,43 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-02-20"
+    effectiveDate:  "2025-02-20",
+    responsibilities:  {
+      pharmacist:  "Verify online prescriptions and authorise distance-sale supply"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.8",
+        date:  "2025-02-20",
+        changes:  "Updated distance-selling compliance per GPhC guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "GPhC distance-selling standards training",
+      "Online patient verification and safeguarding"
+    ],
+    monitoring:  "Monthly online transaction audit and quarterly patient verification review",
+    riskAssessment:  [
+      {
+        risk:  "Medicine supplied inappropriately via distance sale",
+        mitigation:  "Clinical screening checklist and pharmacist review of all orders"
+      },
+      {
+        risk:  "Website displaying incorrect medicine information",
+        mitigation:  "Regular content review and version-controlled product data"
+      }
+    ],
+    escalation:  "Report online pharmacy concerns to the Pharmacy Manager. For suspected fraudulent orders, escalate to the Superintendent and consider reporting to GPhC and MHRA.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC distance-selling inspection finding",
+      "Change to online pharmacy regulations"
+    ],
+    appendices:  [
+      "Patient ID Verification Record",
+      "Online Order Verification Checklist"
+    ]
   },
   {
     id:  124,
@@ -5162,7 +10303,51 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-06-09"
+    effectiveDate:  "2025-06-09",
+    responsibilities:  {
+      pharmacist:  "Verify online prescriptions and authorise distance-sale supply",
+      dispenser:  "Prepare online orders for pharmacist verification",
+      manager:  "Monitor online service compliance and patient verification processes"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.5",
+        date:  "2025-06-08",
+        changes:  "Enhanced online patient verification process"
+      }
+    ],
+    trainingRequirements:  [
+      "Online patient verification and safeguarding",
+      "E-commerce and data security for pharmacy",
+      "Stock management and medicines procurement procedures"
+    ],
+    monitoring:  "Monthly online transaction audit and quarterly patient verification review",
+    riskAssessment:  [
+      {
+        risk:  "Patient identity not verified for online order",
+        mitigation:  "Mandatory ID verification process before first supply"
+      },
+      {
+        risk:  "Website displaying incorrect medicine information",
+        mitigation:  "Regular content review and version-controlled product data"
+      },
+      {
+        risk:  "Expired or recalled medicines remaining on shelves",
+        mitigation:  "Monthly date-checking programme and MHRA alerts monitoring"
+      }
+    ],
+    escalation:  "Report online pharmacy concerns to the Pharmacy Manager. For suspected fraudulent orders, escalate to the Superintendent and consider reporting to GPhC and MHRA.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC distance-selling inspection finding",
+      "Change to online pharmacy regulations"
+    ],
+    appendices:  [
+      "Online Order Verification Checklist",
+      "Website Content Review Log",
+      "Stock Check Record"
+    ]
   },
   {
     id:  125,
@@ -5205,7 +10390,56 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-03-02"
+    effectiveDate:  "2025-03-02",
+    responsibilities:  {
+      pharmacist:  "Verify online prescriptions and authorise distance-sale supply",
+      technician:  "Process online orders accurately following distance-selling regulations",
+      dispenser:  "Prepare online orders for pharmacist verification"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2024-03-02",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.2",
+        date:  "2025-03-02",
+        changes:  "Updated distance-selling compliance per GPhC guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "E-commerce and data security for pharmacy",
+      "GPhC distance-selling standards training",
+      "Stock management and medicines procurement procedures"
+    ],
+    monitoring:  "Monthly online transaction audit and quarterly patient verification review",
+    riskAssessment:  [
+      {
+        risk:  "Website displaying incorrect medicine information",
+        mitigation:  "Regular content review and version-controlled product data"
+      },
+      {
+        risk:  "Data protection breach from online transactions",
+        mitigation:  "SSL encryption, PCI compliance, and regular security testing"
+      },
+      {
+        risk:  "Expired or recalled medicines remaining on shelves",
+        mitigation:  "Monthly date-checking programme and MHRA alerts monitoring"
+      }
+    ],
+    escalation:  "Report online pharmacy concerns to the Pharmacy Manager. For suspected fraudulent orders, escalate to the Superintendent and consider reporting to GPhC and MHRA.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC distance-selling inspection finding",
+      "Change to online pharmacy regulations"
+    ],
+    appendices:  [
+      "Distance Selling Compliance Checklist",
+      "Website Content Review Log",
+      "Stock Check Record"
+    ]
   },
   {
     id:  126,
@@ -5248,7 +10482,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-06-24"
+    effectiveDate:  "2025-06-24",
+    responsibilities:  {
+      dispenser:  "Prepare online orders for pharmacist verification",
+      manager:  "Monitor online service compliance and patient verification processes"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.4",
+        date:  "2025-06-23",
+        changes:  "Updated distance-selling compliance per GPhC guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "GPhC distance-selling standards training",
+      "E-commerce and data security for pharmacy",
+      "Cold chain management and temperature monitoring procedures"
+    ],
+    monitoring:  "Continuous fridge temperature monitoring with twice-daily manual verification and automated alert system",
+    riskAssessment:  [
+      {
+        risk:  "Data protection breach from online transactions",
+        mitigation:  "SSL encryption, PCI compliance, and regular security testing"
+      },
+      {
+        risk:  "Website displaying incorrect medicine information",
+        mitigation:  "Regular content review and version-controlled product data"
+      },
+      {
+        risk:  "Cold chain breach affecting vaccine or medicine viability",
+        mitigation:  "Continuous monitoring, automated alerts, quarantine procedure, and manufacturer contact for stability data"
+      }
+    ],
+    escalation:  "Report online pharmacy concerns to the Pharmacy Manager. For suspected fraudulent orders, escalate to the Superintendent and consider reporting to GPhC and MHRA.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC distance-selling inspection finding",
+      "Change to online pharmacy regulations"
+    ],
+    appendices:  [
+      "Website Content Review Log",
+      "Online Order Verification Checklist",
+      "Temperature Excursion Report Form"
+    ]
   },
   {
     id:  127,
@@ -5290,7 +10567,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-02-05"
+    effectiveDate:  "2025-02-05",
+    responsibilities:  {
+      pharmacist:  "Verify online prescriptions and authorise distance-sale supply",
+      dispenser:  "Prepare online orders for pharmacist verification"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.2",
+        date:  "2025-02-05",
+        changes:  "Enhanced online patient verification process"
+      }
+    ],
+    trainingRequirements:  [
+      "Online patient verification and safeguarding",
+      "GPhC distance-selling standards training",
+      "Cold chain management and temperature monitoring procedures"
+    ],
+    monitoring:  "Continuous fridge temperature monitoring with twice-daily manual verification and automated alert system",
+    riskAssessment:  [
+      {
+        risk:  "Medicine supplied inappropriately via distance sale",
+        mitigation:  "Clinical screening checklist and pharmacist review of all orders"
+      },
+      {
+        risk:  "Website displaying incorrect medicine information",
+        mitigation:  "Regular content review and version-controlled product data"
+      },
+      {
+        risk:  "Cold chain breach affecting vaccine or medicine viability",
+        mitigation:  "Continuous monitoring, automated alerts, quarantine procedure, and manufacturer contact for stability data"
+      }
+    ],
+    escalation:  "Report online pharmacy concerns to the Pharmacy Manager. For suspected fraudulent orders, escalate to the Superintendent and consider reporting to GPhC and MHRA.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC distance-selling inspection finding",
+      "Change to online pharmacy regulations"
+    ],
+    appendices:  [
+      "Patient ID Verification Record",
+      "Website Content Review Log",
+      "Temperature Excursion Report Form"
+    ]
   },
   {
     id:  128,
@@ -5332,7 +10652,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-08-14"
+    effectiveDate:  "2025-08-14",
+    responsibilities:  {
+      pharmacist:  "Verify online prescriptions and authorise distance-sale supply",
+      superintendent:  "Ensure internet pharmacy operations meet GPhC distance-selling standards"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.1",
+        date:  "2025-08-13",
+        changes:  "Added e-commerce security requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "E-commerce and data security for pharmacy",
+      "Online patient verification and safeguarding",
+      "Safeguarding Level 2 certification (adults and children)"
+    ],
+    monitoring:  "Monthly online transaction audit and quarterly patient verification review",
+    riskAssessment:  [
+      {
+        risk:  "Patient identity not verified for online order",
+        mitigation:  "Mandatory ID verification process before first supply"
+      },
+      {
+        risk:  "Website displaying incorrect medicine information",
+        mitigation:  "Regular content review and version-controlled product data"
+      },
+      {
+        risk:  "Failure to identify safeguarding concern",
+        mitigation:  "Safeguarding training, professional curiosity framework, and clear escalation pathway"
+      }
+    ],
+    escalation:  "Report online pharmacy concerns to the Pharmacy Manager. For suspected fraudulent orders, escalate to the Superintendent and consider reporting to GPhC and MHRA.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC distance-selling inspection finding",
+      "Change to online pharmacy regulations"
+    ],
+    appendices:  [
+      "Online Order Verification Checklist",
+      "Distance Selling Compliance Checklist",
+      "Safeguarding Referral Form"
+    ]
   },
   {
     id:  129,
@@ -5374,7 +10737,44 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-09-19"
+    effectiveDate:  "2025-09-19",
+    responsibilities:  {
+      manager:  "Monitor online service compliance and patient verification processes",
+      superintendent:  "Ensure internet pharmacy operations meet GPhC distance-selling standards"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.3",
+        date:  "2025-09-18",
+        changes:  "Updated distance-selling compliance per GPhC guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "GPhC distance-selling standards training",
+      "Online patient verification and safeguarding"
+    ],
+    monitoring:  "Monthly online transaction audit and quarterly patient verification review",
+    riskAssessment:  [
+      {
+        risk:  "Website displaying incorrect medicine information",
+        mitigation:  "Regular content review and version-controlled product data"
+      },
+      {
+        risk:  "Data protection breach from online transactions",
+        mitigation:  "SSL encryption, PCI compliance, and regular security testing"
+      }
+    ],
+    escalation:  "Report online pharmacy concerns to the Pharmacy Manager. For suspected fraudulent orders, escalate to the Superintendent and consider reporting to GPhC and MHRA.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC distance-selling inspection finding",
+      "Change to online pharmacy regulations"
+    ],
+    appendices:  [
+      "Distance Selling Compliance Checklist",
+      "Online Order Verification Checklist"
+    ]
   },
   {
     id:  130,
@@ -5415,7 +10815,54 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-01-10"
+    effectiveDate:  "2025-01-10",
+    responsibilities:  {
+      all:  "Follow internet pharmacy procedures for all online transactions"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2024-01-10",
+        changes:  "Initial release"
+      },
+      {
+        version:  "2.0",
+        date:  "2025-01-10",
+        changes:  "Added e-commerce security requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "Online patient verification and safeguarding",
+      "E-commerce and data security for pharmacy",
+      "UK GDPR and data protection awareness training"
+    ],
+    monitoring:  "Monthly online transaction audit and quarterly patient verification review",
+    riskAssessment:  [
+      {
+        risk:  "Data protection breach from online transactions",
+        mitigation:  "SSL encryption, PCI compliance, and regular security testing"
+      },
+      {
+        risk:  "Website displaying incorrect medicine information",
+        mitigation:  "Regular content review and version-controlled product data"
+      },
+      {
+        risk:  "Unauthorised disclosure of patient data",
+        mitigation:  "Access controls, encryption, and mandatory data protection training"
+      }
+    ],
+    escalation:  "Report online pharmacy concerns to the Pharmacy Manager. For suspected fraudulent orders, escalate to the Superintendent and consider reporting to GPhC and MHRA.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC distance-selling inspection finding",
+      "Change to online pharmacy regulations"
+    ],
+    appendices:  [
+      "Website Content Review Log",
+      "Patient ID Verification Record",
+      "Data Subject Access Request Form"
+    ]
   },
   {
     id:  131,
@@ -5457,7 +10904,50 @@ const DUMMY_SOPS = [
     ],
     author:  "Moniba Jamil",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-06-04"
+    effectiveDate:  "2025-06-04",
+    responsibilities:  {
+      pharmacist:  "Verify online prescriptions and authorise distance-sale supply",
+      superintendent:  "Ensure internet pharmacy operations meet GPhC distance-selling standards"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.0",
+        date:  "2025-06-03",
+        changes:  "Added e-commerce security requirements"
+      }
+    ],
+    trainingRequirements:  [
+      "E-commerce and data security for pharmacy",
+      "GPhC distance-selling standards training",
+      "Safeguarding Level 2 certification (adults and children)"
+    ],
+    monitoring:  "Monthly online transaction audit and quarterly patient verification review",
+    riskAssessment:  [
+      {
+        risk:  "Medicine supplied inappropriately via distance sale",
+        mitigation:  "Clinical screening checklist and pharmacist review of all orders"
+      },
+      {
+        risk:  "Website displaying incorrect medicine information",
+        mitigation:  "Regular content review and version-controlled product data"
+      },
+      {
+        risk:  "Failure to identify safeguarding concern",
+        mitigation:  "Safeguarding training, professional curiosity framework, and clear escalation pathway"
+      }
+    ],
+    escalation:  "Report online pharmacy concerns to the Pharmacy Manager. For suspected fraudulent orders, escalate to the Superintendent and consider reporting to GPhC and MHRA.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC distance-selling inspection finding",
+      "Change to online pharmacy regulations"
+    ],
+    appendices:  [
+      "Patient ID Verification Record",
+      "Distance Selling Compliance Checklist",
+      "Safeguarding Referral Form"
+    ]
   },
   {
     id:  132,
@@ -5500,7 +10990,51 @@ const DUMMY_SOPS = [
     ],
     author:  "Amjid Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-03-20"
+    effectiveDate:  "2025-03-20",
+    responsibilities:  {
+      pharmacist:  "Verify online prescriptions and authorise distance-sale supply",
+      manager:  "Monitor online service compliance and patient verification processes",
+      dispenser:  "Prepare online orders for pharmacist verification"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.5",
+        date:  "2025-03-20",
+        changes:  "Updated distance-selling compliance per GPhC guidance"
+      }
+    ],
+    trainingRequirements:  [
+      "GPhC distance-selling standards training",
+      "E-commerce and data security for pharmacy",
+      "Complaint handling and patient communication skills"
+    ],
+    monitoring:  "Monthly online transaction audit and quarterly patient verification review",
+    riskAssessment:  [
+      {
+        risk:  "Patient identity not verified for online order",
+        mitigation:  "Mandatory ID verification process before first supply"
+      },
+      {
+        risk:  "Website displaying incorrect medicine information",
+        mitigation:  "Regular content review and version-controlled product data"
+      },
+      {
+        risk:  "Complaint not resolved within required timeframe",
+        mitigation:  "Complaint tracking system with escalation at 48-hour and 20-day checkpoints"
+      }
+    ],
+    escalation:  "Report online pharmacy concerns to the Pharmacy Manager. For suspected fraudulent orders, escalate to the Superintendent and consider reporting to GPhC and MHRA.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC distance-selling inspection finding",
+      "Change to online pharmacy regulations"
+    ],
+    appendices:  [
+      "Online Order Verification Checklist",
+      "Patient ID Verification Record",
+      "Complaint Record Form"
+    ]
   },
   {
     id:  133,
@@ -5542,8 +11076,51 @@ const DUMMY_SOPS = [
     ],
     author:  "Salma Shakoor",
     approvedBy:  "Amjid Shakoor",
-    effectiveDate:  "2025-07-29"
+    effectiveDate:  "2025-07-29",
+    responsibilities:  {
+      manager:  "Monitor online service compliance and patient verification processes",
+      superintendent:  "Ensure internet pharmacy operations meet GPhC distance-selling standards"
+    },
+    revisionHistory:  [
+      {
+        version:  "1.2",
+        date:  "2025-07-28",
+        changes:  "Enhanced online patient verification process"
+      }
+    ],
+    trainingRequirements:  [
+      "Online patient verification and safeguarding",
+      "GPhC distance-selling standards training",
+      "Stock management and medicines procurement procedures"
+    ],
+    monitoring:  "Monthly online transaction audit and quarterly patient verification review",
+    riskAssessment:  [
+      {
+        risk:  "Website displaying incorrect medicine information",
+        mitigation:  "Regular content review and version-controlled product data"
+      },
+      {
+        risk:  "Data protection breach from online transactions",
+        mitigation:  "SSL encryption, PCI compliance, and regular security testing"
+      },
+      {
+        risk:  "Expired or recalled medicines remaining on shelves",
+        mitigation:  "Monthly date-checking programme and MHRA alerts monitoring"
+      }
+    ],
+    escalation:  "Report online pharmacy concerns to the Pharmacy Manager. For suspected fraudulent orders, escalate to the Superintendent and consider reporting to GPhC and MHRA.",
+    reviewTriggers:  [
+      "Significant incident, near miss, or trend identified through monitoring",
+      "Change in legislation, regulation, or professional guidance",
+      "GPhC distance-selling inspection finding",
+      "Change to online pharmacy regulations"
+    ],
+    appendices:  [
+      "Distance Selling Compliance Checklist",
+      "Patient ID Verification Record",
+      "Stock Check Record"
+    ]
   }
-]
+];
 
-export default DUMMY_SOPS
+export default DUMMY_SOPS;

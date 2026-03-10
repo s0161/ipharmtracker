@@ -47,6 +47,7 @@ function SectionHeader({ icon, children }) {
 
 // ─── ICONS ───
 const ICONS = {
+  // Existing
   people: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>,
   info: <><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></>,
   scope: <><circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" /></>,
@@ -56,6 +57,15 @@ const ICONS = {
   book: <><path d="M2 3h8a2 2 0 0 1 2 2v14a1.5 1.5 0 0 0-1.5-1.5H2V3z" /><path d="M22 3h-8a2 2 0 0 0-2 2v14a1.5 1.5 0 0 1 1.5-1.5H22V3z" /></>,
   file: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></>,
   shield: <><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></>,
+  // New — 8 icons for new sections
+  clipboard: <><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" ry="1" /></>,
+  alert: <><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></>,
+  arrowUp: <><circle cx="12" cy="12" r="10" /><polyline points="16 12 12 8 8 12" /><line x1="12" y1="16" x2="12" y2="8" /></>,
+  graduation: <><path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c0 1.1 2.7 3 6 3s6-1.9 6-3v-5" /></>,
+  eye: <><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></>,
+  clock: <><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></>,
+  refresh: <><polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" /><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" /></>,
+  paperclip: <><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" /></>,
 }
 
 export default function SOPViewer({ sop, onClose, onAcknowledge }) {
@@ -123,7 +133,7 @@ export default function SOPViewer({ sop, onClose, onAcknowledge }) {
         {/* ── Scrollable content ── */}
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
 
-          {/* Applies-to row */}
+          {/* 1. Applies-to row */}
           <section>
             <SectionHeader icon={ICONS.people}>Applies To</SectionHeader>
             <div className="flex flex-wrap gap-1.5">
@@ -141,15 +151,32 @@ export default function SOPViewer({ sop, onClose, onAcknowledge }) {
             </div>
           </section>
 
+          {/* 2. Responsibilities (NEW) */}
+          {sop.responsibilities && Object.keys(sop.responsibilities).length > 0 && (
+            <section>
+              <SectionHeader icon={ICONS.clipboard}>Responsibilities</SectionHeader>
+              <div className="space-y-2">
+                {Object.entries(sop.responsibilities).map(([role, duty]) => (
+                  <div key={role} className="flex items-start gap-3 p-3 rounded-xl border border-ec-border bg-slate-500/[0.03]">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-ec-em bg-emerald-500/10 px-2 py-0.5 rounded-md shrink-0 mt-0.5">
+                      {ROLE_DISPLAY[role] || role}
+                    </span>
+                    <span className="text-sm text-ec-t1 leading-relaxed">{duty}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           <hr className="border-ec-border m-0" />
 
-          {/* Purpose */}
+          {/* 3. Purpose */}
           <section>
             <SectionHeader icon={ICONS.info}>Purpose</SectionHeader>
             <p className="text-sm text-ec-t1 leading-relaxed m-0">{sop.description}</p>
           </section>
 
-          {/* Scope */}
+          {/* 4. Scope */}
           {sop.scope && (
             <section>
               <SectionHeader icon={ICONS.scope}>Scope</SectionHeader>
@@ -157,7 +184,7 @@ export default function SOPViewer({ sop, onClose, onAcknowledge }) {
             </section>
           )}
 
-          {/* Key Procedural Steps */}
+          {/* 5. Key Procedural Steps */}
           <section>
             <SectionHeader icon={ICONS.check}>Key Procedural Steps</SectionHeader>
             <div className="space-y-2">
@@ -175,9 +202,67 @@ export default function SOPViewer({ sop, onClose, onAcknowledge }) {
             </div>
           </section>
 
+          {/* 6. Risk Assessment (NEW) */}
+          {sop.riskAssessment && sop.riskAssessment.length > 0 && (
+            <section>
+              <SectionHeader icon={ICONS.alert}>Risk Assessment</SectionHeader>
+              <div className="space-y-2">
+                {sop.riskAssessment.map((item, i) => (
+                  <div key={i} className="p-3 rounded-xl border border-ec-border bg-red-500/[0.02]">
+                    <div className="flex items-start gap-2 mb-1.5">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400 bg-red-500/10 px-2 py-0.5 rounded-md shrink-0">Risk</span>
+                      <span className="text-sm font-medium text-ec-t1">{item.risk}</span>
+                    </div>
+                    <div className="flex items-start gap-2 ml-0.5">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md shrink-0">Mitigation</span>
+                      <span className="text-sm text-ec-t2 leading-relaxed">{item.mitigation}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* 7. Escalation Pathway (NEW) */}
+          {sop.escalation && (
+            <section>
+              <SectionHeader icon={ICONS.arrowUp}>Escalation Pathway</SectionHeader>
+              <div className="p-3 rounded-xl border border-ec-border bg-amber-500/[0.03]">
+                <p className="text-sm text-ec-t1 leading-relaxed m-0">{sop.escalation}</p>
+              </div>
+            </section>
+          )}
+
           <hr className="border-ec-border m-0" />
 
-          {/* Document Control */}
+          {/* 8. Training Requirements (NEW) */}
+          {sop.trainingRequirements && sop.trainingRequirements.length > 0 && (
+            <section>
+              <SectionHeader icon={ICONS.graduation}>Training Requirements</SectionHeader>
+              <div className="space-y-1.5">
+                {sop.trainingRequirements.map((req, i) => (
+                  <div key={i} className="flex items-start gap-2.5 py-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-ec-em/40 shrink-0 mt-1.5" />
+                    <span className="text-sm text-ec-t1 leading-relaxed">{req}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* 9. Monitoring & Audit (NEW) */}
+          {sop.monitoring && (
+            <section>
+              <SectionHeader icon={ICONS.eye}>Monitoring &amp; Audit</SectionHeader>
+              <div className="p-3 rounded-xl border border-ec-border bg-blue-500/[0.03]">
+                <p className="text-sm text-ec-t1 leading-relaxed m-0">{sop.monitoring}</p>
+              </div>
+            </section>
+          )}
+
+          <hr className="border-ec-border m-0" />
+
+          {/* 10. Document Control */}
           <section>
             <SectionHeader icon={ICONS.grid}>Document Control</SectionHeader>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -207,7 +292,51 @@ export default function SOPViewer({ sop, onClose, onAcknowledge }) {
             </div>
           </section>
 
-          {/* References & Legislation */}
+          {/* 11. Revision History (NEW) */}
+          {sop.revisionHistory && sop.revisionHistory.length > 0 && (
+            <section>
+              <SectionHeader icon={ICONS.clock}>Revision History</SectionHeader>
+              <div className="overflow-hidden rounded-xl border border-ec-border">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-ec-card-hover">
+                      <th className="text-left text-[10px] font-bold text-ec-t3 uppercase tracking-wider px-3 py-2">Version</th>
+                      <th className="text-left text-[10px] font-bold text-ec-t3 uppercase tracking-wider px-3 py-2">Date</th>
+                      <th className="text-left text-[10px] font-bold text-ec-t3 uppercase tracking-wider px-3 py-2">Changes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sop.revisionHistory.map((rev, i) => (
+                      <tr key={i} className="border-t border-ec-border">
+                        <td className="px-3 py-2 font-mono font-semibold text-ec-em text-xs">v{rev.version}</td>
+                        <td className="px-3 py-2 text-ec-t2 text-xs whitespace-nowrap">{formatDate(rev.date)}</td>
+                        <td className="px-3 py-2 text-ec-t1">{rev.changes}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
+
+          {/* 12. Review Triggers (NEW) */}
+          {sop.reviewTriggers && sop.reviewTriggers.length > 0 && (
+            <section>
+              <SectionHeader icon={ICONS.refresh}>Review Triggers</SectionHeader>
+              <div className="space-y-1.5">
+                {sop.reviewTriggers.map((trigger, i) => (
+                  <div key={i} className="flex items-start gap-2.5 py-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-amber-500/60 shrink-0 mt-1.5" />
+                    <span className="text-sm text-ec-t1 leading-relaxed">{trigger}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          <hr className="border-ec-border m-0" />
+
+          {/* 13. References & Legislation */}
           {sop.references && sop.references.length > 0 && (
             <section>
               <SectionHeader icon={ICONS.book}>References &amp; Legislation</SectionHeader>
@@ -222,7 +351,7 @@ export default function SOPViewer({ sop, onClose, onAcknowledge }) {
             </section>
           )}
 
-          {/* Related SOPs */}
+          {/* 14. Related SOPs */}
           {sop.relatedSOPs && sop.relatedSOPs.length > 0 && (
             <section>
               <SectionHeader icon={ICONS.link}>Related SOPs</SectionHeader>
@@ -236,6 +365,26 @@ export default function SOPViewer({ sop, onClose, onAcknowledge }) {
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
                     </svg>
                     {code}
+                  </span>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* 15. Appendices (NEW) */}
+          {sop.appendices && sop.appendices.length > 0 && (
+            <section>
+              <SectionHeader icon={ICONS.paperclip}>Appendices</SectionHeader>
+              <div className="flex flex-wrap gap-2">
+                {sop.appendices.map((doc, i) => (
+                  <span
+                    key={i}
+                    className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-ec-card-hover text-ec-t1 border border-ec-border"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 text-ec-t3">
+                      {ICONS.file}
+                    </svg>
+                    {doc}
                   </span>
                 ))}
               </div>
