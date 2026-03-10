@@ -66,6 +66,7 @@ const sections = [
   {
     label: 'SYSTEM',
     items: [
+      { to: '/staff-directory', label: 'Staff Directory', icon: 'users' },
       { to: '/settings', label: 'Settings', icon: 'gear' },
       { to: '/audit-log', label: 'Audit Log', icon: 'log' },
     ],

@@ -19,6 +19,7 @@ import ComplianceReport from './pages/ComplianceReport'
 import Analytics from './pages/Analytics'
 import CDRegister from './pages/CDRegister'
 import SOPLibrary from './pages/SOPLibrary'
+import StaffDirectory from './pages/StaffDirectory'
 import Login, { isAuthenticated } from './pages/Login'
 import PinSelect from './pages/PinSelect'
 import { UserProvider, useUser } from './contexts/UserContext'
@@ -54,6 +55,7 @@ function AuthedApp() {
             <Route path="/audit-log" element={<RouteErrorBoundary><AuditLog /></RouteErrorBoundary>} />
             <Route path="/cd-register" element={<RouteErrorBoundary><CDRegister /></RouteErrorBoundary>} />
             <Route path="/sop-library" element={<RouteErrorBoundary><SOPLibrary /></RouteErrorBoundary>} />
+            <Route path="/staff-directory" element={<RouteErrorBoundary><StaffDirectory /></RouteErrorBoundary>} />
           </Routes>
         </Layout>
       } />
