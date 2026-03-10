@@ -12,6 +12,7 @@ function emptyCounts() {
     '/my-tasks': { red: 0, amber: 0 },
     '/safeguarding': { red: 0, amber: 0 },
     '/appraisals': { red: 0, amber: 0 },
+    '/mhra-recalls': { red: 0, amber: 0 },
   }
 }
 
@@ -134,6 +135,20 @@ async function fetchCounts() {
     }
   } catch (e) {
     // Appraisal tables may not exist yet — graceful degradation
+  }
+
+  // MHRA Recalls: count unresolved flags as badge
+  try {
+    const [flagsRes] = await Promise.all([
+      supabase.from('mhra_alert_flags').select('resolved'),
+    ])
+    if (flagsRes.data) {
+      flagsRes.data.forEach(f => {
+        if (!f.resolved) counts['/mhra-recalls'].amber++
+      })
+    }
+  } catch (e) {
+    // MHRA tables may not exist yet — graceful degradation
   }
 
   return counts

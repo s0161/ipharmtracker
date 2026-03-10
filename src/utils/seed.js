@@ -3,7 +3,7 @@ import { generateId } from './helpers'
 import DUMMY_SOPS from '../data/sopData'
 import INDUCTION_MODULES from '../data/inductionModules'
 
-const SEED_KEY = 'ipd_seeded_v39'
+const SEED_KEY = 'ipd_seeded_v40'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -13,7 +13,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
   'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13', 'ipd_seeded_v14', 'ipd_seeded_v15', 'ipd_seeded_v16',
   'ipd_seeded_v17', 'ipd_seeded_v18', 'ipd_seeded_v19', 'ipd_seeded_v20', 'ipd_seeded_v21', 'ipd_seeded_v22',
-  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28', 'ipd_seeded_v29', 'ipd_seeded_v30', 'ipd_seeded_v31', 'ipd_seeded_v32', 'ipd_seeded_v33', 'ipd_seeded_v34', 'ipd_seeded_v35', 'ipd_seeded_v36', 'ipd_seeded_v37', 'ipd_seeded_v38',
+  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28', 'ipd_seeded_v29', 'ipd_seeded_v30', 'ipd_seeded_v31', 'ipd_seeded_v32', 'ipd_seeded_v33', 'ipd_seeded_v34', 'ipd_seeded_v35', 'ipd_seeded_v36', 'ipd_seeded_v37', 'ipd_seeded_v38', 'ipd_seeded_v39',
 ]
 
 // ─── SOP conversion helpers ───
@@ -1025,6 +1025,14 @@ export async function seedIfNeeded() {
     console.log('[seed] Seeded 3 appraisals, 3 templates, ratings, goals, actions, and peer feedback')
   } else {
     console.warn('[seed] Appraisal tables not yet created — skipping. Run create-appraisal-tables.sql first.')
+  }
+
+  // ─── MHRA Recalls (migration guard only — no seed data needed, alerts come from live feed) ───
+  const { error: recallsCheck } = await supabase.from('mhra_alert_acknowledgements').select('id').limit(1)
+  if (!recallsCheck) {
+    console.log('[seed] MHRA recalls tables detected — ready for live alerts')
+  } else {
+    console.warn('[seed] MHRA recalls tables not yet created — skipping. Run create-mhra-tables.sql first.')
   }
 
   localStorage.setItem(SEED_KEY, 'true')
