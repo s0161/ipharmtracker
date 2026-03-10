@@ -11,6 +11,11 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect rx='10' width='40' height='40' fill='%23166534'/><text x='20' y='27' text-anchor='middle' fill='white' font-weight='700' font-size='14' font-family='sans-serif'>iPD</text></svg>" />
   </head>
   <body>
+    <script>
+      // Apply saved theme before React mounts to prevent flash
+      var t = localStorage.getItem('ipd_theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
