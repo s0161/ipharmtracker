@@ -11,6 +11,7 @@ function emptyCounts() {
     '/temperature': { red: 0, amber: 0 },
     '/my-tasks': { red: 0, amber: 0 },
     '/safeguarding': { red: 0, amber: 0 },
+    '/appraisals': { red: 0, amber: 0 },
   }
 }
 
@@ -108,6 +109,32 @@ async function fetchCounts() {
   if (prefs.cleaningOverdue === false) counts['/cleaning'] = { red: 0, amber: 0 }
   if (prefs.temperatureMissing === false) counts['/temperature'] = { red: 0, amber: 0 }
   if (prefs.safeguardingDue === false) counts['/safeguarding'] = { red: 0, amber: 0 }
+
+  // Appraisals overdue: check months since last appraisal per staff
+  try {
+    const [apprRes, staffMembersRes] = await Promise.all([
+      supabase.from('appraisals').select('staff_name, appraisal_date, status'),
+      supabase.from('staff_members').select('name'),
+    ])
+    if (apprRes.data && staffMembersRes.data) {
+      const staffNames = staffMembersRes.data.map(s => s.name).filter(Boolean)
+      const now = Date.now()
+      staffNames.forEach(name => {
+        const staffApprs = (apprRes.data || [])
+          .filter(a => a.staff_name === name && a.status !== 'Archived')
+          .sort((a, b) => new Date(b.appraisal_date) - new Date(a.appraisal_date))
+        if (staffApprs.length === 0) {
+          counts['/appraisals'].amber++
+        } else {
+          const months = Math.floor((now - new Date(staffApprs[0].appraisal_date)) / (1000 * 60 * 60 * 24 * 30.44))
+          if (months >= 13) counts['/appraisals'].red++
+          else if (months >= 11) counts['/appraisals'].amber++
+        }
+      })
+    }
+  } catch (e) {
+    // Appraisal tables may not exist yet — graceful degradation
+  }
 
   return counts
 }
