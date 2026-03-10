@@ -761,8 +761,7 @@ export async function seedIfNeeded() {
     delFilter(supabase.from('safeguarding_concerns').delete()),
     delFilter(supabase.from('safeguarding_referrals').delete()),
     delFilter(supabase.from('signposting_resources').delete()),
-    delFilter(supabase.from('sop_acknowledgements').delete()),
-    delFilter(supabase.from('sops').delete()),
+    // SOPs deleted separately below — guarded by migration check
   ])
 
   // Insert into Supabase tables
@@ -807,20 +806,35 @@ export async function seedIfNeeded() {
     console.log('[seed] Sample data inserted into Supabase')
   }
 
-  // Insert SOPs in chunks of 50 (JSONB payloads can be large)
-  const CHUNK_SIZE = 50
-  for (let i = 0; i < sops.length; i += CHUNK_SIZE) {
-    const chunk = sops.slice(i, i + CHUNK_SIZE)
-    const { error } = await supabase.from('sops').insert(chunk)
-    if (error) console.error(`[seed] SOP chunk ${i}–${i + chunk.length} failed:`, error.message)
-  }
+  // Check if SOP migration has been run by testing for a new column
+  const { error: colCheck } = await supabase.from('sops').select('risk_level').limit(1)
+  const sopMigrationReady = !colCheck
 
-  // Insert acknowledgements
-  if (sopAcks.length > 0) {
-    const { error } = await supabase.from('sop_acknowledgements').insert(sopAcks)
-    if (error) console.error('[seed] SOP acks insert failed:', error.message)
-  }
+  if (sopMigrationReady) {
+    // Safe to delete + re-insert SOPs with new schema
+    const delFilter2 = (q) => q.not('id', 'is', null)
+    await Promise.allSettled([
+      delFilter2(supabase.from('sop_acknowledgements').delete()),
+      delFilter2(supabase.from('sops').delete()),
+    ])
 
-  console.log(`[seed] Seeded ${sops.length} SOPs + ${sopAcks.length} acknowledgements`)
+    // Insert SOPs in chunks of 50 (JSONB payloads can be large)
+    const CHUNK_SIZE = 50
+    for (let i = 0; i < sops.length; i += CHUNK_SIZE) {
+      const chunk = sops.slice(i, i + CHUNK_SIZE)
+      const { error } = await supabase.from('sops').insert(chunk)
+      if (error) console.error(`[seed] SOP chunk ${i}–${i + chunk.length} failed:`, error.message)
+    }
+
+    // Insert acknowledgements
+    if (sopAcks.length > 0) {
+      const { error } = await supabase.from('sop_acknowledgements').insert(sopAcks)
+      if (error) console.error('[seed] SOP acks insert failed:', error.message)
+    }
+
+    console.log(`[seed] Seeded ${sops.length} SOPs + ${sopAcks.length} acknowledgements`)
+  } else {
+    console.warn('[seed] SOP migration not yet applied — skipping SOP seed. Run alter-sops-table.sql in Supabase SQL Editor first.')
+  }
   localStorage.setItem(SEED_KEY, 'true')
 }

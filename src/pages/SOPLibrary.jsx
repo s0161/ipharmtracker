@@ -4,6 +4,7 @@ import { useUser } from '../contexts/UserContext'
 import { useSOPData } from '../hooks/useSOPData'
 import SOPViewer from '../components/SOPViewer'
 import { STAFF_ROLES } from '../utils/taskEngine'
+import DUMMY_SOPS from '../data/sopData'
 
 // ─── CONSTANTS ───
 const CATEGORY_TABS = ['All', 'Dispensing', 'CD', 'Clinical', 'Governance', 'H&S', 'HR & Training', 'Facilities', 'Delivery', 'IT & Systems', 'NHS Services', 'Controlled Stationery', 'Internet Pharmacy']
@@ -109,7 +110,9 @@ function CardSkeleton() {
 export default function SOPLibrary() {
   const showToast = useToast()
   const { user } = useUser()
-  const { sops, acksBySop, loading, acknowledge, flagForReview } = useSOPData()
+  const { sops: dbSops, acksBySop, loading, acknowledge, flagForReview } = useSOPData()
+  // Fall back to static data if DB is empty (migration not yet run)
+  const sops = !loading && dbSops.length === 0 ? DUMMY_SOPS : dbSops
 
   const [search, setSearch] = useState('')
   const [activeTab, setActiveTab] = useState('All')
