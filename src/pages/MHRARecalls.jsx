@@ -43,7 +43,7 @@ export default function MHRARecalls() {
 
   // State
   const [search, setSearch] = useState('')
-  const [typeFilter, setTypeFilter] = useState('All')
+  const [categoryTab, setCategoryTab] = useState('All')
   const [classFilter, setClassFilter] = useState('All')
   const [dateRange, setDateRange] = useState(DATE_RANGES[2]) // 90 days
   const [showFilter, setShowFilter] = useState('All')
@@ -54,6 +54,15 @@ export default function MHRARecalls() {
   const canManage = isElevatedRole(user?.role)
 
   // Filtered + paginated alerts
+  // Category counts (for tab badges, computed before other filters)
+  const categoryCounts = useMemo(() => {
+    const counts = { All: alerts.length }
+    for (const a of alerts) {
+      counts[a.alertType] = (counts[a.alertType] || 0) + 1
+    }
+    return counts
+  }, [alerts])
+
   const filtered = useMemo(() => {
     return alerts.filter(a => {
       // Search
@@ -63,8 +72,8 @@ export default function MHRARecalls() {
           || (a.summary || '').toLowerCase().includes(q)
         if (!matches) return false
       }
-      // Type filter
-      if (typeFilter !== 'All' && a.alertType !== typeFilter) return false
+      // Category tab
+      if (categoryTab !== 'All' && a.alertType !== categoryTab) return false
       // Classification filter
       if (classFilter !== 'All' && a.classification !== classFilter) return false
       // Date range
@@ -84,7 +93,7 @@ export default function MHRARecalls() {
       }
       return true
     })
-  }, [alerts, search, typeFilter, classFilter, dateRange, showFilter, acknowledgements, flags])
+  }, [alerts, search, categoryTab, classFilter, dateRange, showFilter, acknowledgements, flags])
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
   const paginated = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
@@ -182,6 +191,33 @@ export default function MHRARecalls() {
       {/* Stat cards */}
       <AcknowledgementSummary stats={stats} />
 
+      {/* Category tabs */}
+      <div className="flex gap-0 border-b border-ec-border mb-4 overflow-x-auto">
+        {['All', ...ALERT_TYPES].map(tab => {
+          const active = categoryTab === tab
+          const count = categoryCounts[tab] || 0
+          return (
+            <button
+              key={tab}
+              onClick={() => { setCategoryTab(tab); setPage(0) }}
+              className={`relative px-4 py-2.5 text-xs font-medium whitespace-nowrap border-none cursor-pointer transition-colors bg-transparent
+                ${active
+                  ? 'text-emerald-600'
+                  : 'text-ec-t3 hover:text-ec-t1'
+                }`}
+            >
+              {tab}
+              <span className={`ml-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${active ? 'bg-emerald-500/10 text-emerald-600' : 'bg-ec-border text-ec-t3'}`}>
+                {count}
+              </span>
+              {active && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-600 rounded-t-full" />
+              )}
+            </button>
+          )
+        })}
+      </div>
+
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-3">
         {/* Search */}
@@ -216,16 +252,6 @@ export default function MHRARecalls() {
 
       {/* Filters row */}
       <div className="flex gap-2 flex-wrap mb-4">
-        {/* Type filter */}
-        <select
-          value={typeFilter}
-          onChange={e => handleFilterChange(setTypeFilter)(e.target.value)}
-          className="px-2.5 py-1.5 rounded-lg border border-ec-border bg-ec-card text-xs text-ec-t1 outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
-        >
-          <option value="All">All Types</option>
-          {ALERT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-        </select>
-
         {/* Class filter */}
         <select
           value={classFilter}
@@ -246,10 +272,10 @@ export default function MHRARecalls() {
         </select>
 
         {/* Reset */}
-        {(typeFilter !== 'All' || classFilter !== 'All' || dateRange.label !== 'Last 90 days' || search || showFilter !== 'All') && (
+        {(categoryTab !== 'All' || classFilter !== 'All' || dateRange.label !== 'Last 90 days' || search || showFilter !== 'All') && (
           <button
             onClick={() => {
-              setTypeFilter('All'); setClassFilter('All'); setDateRange(DATE_RANGES[2])
+              setCategoryTab('All'); setClassFilter('All'); setDateRange(DATE_RANGES[2])
               setSearch(''); setShowFilter('All'); setPage(0)
             }}
             className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-ec-t3 border border-ec-border cursor-pointer hover:bg-ec-card-hover transition bg-transparent"

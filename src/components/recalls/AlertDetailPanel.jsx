@@ -70,7 +70,7 @@ export default function AlertDetailPanel({ alert, acks, flags, user, onClose, on
                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${CLASS_STYLES[alert.classification] || CLASS_STYLES['N/A']}`}>
                   {alert.classification}
                 </span>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${TYPE_STYLES[alert.alertType] || TYPE_STYLES['Other']}`}>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${TYPE_STYLES[alert.alertType] || TYPE_STYLES['News']}`}>
                   {alert.alertType}
                 </span>
               </div>

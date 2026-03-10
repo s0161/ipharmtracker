@@ -1,14 +1,13 @@
 // ─── MHRA RECALLS — Constants & Helpers ───
 
 export const ALERT_TYPES = [
-  'Drug Alert',
-  'Device Alert',
-  'Safety Update',
-  'Recall',
-  'Other',
+  'Medicine Recalls',
+  'Device Alerts',
+  'Drug Safety Updates',
+  'News',
 ]
 
-export const CLASSIFICATIONS = ['Class 1', 'Class 2', 'Class 3', 'N/A']
+export const CLASSIFICATIONS = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'N/A']
 
 export const ACTION_TYPES = [
   'Not Stocked',
@@ -23,15 +22,15 @@ export const CLASS_STYLES = {
   'Class 1': 'bg-red-500/10 text-red-600',
   'Class 2': 'bg-amber-500/10 text-amber-600',
   'Class 3': 'bg-slate-500/10 text-slate-600',
+  'Class 4': 'bg-indigo-500/10 text-indigo-600',
   'N/A':     'bg-gray-500/10 text-gray-500',
 }
 
 export const TYPE_STYLES = {
-  'Drug Alert':    'bg-rose-500/10 text-rose-600',
-  'Device Alert':  'bg-violet-500/10 text-violet-600',
-  'Safety Update': 'bg-blue-500/10 text-blue-600',
-  'Recall':        'bg-red-500/10 text-red-600',
-  'Other':         'bg-gray-500/10 text-gray-500',
+  'Medicine Recalls':     'bg-rose-500/10 text-rose-600',
+  'Device Alerts':        'bg-violet-500/10 text-violet-600',
+  'Drug Safety Updates':  'bg-blue-500/10 text-blue-600',
+  'News':                 'bg-gray-500/10 text-gray-500',
 }
 
 export const DATE_RANGES = [
