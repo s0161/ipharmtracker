@@ -1,8 +1,9 @@
 import { supabase } from '../lib/supabase'
 import { generateId } from './helpers'
 import DUMMY_SOPS from '../data/sopData'
+import INDUCTION_MODULES from '../data/inductionModules'
 
-const SEED_KEY = 'ipd_seeded_v37'
+const SEED_KEY = 'ipd_seeded_v38'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -12,7 +13,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
   'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13', 'ipd_seeded_v14', 'ipd_seeded_v15', 'ipd_seeded_v16',
   'ipd_seeded_v17', 'ipd_seeded_v18', 'ipd_seeded_v19', 'ipd_seeded_v20', 'ipd_seeded_v21', 'ipd_seeded_v22',
-  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28', 'ipd_seeded_v29', 'ipd_seeded_v30', 'ipd_seeded_v31', 'ipd_seeded_v32', 'ipd_seeded_v33', 'ipd_seeded_v34', 'ipd_seeded_v35', 'ipd_seeded_v36',
+  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28', 'ipd_seeded_v29', 'ipd_seeded_v30', 'ipd_seeded_v31', 'ipd_seeded_v32', 'ipd_seeded_v33', 'ipd_seeded_v34', 'ipd_seeded_v35', 'ipd_seeded_v36', 'ipd_seeded_v37',
 ]
 
 // ─── SOP conversion helpers ───
@@ -836,5 +837,65 @@ export async function seedIfNeeded() {
   } else {
     console.warn('[seed] SOP migration not yet applied — skipping SOP seed. Run alter-sops-table.sql in Supabase SQL Editor first.')
   }
+
+  // ─── Induction Modules ───
+  const { error: indCheck } = await supabase.from('induction_modules').select('id').limit(1)
+  if (!indCheck) {
+    // Table exists — seed induction modules
+    await supabase.from('induction_completions').delete().not('id', 'is', null)
+    await supabase.from('induction_modules').delete().not('id', 'is', null)
+
+    const indModules = INDUCTION_MODULES.map((m, i) => ({
+      id: generateId(),
+      code: m.code,
+      title: m.title,
+      category: m.category,
+      description: m.description,
+      content: m.content,
+      estimated_minutes: m.estimated_minutes,
+      is_mandatory: m.is_mandatory,
+      order_index: m.order_index || i + 1,
+    }))
+
+    // Insert modules
+    const { error: modErr } = await supabase.from('induction_modules').insert(indModules)
+    if (modErr) {
+      console.error('[seed] Induction modules insert failed:', modErr.message)
+    } else {
+      // Sample completions — a few staff have completed some modules
+      const sampleCompletions = [
+        { staff: 'Salma Shakoor', modules: [0, 1, 2, 3, 4, 5], scores: [90, 80, 100, 70, 90, 80] },
+        { staff: 'Moniba Jamil', modules: [0, 1, 2], scores: [80, 90, 70] },
+        { staff: 'Umama Khan', modules: [0, 1], scores: [100, 80] },
+        { staff: 'Jamila Adwan', modules: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], scores: [90, 100, 90, 80, 100, 90, null, 80, 90, null, 100, 90] },
+        { staff: 'Shain Nawaz', modules: [0], scores: [70] },
+      ]
+      const completionRows = []
+      sampleCompletions.forEach(sc => {
+        sc.modules.forEach((mi, idx) => {
+          if (mi < indModules.length) {
+            const daysAgo = (sc.modules.length - idx) * 3 + Math.floor(Math.random() * 5)
+            const d = new Date()
+            d.setDate(d.getDate() - daysAgo)
+            completionRows.push({
+              id: generateId(),
+              module_id: indModules[mi].id,
+              staff_name: sc.staff,
+              completed_at: d.toISOString(),
+              score: sc.scores[idx] || null,
+            })
+          }
+        })
+      })
+      if (completionRows.length > 0) {
+        const { error: compErr } = await supabase.from('induction_completions').insert(completionRows)
+        if (compErr) console.error('[seed] Induction completions insert failed:', compErr.message)
+      }
+      console.log(`[seed] Seeded ${indModules.length} induction modules + ${completionRows.length} completions`)
+    }
+  } else {
+    console.warn('[seed] Induction tables not yet created — skipping. Run create-induction-tables.sql first.')
+  }
+
   localStorage.setItem(SEED_KEY, 'true')
 }
