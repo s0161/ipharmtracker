@@ -13,6 +13,7 @@ function emptyCounts() {
     '/safeguarding': { red: 0, amber: 0 },
     '/appraisals': { red: 0, amber: 0 },
     '/mhra-recalls': { red: 0, amber: 0 },
+    '/alerts': { red: 0, amber: 0 },
   }
 }
 
@@ -149,6 +150,19 @@ async function fetchCounts() {
     }
   } catch (e) {
     // MHRA tables may not exist yet — graceful degradation
+  }
+
+  // Alerts: count CRITICAL (red) + HIGH (amber) active alerts
+  try {
+    const alertsRes = await supabase.from('alerts').select('severity').eq('status', 'ACTIVE')
+    if (alertsRes.data) {
+      alertsRes.data.forEach(a => {
+        if (a.severity === 'CRITICAL') counts['/alerts'].red++
+        else if (a.severity === 'HIGH') counts['/alerts'].amber++
+      })
+    }
+  } catch (e) {
+    // Alerts table may not exist yet — graceful degradation
   }
 
   return counts

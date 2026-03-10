@@ -3,7 +3,7 @@ import { generateId } from './helpers'
 import DUMMY_SOPS from '../data/sopData'
 import INDUCTION_MODULES from '../data/inductionModules'
 
-const SEED_KEY = 'ipd_seeded_v40'
+const SEED_KEY = 'ipd_seeded_v41'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -13,7 +13,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded_v7', 'ipd_seeded_v8', 'ipd_seeded_v9',
   'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13', 'ipd_seeded_v14', 'ipd_seeded_v15', 'ipd_seeded_v16',
   'ipd_seeded_v17', 'ipd_seeded_v18', 'ipd_seeded_v19', 'ipd_seeded_v20', 'ipd_seeded_v21', 'ipd_seeded_v22',
-  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28', 'ipd_seeded_v29', 'ipd_seeded_v30', 'ipd_seeded_v31', 'ipd_seeded_v32', 'ipd_seeded_v33', 'ipd_seeded_v34', 'ipd_seeded_v35', 'ipd_seeded_v36', 'ipd_seeded_v37', 'ipd_seeded_v38', 'ipd_seeded_v39',
+  'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28', 'ipd_seeded_v29', 'ipd_seeded_v30', 'ipd_seeded_v31', 'ipd_seeded_v32', 'ipd_seeded_v33', 'ipd_seeded_v34', 'ipd_seeded_v35', 'ipd_seeded_v36', 'ipd_seeded_v37', 'ipd_seeded_v38', 'ipd_seeded_v39', 'ipd_seeded_v40',
 ]
 
 // ─── SOP conversion helpers ───
@@ -1033,6 +1033,120 @@ export async function seedIfNeeded() {
     console.log('[seed] MHRA recalls tables detected — ready for live alerts')
   } else {
     console.warn('[seed] MHRA recalls tables not yet created — skipping. Run create-mhra-tables.sql first.')
+  }
+
+  // ─── Seed alerts ───
+  try {
+    const { data: alertsCheck } = await supabase.from('alerts').select('id').limit(1)
+    if (alertsCheck !== null) {
+      const seedAlerts = [
+        {
+          id: generateId(),
+          alert_type: 'GPHC_EXPIRY',
+          severity: 'CRITICAL',
+          status: 'ACTIVE',
+          title: 'GPhC registration expiring soon: Jamila Adwan',
+          description: 'GPhC registration expires in 45 days. Renewal must be submitted before expiry.',
+          source_table: 'documents',
+          source_id: 'seed-gphc-jamila',
+          assigned_to: 'Jamila Adwan',
+          due_date: new Date(Date.now() + 45 * 86400000).toISOString().slice(0, 10),
+          auto_generated: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        {
+          id: generateId(),
+          alert_type: 'DBS_EXPIRY',
+          severity: 'HIGH',
+          status: 'ACTIVE',
+          title: 'DBS expired: Marian Hadaway',
+          description: 'DBS certificate expired 30 days ago. Renewal urgently required.',
+          source_table: 'documents',
+          source_id: 'seed-dbs-marian',
+          assigned_to: 'Marian Hadaway',
+          due_date: new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10),
+          auto_generated: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        {
+          id: generateId(),
+          alert_type: 'SOP_REVIEW',
+          severity: 'HIGH',
+          status: 'ACTIVE',
+          title: 'SOP overdue for review: SOP-003 Fridge Temperature Monitoring',
+          description: 'Review was due 15 days ago. Must be reviewed and updated.',
+          source_table: 'sops',
+          source_id: 'seed-sop-003',
+          due_date: new Date(Date.now() - 15 * 86400000).toISOString().slice(0, 10),
+          auto_generated: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        {
+          id: generateId(),
+          alert_type: 'SOP_REVIEW',
+          severity: 'HIGH',
+          status: 'ACTIVE',
+          title: 'SOP overdue for review: SOP-006 Patient Confidentiality',
+          description: 'Review was due 22 days ago. Must be reviewed and updated.',
+          source_table: 'sops',
+          source_id: 'seed-sop-006',
+          due_date: new Date(Date.now() - 22 * 86400000).toISOString().slice(0, 10),
+          auto_generated: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        {
+          id: generateId(),
+          alert_type: 'APPRAISAL_ACK',
+          severity: 'MEDIUM',
+          status: 'ACTIVE',
+          title: 'Appraisal unacknowledged: Sadaf Subhani',
+          description: 'Appraisal in Draft status — staff has not acknowledged within 7 days.',
+          source_table: 'appraisals',
+          source_id: 'seed-appraisal-sadaf',
+          assigned_to: 'Sadaf Subhani',
+          auto_generated: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        {
+          id: generateId(),
+          alert_type: 'INDUCTION',
+          severity: 'MEDIUM',
+          status: 'ACTIVE',
+          title: 'Induction module incomplete: IND-004 Manual Handling',
+          description: 'Shain Nawaz has not completed mandatory module "Manual Handling".',
+          source_table: 'induction_modules',
+          source_id: 'seed-ind-004',
+          assigned_to: 'Shain Nawaz',
+          auto_generated: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        {
+          id: generateId(),
+          alert_type: 'APPRAISAL_GOAL',
+          severity: 'LOW',
+          status: 'ACTIVE',
+          title: 'Appraisal goal overdue: Complete NVQ Level 3 registration',
+          description: 'Target date has passed and goal is still In Progress. Assigned to Jamila Adwan.',
+          source_table: 'appraisal_goals',
+          source_id: 'seed-goal-jamila',
+          assigned_to: 'Jamila Adwan',
+          due_date: new Date(Date.now() - 14 * 86400000).toISOString().slice(0, 10),
+          auto_generated: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+      ]
+      await supabase.from('alerts').upsert(seedAlerts, { onConflict: 'id' })
+      console.log('[seed] Seeded 7 alerts')
+    }
+  } catch (e) {
+    console.warn('[seed] Alerts table not yet created — skipping. Run create-alerts-tables.sql first.')
   }
 
   localStorage.setItem(SEED_KEY, 'true')
