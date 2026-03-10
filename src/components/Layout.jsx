@@ -4,6 +4,8 @@ import Sidebar from './Sidebar'
 import GlobalSearch from './GlobalSearch'
 import Onboarding from './Onboarding'
 import IncidentQuickAdd from './IncidentQuickAdd'
+import CriticalBanner from './alerts/CriticalBanner'
+import { useAlertsData } from '../hooks/useAlertsData'
 
 const titles = {
   '/': 'Dashboard',
@@ -23,6 +25,7 @@ const titles = {
   '/audit-log': 'Audit Log',
   '/analytics': 'Analytics',
   '/sop-library': 'SOP Library',
+  '/alerts': 'Alert Centre',
 }
 
 const SHORTCUTS = {
@@ -58,6 +61,7 @@ const bottomNav = [
 ]
 
 const morePages = [
+  { to: '/alerts', label: 'Alert Centre', icon: 'alert' },
   { to: '/my-tasks', label: 'My Tasks', icon: 'check-square' },
   { to: '/documents', label: 'Renewals', icon: 'file' },
   { to: '/staff-training', label: 'Staff Training', icon: 'book' },
@@ -113,6 +117,7 @@ export default function Layout({ children }) {
   const navigate = useNavigate()
   const title = titles[location.pathname] || 'iPharmacy Direct'
   const isDashboard = location.pathname === '/'
+  const { stats: alertStats } = useAlertsData()
 
   // Close More menu on route change
   useEffect(() => { setMoreOpen(false) }, [location.pathname])
@@ -149,6 +154,7 @@ export default function Layout({ children }) {
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <main className="lg:ml-[220px]">
+        <CriticalBanner count={alertStats?.critical || 0} />
         {/* Header — hidden on Dashboard (it has its own) */}
         {!isDashboard && (
           <header className="sticky top-0 z-30 flex items-center gap-3 px-4 lg:px-9 py-3 border-b border-ec-div bg-ec-bg/80 backdrop-blur-md">
