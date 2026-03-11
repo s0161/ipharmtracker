@@ -2,18 +2,18 @@ import { useState } from 'react'
 
 // ─── Severity styling ───
 const SEV = {
-  CRITICAL: { border: 'border-l-red-500', bg: 'bg-red-500/5', badge: 'bg-red-500/10 text-red-500' },
-  HIGH: { border: 'border-l-amber-500', bg: 'bg-amber-500/5', badge: 'bg-amber-500/10 text-amber-500' },
-  MEDIUM: { border: 'border-l-yellow-400', bg: 'bg-yellow-400/5', badge: 'bg-yellow-500/10 text-yellow-600' },
-  LOW: { border: 'border-l-slate-500', bg: 'bg-slate-800/[0.04]', badge: 'bg-slate-500/10 text-slate-400' },
+  CRITICAL: { border: 'border-l-red-500', bg: 'bg-ec-crit/5', badge: 'bg-ec-crit/10 text-ec-crit' },
+  HIGH: { border: 'border-l-amber-500', bg: 'bg-ec-warn/5', badge: 'bg-ec-warn/10 text-ec-warn' },
+  MEDIUM: { border: 'border-l-yellow-400', bg: 'bg-yellow-400/5', badge: 'bg-ec-warn/10 text-ec-warn' },
+  LOW: { border: 'border-l-slate-500', bg: 'bg-slate-800/[0.04]', badge: 'bg-ec-bg text-ec-t3' },
 }
 
 const STATUS_BADGE = {
-  ACTIVE: 'bg-emerald-500/10 text-emerald-600',
-  ACKNOWLEDGED: 'bg-blue-500/10 text-blue-500',
+  ACTIVE: 'bg-ec-em/10 text-ec-em',
+  ACKNOWLEDGED: 'bg-ec-info/10 text-blue-500',
   SNOOZED: 'bg-violet-500/10 text-violet-500',
-  RESOLVED: 'bg-slate-500/10 text-slate-400',
-  DISMISSED: 'bg-gray-500/10 text-gray-400',
+  RESOLVED: 'bg-ec-bg text-ec-t3',
+  DISMISSED: 'bg-ec-bg text-ec-t3',
 }
 
 const SOURCE_LABELS = {
@@ -50,8 +50,8 @@ export default function AlertCard({ alert, onViewDetails, onResolve, onSnooze, o
   const daysInfo = (() => {
     if (!alert.due_date) return null
     const diff = Math.floor((new Date() - new Date(alert.due_date)) / 86400000)
-    if (diff > 0) return { text: `${diff}d overdue`, cls: 'text-red-500' }
-    if (diff === 0) return { text: 'Due today', cls: 'text-amber-500' }
+    if (diff > 0) return { text: `${diff}d overdue`, cls: 'text-ec-crit' }
+    if (diff === 0) return { text: 'Due today', cls: 'text-ec-warn' }
     return { text: `${Math.abs(diff)}d remaining`, cls: 'text-ec-t3' }
   })()
 

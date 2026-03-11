@@ -52,7 +52,7 @@ export default function OverviewTab({ home, patients, deliveries, notes, marIssu
     setEditing(false)
   }
 
-  const TYPE_COLORS = { delivery: 'bg-blue-500', note: 'bg-amber-500', issue: 'bg-red-500' }
+  const TYPE_COLORS = { delivery: 'bg-ec-info', note: 'bg-ec-warn', issue: 'bg-ec-crit' }
 
   return (
     <div className="space-y-6">

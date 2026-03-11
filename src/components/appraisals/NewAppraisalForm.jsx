@@ -128,8 +128,8 @@ export default function NewAppraisalForm({
           <div className="flex gap-1 mt-3">
             {STEP_LABELS.map((label, i) => (
               <div key={i} className="flex-1">
-                <div className={`h-1 rounded-full ${i <= step ? 'bg-emerald-500' : 'bg-ec-div'}`} />
-                <p className={`text-[10px] mt-1 m-0 ${i === step ? 'text-emerald-600 font-semibold' : 'text-ec-t3'}`}>{label}</p>
+                <div className={`h-1 rounded-full ${i <= step ? 'bg-ec-em' : 'bg-ec-div'}`} />
+                <p className={`text-[10px] mt-1 m-0 ${i === step ? 'text-ec-em font-semibold' : 'text-ec-t3'}`}>{label}</p>
               </div>
             ))}
           </div>
@@ -169,7 +169,7 @@ export default function NewAppraisalForm({
                 Mark as confidential (superintendent only)
               </label>
               {carryOverGoals.length > 0 && (
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+                <div className="p-3 bg-ec-warn-faint border border-ec-warn rounded-lg text-sm text-ec-warn">
                   {carryOverGoals.length} incomplete goal{carryOverGoals.length > 1 ? 's' : ''} will be carried over from previous appraisal.
                 </div>
               )}
@@ -225,11 +225,11 @@ export default function NewAppraisalForm({
                 <textarea value={summary} onChange={e => setSummary(e.target.value)} rows={3} placeholder="Overall appraisal summary..." className="w-full p-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 resize-y" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-emerald-700 mb-1">Strengths</label>
+                <label className="block text-sm font-medium text-ec-em mb-1">Strengths</label>
                 <textarea value={strengths} onChange={e => setStrengths(e.target.value)} rows={3} placeholder="Key strengths demonstrated..." className="w-full p-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 resize-y" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-amber-700 mb-1">Areas for Development</label>
+                <label className="block text-sm font-medium text-ec-warn mb-1">Areas for Development</label>
                 <textarea value={areasForDevelopment} onChange={e => setAreasForDevelopment(e.target.value)} rows={3} placeholder="Areas needing improvement..." className="w-full p-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 resize-y" />
               </div>
             </div>
@@ -264,17 +264,17 @@ export default function NewAppraisalForm({
                     />
                     <button
                       onClick={() => setGoals(goals.filter((_, j) => j !== i))}
-                      className="text-red-400 hover:text-red-600 bg-transparent border-none cursor-pointer text-lg px-1"
+                      className="text-red-400 hover:text-ec-crit bg-transparent border-none cursor-pointer text-lg px-1"
                     >
                       &times;
                     </button>
                   </div>
-                  {g.isCarryOver && <span className="text-[10px] text-amber-600 font-medium mt-1 block">Carried over</span>}
+                  {g.isCarryOver && <span className="text-[10px] text-ec-warn font-medium mt-1 block">Carried over</span>}
                 </div>
               ))}
               <button
                 onClick={() => setGoals([...goals, { goalText: '', targetDate: '', status: 'Not Started', isCarryOver: false }])}
-                className="w-full p-2 text-sm text-emerald-600 bg-transparent border border-dashed border-emerald-300 rounded-lg cursor-pointer hover:bg-emerald-50"
+                className="w-full p-2 text-sm text-ec-em bg-transparent border border-dashed border-emerald-300 rounded-lg cursor-pointer hover:bg-emerald-50"
               >
                 + Add Goal
               </button>
@@ -320,7 +320,7 @@ export default function NewAppraisalForm({
                     />
                     <button
                       onClick={() => setActions(actions.filter((_, j) => j !== i))}
-                      className="text-red-400 hover:text-red-600 bg-transparent border-none cursor-pointer text-lg px-1"
+                      className="text-red-400 hover:text-ec-crit bg-transparent border-none cursor-pointer text-lg px-1"
                     >
                       &times;
                     </button>
@@ -329,7 +329,7 @@ export default function NewAppraisalForm({
               ))}
               <button
                 onClick={() => setActions([...actions, { actionText: '', owner: staffName, dueDate: '' }])}
-                className="w-full p-2 text-sm text-emerald-600 bg-transparent border border-dashed border-emerald-300 rounded-lg cursor-pointer hover:bg-emerald-50"
+                className="w-full p-2 text-sm text-ec-em bg-transparent border border-dashed border-emerald-300 rounded-lg cursor-pointer hover:bg-emerald-50"
               >
                 + Add Action
               </button>

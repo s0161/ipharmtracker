@@ -6,18 +6,18 @@ const CARDS = [
     key: 'CRITICAL',
     label: 'Critical',
     color: 'red',
-    bg: 'bg-red-500/5',
-    border: 'border-red-500/20',
-    text: 'text-red-500',
+    bg: 'bg-ec-crit/5',
+    border: 'border-ec-crit/20',
+    text: 'text-ec-crit',
     dot: true,
   },
   {
     key: 'HIGH',
     label: 'High',
     color: 'amber',
-    bg: 'bg-amber-500/5',
-    border: 'border-amber-500/20',
-    text: 'text-amber-500',
+    bg: 'bg-ec-warn/5',
+    border: 'border-ec-warn/20',
+    text: 'text-ec-warn',
   },
   {
     key: 'MEDIUM',
@@ -33,7 +33,7 @@ const CARDS = [
     color: 'slate',
     bg: 'bg-slate-800/[0.03]',
     border: 'border-slate-500/20',
-    text: 'text-slate-400',
+    text: 'text-ec-t3',
   },
 ]
 
@@ -54,8 +54,8 @@ export default function AlertSummaryCards({ stats, activeSeverity, onSeverityCli
             {/* Pulsing dot for CRITICAL */}
             {c.dot && count > 0 && (
               <span className="absolute top-3 right-3 flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-ec-crit opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-ec-crit" />
               </span>
             )}
             <div className={`text-2xl font-bold ${c.text} tabular-nums`}>{count}</div>

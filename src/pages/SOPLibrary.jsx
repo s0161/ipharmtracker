@@ -10,31 +10,31 @@ import DUMMY_SOPS from '../data/sopData'
 const CATEGORY_TABS = ['All', 'Dispensing', 'CD', 'Clinical', 'Governance', 'H&S', 'HR & Training', 'Facilities', 'Delivery', 'IT & Systems', 'NHS Services', 'Controlled Stationery', 'Internet Pharmacy']
 
 const CATEGORY_STYLES = {
-  Dispensing: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-  CD: 'bg-red-500/10 text-red-600 dark:text-red-400',
+  Dispensing: 'bg-ec-info/10 text-ec-info',
+  CD: 'bg-ec-crit/10 text-ec-crit',
   Clinical: 'bg-teal-500/10 text-teal-600 dark:text-teal-400',
-  Governance: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
-  'H&S': 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
+  Governance: 'bg-ec-info/10 text-ec-info',
+  'H&S': 'bg-ec-warn/10 text-ec-warn',
   'HR & Training': 'bg-pink-500/10 text-pink-600 dark:text-pink-400',
-  Facilities: 'bg-slate-500/10 text-slate-600 dark:text-slate-400',
+  Facilities: 'bg-ec-bg text-ec-t2',
   Delivery: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400',
   'IT & Systems': 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400',
-  'NHS Services': 'bg-green-500/10 text-green-600 dark:text-green-400',
+  'NHS Services': 'bg-ec-em/10 text-ec-em',
   'Controlled Stationery': 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400',
   'Internet Pharmacy': 'bg-violet-500/10 text-violet-600 dark:text-violet-400',
 }
 
 const STATUS_STYLES = {
   Current: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-  'Due Review': 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-  Overdue: 'bg-red-500/10 text-red-600 dark:text-red-400',
+  'Due Review': 'bg-ec-warn/10 text-ec-warn',
+  Overdue: 'bg-ec-crit/10 text-ec-crit',
 }
 
 const RISK_BADGE = {
-  Critical: 'bg-red-600/10 text-red-600 dark:text-red-400',
-  High: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+  Critical: 'bg-ec-crit/10 text-ec-crit',
+  High: 'bg-ec-warn/10 text-ec-warn',
   Medium: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400',
-  Low: 'bg-slate-500/10 text-slate-500 dark:text-slate-400',
+  Low: 'bg-ec-bg text-ec-t3 ',
 }
 
 const ROLE_TABS = ['All Roles', 'Pharmacist', 'Technician', 'Dispenser', 'ACA', 'Driver', 'Stock', 'All Staff']
@@ -70,8 +70,8 @@ function getRelevantStaffCount(roles) {
 
 // ─── STAT ICONS ───
 function StatIcon({ name, color }) {
-  const cls = color === 'emerald' ? 'text-emerald-600' : color === 'blue' ? 'text-blue-600' : 'text-amber-600'
-  const bg = color === 'emerald' ? 'bg-emerald-500/10' : color === 'blue' ? 'bg-blue-500/10' : 'bg-amber-500/10'
+  const cls = color === 'emerald' ? 'text-ec-em' : color === 'blue' ? 'text-ec-info' : 'text-ec-warn'
+  const bg = color === 'emerald' ? 'bg-ec-em/10' : color === 'blue' ? 'bg-ec-info/10' : 'bg-ec-warn/10'
   const icons = {
     book: <><path d="M2 3h8a2 2 0 0 1 2 2v14a1.5 1.5 0 0 0-1.5-1.5H2V3z" /><path d="M22 3h-8a2 2 0 0 0-2 2v14a1.5 1.5 0 0 1 1.5-1.5H22V3z" /></>,
     check: <><path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></>,
@@ -283,7 +283,7 @@ export default function SOPLibrary() {
               <div key={sop.id} className="bg-ec-card border border-ec-border rounded-xl p-4 relative overflow-hidden group hover:shadow-md transition-shadow">
                 {/* Category + Status + Risk badges */}
                 <div className="flex items-center gap-1.5 mb-2 flex-wrap">
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${CATEGORY_STYLES[sop.category] || 'bg-slate-500/10 text-slate-500'}`}>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${CATEGORY_STYLES[sop.category] || 'bg-ec-bg text-ec-t3'}`}>
                     {sop.category}
                   </span>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_STYLES[sop.status] || ''}`}>
@@ -299,12 +299,12 @@ export default function SOPLibrary() {
                 {/* Role badges */}
                 <div className="flex flex-wrap gap-1 mb-2">
                   {(sop.roles || []).includes('all') ? (
-                    <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-500 dark:text-slate-400">
+                    <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-ec-bg text-ec-t3 ">
                       All Staff
                     </span>
                   ) : (
                     (sop.roles || []).map(r => (
-                      <span key={r} className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-500 dark:text-slate-400">
+                      <span key={r} className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-ec-bg text-ec-t3 ">
                         {ROLE_DISPLAY[r] || r}
                       </span>
                     ))
@@ -351,7 +351,7 @@ export default function SOPLibrary() {
                 {/* Flag indicator */}
                 {sop.flaggedForReview && (
                   <div className="absolute top-2 right-2" title={sop.flagReason || 'Flagged for review'}>
-                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-amber-500">
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-ec-warn">
                       <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
                       <line x1="4" y1="22" x2="4" y2="15" stroke="currentColor" strokeWidth="2" fill="none" />
                     </svg>

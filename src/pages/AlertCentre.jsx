@@ -113,7 +113,7 @@ export default function AlertCentre() {
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-ec-t1 m-0">Alert Centre</h1>
             {stats.total > 0 && (
-              <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+              <span className="bg-ec-crit text-white text-xs font-bold px-2 py-0.5 rounded-full">
                 {stats.total} active
               </span>
             )}

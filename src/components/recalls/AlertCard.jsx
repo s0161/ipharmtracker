@@ -26,12 +26,12 @@ export default function AlertCard({ alert, acks, flags, isAckedByMe, onViewDetai
           {alert.alertType}
         </span>
         {alert.relevance === 'relevant' && (
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600">
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-ec-em/10 text-ec-em">
             Likely relevant <span className="font-normal opacity-60">(auto)</span>
           </span>
         )}
         {alert.relevance === 'low' && (
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-500/10 text-gray-500">
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-ec-bg text-ec-t3">
             Low relevance <span className="font-normal opacity-60">(auto)</span>
           </span>
         )}
@@ -55,7 +55,7 @@ export default function AlertCard({ alert, acks, flags, isAckedByMe, onViewDetai
       {/* Status indicators */}
       <div className="flex items-center gap-2 mb-3">
         {hasAnyAck && (
-          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-600">
+          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-ec-em">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3">
               <polyline points="20 6 9 17 4 12" />
             </svg>
@@ -63,7 +63,7 @@ export default function AlertCard({ alert, acks, flags, isAckedByMe, onViewDetai
           </span>
         )}
         {hasActiveFlag && (
-          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-600">
+          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-ec-warn">
             <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
               <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
             </svg>

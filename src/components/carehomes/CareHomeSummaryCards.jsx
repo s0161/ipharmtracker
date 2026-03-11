@@ -2,10 +2,10 @@
 // Four stat cards in a row: Active Homes, Active Cycles, Pending Deliveries, Open MAR Issues
 
 const CARDS = [
-  { key: 'activeHomes', label: 'Active Homes', bg: 'bg-emerald-500/5', border: 'border-emerald-500/20', text: 'text-emerald-600' },
-  { key: 'activeCycles', label: 'Active Cycles', bg: 'bg-blue-500/5', border: 'border-blue-500/20', text: 'text-blue-600' },
-  { key: 'pendingDeliveries', label: 'Pending Deliveries', bg: 'bg-amber-500/5', border: 'border-amber-500/20', text: 'text-amber-600' },
-  { key: 'openMARIssues', label: 'Open MAR Issues', bg: 'bg-red-500/5', border: 'border-red-500/20', text: 'text-red-500' },
+  { key: 'activeHomes', label: 'Active Homes', bg: 'bg-ec-em/5', border: 'border-ec-em/20', text: 'text-ec-em' },
+  { key: 'activeCycles', label: 'Active Cycles', bg: 'bg-ec-info/5', border: 'border-ec-info/20', text: 'text-ec-info' },
+  { key: 'pendingDeliveries', label: 'Pending Deliveries', bg: 'bg-ec-warn/5', border: 'border-ec-warn/20', text: 'text-ec-warn' },
+  { key: 'openMARIssues', label: 'Open MAR Issues', bg: 'bg-ec-crit/5', border: 'border-ec-crit/20', text: 'text-ec-crit' },
 ]
 
 export default function CareHomeSummaryCards({ stats }) {

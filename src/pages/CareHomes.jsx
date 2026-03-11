@@ -82,10 +82,10 @@ function OverviewPanel({ home, contacts, flags }) {
               <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600">{lastDeliveryFlag.flagLabel || lastDeliveryFlag.flag_label}</span>
             )}
             {lastAuditFlag && (
-              <span className="text-xs px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-600">{lastAuditFlag.flagLabel || lastAuditFlag.flag_label}</span>
+              <span className="text-xs px-2.5 py-1 rounded-full bg-ec-info/10 text-ec-info">{lastAuditFlag.flagLabel || lastAuditFlag.flag_label}</span>
             )}
             {outstandingFlags.length > 0 && (
-              <span className="text-xs px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600">{outstandingFlags.length} outstanding</span>
+              <span className="text-xs px-2.5 py-1 rounded-full bg-ec-warn/10 text-ec-warn">{outstandingFlags.length} outstanding</span>
             )}
           </div>
         </div>
@@ -269,7 +269,7 @@ export default function CareHomes() {
               {hasAlert && !isActive && (
                 <span className="absolute top-2 right-2 flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-ec-warn" />
                 </span>
               )}
               <div className={`text-sm font-semibold truncate ${isActive ? 'text-white' : 'text-ec-t1'}`}>
@@ -292,7 +292,7 @@ export default function CareHomes() {
         const style = FLAG_SEVERITY_STYLES[sev] || FLAG_SEVERITY_STYLES.info
         return (
           <div key={f.id || i} className={`flex items-center gap-3 px-4 py-2.5 mb-3 rounded-lg border ${style.bg} ${style.border}`}>
-            <span className={`w-2 h-2 rounded-full flex-shrink-0 ${sev === 'alert' ? 'bg-red-500' : sev === 'warning' ? 'bg-amber-500' : 'bg-blue-500'}`} />
+            <span className={`w-2 h-2 rounded-full flex-shrink-0 ${sev === 'alert' ? 'bg-ec-crit' : sev === 'warning' ? 'bg-ec-warn' : 'bg-ec-info'}`} />
             <span className={`text-sm font-medium ${style.text}`}>{f.flagLabel || f.flag_label}</span>
           </div>
         )

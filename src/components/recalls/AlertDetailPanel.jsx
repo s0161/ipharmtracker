@@ -101,7 +101,7 @@ export default function AlertDetailPanel({ alert, acks, flags, user, onClose, on
                 <MetaCard label="Published" value={formatDate(alert.published)} />
                 <MetaCard label="Updated" value={formatDate(alert.updated)} />
               </div>
-              <div className="p-3 rounded-xl border border-ec-border bg-slate-500/[0.03]">
+              <div className="p-3 rounded-xl border border-ec-border bg-ec-bg">
                 <p className="text-sm text-ec-t1 leading-relaxed m-0">{alert.summary || 'No summary available'}</p>
               </div>
               {alert.url && (
@@ -156,7 +156,7 @@ export default function AlertDetailPanel({ alert, acks, flags, user, onClose, on
             )}
 
             {/* Add acknowledgement form */}
-            <div className="p-3 rounded-xl border border-ec-border bg-emerald-500/[0.03] space-y-2">
+            <div className="p-3 rounded-xl border border-ec-border bg-ec-em/[0.03] space-y-2">
               <div className="text-[10px] font-bold text-ec-t3 uppercase tracking-wider">Add Acknowledgement</div>
               <select
                 value={actionTaken}
@@ -188,8 +188,8 @@ export default function AlertDetailPanel({ alert, acks, flags, user, onClose, on
             {activeFlags.length > 0 ? (
               <div className="space-y-2 mb-4">
                 {activeFlags.map(f => (
-                  <div key={f.id} className="flex items-start gap-3 p-3 rounded-xl border border-amber-400/30 bg-amber-500/[0.05]">
-                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-amber-500 shrink-0 mt-0.5">
+                  <div key={f.id} className="flex items-start gap-3 p-3 rounded-xl border border-amber-400/30 bg-ec-warn/[0.05]">
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-ec-warn shrink-0 mt-0.5">
                       <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
                     </svg>
                     <div className="flex-1 min-w-0">
@@ -217,7 +217,7 @@ export default function AlertDetailPanel({ alert, acks, flags, user, onClose, on
               <div className="mb-4">
                 <div className="text-[10px] font-bold text-ec-t3 uppercase tracking-wider mb-2">Resolved</div>
                 {flags.filter(f => f.resolved).map(f => (
-                  <div key={f.id} className="flex items-center gap-2 py-1.5 px-3 rounded-lg bg-emerald-500/[0.04] mb-1">
+                  <div key={f.id} className="flex items-center gap-2 py-1.5 px-3 rounded-lg bg-ec-em/[0.04] mb-1">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 text-emerald-500 shrink-0">
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
@@ -241,7 +241,7 @@ export default function AlertDetailPanel({ alert, acks, flags, user, onClose, on
                   onKeyDown={e => { if (e.key === 'Enter') handleFlag() }}
                 />
                 <button onClick={handleFlag}
-                  className="px-3 py-2 rounded-lg text-sm font-medium bg-amber-500 text-white border-none cursor-pointer hover:bg-amber-600 transition">
+                  className="px-3 py-2 rounded-lg text-sm font-medium bg-ec-warn text-white border-none cursor-pointer hover:bg-amber-600 transition">
                   Submit
                 </button>
                 <button onClick={() => { setShowFlagInput(false); setFlagReason('') }}
@@ -252,7 +252,7 @@ export default function AlertDetailPanel({ alert, acks, flags, user, onClose, on
             ) : (
               <button
                 onClick={() => setShowFlagInput(true)}
-                className="px-4 py-2 rounded-lg text-xs font-medium bg-transparent text-amber-600 dark:text-amber-400 border border-amber-400/30 cursor-pointer hover:bg-amber-500/10 transition"
+                className="px-4 py-2 rounded-lg text-xs font-medium bg-transparent text-ec-warn dark:text-amber-400 border border-amber-400/30 cursor-pointer hover:bg-ec-warn/10 transition"
               >
                 Flag for Attention
               </button>

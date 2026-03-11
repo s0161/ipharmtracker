@@ -3,38 +3,38 @@ import { createPortal } from 'react-dom'
 import { STAFF_ROLES } from '../utils/taskEngine'
 
 const CATEGORY_STYLES = {
-  Dispensing: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-  CD: 'bg-red-500/10 text-red-600 dark:text-red-400',
+  Dispensing: 'bg-ec-info/10 text-ec-info dark:text-blue-400',
+  CD: 'bg-ec-crit/10 text-ec-crit',
   Clinical: 'bg-teal-500/10 text-teal-600 dark:text-teal-400',
   Governance: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
-  'H&S': 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
+  'H&S': 'bg-ec-warn/10 text-ec-warn',
   'HR & Training': 'bg-pink-500/10 text-pink-600 dark:text-pink-400',
-  Facilities: 'bg-slate-500/10 text-slate-600 dark:text-slate-400',
+  Facilities: 'bg-ec-bg text-ec-t2',
   Delivery: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400',
   'IT & Systems': 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400',
-  'NHS Services': 'bg-green-500/10 text-green-600 dark:text-green-400',
-  'Controlled Stationery': 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400',
+  'NHS Services': 'bg-green-500/10 text-ec-em dark:text-green-400',
+  'Controlled Stationery': 'bg-ec-warn/10 text-yellow-700 dark:text-yellow-400',
   'Internet Pharmacy': 'bg-violet-500/10 text-violet-600 dark:text-violet-400',
 }
 
 const STATUS_STYLES = {
-  Current: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-  'Due Review': 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-  Overdue: 'bg-red-500/10 text-red-600 dark:text-red-400',
+  Current: 'bg-ec-em/10 text-ec-em dark:text-emerald-400',
+  'Due Review': 'bg-ec-warn/10 text-ec-warn dark:text-amber-400',
+  Overdue: 'bg-ec-crit/10 text-ec-crit',
 }
 
 const RISK_STYLES = {
-  Critical: 'bg-red-600/10 text-red-600 dark:text-red-400 border-red-600/20',
-  High: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
-  Medium: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20',
-  Low: 'bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20',
+  Critical: 'bg-ec-crit/10 text-ec-crit border-ec-crit/20',
+  High: 'bg-ec-warn/10 text-ec-warn dark:text-amber-400 border-ec-warn/20',
+  Medium: 'bg-ec-warn/10 text-yellow-700 dark:text-yellow-400 border-ec-warn/20',
+  Low: 'bg-ec-bg text-ec-t3 border-slate-500/20',
 }
 
 const FREQ_STYLES = {
-  Daily: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-  Weekly: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+  Daily: 'bg-ec-em/10 text-ec-em dark:text-emerald-400',
+  Weekly: 'bg-ec-info/10 text-ec-info dark:text-blue-400',
   Monthly: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
-  'As Required': 'bg-slate-500/10 text-slate-500 dark:text-slate-400',
+  'As Required': 'bg-ec-bg text-ec-t3',
 }
 
 const ROLE_DISPLAY = {
@@ -210,14 +210,14 @@ export default function SOPViewer({ sop, acks = [], onClose, onAcknowledge, onFl
 
           {/* Flagged banner */}
           {sop.flaggedForReview && (
-            <div className="flex items-start gap-3 p-3 rounded-xl border border-amber-400/30 bg-amber-500/10 dark:bg-amber-500/5">
-              <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-amber-500 shrink-0 mt-0.5">
+            <div className="flex items-start gap-3 p-3 rounded-xl border border-amber-400/30 bg-ec-warn/10 dark:bg-ec-warn/5">
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-ec-warn shrink-0 mt-0.5">
                 <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
                 <line x1="4" y1="22" x2="4" y2="15" stroke="currentColor" strokeWidth="2" fill="none" />
               </svg>
               <div>
-                <p className="text-sm font-semibold text-amber-700 dark:text-amber-400 m-0">Flagged for Review</p>
-                {sop.flagReason && <p className="text-sm text-amber-600 dark:text-amber-300 m-0 mt-1">{sop.flagReason}</p>}
+                <p className="text-sm font-semibold text-ec-warn m-0">Flagged for Review</p>
+                {sop.flagReason && <p className="text-sm text-ec-warn dark:text-amber-300 m-0 mt-1">{sop.flagReason}</p>}
               </div>
             </div>
           )}
@@ -227,12 +227,12 @@ export default function SOPViewer({ sop, acks = [], onClose, onAcknowledge, onFl
             <SectionHeader icon={ICONS.people}>Applies To</SectionHeader>
             <div className="flex flex-wrap gap-1.5">
               {(sop.roles || []).includes('all') ? (
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-ec-em/10 text-ec-em dark:text-emerald-400">
                   All Staff
                 </span>
               ) : (
                 (sop.roles || []).map(r => (
-                  <span key={r} className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-500/10 text-slate-600 dark:text-slate-400">
+                  <span key={r} className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-ec-bg text-ec-t2">
                     {ROLE_DISPLAY[r] || r}
                   </span>
                 ))
@@ -246,8 +246,8 @@ export default function SOPViewer({ sop, acks = [], onClose, onAcknowledge, onFl
               <SectionHeader icon={ICONS.clipboard}>Responsibilities</SectionHeader>
               <div className="space-y-2">
                 {Object.entries(sop.responsibilities).map(([role, duty]) => (
-                  <div key={role} className="flex items-start gap-3 p-3 rounded-xl border border-ec-border bg-slate-500/[0.03]">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-ec-em bg-emerald-500/10 px-2 py-0.5 rounded-md shrink-0 mt-0.5">
+                  <div key={role} className="flex items-start gap-3 p-3 rounded-xl border border-ec-border bg-ec-bg">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-ec-em bg-ec-em/10 px-2 py-0.5 rounded-md shrink-0 mt-0.5">
                       {ROLE_DISPLAY[role] || role}
                     </span>
                     <span className="text-sm text-ec-t1 leading-relaxed">{duty}</span>
@@ -285,10 +285,10 @@ export default function SOPViewer({ sop, acks = [], onClose, onAcknowledge, onFl
                 return (
                   <div
                     key={i}
-                    className="flex items-start gap-3 p-3 rounded-xl border border-ec-border bg-emerald-500/[0.03]"
+                    className="flex items-start gap-3 p-3 rounded-xl border border-ec-border bg-ec-em/[0.03]"
                   >
-                    <div className="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <span className="text-[11px] font-bold text-emerald-600">{i + 1}</span>
+                    <div className="w-6 h-6 rounded-full bg-ec-em/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <span className="text-[11px] font-bold text-ec-em">{i + 1}</span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <span className="text-sm text-ec-t1 leading-relaxed">{stepText}</span>
@@ -310,13 +310,13 @@ export default function SOPViewer({ sop, acks = [], onClose, onAcknowledge, onFl
               <SectionHeader icon={ICONS.alert}>Risk Assessment</SectionHeader>
               <div className="space-y-2">
                 {sop.riskAssessment.map((item, i) => (
-                  <div key={i} className="p-3 rounded-xl border border-ec-border bg-red-500/[0.02]">
+                  <div key={i} className="p-3 rounded-xl border border-ec-border bg-ec-crit-faint">
                     <div className="flex items-start gap-2 mb-1.5">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400 bg-red-500/10 px-2 py-0.5 rounded-md shrink-0">Risk</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-ec-crit bg-ec-crit/10 px-2 py-0.5 rounded-md shrink-0">Risk</span>
                       <span className="text-sm font-medium text-ec-t1">{item.risk}</span>
                     </div>
                     <div className="flex items-start gap-2 ml-0.5">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md shrink-0">Mitigation</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-ec-em dark:text-emerald-400 bg-ec-em/10 px-2 py-0.5 rounded-md shrink-0">Mitigation</span>
                       <span className="text-sm text-ec-t2 leading-relaxed">{item.mitigation}</span>
                     </div>
                   </div>
@@ -329,7 +329,7 @@ export default function SOPViewer({ sop, acks = [], onClose, onAcknowledge, onFl
           {sop.escalation && (
             <section>
               <SectionHeader icon={ICONS.arrowUp}>Escalation Pathway</SectionHeader>
-              <div className="p-3 rounded-xl border border-ec-border bg-amber-500/[0.03]">
+              <div className="p-3 rounded-xl border border-ec-border bg-ec-warn/[0.03]">
                 <p className="text-sm text-ec-t1 leading-relaxed m-0">{sop.escalation}</p>
               </div>
             </section>
@@ -356,7 +356,7 @@ export default function SOPViewer({ sop, acks = [], onClose, onAcknowledge, onFl
           {sop.monitoring && (
             <section>
               <SectionHeader icon={ICONS.eye}>Monitoring &amp; Audit</SectionHeader>
-              <div className="p-3 rounded-xl border border-ec-border bg-blue-500/[0.03]">
+              <div className="p-3 rounded-xl border border-ec-border bg-ec-info-light">
                 <p className="text-sm text-ec-t1 leading-relaxed m-0">{sop.monitoring}</p>
               </div>
             </section>
@@ -383,19 +383,19 @@ export default function SOPViewer({ sop, acks = [], onClose, onAcknowledge, onFl
 
             {acknowledged.length > 0 && (
               <div className="mb-3">
-                <div className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1.5">
+                <div className="text-[10px] font-bold text-ec-em dark:text-emerald-400 uppercase tracking-wider mb-1.5">
                   Acknowledged ({acknowledged.length})
                 </div>
                 <div className="space-y-1">
                   {acknowledged.map(s => {
                     const ack = acks.find(a => a.name === s.name)
                     return (
-                      <div key={s.name} className="flex items-center gap-2.5 py-1.5 px-3 rounded-lg bg-emerald-500/[0.04]">
+                      <div key={s.name} className="flex items-center gap-2.5 py-1.5 px-3 rounded-lg bg-ec-em/[0.04]">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-emerald-500 shrink-0">
                           <polyline points="20 6 9 17 4 12" />
                         </svg>
                         <span className="text-sm text-ec-t1 font-medium">{s.name}</span>
-                        <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-500 dark:text-slate-400">
+                        <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-ec-bg text-ec-t3">
                           {ROLE_DISPLAY[s.role] || s.role}
                         </span>
                         {ack?.date && (
@@ -410,17 +410,17 @@ export default function SOPViewer({ sop, acks = [], onClose, onAcknowledge, onFl
 
             {pending.length > 0 && (
               <div>
-                <div className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-1.5">
+                <div className="text-[10px] font-bold text-ec-warn dark:text-amber-400 uppercase tracking-wider mb-1.5">
                   Pending ({pending.length})
                 </div>
                 <div className="space-y-1">
                   {pending.map(s => (
-                    <div key={s.name} className="flex items-center gap-2.5 py-1.5 px-3 rounded-lg bg-amber-500/[0.04]">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-amber-500 shrink-0">
+                    <div key={s.name} className="flex items-center gap-2.5 py-1.5 px-3 rounded-lg bg-ec-warn/[0.04]">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-ec-warn shrink-0">
                         <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
                       </svg>
                       <span className="text-sm text-ec-t1 font-medium">{s.name}</span>
-                      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-500 dark:text-slate-400">
+                      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-ec-bg text-ec-t3">
                         {ROLE_DISPLAY[s.role] || s.role}
                       </span>
                     </div>
@@ -464,7 +464,7 @@ export default function SOPViewer({ sop, acks = [], onClose, onAcknowledge, onFl
               <div className="space-y-1.5">
                 {sop.reviewTriggers.map((trigger, i) => (
                   <div key={i} className="flex items-start gap-2.5 py-1.5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-amber-500/60 shrink-0 mt-1.5" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-ec-warn/60 shrink-0 mt-1.5" />
                     <span className="text-sm text-ec-t1 leading-relaxed">{trigger}</span>
                   </div>
                 ))}
@@ -556,7 +556,7 @@ export default function SOPViewer({ sop, acks = [], onClose, onAcknowledge, onFl
                 onKeyDown={e => { if (e.key === 'Enter') handleSubmitFlag() }}
               />
               <button onClick={handleSubmitFlag}
-                className="px-3 py-2 rounded-lg text-sm font-medium bg-amber-500 text-white border-none cursor-pointer hover:bg-amber-600 transition">
+                className="px-3 py-2 rounded-lg text-sm font-medium bg-ec-warn text-white border-none cursor-pointer hover:bg-amber-600 transition">
                 Submit
               </button>
               <button onClick={() => { setShowFlagInput(false); setFlagText('') }}
@@ -568,7 +568,7 @@ export default function SOPViewer({ sop, acks = [], onClose, onAcknowledge, onFl
             <>
               <button
                 onClick={() => setShowFlagInput(true)}
-                className="px-4 py-2.5 rounded-xl text-sm font-medium bg-transparent text-amber-600 dark:text-amber-400 border border-amber-400/30 cursor-pointer hover:bg-amber-500/10 transition"
+                className="px-4 py-2.5 rounded-xl text-sm font-medium bg-transparent text-ec-warn dark:text-amber-400 border border-amber-400/30 cursor-pointer hover:bg-ec-warn/10 transition"
               >
                 Flag for Review
               </button>

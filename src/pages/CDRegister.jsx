@@ -25,16 +25,16 @@ const STAT_CARDS = [
 ]
 
 const SCHEDULE_STYLES = {
-  2: 'bg-red-500/10 text-red-600 dark:text-red-400',
-  3: 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
-  4: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-  5: 'bg-gray-500/10 text-gray-600 dark:text-gray-400',
+  2: 'bg-ec-crit/10 text-ec-crit',
+  3: 'bg-ec-warn/10 text-ec-warn',
+  4: 'bg-ec-info/10 text-ec-info',
+  5: 'bg-ec-bg text-ec-t2',
 }
 
 // ─── STAT ICONS ───
 function StatIcon({ name, color }) {
-  const cls = color === 'emerald' ? 'text-emerald-600' : color === 'blue' ? 'text-blue-600' : 'text-amber-600'
-  const bg = color === 'emerald' ? 'bg-emerald-500/10' : color === 'blue' ? 'bg-blue-500/10' : 'bg-amber-500/10'
+  const cls = color === 'emerald' ? 'text-ec-em' : color === 'blue' ? 'text-ec-info' : 'text-ec-warn'
+  const bg = color === 'emerald' ? 'bg-ec-em/10' : color === 'blue' ? 'bg-ec-info/10' : 'bg-ec-warn/10'
   const icons = {
     clipboard: <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />,
     pill: <><path d="M10.5 1.5H8.25A4.75 4.75 0 003.5 6.25v0a4.75 4.75 0 004.75 4.75h3.5a4.75 4.75 0 004.75-4.75v0A4.75 4.75 0 0011.75 1.5H10.5z" transform="rotate(45 12 12)" /><line x1="12" y1="8" x2="12" y2="16" transform="rotate(45 12 12)" /></>,
@@ -84,7 +84,7 @@ export default function CDRegister() {
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-ec-t1 m-0">CD Register</h1>
-            <span className="bg-amber-500/10 text-amber-600 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">
+            <span className="bg-ec-warn/10 text-ec-warn text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">
               Preview
             </span>
           </div>
@@ -125,7 +125,7 @@ export default function CDRegister() {
               </div>
             </div>
             {/* DUMMY watermark */}
-            <span className="absolute top-2 right-2 text-[8px] font-bold px-1.5 py-0.5 rounded-full border border-amber-400/30 text-amber-500/40 uppercase tracking-wider">
+            <span className="absolute top-2 right-2 text-[8px] font-bold px-1.5 py-0.5 rounded-full border border-ec-warn/30 text-ec-warn/40 uppercase tracking-wider">
               Dummy
             </span>
           </div>
@@ -213,7 +213,7 @@ export default function CDRegister() {
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                         entry.direction === 'In'
                           ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                          : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                          : 'bg-ec-warn/10 text-ec-warn'
                       }`}>
                         {entry.direction}
                       </span>
@@ -236,7 +236,7 @@ export default function CDRegister() {
         {/* Table footer */}
         <div className="flex items-center justify-between px-4 py-3 border-t border-ec-border text-xs text-ec-t3">
           <span>Showing {filtered.length} of {DUMMY_ENTRIES.length} sample entries</span>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-400/30 text-amber-500/50 uppercase">
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-ec-warn/30 text-ec-warn/50 uppercase">
             Dummy Data
           </span>
         </div>
@@ -259,7 +259,7 @@ export default function CDRegister() {
                 </button>
               </div>
               <div className="flex items-center gap-2 mb-5">
-                <span className="bg-amber-500/10 text-amber-600 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                <span className="bg-ec-warn/10 text-ec-warn text-[10px] font-bold px-2 py-0.5 rounded-full">
                   Coming Soon
                 </span>
                 <span className="text-xs text-ec-t3">This form is a preview only</span>

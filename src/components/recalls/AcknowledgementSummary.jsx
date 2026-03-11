@@ -11,10 +11,10 @@ export default function AcknowledgementSummary({ stats }) {
 
 function StatCard({ label, value, icon, color }) {
   const colors = {
-    emerald: { bg: 'bg-emerald-500/10', text: 'text-emerald-600' },
-    blue:    { bg: 'bg-blue-500/10',    text: 'text-blue-600' },
-    amber:   { bg: 'bg-amber-500/10',   text: 'text-amber-600' },
-    red:     { bg: 'bg-red-500/10',     text: 'text-red-600' },
+    emerald: { bg: 'bg-ec-em/10', text: 'text-ec-em' },
+    blue:    { bg: 'bg-ec-info/10',    text: 'text-ec-info' },
+    amber:   { bg: 'bg-ec-warn/10',   text: 'text-ec-warn' },
+    red:     { bg: 'bg-ec-crit/10',     text: 'text-ec-crit' },
   }
   const c = colors[color] || colors.emerald
 

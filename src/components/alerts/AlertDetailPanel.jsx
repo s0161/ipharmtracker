@@ -3,18 +3,18 @@ import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 
 const SEV_BADGE = {
-  CRITICAL: 'bg-red-500/10 text-red-500',
-  HIGH: 'bg-amber-500/10 text-amber-500',
-  MEDIUM: 'bg-yellow-500/10 text-yellow-600',
-  LOW: 'bg-slate-500/10 text-slate-400',
+  CRITICAL: 'bg-ec-crit/10 text-ec-crit',
+  HIGH: 'bg-ec-warn/10 text-ec-warn',
+  MEDIUM: 'bg-ec-warn/10 text-ec-warn',
+  LOW: 'bg-ec-bg text-ec-t3',
 }
 
 const STATUS_BADGE = {
-  ACTIVE: 'bg-emerald-500/10 text-emerald-600',
-  ACKNOWLEDGED: 'bg-blue-500/10 text-blue-500',
+  ACTIVE: 'bg-ec-em/10 text-ec-em',
+  ACKNOWLEDGED: 'bg-ec-info/10 text-blue-500',
   SNOOZED: 'bg-violet-500/10 text-violet-500',
-  RESOLVED: 'bg-slate-500/10 text-slate-400',
-  DISMISSED: 'bg-gray-500/10 text-gray-400',
+  RESOLVED: 'bg-ec-bg text-ec-t3',
+  DISMISSED: 'bg-ec-bg text-ec-t3',
 }
 
 // Map source_table to route
@@ -125,7 +125,7 @@ export default function AlertDetailPanel({ alert, acks, user, onClose, onResolve
               <MetaCard label="Created" value={fmtDate(alert.created_at)} />
               {alert.snoozed_until && <MetaCard label="Snoozed Until" value={fmtDate(alert.snoozed_until)} />}
             </div>
-            <div className="p-3 rounded-xl border border-ec-border bg-slate-500/[0.03]">
+            <div className="p-3 rounded-xl border border-ec-border bg-ec-bg">
               <p className="text-sm text-ec-t1 leading-relaxed m-0">{alert.description || 'No description'}</p>
             </div>
           </section>
@@ -242,10 +242,10 @@ function MetaCard({ label, value }) {
 }
 
 function TimelineItem({ date, text, icon }) {
-  const colors = { create: 'bg-blue-500', ack: 'bg-emerald-500', resolve: 'bg-slate-400' }
+  const colors = { create: 'bg-ec-info', ack: 'bg-ec-em', resolve: 'bg-ec-t3' }
   return (
     <div className="flex gap-3 items-start">
-      <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${colors[icon] || 'bg-slate-400'}`} />
+      <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${colors[icon] || 'bg-ec-t3'}`} />
       <div className="min-w-0">
         <div className="text-xs text-ec-t1">{text}</div>
         <div className="text-[10px] text-ec-t3">{fmtDate(date)}</div>

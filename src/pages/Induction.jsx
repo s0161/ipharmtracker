@@ -7,18 +7,18 @@ import INDUCTION_MODULES from '../data/inductionModules'
 
 // ─── CATEGORY STYLES ───
 const CAT_STYLES = {
-  Compliance: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-  'Health & Safety': 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
+  Compliance: 'bg-ec-info/10 text-ec-info',
+  'Health & Safety': 'bg-ec-warn/10 text-ec-warn',
   Practical: 'bg-teal-500/10 text-teal-600 dark:text-teal-400',
   Policies: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
 }
 
 const PROGRESS_COLORS = {
-  0: 'bg-slate-200 dark:bg-slate-700',
-  25: 'bg-red-500',
-  50: 'bg-amber-500',
-  75: 'bg-blue-500',
-  100: 'bg-emerald-500',
+  0: 'bg-ec-bg',
+  25: 'bg-ec-crit',
+  50: 'bg-ec-warn',
+  75: 'bg-ec-info',
+  100: 'bg-ec-em',
 }
 
 function getProgressColor(pct) {
@@ -67,7 +67,7 @@ function MiniRing({ percent, size = 36, stroke = 3 }) {
 
 // ─── MODULE CARD ───
 function ModuleCard({ module, isCompleted, completedDate, score, onClick }) {
-  const catStyle = CAT_STYLES[module.category] || 'bg-slate-500/10 text-slate-500'
+  const catStyle = CAT_STYLES[module.category] || 'bg-ec-bg text-ec-t3'
   return (
     <button
       onClick={onClick}
@@ -79,20 +79,20 @@ function ModuleCard({ module, isCompleted, completedDate, score, onClick }) {
           {module.category}
         </span>
         {isCompleted ? (
-          <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+          <span className="bg-emerald-500/10 text-ec-em dark:text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 h-3">
               <polyline points="3 8 7 12 13 4" />
             </svg>
             Complete
           </span>
         ) : (
-          <span className="bg-slate-500/10 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-full">
+          <span className="bg-ec-bg text-ec-t3 text-[10px] font-bold px-2 py-0.5 rounded-full">
             Pending
           </span>
         )}
       </div>
       <div className="text-[11px] font-mono text-ec-t3 mb-1">{module.code}</div>
-      <h3 className="text-sm font-semibold text-ec-t1 mb-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+      <h3 className="text-sm font-semibold text-ec-t1 mb-1 group-hover:text-ec-em dark:group-hover:text-emerald-400 transition-colors">
         {module.title}
       </h3>
       <p className="text-xs text-ec-t3 line-clamp-2 mb-3">{module.description}</p>
@@ -104,7 +104,7 @@ function ModuleCard({ module, isCompleted, completedDate, score, onClick }) {
           {module.estimatedMinutes} min
         </span>
         {isCompleted && score != null && (
-          <span className="font-semibold text-emerald-600 dark:text-emerald-400">Score: {score}%</span>
+          <span className="font-semibold text-ec-em dark:text-emerald-400">Score: {score}%</span>
         )}
         {isCompleted && completedDate && (
           <span>{formatDate(completedDate)}</span>
@@ -176,11 +176,11 @@ function ModuleViewer({ module, isCompleted, onClose, onComplete }) {
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-mono text-ec-t3">{module.code}</span>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${CAT_STYLES[module.category] || 'bg-slate-500/10 text-slate-500'}`}>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${CAT_STYLES[module.category] || 'bg-ec-bg text-ec-t3'}`}>
                 {module.category}
               </span>
               {module.isMandatory && (
-                <span className="bg-red-500/10 text-red-600 dark:text-red-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                <span className="bg-ec-crit/10 text-ec-crit text-[10px] font-bold px-2 py-0.5 rounded-full">
                   Mandatory
                 </span>
               )}
@@ -215,7 +215,7 @@ function ModuleViewer({ module, isCompleted, onClose, onComplete }) {
             </div>
           )}
           {quizStarted && !quizSubmitted && (
-            <div className="text-[11px] font-semibold text-blue-600 dark:text-blue-400">
+            <div className="text-[11px] font-semibold text-ec-info">
               Quiz — {Object.keys(quizAnswers).length}/{quiz.length} answered
             </div>
           )}
@@ -266,7 +266,7 @@ function ModuleViewer({ module, isCompleted, onClose, onComplete }) {
               {quiz.map((q, qi) => (
                 <div key={qi} className="bg-ec-card rounded-lg border border-ec-div p-4">
                   <p className="text-sm font-semibold text-ec-t1 mb-3">
-                    <span className="text-emerald-600 dark:text-emerald-400 mr-1">Q{qi + 1}.</span>
+                    <span className="text-ec-em dark:text-emerald-400 mr-1">Q{qi + 1}.</span>
                     {q.question}
                   </p>
                   <div className="space-y-2">
@@ -294,7 +294,7 @@ function ModuleViewer({ module, isCompleted, onClose, onComplete }) {
           {/* Quiz Results */}
           {quizSubmitted && (
             <div className="ec-fadeup">
-              <div className={`text-center py-8 ${quizScore >= 70 ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+              <div className={`text-center py-8 ${quizScore >= 70 ? 'text-ec-em dark:text-emerald-400' : 'text-ec-warn dark:text-amber-400'}`}>
                 <MiniRing percent={quizScore} size={80} stroke={5} />
                 <h3 className="text-xl font-bold mt-4">
                   {quizScore >= 70 ? 'Well Done!' : 'Keep Learning'}
@@ -308,17 +308,17 @@ function ModuleViewer({ module, isCompleted, onClose, onComplete }) {
                 {quiz.map((q, qi) => {
                   const correct = quizAnswers[qi] === q.correctIndex
                   return (
-                    <div key={qi} className={`rounded-lg border p-4 ${correct ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-red-500/30 bg-red-500/5'}`}>
+                    <div key={qi} className={`rounded-lg border p-4 ${correct ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-red-500/30 bg-ec-crit/5'}`}>
                       <p className="text-sm font-semibold text-ec-t1 mb-2">
                         {correct ? '✓' : '✗'} Q{qi + 1}. {q.question}
                       </p>
                       <p className="text-xs text-ec-t3">
-                        Your answer: <span className={correct ? 'text-emerald-600 font-medium' : 'text-red-600 font-medium'}>
+                        Your answer: <span className={correct ? 'text-ec-em font-medium' : 'text-ec-crit font-medium'}>
                           {q.options[quizAnswers[qi]] || 'No answer'}
                         </span>
                       </p>
                       {!correct && (
-                        <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
+                        <p className="text-xs text-ec-em dark:text-emerald-400 mt-1">
                           Correct: {q.options[q.correctIndex]}
                         </p>
                       )}
@@ -358,7 +358,7 @@ function ModuleViewer({ module, isCompleted, onClose, onComplete }) {
                   </button>
                 )}
                 {isLastSection && isCompleted && (
-                  <span className="px-4 py-2 rounded-lg text-sm font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                  <span className="px-4 py-2 rounded-lg text-sm font-semibold bg-emerald-500/10 text-ec-em dark:text-emerald-400">
                     ✓ Completed
                   </span>
                 )}
@@ -457,8 +457,8 @@ function TeamOverview({ modules, completionsByModule }) {
                             </svg>
                           </span>
                         ) : (
-                          <span className="inline-flex w-5 h-5 items-center justify-center rounded-full bg-slate-500/10">
-                            <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                          <span className="inline-flex w-5 h-5 items-center justify-center rounded-full bg-ec-bg">
+                            <span className="w-1.5 h-1.5 rounded-full bg-ec-t3" />
                           </span>
                         )}
                       </td>
@@ -557,15 +557,15 @@ export default function Induction() {
           <div className="text-xs text-ec-t3">Total Modules</div>
         </div>
         <div className="bg-ec-card rounded-xl border border-ec-div p-4">
-          <div className="text-2xl font-bold text-red-600 dark:text-red-400">{mandatoryCount}</div>
+          <div className="text-2xl font-bold text-ec-crit">{mandatoryCount}</div>
           <div className="text-xs text-ec-t3">Mandatory</div>
         </div>
         <div className="bg-ec-card rounded-xl border border-ec-div p-4">
-          <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{staffProgress.completed}</div>
+          <div className="text-2xl font-bold text-ec-em dark:text-emerald-400">{staffProgress.completed}</div>
           <div className="text-xs text-ec-t3">You Completed</div>
         </div>
         <div className="bg-ec-card rounded-xl border border-ec-div p-4">
-          <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{totalEstMinutes} min</div>
+          <div className="text-2xl font-bold text-ec-info">{totalEstMinutes} min</div>
           <div className="text-xs text-ec-t3">Total Duration</div>
         </div>
       </div>
