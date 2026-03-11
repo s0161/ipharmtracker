@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { getStaffInitials, getStaffColor } from '../../utils/rotationManager'
 
 const PRIO = {
-  high: { color: '#ef4444', bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.12)', label: 'High' },
-  medium: { color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.12)', label: 'Med' },
-  low: { color: '#10b981', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.12)', label: 'Low' },
+  high: { color: 'var(--ec-crit)', bg: 'var(--ec-crit-faint)', border: 'var(--ec-crit-border)', label: 'High' },
+  medium: { color: 'var(--ec-warn)', bg: 'var(--ec-warn-faint)', border: 'var(--ec-warn-border)', label: 'Med' },
+  low: { color: 'var(--ec-em)', bg: 'var(--ec-em-faint)', border: 'var(--ec-em-border)', label: 'Low' },
 }
 
 const Check = ({ s = 12, c = 'white' }) => (
@@ -138,9 +138,9 @@ export default function TaskRow({
           <span
             className="text-[10px] px-2 py-0.5 rounded font-medium tracking-wide whitespace-nowrap"
             style={{
-              backgroundColor: task.tag === 'RP Check' ? 'rgba(99,102,241,0.1)' : 'var(--ec-card-hover)',
-              color: task.tag === 'RP Check' ? '#a5b4fc' : 'var(--ec-t3)',
-              border: `1px solid ${task.tag === 'RP Check' ? 'rgba(99,102,241,0.12)' : 'var(--ec-border)'}`,
+              backgroundColor: task.tag === 'RP Check' ? 'var(--ec-info-bg)' : 'var(--ec-card-hover)',
+              color: task.tag === 'RP Check' ? 'var(--ec-info-light)' : 'var(--ec-t3)',
+              border: `1px solid ${task.tag === 'RP Check' ? 'var(--ec-info-border)' : 'var(--ec-border)'}`,
             }}
           >
             {task.tag}
@@ -152,9 +152,9 @@ export default function TaskRow({
           <span
             className="text-[10px] px-2 py-0.5 rounded flex items-center gap-1 whitespace-nowrap font-medium"
             style={{
-              backgroundColor: task.urgent === 'red' ? 'rgba(239,68,68,0.08)' : 'rgba(245,158,11,0.08)',
-              color: task.urgent === 'red' ? '#fca5a5' : '#fcd34d',
-              border: `1px solid ${task.urgent === 'red' ? 'rgba(239,68,68,0.1)' : 'rgba(245,158,11,0.1)'}`,
+              backgroundColor: task.urgent === 'red' ? 'var(--ec-crit-faint)' : 'var(--ec-warn-faint)',
+              color: task.urgent === 'red' ? 'var(--ec-crit-light)' : 'var(--ec-warn-light)',
+              border: `1px solid ${task.urgent === 'red' ? 'var(--ec-crit-border)' : 'var(--ec-warn-border)'}`,
             }}
           >
             <Clock />{task.time}
@@ -190,7 +190,7 @@ export default function TaskRow({
             onClick={() => onToggleSubchecks?.(task.id)}
             className="bg-transparent border-none cursor-pointer text-[10px] text-ec-info-light py-0.5 flex items-center gap-1 opacity-70 hover:opacity-100 transition-opacity font-sans"
           >
-            <Chev open={isSubOpen} color="#a5b4fc" size={9} />
+            <Chev open={isSubOpen} color="var(--ec-info-light)" size={9} />
             {rpSubDone}/5 RP checks complete
           </button>
           <div
@@ -207,8 +207,8 @@ export default function TaskRow({
                     onClick={() => onToggleRpSub?.(sc.id)}
                     className="w-3.5 h-3.5 rounded-sm shrink-0 cursor-pointer flex items-center justify-center transition-all duration-150"
                     style={{
-                      border: `1.5px solid ${rpSubChecks?.has(sc.id) ? '#6366f1' : 'var(--ec-t4)'}`,
-                      backgroundColor: rpSubChecks?.has(sc.id) ? '#6366f1' : 'transparent',
+                      border: `1.5px solid ${rpSubChecks?.has(sc.id) ? 'var(--ec-info)' : 'var(--ec-t4)'}`,
+                      backgroundColor: rpSubChecks?.has(sc.id) ? 'var(--ec-info)' : 'transparent',
                     }}
                   >
                     {rpSubChecks?.has(sc.id) && <Check s={8} />}

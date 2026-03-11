@@ -59,7 +59,7 @@ export default function RPPresenceBar({
     >
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2.5 flex-1 min-w-[200px]">
-          <Dot color={rpSignedIn ? '#10b981' : '#ef4444'} />
+          <Dot color={rpSignedIn ? 'var(--ec-em)' : 'var(--ec-crit)'} />
           {rpSignedIn ? (
             <div className="flex items-baseline gap-2 flex-wrap">
               <span className="text-sm font-semibold text-ec-t1">{rpName}</span>
@@ -78,7 +78,7 @@ export default function RPPresenceBar({
           className="rounded-lg border-none cursor-pointer text-[13px] font-semibold font-sans transition-all duration-200"
           style={rpSignedIn
             ? { padding: '7px 16px', backgroundColor: 'var(--ec-card-hover)', color: 'var(--ec-t2)' }
-            : { padding: '8px 22px', backgroundColor: '#ef4444', color: 'white', boxShadow: '0 2px 12px rgba(239,68,68,0.3)' }
+            : { padding: '8px 22px', backgroundColor: 'var(--ec-crit)', color: 'white', boxShadow: '0 2px 12px var(--ec-crit-faint)' }
           }
         >
           {rpSignedIn ? 'Sign Out' : 'Sign In as RP →'}

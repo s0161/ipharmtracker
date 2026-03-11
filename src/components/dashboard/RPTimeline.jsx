@@ -76,8 +76,9 @@ export default function RPTimeline({ sessions, rpName }) {
             style={{
               left: `${(r.start / TOTAL_MIN) * 100}%`,
               width: `${((r.end - r.start) / TOTAL_MIN) * 100}%`,
-              backgroundColor: 'rgba(16,185,129,0.6)',
-              boxShadow: '0 0 6px rgba(16,185,129,0.2)',
+              backgroundColor: 'var(--ec-em)',
+              boxShadow: '0 0 6px var(--ec-em-faint)',
+              opacity: 0.7,
             }}
           />
         ))}
@@ -89,8 +90,8 @@ export default function RPTimeline({ sessions, rpName }) {
             style={{
               left: `${(nowMin / TOTAL_MIN) * 100}%`,
               height: 'calc(100% + 4px)',
-              backgroundColor: '#fff',
-              boxShadow: '0 0 4px rgba(255,255,255,0.5)',
+              backgroundColor: 'var(--ec-t1)',
+              boxShadow: '0 0 4px var(--ec-t3)',
             }}
           />
         )}

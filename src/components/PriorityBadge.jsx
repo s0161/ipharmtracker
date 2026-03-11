@@ -1,9 +1,9 @@
 export default function PriorityBadge({ level }) {
   const cfg = {
-    HIGH: { bg: "#fef2f2", color: "#dc2626", border: "#fecaca" },
-    MED:  { bg: "#fffbeb", color: "#d97706", border: "#fde68a" },
-    LOW:  { bg: "#f0fdf4", color: "#16a34a", border: "#bbf7d0" },
-  }[level] || { bg: "#f8fafc", color: "#64748b", border: "#e2e8f0" };
+    HIGH: { bg: "var(--ec-crit-bg)", color: "var(--ec-crit)", border: "var(--ec-crit-border)" },
+    MED:  { bg: "var(--ec-warn-bg)", color: "var(--ec-warn)", border: "var(--ec-warn-border)" },
+    LOW:  { bg: "var(--ec-em-bg)", color: "var(--ec-em)", border: "var(--ec-em-border)" },
+  }[level] || { bg: "var(--ec-card)", color: "var(--ec-t2)", border: "var(--ec-t5)" };
   return (
     <span style={{
       fontSize: 9, fontWeight: 700, padding: "1px 6px", borderRadius: 20,

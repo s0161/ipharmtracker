@@ -4,7 +4,7 @@ export default function ProgressRing({ pct, size = 52, sw = 4, delay = 0 }) {
   const r = (size - sw) / 2
   const ci = 2 * Math.PI * r
   const off = ci - (pct / 100) * ci
-  const col = pct >= 80 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444'
+  const col = pct >= 80 ? 'var(--ec-em)' : pct >= 50 ? 'var(--ec-warn)' : 'var(--ec-crit)'
   const [counting, setCounting] = useState(0)
 
   useEffect(() => {

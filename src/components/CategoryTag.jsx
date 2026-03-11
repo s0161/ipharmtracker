@@ -1,12 +1,12 @@
 export default function CategoryTag({ label }) {
   const cfg = {
-    "Cleaning":   { bg: "#eff6ff", color: "#2563eb", border: "#bfdbfe" },
-    "RP Check":   { bg: "#fdf4ff", color: "#9333ea", border: "#e9d5ff" },
-    "CD Check":   { bg: "#fff7ed", color: "#c2410c", border: "#fed7aa" },
-    "Compliance": { bg: "#f0fdf4", color: "#16a34a", border: "#bbf7d0" },
-    "H&S":        { bg: "#fef9c3", color: "#a16207", border: "#fde68a" },
-    "Waste":      { bg: "#f1f5f9", color: "#475569", border: "#cbd5e1" },
-  }[label] || { bg: "#f1f5f9", color: "#475569", border: "#e2e8f0" };
+    "Cleaning":   { bg: "var(--ec-info-bg)", color: "var(--ec-info)", border: "var(--ec-info-border)" },
+    "RP Check":   { bg: "rgba(147,51,234,0.08)", color: "#a855f7", border: "rgba(147,51,234,0.2)" },
+    "CD Check":   { bg: "var(--ec-warn-bg)", color: "var(--ec-warn)", border: "var(--ec-warn-border)" },
+    "Compliance": { bg: "var(--ec-em-bg)", color: "var(--ec-em)", border: "var(--ec-em-border)" },
+    "H&S":        { bg: "var(--ec-warn-bg)", color: "var(--ec-warn)", border: "var(--ec-warn-border)" },
+    "Waste":      { bg: "var(--ec-card)", color: "var(--ec-t1)", border: "var(--ec-t5)" },
+  }[label] || { bg: "var(--ec-card)", color: "var(--ec-t1)", border: "var(--ec-t5)" };
   return (
     <span style={{
       fontSize: 9, fontWeight: 600, padding: "1px 7px", borderRadius: 20,

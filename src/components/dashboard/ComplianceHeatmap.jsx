@@ -2,11 +2,11 @@ import { useState, useMemo } from 'react'
 
 function getCellColor(score) {
   if (score === null || score === undefined) return 'var(--ec-div)'
-  if (score >= 90) return 'rgba(16,185,129,0.7)'
-  if (score >= 80) return 'rgba(16,185,129,0.45)'
-  if (score >= 60) return 'rgba(245,158,11,0.45)'
-  if (score >= 40) return 'rgba(245,158,11,0.25)'
-  return 'rgba(239,68,68,0.45)'
+  if (score >= 90) return 'var(--ec-em)'
+  if (score >= 80) return 'var(--ec-em-border)'
+  if (score >= 60) return 'var(--ec-warn)'
+  if (score >= 40) return 'var(--ec-warn-border)'
+  return 'var(--ec-crit)'
 }
 
 function formatDate(dateStr) {
@@ -64,7 +64,7 @@ export default function ComplianceHeatmap({ scoreHistory, todayScore }) {
       {/* Legend */}
       <div className="flex items-center gap-1.5 mt-2.5">
         <span className="text-[9px] text-ec-t4">Less</span>
-        {['var(--ec-div)', 'rgba(239,68,68,0.45)', 'rgba(245,158,11,0.25)', 'rgba(245,158,11,0.45)', 'rgba(16,185,129,0.45)', 'rgba(16,185,129,0.7)'].map((c, i) => (
+        {['var(--ec-div)', 'var(--ec-crit)', 'var(--ec-warn-border)', 'var(--ec-warn)', 'var(--ec-em-border)', 'var(--ec-em)'].map((c, i) => (
           <div key={i} className="w-[10px] h-[10px] rounded-[2px]" style={{ backgroundColor: c }} />
         ))}
         <span className="text-[9px] text-ec-t4">More</span>

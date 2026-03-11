@@ -34,7 +34,7 @@ const SvgCheck = ({ size = 10, color = "currentColor" }) => (
   <svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8.5l3.5 3.5 6.5-7"/></svg>
 );
 
-const SvgClock = ({ size = 10, color = "#94a3b8" }) => (
+const SvgClock = ({ size = 10, color = "var(--ec-t3)" }) => (
   <svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2.5 1.5"/></svg>
 );
 
@@ -42,7 +42,7 @@ const SvgBell = ({ size = 17, color = "currentColor" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
 );
 
-const SvgChart = ({ size = 32, color = "#6b7280" }) => (
+const SvgChart = ({ size = 32, color = "var(--ec-z6)" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 17V13M12 17V9M17 17V7"/></svg>
 );
 
@@ -113,11 +113,11 @@ function CircleProgress({ pct, color, size = 52 }) {
   const r = (size - 10) / 2;
   const circ = 2 * Math.PI * r;
   const fill = (pct / 100) * circ;
-  const pctColor = pct >= 80 ? "#059669" : pct >= 50 ? "#f59e0b" : "#ef4444";
+  const pctColor = pct >= 80 ? "var(--ec-em)" : pct >= 50 ? "var(--ec-warn)" : "var(--ec-crit)";
   return (
     <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
       <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#e8f5e9" strokeWidth={6} />
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="var(--ec-div)" strokeWidth={6} />
         <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={6}
           strokeDasharray={`${fill} ${circ}`} strokeLinecap="round" />
       </svg>
@@ -137,26 +137,26 @@ function TaskRow({ task, onToggle }) {
     <div onClick={() => onToggle && !task.done && onToggle(task.id)} style={{
       display: "flex", alignItems: "center", gap: 8, padding: "7px 10px",
       borderRadius: 8, cursor: task.done ? "default" : "pointer",
-      background: task.done ? "#f0fdf4" : "white",
-      border: `1px solid ${task.done ? "#6ee7b7" : "#e2e8f0"}`,
+      background: task.done ? "var(--ec-em-bg)" : "var(--ec-card)",
+      border: `1px solid ${task.done ? "var(--ec-em-border)" : "var(--ec-t5)"}`,
       marginBottom: 4, transition: "background 0.12s",
     }}>
       <div style={{
         width: 17, height: 17, borderRadius: 5, flexShrink: 0,
-        border: task.done ? "none" : "2px solid #d1d5db",
-        background: task.done ? "#059669" : "white",
+        border: task.done ? "none" : "2px solid var(--ec-t4)",
+        background: task.done ? "var(--ec-em)" : "white",
         display: "flex", alignItems: "center", justifyContent: "center",
       }}>
         {task.done && <SvgCheck size={10} color="white" />}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 12, fontWeight: 500, color: task.done ? "#6ee7b7" : "#1e293b", textDecoration: task.done ? "line-through" : "none" }}>{task.label}</div>
-        {task.sub && !task.done && <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 1 }}>› {task.sub}</div>}
+        <div style={{ fontSize: 12, fontWeight: 500, color: task.done ? "var(--ec-em-border)" : "var(--ec-t1)", textDecoration: task.done ? "line-through" : "none" }}>{task.label}</div>
+        {task.sub && !task.done && <div style={{ fontSize: 10, color: "var(--ec-t3)", marginTop: 1 }}>› {task.sub}</div>}
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
         <PriorityBadge level={task.priority} />
         <CategoryTag label={task.category} />
-        {task.byTime && <span style={{ fontSize: 9, color: "#94a3b8", fontFamily: "'DM Mono', monospace", display: "inline-flex", alignItems: "center", gap: 2 }}><SvgClock size={9} />{task.byTime}</span>}
+        {task.byTime && <span style={{ fontSize: 9, color: "var(--ec-t3)", fontFamily: "'DM Mono', monospace", display: "inline-flex", alignItems: "center", gap: 2 }}><SvgClock size={9} />{task.byTime}</span>}
         <Avatar name={task.assigneeName} size={22} />
       </div>
     </div>
@@ -166,8 +166,8 @@ function TaskRow({ task, onToggle }) {
 function ComplianceCard({ item, expanded, onToggle }) {
   return (
     <div onClick={onToggle} style={{
-      background: "white", borderRadius: 10, padding: "10px 12px",
-      border: "1px solid #d1fae5", cursor: "pointer",
+      background: "var(--ec-card)", borderRadius: 10, padding: "10px 12px",
+      border: "1px solid var(--ec-div)", cursor: "pointer",
       boxShadow: expanded ? "0 2px 10px rgba(0,0,0,0.06)" : "none",
       transition: "all 0.2s", position: "relative", overflow: "hidden",
     }}>
@@ -175,21 +175,21 @@ function ComplianceCard({ item, expanded, onToggle }) {
       <div style={{ display: "flex", alignItems: "center", gap: 10, paddingLeft: 6 }}>
         <CircleProgress pct={item.pct} color={item.color} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#064e3b", marginBottom: 2 }}>{item.icon} {item.label}</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ec-t1)", marginBottom: 2 }}>{item.icon} {item.label}</div>
           <div style={{ fontSize: 10, color: item.subColor, fontWeight: 600 }}>{item.sub}</div>
           <span style={{
             display: "inline-flex", alignItems: "center", gap: 3, marginTop: 3,
             fontSize: 9, fontWeight: 600, padding: "1px 6px", borderRadius: 20,
-            background: item.trend === "Needs attention" ? "#fef2f2" : "#f0fdf4",
-            color: item.trend === "Needs attention" ? "#dc2626" : "#059669",
-            border: `1px solid ${item.trend === "Needs attention" ? "#fecaca" : "#6ee7b7"}`,
+            background: item.trend === "Needs attention" ? "var(--ec-crit-bg)" : "var(--ec-em-bg)",
+            color: item.trend === "Needs attention" ? "var(--ec-crit)" : "var(--ec-em)",
+            border: `1px solid ${item.trend === "Needs attention" ? "var(--ec-crit-border)" : "var(--ec-em-border)"}`,
           }}>
             {item.trend === "Needs attention" ? <SvgWarning size={9} /> : <SvgCheck size={9} />} {item.trend}
           </span>
         </div>
       </div>
       {expanded && (
-        <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid #f0fdf4", fontSize: 11, color: "#64748b", paddingLeft: 6, lineHeight: 1.6 }}>
+        <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid var(--ec-div)", fontSize: 11, color: "var(--ec-t2)", paddingLeft: 6, lineHeight: 1.6 }}>
           {item.detail}
         </div>
       )}
@@ -291,35 +291,35 @@ export default function Dashboard() {
 
     return [
       {
-        key: "documents", label: "Documents", pct: scores.documents, icon: <SvgDoc size={13} color="#064e3b" />,
-        color: scores.documents >= 80 ? "#059669" : scores.documents >= 50 ? "#f59e0b" : "#ef4444",
+        key: "documents", label: "Documents", pct: scores.documents, icon: <SvgDoc size={13} color="var(--ec-t1)" />,
+        color: scores.documents >= 80 ? "var(--ec-em)" : scores.documents >= 50 ? "var(--ec-warn)" : "var(--ec-crit)",
         trend: scores.documents >= 80 ? "Stable" : "Needs attention",
         sub: d.red > 0 ? `${d.red} expired · ${d.amber} expiring` : d.amber > 0 ? `${d.amber} expiring soon` : "All current",
-        subColor: d.red > 0 ? "#ef4444" : d.amber > 0 ? "#d97706" : "#059669",
+        subColor: d.red > 0 ? "var(--ec-crit)" : d.amber > 0 ? "var(--ec-warn)" : "var(--ec-em)",
         detail: `${d.green} valid · ${d.amber} due within 30 days · ${d.red} expired`,
       },
       {
-        key: "training", label: "Training", pct: scores.training, icon: <SvgBook size={13} color="#064e3b" />,
-        color: scores.training >= 80 ? "#047857" : scores.training >= 50 ? "#f59e0b" : "#ef4444",
+        key: "training", label: "Training", pct: scores.training, icon: <SvgBook size={13} color="var(--ec-t1)" />,
+        color: scores.training >= 80 ? "var(--ec-em-dark)" : scores.training >= 50 ? "var(--ec-warn)" : "var(--ec-crit)",
         trend: scores.training >= 80 ? "On track" : "Needs attention",
         sub: tr.outstanding > 0 ? `${tr.outstanding} modules outstanding` : "All complete",
-        subColor: tr.outstanding > 0 ? "#ef4444" : "#059669",
+        subColor: tr.outstanding > 0 ? "var(--ec-crit)" : "var(--ec-em)",
         detail: `${tr.complete} complete · ${tr.outstanding} outstanding`,
       },
       {
-        key: "cleaning", label: "Cleaning", pct: scores.cleaning, icon: <SvgBroom size={13} color="#064e3b" />,
-        color: scores.cleaning >= 80 ? "#059669" : scores.cleaning >= 50 ? "#f59e0b" : "#ef4444",
+        key: "cleaning", label: "Cleaning", pct: scores.cleaning, icon: <SvgBroom size={13} color="var(--ec-t1)" />,
+        color: scores.cleaning >= 80 ? "var(--ec-em)" : scores.cleaning >= 50 ? "var(--ec-warn)" : "var(--ec-crit)",
         trend: scores.cleaning >= 80 ? "On track" : "Needs attention",
         sub: cl.overdue > 0 ? `${cl.overdue} overdue tasks` : "All on schedule",
-        subColor: cl.overdue > 0 ? "#ef4444" : "#059669",
+        subColor: cl.overdue > 0 ? "var(--ec-crit)" : "var(--ec-em)",
         detail: `${cl.done} on track · ${cl.overdue} overdue`,
       },
       {
-        key: "safeguarding", label: "Safeguarding", pct: scores.safeguarding, icon: <SvgShield size={13} color="#064e3b" />,
-        color: scores.safeguarding >= 80 ? "#16a34a" : scores.safeguarding >= 50 ? "#f59e0b" : "#ef4444",
+        key: "safeguarding", label: "Safeguarding", pct: scores.safeguarding, icon: <SvgShield size={13} color="var(--ec-t1)" />,
+        color: scores.safeguarding >= 80 ? "var(--ec-em)" : scores.safeguarding >= 50 ? "var(--ec-warn)" : "var(--ec-crit)",
         trend: scores.safeguarding === 100 ? "All current" : scores.safeguarding >= 80 ? "Mostly current" : "Needs attention",
         sub: scores.safeguarding === 100 ? "All current" : `${sg.total - sg.current} need renewal`,
-        subColor: scores.safeguarding === 100 ? "#059669" : "#ef4444",
+        subColor: scores.safeguarding === 100 ? "var(--ec-em)" : "var(--ec-crit)",
         detail: `${sg.current} current · ${sg.total - sg.current} need renewal`,
       },
     ];
@@ -556,15 +556,15 @@ export default function Dashboard() {
   }
 
   const card = {
-    background: "white", borderRadius: 12, padding: "14px 16px",
-    border: "1px solid #d1fae5", boxShadow: "0 1px 4px rgba(5,150,105,0.06)",
+    background: "var(--ec-card)", borderRadius: 12, padding: "14px 16px",
+    border: "1px solid var(--ec-div)", boxShadow: "0 1px 4px rgba(5,150,105,0.06)",
   };
 
   // ── Loading ──
   if (loading) {
     return (
-      <div style={{ fontFamily: "'DM Sans', sans-serif", background: "#f0faf4", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ textAlign: "center", color: "#6b7280" }}>
+      <div style={{ fontFamily: "'DM Sans', sans-serif", background: "var(--ec-bg)", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ textAlign: "center", color: "var(--ec-z6)" }}>
           <div style={{ marginBottom: 8 }}><SvgChart size={32} /></div>
           <div style={{ fontSize: 14, fontWeight: 600 }}>Loading Dashboard...</div>
         </div>
@@ -575,7 +575,7 @@ export default function Dashboard() {
   const firstName = user?.name?.split(" ")[0] || "there";
 
   return (
-    <div style={{ fontFamily: "'DM Sans', sans-serif", background: "#f0faf4", minHeight: "100vh" }}>
+    <div style={{ fontFamily: "'DM Sans', sans-serif", background: "var(--ec-bg)", minHeight: "100vh" }}>
 
       {/* Topbar */}
       <div style={{
@@ -591,8 +591,8 @@ export default function Dashboard() {
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           {[
             { label: "Overall", val: `${overallPct}%`, bg: "rgba(255,255,255,0.18)" },
-            { label: "Overdue", val: String(overdueCount), bg: overdueCount > 0 ? "#ef4444" : "rgba(255,255,255,0.18)" },
-            { label: "Due Today", val: String(dueTodayCount), bg: dueTodayCount > 0 ? "#f59e0b" : "rgba(255,255,255,0.18)" },
+            { label: "Overdue", val: String(overdueCount), bg: overdueCount > 0 ? "var(--ec-crit)" : "rgba(255,255,255,0.18)" },
+            { label: "Due Today", val: String(dueTodayCount), bg: dueTodayCount > 0 ? "var(--ec-warn)" : "rgba(255,255,255,0.18)" },
           ].map(k => (
             <div key={k.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "5px 12px", borderRadius: 9, background: k.bg }}>
               <span style={{ fontSize: 18, fontWeight: 800, color: "white", lineHeight: 1, fontFamily: "'DM Mono', monospace" }}>{k.val}</span>
@@ -602,7 +602,7 @@ export default function Dashboard() {
           <div style={{ position: "relative", cursor: "pointer", padding: "5px 8px" }}>
             <SvgBell size={17} color="white" />
             {unreadCount > 0 && (
-              <div style={{ position: "absolute", top: 1, right: 3, width: 15, height: 15, borderRadius: "50%", background: "#ef4444", fontSize: 8, fontWeight: 700, color: "white", display: "flex", alignItems: "center", justifyContent: "center" }}>{unreadCount}</div>
+              <div style={{ position: "absolute", top: 1, right: 3, width: 15, height: 15, borderRadius: "50%", background: "var(--ec-crit)", fontSize: 8, fontWeight: 700, color: "white", display: "flex", alignItems: "center", justifyContent: "center" }}>{unreadCount}</div>
             )}
           </div>
           <div style={{ padding: "4px 9px", borderRadius: 7, background: "rgba(255,255,255,0.18)", color: "white", fontSize: 11, fontWeight: 700, border: "1px solid rgba(255,255,255,0.3)" }}>{pharmacyConfig.gphcNumber || "—"}</div>
@@ -615,17 +615,17 @@ export default function Dashboard() {
         <div style={{
           display: "flex", alignItems: "center", gap: 10, padding: "8px 14px",
           borderRadius: 10, marginBottom: 10,
-          background: rpSigned ? "#f0fdf4" : "#fef2f2",
-          border: `1px solid ${rpSigned ? "#6ee7b7" : "#fecaca"}`,
+          background: rpSigned ? "var(--ec-em-bg)" : "var(--ec-crit-bg)",
+          border: `1px solid ${rpSigned ? "var(--ec-em-border)" : "var(--ec-crit-border)"}`,
         }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: rpSigned ? "#059669" : "#ef4444", boxShadow: rpSigned ? "0 0 0 3px #a7f3d0" : "0 0 0 3px #fee2e2" }} />
-          <div style={{ flex: 1, fontSize: 13, fontWeight: 500, color: rpSigned ? "#166534" : "#991b1b" }}>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: rpSigned ? "var(--ec-em)" : "var(--ec-crit)", boxShadow: rpSigned ? "0 0 0 3px var(--ec-em-border)" : "0 0 0 3px var(--ec-crit-border)" }} />
+          <div style={{ flex: 1, fontSize: 13, fontWeight: 500, color: rpSigned ? "var(--ec-em)" : "var(--ec-crit)" }}>
             {rpSigned ? `RP signed in — ${getRPAssignee()}` : `No RP signed in · Last: ${getRPAssignee()}`}
           </div>
           {!rpSigned && (
             <button onClick={() => navigate("/rp-log")} style={{
               padding: "6px 14px", borderRadius: 8, border: "none", cursor: "pointer",
-              background: "#dc2626", color: "white",
+              background: "var(--ec-crit)", color: "white",
               fontSize: 12, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
             }}>
               Sign In as RP →
@@ -634,7 +634,7 @@ export default function Dashboard() {
           {rpSigned && (
             <span style={{
               padding: "6px 14px", borderRadius: 8,
-              background: "#059669", color: "white",
+              background: "var(--ec-em)", color: "white",
               fontSize: 12, fontWeight: 700,
             }}>
               <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><SvgCheck size={10} color="white" /> Signed In</span>
@@ -647,26 +647,26 @@ export default function Dashboard() {
           <div style={{
             display: "flex", alignItems: "center", gap: 10, padding: "8px 14px",
             borderRadius: 10, marginBottom: 12,
-            background: redAlerts > 0 ? "#fef2f2" : "#fffbeb",
-            border: `1px solid ${redAlerts > 0 ? "#fecaca" : "#fde68a"}`,
+            background: redAlerts > 0 ? "var(--ec-crit-bg)" : "var(--ec-warn-bg)",
+            border: `1px solid ${redAlerts > 0 ? "var(--ec-crit-border)" : "var(--ec-warn-border)"}`,
           }}>
-            <SvgCircleAlert size={13} color={redAlerts > 0 ? "#ef4444" : "#f59e0b"} />
+            <SvgCircleAlert size={13} color={redAlerts > 0 ? "var(--ec-crit)" : "var(--ec-warn)"} />
             <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: redAlerts > 0 ? "#991b1b" : "#92400e" }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: redAlerts > 0 ? "var(--ec-crit)" : "var(--ec-warn)" }}>
                 {redAlerts > 0 ? `${redAlerts} critical` : ""}{redAlerts > 0 && alerts.length - redAlerts > 0 ? " · " : ""}{alerts.length - redAlerts > 0 ? `${alerts.length - redAlerts} warning${alerts.length - redAlerts !== 1 ? "s" : ""}` : ""}
               </span>
-              <span style={{ fontSize: 11, color: "#b91c1c" }}>—</span>
+              <span style={{ fontSize: 11, color: "var(--ec-crit-light)" }}>—</span>
               {alerts.slice(0, 2).map((a, i) => (
                 <span key={i} style={{
-                  fontSize: 10, fontWeight: 500, color: "#7f1d1d",
-                  background: "#fee2e2", padding: "2px 8px", borderRadius: 20, border: "1px solid #fecaca",
+                  fontSize: 10, fontWeight: 500, color: "var(--ec-crit)",
+                  background: "var(--ec-crit-bg)", padding: "2px 8px", borderRadius: 20, border: "1px solid var(--ec-crit-border)",
                 }}>{a.msg.split("—")[0].trim()}</span>
               ))}
-              {alerts.length > 2 && <span style={{ fontSize: 10, color: "#b91c1c", fontWeight: 600 }}>+{alerts.length - 2} more</span>}
+              {alerts.length > 2 && <span style={{ fontSize: 10, color: "var(--ec-crit-light)", fontWeight: 600 }}>+{alerts.length - 2} more</span>}
             </div>
             <button onClick={() => setAlertsDismissed(true)} style={{
               background: "none", border: "none", cursor: "pointer",
-              color: "#ef4444", fontSize: 18, lineHeight: 1, padding: "0 2px", flexShrink: 0,
+              color: "var(--ec-crit)", fontSize: 18, lineHeight: 1, padding: "0 2px", flexShrink: 0,
             }}>×</button>
           </div>
         )}
@@ -684,22 +684,22 @@ export default function Dashboard() {
             <input value={todoInput} onChange={e => setTodoInput(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter") addTodo(); }}
               placeholder="Add an action item and press Enter…"
-              style={{ flex: 1, padding: "7px 12px", borderRadius: 8, fontSize: 12, border: "1px solid #d1fae5", outline: "none", fontFamily: "'DM Sans', sans-serif", background: "#f9fafb" }}
+              style={{ flex: 1, padding: "7px 12px", borderRadius: 8, fontSize: 12, border: "1px solid var(--ec-div)", outline: "none", fontFamily: "'DM Sans', sans-serif", background: "var(--ec-card)" }}
             />
             <button onClick={addTodo}
-              style={{ padding: "7px 14px", borderRadius: 8, border: "none", cursor: "pointer", background: "#059669", color: "white", fontSize: 12, fontWeight: 600, fontFamily: "'DM Sans', sans-serif" }}>
+              style={{ padding: "7px 14px", borderRadius: 8, border: "none", cursor: "pointer", background: "var(--ec-em)", color: "white", fontSize: 12, fontWeight: 600, fontFamily: "'DM Sans', sans-serif" }}>
               + Add
             </button>
           </div>
           {actionItems.length === 0
-            ? <div style={{ fontSize: 11, color: "#9ca3af", textAlign: "center", padding: "8px 0", fontStyle: "italic" }}>Nothing here yet — add an action item above</div>
+            ? <div style={{ fontSize: 11, color: "var(--ec-t3)", textAlign: "center", padding: "8px 0", fontStyle: "italic" }}>Nothing here yet — add an action item above</div>
             : actionItems.map(todo => (
-              <div key={todo.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", borderRadius: 8, marginBottom: 4, background: todo.done ? "#f0fdf4" : "#f9fafb", border: `1px solid ${todo.done ? "#6ee7b7" : "#e2e8f0"}` }}>
-                <div onClick={() => toggleTodo(todo.id)} style={{ width: 17, height: 17, borderRadius: 5, flexShrink: 0, cursor: "pointer", border: todo.done ? "none" : "2px solid #d1d5db", background: todo.done ? "#059669" : "white", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div key={todo.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", borderRadius: 8, marginBottom: 4, background: todo.done ? "var(--ec-em-bg)" : "var(--ec-card)", border: `1px solid ${todo.done ? "var(--ec-em-border)" : "var(--ec-t5)"}` }}>
+                <div onClick={() => toggleTodo(todo.id)} style={{ width: 17, height: 17, borderRadius: 5, flexShrink: 0, cursor: "pointer", border: todo.done ? "none" : "2px solid var(--ec-t4)", background: todo.done ? "var(--ec-em)" : "var(--ec-card)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   {todo.done && <SvgCheck size={10} color="white" />}
                 </div>
-                <span style={{ flex: 1, fontSize: 12, color: todo.done ? "#6ee7b7" : "#1e293b", textDecoration: todo.done ? "line-through" : "none" }}>{todo.title}</span>
-                <button onClick={() => deleteTodo(todo.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#cbd5e1", fontSize: 15 }}>×</button>
+                <span style={{ flex: 1, fontSize: 12, color: todo.done ? "var(--ec-em-border)" : "var(--ec-t1)", textDecoration: todo.done ? "line-through" : "none" }}>{todo.title}</span>
+                <button onClick={() => deleteTodo(todo.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ec-t4)", fontSize: 15 }}>×</button>
               </div>
             ))
           }
@@ -719,7 +719,7 @@ export default function Dashboard() {
                 right={
                   <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
                     <div style={{ width: 80, height: 4, background: "rgba(255,255,255,0.25)", borderRadius: 99, overflow: "hidden" }}>
-                      <div style={{ width: `${shiftPct}%`, height: "100%", background: shiftPct === 100 ? "#4ade80" : "white", borderRadius: 99, transition: "width 0.4s" }} />
+                      <div style={{ width: `${shiftPct}%`, height: "100%", background: shiftPct === 100 ? "var(--ec-em)" : "white", borderRadius: 99, transition: "width 0.4s" }} />
                     </div>
                     <span style={{ fontSize: 11, fontFamily: "'DM Mono', monospace" }}>{shiftDone}/{shiftTotal}</span>
                   </div>
@@ -733,13 +733,13 @@ export default function Dashboard() {
                   const isActive = openSection === tab.key;
                   return (
                     <button key={tab.key} onClick={() => setOpenSection(tab.key)}
-                      onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = "#f0fdf4"; }}
-                      onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = "white"; }}
+                      onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = "var(--ec-em-bg)"; }}
+                      onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = "var(--ec-card)"; }}
                       style={{
                         padding: "4px 10px", borderRadius: 20, fontSize: 11, fontWeight: 600,
-                        border: isActive ? "none" : "1px solid #d1fae5",
-                        background: isActive ? "#059669" : "white",
-                        color: isActive ? "white" : "#059669",
+                        border: isActive ? "none" : "1px solid var(--ec-div)",
+                        background: isActive ? "var(--ec-em)" : "var(--ec-card)",
+                        color: isActive ? "white" : "var(--ec-em)",
                         cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
                         transition: "background 0.12s",
                       }}>
@@ -758,10 +758,10 @@ export default function Dashboard() {
                 ));
               })()}
 
-              <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid #d1fae5", fontSize: 10, color: "#6b7280", display: "flex", alignItems: "center", gap: 5 }}>
-                <SvgClipboard size={11} color="#6b7280" /> <span style={{ fontWeight: 500 }}>{shiftDone}/{shiftTotal} tasks completed</span>
-                {shiftPct === 100 && <span style={{ marginLeft: "auto", fontSize: 9, color: "#059669", fontWeight: 600 }}>All done!</span>}
-                {shiftPct < 100 && <span style={{ marginLeft: "auto", fontSize: 9, color: "#9ca3af" }}>{shiftTotal - shiftDone} remaining</span>}
+              <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid var(--ec-div)", fontSize: 10, color: "var(--ec-z6)", display: "flex", alignItems: "center", gap: 5 }}>
+                <SvgClipboard size={11} color="var(--ec-z6)" /> <span style={{ fontWeight: 500 }}>{shiftDone}/{shiftTotal} tasks completed</span>
+                {shiftPct === 100 && <span style={{ marginLeft: "auto", fontSize: 9, color: "var(--ec-em)", fontWeight: 600 }}>All done!</span>}
+                {shiftPct < 100 && <span style={{ marginLeft: "auto", fontSize: 9, color: "var(--ec-t3)" }}>{shiftTotal - shiftDone} remaining</span>}
               </div>
             </div>
 
@@ -772,34 +772,34 @@ export default function Dashboard() {
                 icon={<SvgPill size={14} />} title="CD Balance Check"
                 right={
                   cdCheckStatus.isDone
-                    ? <span style={{ fontSize: 10, fontWeight: 700, background: "#ecfdf5", color: "#059669", padding: "1px 8px", borderRadius: 20, border: "1px solid #a7f3d0", display: "inline-flex", alignItems: "center", gap: 3 }}><SvgCheck size={9} color="#059669" /> Done</span>
+                    ? <span style={{ fontSize: 10, fontWeight: 700, background: "var(--ec-em-bg)", color: "var(--ec-em)", padding: "1px 8px", borderRadius: 20, border: "1px solid var(--ec-em-border)", display: "inline-flex", alignItems: "center", gap: 3 }}><SvgCheck size={9} color="var(--ec-em)" /> Done</span>
                     : cdCheckStatus.status === "overdue"
-                      ? <span style={{ fontSize: 10, fontWeight: 700, background: "#fef2f2", color: "#dc2626", padding: "1px 8px", borderRadius: 20, border: "1px solid #fecaca" }}>Overdue</span>
-                      : <span style={{ fontSize: 10, fontWeight: 700, background: "#fffbeb", color: "#d97706", padding: "1px 8px", borderRadius: 20, border: "1px solid #fde68a" }}>Due</span>
+                      ? <span style={{ fontSize: 10, fontWeight: 700, background: "var(--ec-crit-bg)", color: "var(--ec-crit)", padding: "1px 8px", borderRadius: 20, border: "1px solid var(--ec-crit-border)" }}>Overdue</span>
+                      : <span style={{ fontSize: 10, fontWeight: 700, background: "var(--ec-warn-bg)", color: "var(--ec-warn)", padding: "1px 8px", borderRadius: 20, border: "1px solid var(--ec-warn-border)" }}>Due</span>
                 }
               />
               {/* Status */}
               {cdCheckStatus.isDone ? (
-                <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 9, background: "#ecfdf5", border: "1px solid #a7f3d0" }}>
-                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#059669", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><SvgCheck size={14} color="white" /></div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 9, background: "var(--ec-em-bg)", border: "1px solid var(--ec-em-border)" }}>
+                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--ec-em)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><SvgCheck size={14} color="white" /></div>
                   <div>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: "#065f46" }}>Balance check completed</div>
-                    <div style={{ fontSize: 11, color: "#047857", marginTop: 2 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: "var(--ec-em)" }}>Balance check completed</div>
+                    <div style={{ fontSize: 11, color: "var(--ec-em-dark)", marginTop: 2 }}>
                       {cdCheckStatus.latest?.staffMember}{cdCheckStatus.latest?.dateTime ? <> · {new Date(cdCheckStatus.latest.dateTime).toLocaleDateString("en-GB", { day: "numeric", month: "short" })} at {new Date(cdCheckStatus.latest.dateTime).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}</> : null}
                     </div>
                   </div>
                 </div>
               ) : (
-                <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 9, background: cdCheckStatus.status === "overdue" ? "#fef2f2" : "#fffbeb", border: `1px solid ${cdCheckStatus.status === "overdue" ? "#fecaca" : "#fde68a"}` }}>
-                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: cdCheckStatus.status === "overdue" ? "#dc2626" : "#d97706", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 14, flexShrink: 0 }}>!</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 9, background: cdCheckStatus.status === "overdue" ? "var(--ec-crit-bg)" : "var(--ec-warn-bg)", border: `1px solid ${cdCheckStatus.status === "overdue" ? "var(--ec-crit-border)" : "var(--ec-warn-border)"}` }}>
+                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: cdCheckStatus.status === "overdue" ? "var(--ec-crit)" : "var(--ec-warn)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 14, flexShrink: 0 }}>!</div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: cdCheckStatus.status === "overdue" ? "#991b1b" : "#92400e" }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: cdCheckStatus.status === "overdue" ? "var(--ec-crit)" : "var(--ec-warn)" }}>
                       Balance check {cdCheckStatus.status === "overdue" ? "overdue" : "due this week"}
                     </div>
                   </div>
                   <button
                     onClick={handleCDCheck}
-                    style={{ fontSize: 11, fontWeight: 600, padding: "5px 14px", borderRadius: 8, border: "none", background: "#059669", color: "white", cursor: "pointer" }}
+                    style={{ fontSize: 11, fontWeight: 600, padding: "5px 14px", borderRadius: 8, border: "none", background: "var(--ec-em)", color: "white", cursor: "pointer" }}
                   >
                     Mark Complete
                   </button>
@@ -808,20 +808,20 @@ export default function Dashboard() {
               {/* Recent checks */}
               {cdCheckStatus.recentChecks.length > 0 && (
                 <div style={{ marginTop: 8 }}>
-                  <div style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>Recent checks</div>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: "var(--ec-t3)", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>Recent checks</div>
                   {cdCheckStatus.recentChecks.map((e, i) => (
-                    <div key={e.id || i} style={{ fontSize: 11, color: "#64748b", padding: "3px 0", display: "flex", alignItems: "center", gap: 6 }}>
-                      <SvgDot size={6} color="#a7f3d0" />
+                    <div key={e.id || i} style={{ fontSize: 11, color: "var(--ec-t2)", padding: "3px 0", display: "flex", alignItems: "center", gap: 6 }}>
+                      <SvgDot size={6} color="var(--ec-em-border)" />
                       <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 10 }}>{e.dateTime ? new Date(e.dateTime).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "—"}</span>
                       <span>—</span>
                       <span>{e.staffMember}</span>
-                      <span style={{ color: "#94a3b8", fontSize: 10 }}>{e.dateTime ? <>at {new Date(e.dateTime).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}</> : null}</span>
+                      <span style={{ color: "var(--ec-t3)", fontSize: 10 }}>{e.dateTime ? <>at {new Date(e.dateTime).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}</> : null}</span>
                     </div>
                   ))}
                 </div>
               )}
-              <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid #d1fae5", fontSize: 10, color: "#9ca3af", display: "flex", alignItems: "center", gap: 4 }}>
-                <SvgDot size={6} color="#6ee7b7" /> Register maintained in PharmSmart · Physical register in CD cabinet
+              <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid var(--ec-div)", fontSize: 10, color: "var(--ec-t3)", display: "flex", alignItems: "center", gap: 4 }}>
+                <SvgDot size={6} color="var(--ec-em-border)" /> Register maintained in PharmSmart · Physical register in CD cabinet
               </div>
             </div>
 
@@ -834,12 +834,12 @@ export default function Dashboard() {
               />
               {bhLoading ? (
                 <div style={{ padding: "10px 0" }}>
-                  <div style={{ height: 14, borderRadius: 6, background: "#e2e8f0", animation: "ecPulse 1.5s ease-in-out infinite" }} />
+                  <div style={{ height: 14, borderRadius: 6, background: "var(--ec-t5)", animation: "ecPulse 1.5s ease-in-out infinite" }} />
                 </div>
               ) : bhError ? (
-                <div style={{ fontSize: 11, color: "#94a3b8", fontStyle: "italic", padding: "8px 0" }}>Unable to load bank holidays</div>
+                <div style={{ fontSize: 11, color: "var(--ec-t3)", fontStyle: "italic", padding: "8px 0" }}>Unable to load bank holidays</div>
               ) : bankHolidays.length === 0 ? (
-                <div style={{ fontSize: 11, color: "#94a3b8", fontStyle: "italic", padding: "8px 0" }}>No bank holidays in the next 90 days.</div>
+                <div style={{ fontSize: 11, color: "var(--ec-t3)", fontStyle: "italic", padding: "8px 0" }}>No bank holidays in the next 90 days.</div>
               ) : (() => {
                 const todayISO = todayStr();
                 const soonHoliday = bankHolidays.find(h => {
@@ -852,8 +852,8 @@ export default function Dashboard() {
                     {soonHoliday && (() => {
                       const hDate = new Date(soonHoliday.date + "T00:00:00");
                       return (
-                        <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 8, padding: "7px 12px", marginBottom: 8 }}>
-                          <span style={{ fontSize: 11, color: "#92400e", fontWeight: 500 }}>⚠ {soonHoliday.title} on {hDate.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })} — check prescription batch and delivery schedule</span>
+                        <div style={{ background: "var(--ec-warn-bg)", border: "1px solid var(--ec-warn-border)", borderRadius: 8, padding: "7px 12px", marginBottom: 8 }}>
+                          <span style={{ fontSize: 11, color: "var(--ec-warn)", fontWeight: 500 }}>⚠ {soonHoliday.title} on {hDate.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })} — check prescription batch and delivery schedule</span>
                         </div>
                       );
                     })()}
@@ -863,24 +863,24 @@ export default function Dashboard() {
                       const isToday = diff === 0;
                       const isSoon = diff >= 1 && diff <= 7;
                       const pillStyle = isToday
-                        ? { background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca" }
+                        ? { background: "var(--ec-crit-bg)", color: "var(--ec-crit)", border: "1px solid var(--ec-crit-border)" }
                         : diff <= 7
-                          ? { background: "#fffbeb", color: "#d97706", border: "1px solid #fde68a" }
+                          ? { background: "var(--ec-warn-bg)", color: "var(--ec-warn)", border: "1px solid var(--ec-warn-border)" }
                           : diff <= 30
-                            ? { background: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe" }
-                            : { background: "#f0fdf4", color: "#059669", border: "1px solid #d1fae5" };
+                            ? { background: "var(--ec-info-bg)", color: "var(--ec-info)", border: "1px solid var(--ec-info-border)" }
+                            : { background: "var(--ec-em-bg)", color: "var(--ec-em)", border: "1px solid var(--ec-div)" };
                       return (
                         <div key={h.date} style={{
                           display: "flex", alignItems: "center", justifyContent: "space-between",
                           padding: "7px 12px", borderRadius: 8, marginBottom: 4,
-                          background: isToday ? "#fef2f2" : isSoon ? "#fffbeb" : "white",
-                          border: `1px solid ${isToday ? "#fecaca" : isSoon ? "#fde68a" : "#d1fae5"}`,
+                          background: isToday ? "var(--ec-crit-bg)" : isSoon ? "var(--ec-warn-bg)" : "var(--ec-card)",
+                          border: `1px solid ${isToday ? "var(--ec-crit-border)" : isSoon ? "var(--ec-warn-border)" : "var(--ec-div)"}`,
                         }}>
                           <div>
-                            <div style={{ fontSize: 11, fontWeight: 600, color: "#1e293b", fontFamily: "'DM Mono', monospace" }}>
+                            <div style={{ fontSize: 11, fontWeight: 600, color: "var(--ec-t1)", fontFamily: "'DM Mono', monospace" }}>
                               {hDate.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}
                             </div>
-                            <div style={{ fontSize: 10, color: "#94a3b8" }}>{h.title}</div>
+                            <div style={{ fontSize: 10, color: "var(--ec-t3)" }}>{h.title}</div>
                           </div>
                           <span style={{
                             fontSize: 9, fontWeight: 700, padding: "1px 8px", borderRadius: 20,
@@ -893,13 +893,13 @@ export default function Dashboard() {
                     })}
                     {bankHolidays.length > 4 && (
                       <button onClick={() => setBhShowAll(v => !v)} style={{
-                        fontSize: 10, color: "#059669", fontWeight: 600, background: "none", border: "none",
+                        fontSize: 10, color: "var(--ec-em)", fontWeight: 600, background: "none", border: "none",
                         cursor: "pointer", padding: "4px 0", fontFamily: "'DM Sans', sans-serif",
                       }}>
                         {bhShowAll ? "Show less" : `View all ${bankHolidays.length} upcoming`}
                       </button>
                     )}
-                    <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 4 }}>England &amp; Wales · Source: GOV.UK</div>
+                    <div style={{ fontSize: 10, color: "var(--ec-t3)", marginTop: 4 }}>England &amp; Wales · Source: GOV.UK</div>
                   </>
                 );
               })()}
@@ -924,9 +924,9 @@ export default function Dashboard() {
                   />
                 ))}
               </div>
-              <div style={{ marginTop: 10, paddingTop: 8, borderTop: "1px solid #f0fdf4", fontSize: 10, color: "#94a3b8", display: "flex", alignItems: "center", gap: 5 }}>
-                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#f59e0b" }} />
-                Last GPhC inspection: <strong style={{ color: "#64748b" }}>14 months ago</strong>
+              <div style={{ marginTop: 10, paddingTop: 8, borderTop: "1px solid var(--ec-div)", fontSize: 10, color: "var(--ec-t3)", display: "flex", alignItems: "center", gap: 5 }}>
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--ec-warn)" }} />
+                Last GPhC inspection: <strong style={{ color: "var(--ec-t2)" }}>14 months ago</strong>
               </div>
             </div>
 
@@ -934,21 +934,21 @@ export default function Dashboard() {
             <div style={{ ...card, overflow: "hidden" }}>
               <CardHeader gradient="linear-gradient(90deg, #166534, #16a34a)" icon={<SvgCalendar size={14} />} title="Expiring Soon" />
               {expiringDocs.length === 0
-                ? <div style={{ fontSize: 11, color: "#9ca3af", textAlign: "center", padding: "8px 0", fontStyle: "italic" }}>No documents expiring within 90 days</div>
+                ? <div style={{ fontSize: 11, color: "var(--ec-t3)", textAlign: "center", padding: "8px 0", fontStyle: "italic" }}>No documents expiring within 90 days</div>
                 : <>
                   {(expiringExpanded ? expiringDocs : expiringDocs.slice(0, 3)).map((doc, i) => {
                     const r = doc.days < 0
-                      ? { bg: "#fef2f2", border: "#fecaca", text: "#dc2626", label: "EXPIRED", sublabel: `${Math.abs(doc.days)}d ago` }
+                      ? { bg: "var(--ec-crit-bg)", border: "var(--ec-crit-border)", text: "var(--ec-crit)", label: "EXPIRED", sublabel: `${Math.abs(doc.days)}d ago` }
                       : doc.days <= 14
-                      ? { bg: "#fef2f2", border: "#fecaca", text: "#dc2626", label: `in ${doc.days}d`, sublabel: "Urgent" }
+                      ? { bg: "var(--ec-crit-bg)", border: "var(--ec-crit-border)", text: "var(--ec-crit)", label: `in ${doc.days}d`, sublabel: "Urgent" }
                       : doc.days <= 30
-                      ? { bg: "#fffbeb", border: "#fde68a", text: "#d97706", label: `in ${doc.days}d`, sublabel: "Soon" }
-                      : { bg: "white", border: "#d1fae5", text: "#059669", label: `in ${doc.days}d`, sublabel: "OK" };
+                      ? { bg: "var(--ec-warn-bg)", border: "var(--ec-warn-border)", text: "var(--ec-warn)", label: `in ${doc.days}d`, sublabel: "Soon" }
+                      : { bg: "var(--ec-card)", border: "var(--ec-div)", text: "var(--ec-em)", label: `in ${doc.days}d`, sublabel: "OK" };
                     return (
                       <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 10px", borderRadius: 8, marginBottom: 4, background: r.bg, border: `1px solid ${r.border}` }}>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 11, fontWeight: 600, color: "#1e293b" }}>{doc.name}</div>
-                          <div style={{ fontSize: 9, color: "#9ca3af", marginTop: 1 }}>{r.sublabel}</div>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: "var(--ec-t1)" }}>{doc.name}</div>
+                          <div style={{ fontSize: 9, color: "var(--ec-t3)", marginTop: 1 }}>{r.sublabel}</div>
                         </div>
                         <span style={{ fontSize: 10, fontWeight: 700, color: r.text, fontFamily: "'DM Mono', monospace", minWidth: 54, textAlign: "right" }}>{r.label}</span>
                       </div>
@@ -957,7 +957,7 @@ export default function Dashboard() {
                   {expiringDocs.length > 3 && (
                     <button
                       onClick={() => setExpiringExpanded(e => !e)}
-                      style={{ background: "none", border: "none", cursor: "pointer", fontSize: 10, color: "#16a34a", fontWeight: 600, padding: "4px 0 2px", width: "100%", textAlign: "center" }}
+                      style={{ background: "none", border: "none", cursor: "pointer", fontSize: 10, color: "var(--ec-em)", fontWeight: 600, padding: "4px 0 2px", width: "100%", textAlign: "center" }}
                     >
                       {expiringExpanded ? "Show less" : `View all ${expiringDocs.length} expiring`}
                     </button>
@@ -990,35 +990,35 @@ export default function Dashboard() {
           {/* Progress bar */}
           <div style={{ marginBottom: 12 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-              <div style={{ flex: 1, height: 6, borderRadius: 99, background: "#e8f5e9", overflow: "hidden" }}>
-                <div style={{ width: `${stProgressPct}%`, height: "100%", background: "#059669", borderRadius: 99, transition: "width 0.4s" }} />
+              <div style={{ flex: 1, height: 6, borderRadius: 99, background: "var(--ec-div)", overflow: "hidden" }}>
+                <div style={{ width: `${stProgressPct}%`, height: "100%", background: "var(--ec-em)", borderRadius: 99, transition: "width 0.4s" }} />
               </div>
-              <span style={{ fontSize: 10, fontFamily: "'DM Mono', monospace", color: "#64748b", marginLeft: 10, flexShrink: 0 }}>{stDoneCount}/{stTotal} tasks complete</span>
+              <span style={{ fontSize: 10, fontFamily: "'DM Mono', monospace", color: "var(--ec-t2)", marginLeft: 10, flexShrink: 0 }}>{stDoneCount}/{stTotal} tasks complete</span>
             </div>
           </div>
 
           {/* Inline assign form (rp/manager only) */}
           {stFormOpen && canAssign && (
-            <div style={{ background: "#f0fdf4", border: "1px solid #d1fae5", borderRadius: 10, padding: 12, marginBottom: 12 }}>
+            <div style={{ background: "var(--ec-em-bg)", border: "1px solid var(--ec-div)", borderRadius: 10, padding: 12, marginBottom: 12 }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 8, marginBottom: 8 }}>
                 <div style={{ gridColumn: "1 / -1" }}>
-                  <label style={{ fontSize: 10, fontWeight: 600, color: "#64748b", marginBottom: 2, display: "block" }}>Task title *</label>
+                  <label style={{ fontSize: 10, fontWeight: 600, color: "var(--ec-t2)", marginBottom: 2, display: "block" }}>Task title *</label>
                   <input value={stTitle} onChange={e => setStTitle(e.target.value)} placeholder="Enter task title…"
-                    style={{ width: "100%", padding: "6px 10px", borderRadius: 7, fontSize: 12, border: "1px solid #d1fae5", outline: "none", fontFamily: "'DM Sans', sans-serif", background: "white", boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "6px 10px", borderRadius: 7, fontSize: 12, border: "1px solid var(--ec-div)", outline: "none", fontFamily: "'DM Sans', sans-serif", background: "var(--ec-card)", boxSizing: "border-box" }}
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: 10, fontWeight: 600, color: "#64748b", marginBottom: 2, display: "block" }}>Assign to *</label>
+                  <label style={{ fontSize: 10, fontWeight: 600, color: "var(--ec-t2)", marginBottom: 2, display: "block" }}>Assign to *</label>
                   <select value={stAssignTo} onChange={e => setStAssignTo(e.target.value)}
-                    style={{ width: "100%", padding: "6px 10px", borderRadius: 7, fontSize: 12, border: "1px solid #d1fae5", background: "white", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "6px 10px", borderRadius: 7, fontSize: 12, border: "1px solid var(--ec-div)", background: "var(--ec-card)", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }}
                   >
                     {staffAssignees.map(s => <option key={s.initials} value={s.initials}>{s.initials} — {s.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label style={{ fontSize: 10, fontWeight: 600, color: "#64748b", marginBottom: 2, display: "block" }}>Priority *</label>
+                  <label style={{ fontSize: 10, fontWeight: 600, color: "var(--ec-t2)", marginBottom: 2, display: "block" }}>Priority *</label>
                   <select value={stPriority} onChange={e => setStPriority(e.target.value)}
-                    style={{ width: "100%", padding: "6px 10px", borderRadius: 7, fontSize: 12, border: "1px solid #d1fae5", background: "white", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "6px 10px", borderRadius: 7, fontSize: 12, border: "1px solid var(--ec-div)", background: "var(--ec-card)", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }}
                   >
                     <option value="HIGH">HIGH</option>
                     <option value="MED">MED</option>
@@ -1026,21 +1026,21 @@ export default function Dashboard() {
                   </select>
                 </div>
                 <div>
-                  <label style={{ fontSize: 10, fontWeight: 600, color: "#64748b", marginBottom: 2, display: "block" }}>Due date</label>
+                  <label style={{ fontSize: 10, fontWeight: 600, color: "var(--ec-t2)", marginBottom: 2, display: "block" }}>Due date</label>
                   <input type="date" value={stDueDate} onChange={e => setStDueDate(e.target.value)}
-                    style={{ width: "100%", padding: "6px 10px", borderRadius: 7, fontSize: 12, border: "1px solid #d1fae5", background: "white", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "6px 10px", borderRadius: 7, fontSize: 12, border: "1px solid var(--ec-div)", background: "var(--ec-card)", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }}
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: 10, fontWeight: 600, color: "#64748b", marginBottom: 2, display: "block" }}>Notes</label>
+                  <label style={{ fontSize: 10, fontWeight: 600, color: "var(--ec-t2)", marginBottom: 2, display: "block" }}>Notes</label>
                   <input value={stNotes} onChange={e => setStNotes(e.target.value)} placeholder="Optional notes…"
-                    style={{ width: "100%", padding: "6px 10px", borderRadius: 7, fontSize: 12, border: "1px solid #d1fae5", outline: "none", fontFamily: "'DM Sans', sans-serif", background: "white", boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "6px 10px", borderRadius: 7, fontSize: 12, border: "1px solid var(--ec-div)", outline: "none", fontFamily: "'DM Sans', sans-serif", background: "var(--ec-card)", boxSizing: "border-box" }}
                   />
                 </div>
               </div>
               <div style={{ display: "flex", justifyContent: "flex-end" }}>
                 <button onClick={handleAssignTask} disabled={!stTitle.trim()}
-                  style={{ padding: "6px 16px", borderRadius: 7, border: "none", cursor: stTitle.trim() ? "pointer" : "default", background: stTitle.trim() ? "#059669" : "#d1d5db", color: "white", fontSize: 12, fontWeight: 600, fontFamily: "'DM Sans', sans-serif" }}
+                  style={{ padding: "6px 16px", borderRadius: 7, border: "none", cursor: stTitle.trim() ? "pointer" : "default", background: stTitle.trim() ? "var(--ec-em)" : "var(--ec-t4)", color: "white", fontSize: 12, fontWeight: 600, fontFamily: "'DM Sans', sans-serif" }}
                 >
                   Assign
                 </button>
@@ -1050,16 +1050,16 @@ export default function Dashboard() {
 
           {/* Task list */}
           {stTotal === 0 ? (
-            <div style={{ fontSize: 11, color: "#9ca3af", textAlign: "center", padding: "12px 0", fontStyle: "italic" }}>No tasks assigned yet.</div>
+            <div style={{ fontSize: 11, color: "var(--ec-t3)", textAlign: "center", padding: "12px 0", fontStyle: "italic" }}>No tasks assigned yet.</div>
           ) : (
             <>
               {/* Pending section */}
               {stPending.length > 0 && (
                 <>
                   <div onClick={() => toggleStSection("pending")} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 6, marginBottom: 6, marginTop: 4, userSelect: "none" }}>
-                    <svg width="8" height="8" viewBox="0 0 8 8" fill="#94a3b8" style={{ transition: "transform 0.15s", transform: stOpenSections.pending ? "rotate(90deg)" : "rotate(0deg)" }}><path d="M2 1l4 3-4 3z"/></svg>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.08em" }}>Pending</span>
-                    <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 7px", borderRadius: 20, background: "#f0fdf4", color: "#059669", border: "1px solid #bbf7d0" }}>{stPending.length}</span>
+                    <svg width="8" height="8" viewBox="0 0 8 8" fill="var(--ec-t3)" style={{ transition: "transform 0.15s", transform: stOpenSections.pending ? "rotate(90deg)" : "rotate(0deg)" }}><path d="M2 1l4 3-4 3z"/></svg>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: "var(--ec-t2)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Pending</span>
+                    <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 7px", borderRadius: 20, background: "var(--ec-em-bg)", color: "var(--ec-em)", border: "1px solid var(--ec-em-border)" }}>{stPending.length}</span>
                   </div>
                   {stOpenSections.pending && stPending.map(task => {
                     const isOverdue = task.dueDate && task.dueDate < today;
@@ -1067,20 +1067,20 @@ export default function Dashboard() {
                       <div key={task.id} style={{
                         display: "flex", alignItems: "center", gap: 8, padding: "7px 10px",
                         borderRadius: 8, marginBottom: 4,
-                        background: isOverdue ? "#fef2f2" : "white",
-                        border: `1px solid ${isOverdue ? "#fecaca" : "#e2e8f0"}`,
+                        background: isOverdue ? "var(--ec-crit-bg)" : "var(--ec-card)",
+                        border: `1px solid ${isOverdue ? "var(--ec-crit-border)" : "var(--ec-t5)"}`,
                       }}>
                         <div style={{ display: "flex", alignItems: "flex-start", gap: 6, flex: 1, minWidth: 0 }}>
                           <PriorityBadge level={task.priority} />
                           <div style={{ minWidth: 0 }}>
-                            <div style={{ fontSize: 12, fontWeight: 600, color: "#1e293b" }}>{task.title}</div>
-                            {task.notes && <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 1 }}>{task.notes}</div>}
+                            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--ec-t1)" }}>{task.title}</div>
+                            {task.notes && <div style={{ fontSize: 10, color: "var(--ec-t3)", marginTop: 1 }}>{task.notes}</div>}
                           </div>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-                          {task.dueDate && <span style={{ fontSize: 9, fontFamily: "'DM Mono', monospace", color: isOverdue ? "#dc2626" : "#94a3b8" }}>{new Date(task.dueDate + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>}
+                          {task.dueDate && <span style={{ fontSize: 9, fontFamily: "'DM Mono', monospace", color: isOverdue ? "var(--ec-crit)" : "var(--ec-t3)" }}>{new Date(task.dueDate + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>}
                           <select value={task.status} onChange={e => handleStStatusChange(task.id, e.target.value)} disabled={!canModifyTask(task)}
-                            style={{ fontSize: 10, padding: "2px 4px", borderRadius: 6, border: "1px solid #d1fae5", background: "#f9fafb", color: "#1e293b", cursor: canModifyTask(task) ? "pointer" : "default", fontFamily: "'DM Sans', sans-serif" }}
+                            style={{ fontSize: 10, padding: "2px 4px", borderRadius: 6, border: "1px solid var(--ec-div)", background: "var(--ec-card)", color: "var(--ec-t1)", cursor: canModifyTask(task) ? "pointer" : "default", fontFamily: "'DM Sans', sans-serif" }}
                           >
                             <option value="pending">Pending</option>
                             <option value="in_progress">In Progress</option>
@@ -1097,9 +1097,9 @@ export default function Dashboard() {
               {stInProgress.length > 0 && (
                 <>
                   <div onClick={() => toggleStSection("in_progress")} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 6, marginBottom: 6, marginTop: 8, userSelect: "none" }}>
-                    <svg width="8" height="8" viewBox="0 0 8 8" fill="#94a3b8" style={{ transition: "transform 0.15s", transform: stOpenSections.in_progress ? "rotate(90deg)" : "rotate(0deg)" }}><path d="M2 1l4 3-4 3z"/></svg>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.08em" }}>In Progress</span>
-                    <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 7px", borderRadius: 20, background: "#f0fdf4", color: "#059669", border: "1px solid #bbf7d0" }}>{stInProgress.length}</span>
+                    <svg width="8" height="8" viewBox="0 0 8 8" fill="var(--ec-t3)" style={{ transition: "transform 0.15s", transform: stOpenSections.in_progress ? "rotate(90deg)" : "rotate(0deg)" }}><path d="M2 1l4 3-4 3z"/></svg>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: "var(--ec-t2)", textTransform: "uppercase", letterSpacing: "0.08em" }}>In Progress</span>
+                    <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 7px", borderRadius: 20, background: "var(--ec-em-bg)", color: "var(--ec-em)", border: "1px solid var(--ec-em-border)" }}>{stInProgress.length}</span>
                   </div>
                   {stOpenSections.in_progress && stInProgress.map(task => {
                     const isOverdue = task.dueDate && task.dueDate < today;
@@ -1107,20 +1107,20 @@ export default function Dashboard() {
                       <div key={task.id} style={{
                         display: "flex", alignItems: "center", gap: 8, padding: "7px 10px",
                         borderRadius: 8, marginBottom: 4,
-                        background: isOverdue ? "#fef2f2" : "white",
-                        border: `1px solid ${isOverdue ? "#fecaca" : "#e2e8f0"}`,
+                        background: isOverdue ? "var(--ec-crit-bg)" : "var(--ec-card)",
+                        border: `1px solid ${isOverdue ? "var(--ec-crit-border)" : "var(--ec-t5)"}`,
                       }}>
                         <div style={{ display: "flex", alignItems: "flex-start", gap: 6, flex: 1, minWidth: 0 }}>
                           <PriorityBadge level={task.priority} />
                           <div style={{ minWidth: 0 }}>
-                            <div style={{ fontSize: 12, fontWeight: 600, color: "#1e293b" }}>{task.title}</div>
-                            {task.notes && <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 1 }}>{task.notes}</div>}
+                            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--ec-t1)" }}>{task.title}</div>
+                            {task.notes && <div style={{ fontSize: 10, color: "var(--ec-t3)", marginTop: 1 }}>{task.notes}</div>}
                           </div>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-                          {task.dueDate && <span style={{ fontSize: 9, fontFamily: "'DM Mono', monospace", color: isOverdue ? "#dc2626" : "#94a3b8" }}>{new Date(task.dueDate + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>}
+                          {task.dueDate && <span style={{ fontSize: 9, fontFamily: "'DM Mono', monospace", color: isOverdue ? "var(--ec-crit)" : "var(--ec-t3)" }}>{new Date(task.dueDate + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>}
                           <select value={task.status} onChange={e => handleStStatusChange(task.id, e.target.value)} disabled={!canModifyTask(task)}
-                            style={{ fontSize: 10, padding: "2px 4px", borderRadius: 6, border: "1px solid #d1fae5", background: "#f9fafb", color: "#1e293b", cursor: canModifyTask(task) ? "pointer" : "default", fontFamily: "'DM Sans', sans-serif" }}
+                            style={{ fontSize: 10, padding: "2px 4px", borderRadius: 6, border: "1px solid var(--ec-div)", background: "var(--ec-card)", color: "var(--ec-t1)", cursor: canModifyTask(task) ? "pointer" : "default", fontFamily: "'DM Sans', sans-serif" }}
                           >
                             <option value="pending">Pending</option>
                             <option value="in_progress">In Progress</option>
@@ -1137,32 +1137,32 @@ export default function Dashboard() {
               {stDone.length > 0 && (
                 <>
                   <div onClick={() => toggleStSection("done")} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 6, marginBottom: 6, marginTop: 8, userSelect: "none" }}>
-                    <svg width="8" height="8" viewBox="0 0 8 8" fill="#94a3b8" style={{ transition: "transform 0.15s", transform: stOpenSections.done ? "rotate(90deg)" : "rotate(0deg)" }}><path d="M2 1l4 3-4 3z"/></svg>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.08em" }}>Done</span>
-                    <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 7px", borderRadius: 20, background: "#f0fdf4", color: "#059669", border: "1px solid #bbf7d0" }}>{stDone.length}</span>
+                    <svg width="8" height="8" viewBox="0 0 8 8" fill="var(--ec-t3)" style={{ transition: "transform 0.15s", transform: stOpenSections.done ? "rotate(90deg)" : "rotate(0deg)" }}><path d="M2 1l4 3-4 3z"/></svg>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: "var(--ec-t2)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Done</span>
+                    <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 7px", borderRadius: 20, background: "var(--ec-em-bg)", color: "var(--ec-em)", border: "1px solid var(--ec-em-border)" }}>{stDone.length}</span>
                   </div>
                   {stOpenSections.done && stDone.map(task => (
                     <div key={task.id} style={{
                       display: "flex", alignItems: "center", gap: 8, padding: "7px 10px",
                       borderRadius: 8, marginBottom: 4, opacity: 0.5,
-                      background: "white", border: "1px solid #e2e8f0",
+                      background: "var(--ec-card)", border: "1px solid var(--ec-t5)",
                     }}>
                       <div style={{ display: "flex", alignItems: "flex-start", gap: 6, flex: 1, minWidth: 0 }}>
                         <PriorityBadge level={task.priority} />
                         <div style={{ minWidth: 0 }}>
-                          <div style={{ fontSize: 12, fontWeight: 600, color: "#1e293b", textDecoration: "line-through" }}>{task.title}</div>
-                          {task.notes && <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 1 }}>{task.notes}</div>}
+                          <div style={{ fontSize: 12, fontWeight: 600, color: "var(--ec-t1)", textDecoration: "line-through" }}>{task.title}</div>
+                          {task.notes && <div style={{ fontSize: 10, color: "var(--ec-t3)", marginTop: 1 }}>{task.notes}</div>}
                         </div>
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 3, flexShrink: 0 }}>
                         <Avatar name={initialsToName(task.assignedBy)} size={16} />
-                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M6 3l2 2-2 2" stroke="#94a3b8" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M6 3l2 2-2 2" stroke="var(--ec-t3)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                         <Avatar name={initialsToName(task.assignedTo)} size={22} />
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-                        {task.dueDate && <span style={{ fontSize: 9, fontFamily: "'DM Mono', monospace", color: "#94a3b8" }}>{new Date(task.dueDate + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>}
+                        {task.dueDate && <span style={{ fontSize: 9, fontFamily: "'DM Mono', monospace", color: "var(--ec-t3)" }}>{new Date(task.dueDate + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>}
                         <select value={task.status} onChange={e => handleStStatusChange(task.id, e.target.value)} disabled={!canModifyTask(task)}
-                          style={{ fontSize: 10, padding: "2px 4px", borderRadius: 6, border: "1px solid #d1fae5", background: "#f9fafb", color: "#1e293b", cursor: canModifyTask(task) ? "pointer" : "default", fontFamily: "'DM Sans', sans-serif" }}
+                          style={{ fontSize: 10, padding: "2px 4px", borderRadius: 6, border: "1px solid var(--ec-div)", background: "var(--ec-card)", color: "var(--ec-t1)", cursor: canModifyTask(task) ? "pointer" : "default", fontFamily: "'DM Sans', sans-serif" }}
                         >
                           <option value="pending">Pending</option>
                           <option value="in_progress">In Progress</option>
