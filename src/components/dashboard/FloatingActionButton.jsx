@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
 
 const ACTIONS = [
-  { id: 'rpToggle', label: 'RP Sign In', labelAlt: 'RP Sign Out', icon: 'shield', color: '#6366f1' },
-  { id: 'fridgeTemp', label: 'Fridge Temp', icon: 'therm', color: '#10b981' },
-  { id: 'cdCheck', label: 'CD Check', icon: 'pill', color: '#f59e0b' },
-  { id: 'rpNotice', label: 'RP Notice', icon: 'clip', color: '#6366f1' },
-  { id: 'opening', label: 'Open/Close', icon: 'door', color: '#8b5cf6' },
+  { id: 'rpToggle', label: 'RP Sign In', labelAlt: 'RP Sign Out', icon: 'shield', color: 'var(--ec-info)' },
+  { id: 'fridgeTemp', label: 'Fridge Temp', icon: 'therm', color: 'var(--ec-em)' },
+  { id: 'cdCheck', label: 'CD Check', icon: 'pill', color: 'var(--ec-warn)' },
+  { id: 'rpNotice', label: 'RP Notice', icon: 'clip', color: 'var(--ec-info)' },
+  { id: 'opening', label: 'Open/Close', icon: 'door', color: 'var(--ec-info-light)' },
 ]
 
 const icons = {
@@ -126,7 +126,7 @@ export default function FloatingActionButton({
               }}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                {isDone ? icons.check('#10b981') : icons[action.icon](action.color)}
+                {isDone ? icons.check('var(--ec-em)') : icons[action.icon](action.color)}
               </svg>
             </button>
           </div>

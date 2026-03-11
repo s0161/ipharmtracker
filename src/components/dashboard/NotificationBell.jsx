@@ -72,7 +72,7 @@ export default function NotificationBell({ notifications, onDismissNotification 
           <div className="max-h-[300px] overflow-y-auto">
             {notifications.map(n => {
               const isRead = notifRead.has(n.id)
-              const typeCol = n.type === 'critical' ? '#ef4444' : n.type === 'warning' ? '#f59e0b' : '#6366f1'
+              const typeCol = n.type === 'critical' ? 'var(--ec-crit)' : n.type === 'warning' ? 'var(--ec-warn)' : 'var(--ec-info)'
               return (
                 <div
                   key={n.id}

@@ -69,9 +69,9 @@ export default function ComplianceHealth({ areas, overallScore, hovCard, onHover
               key={i}
               className={`p-3.5 rounded-xl flex flex-col items-center transition-all duration-200 cursor-pointer select-none ${c.alert ? 'ec-breath' : ''}`}
               style={{
-                backgroundColor: c.alert ? 'rgba(239,68,68,0.035)' : 'var(--ec-card)',
+                backgroundColor: c.alert ? 'var(--ec-crit-faint)' : 'var(--ec-card)',
                 border: `1px solid ${c.alert
-                  ? (isH || isExpanded ? 'rgba(239,68,68,0.25)' : 'rgba(239,68,68,0.08)')
+                  ? (isH || isExpanded ? 'var(--ec-crit-border)' : 'var(--ec-crit-faint)')
                   : (isH || isExpanded ? 'var(--ec-t4)' : 'var(--ec-div)')
                 }`,
                 transform: isH ? 'translateY(-2px)' : 'translateY(0)',
@@ -107,7 +107,7 @@ export default function ComplianceHealth({ areas, overallScore, hovCard, onHover
                     <div key={j} className="flex items-center gap-1.5 text-[10px]">
                       <div
                         className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                        style={{ backgroundColor: item.severity === 'red' ? '#ef4444' : '#f59e0b' }}
+                        style={{ backgroundColor: item.severity === 'red' ? 'var(--ec-crit)' : 'var(--ec-warn)' }}
                       />
                       <span className="text-ec-t2 truncate">{item.name}</span>
                       {item.detail && <span className="text-ec-t4 ml-auto flex-shrink-0">{item.detail}</span>}
@@ -132,7 +132,7 @@ export default function ComplianceHealth({ areas, overallScore, hovCard, onHover
       <div className="flex items-center gap-2 mt-3">
         <div
           className="w-1.5 h-1.5 rounded-full"
-          style={{ backgroundColor: '#f59e0b', boxShadow: '0 0 4px rgba(245,158,11,0.3)' }}
+          style={{ backgroundColor: 'var(--ec-warn)', boxShadow: '0 0 4px var(--ec-warn-faint)' }}
         />
         <span className="text-[11px] text-ec-t3">
           Last GPhC inspection: <span className="text-ec-warn-light font-medium">14 months ago</span>

@@ -45,9 +45,9 @@ export default function TodoSection({ todos, onToggle, onAdd, onDelete, mob }) {
         <span
           className="text-[10px] font-semibold px-2 py-0.5 rounded-[10px]"
           style={{
-            backgroundColor: 'rgba(245,158,11,0.08)',
-            color: '#fcd34d',
-            border: '1px solid rgba(245,158,11,0.12)',
+            backgroundColor: 'var(--ec-warn-faint)',
+            color: 'var(--ec-warn)',
+            border: '1px solid var(--ec-warn-border)',
           }}
         >
           {activeCount}

@@ -2,8 +2,8 @@ import { useNavigate } from 'react-router-dom'
 
 const WarningTri = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-    <path d="M8 1.5L1 14h14L8 1.5z" stroke="#ef4444" strokeWidth="1.5" strokeLinejoin="round" />
-    <path d="M8 6v3.5M8 11.5v.5" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M8 1.5L1 14h14L8 1.5z" stroke="var(--ec-crit)" strokeWidth="1.5" strokeLinejoin="round" />
+    <path d="M8 6v3.5M8 11.5v.5" stroke="var(--ec-crit)" strokeWidth="1.5" strokeLinecap="round" />
   </svg>
 )
 
@@ -18,9 +18,9 @@ export default function AlertBanner({ alerts }) {
           key={i}
           className="ec-fadeup rounded-xl px-5 py-3.5 mt-5 flex items-center justify-between flex-wrap gap-2"
           style={{
-            backgroundColor: 'rgba(239,68,68,0.04)',
-            border: '1px solid rgba(239,68,68,0.08)',
-            boxShadow: 'inset 0 1px 0 rgba(239,68,68,0.06)',
+            backgroundColor: 'var(--ec-crit-faint)',
+            border: '1px solid var(--ec-crit-border)',
+            boxShadow: 'inset 0 1px 0 var(--ec-crit-faint)',
             animationDelay: '0.35s',
           }}
         >

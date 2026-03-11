@@ -1,6 +1,6 @@
 import TaskRow from './TaskRow'
 
-const Check = ({ s = 10, c = '#10b981' }) => (
+const Check = ({ s = 10, c = 'var(--ec-em)' }) => (
   <svg width={s} height={s} viewBox="0 0 12 12" fill="none">
     <path d="M2.5 6L5 8.5L9.5 3.5" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
   </svg>

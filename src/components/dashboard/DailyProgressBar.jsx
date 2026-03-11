@@ -9,7 +9,7 @@ export default function DailyProgressBar({ done, total }) {
 
   const pct = total > 0 ? Math.round((done / total) * 100) : 0
   const allDone = done === total && total > 0
-  const color = allDone ? '#10b981' : pct >= 80 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444'
+  const color = allDone ? 'var(--ec-em)' : pct >= 80 ? 'var(--ec-em)' : pct >= 50 ? 'var(--ec-warn)' : 'var(--ec-crit)'
 
   return (
     <div
@@ -36,7 +36,7 @@ export default function DailyProgressBar({ done, total }) {
       </div>
       <span
         className="text-[11px] font-semibold tabular-nums whitespace-nowrap transition-colors duration-300"
-        style={{ color: allDone ? '#10b981' : 'var(--ec-t3)' }}
+        style={{ color: allDone ? 'var(--ec-em)' : 'var(--ec-t3)' }}
       >
         {done}/{total}
       </span>
