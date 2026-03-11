@@ -400,9 +400,9 @@ function ComplianceCards({ staffProgress, onSelect }) {
                 <span className="text-xs font-bold tabular-nums min-w-[32px] text-right" style={{ color: barColor }}>{sp.pct}%</span>
               </div>
               {sp.overdue > 0 && (
-                <div className="flex items-center gap-1 mt-2 px-1.5 py-0.5 rounded bg-red-50 w-fit">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                  <span className="text-[10px] font-semibold text-red-600">{sp.overdue} overdue</span>
+                <div className="flex items-center gap-1 mt-2 px-1.5 py-0.5 rounded bg-ec-crit-faint w-fit">
+                  <span className="w-1.5 h-1.5 rounded-full bg-ec-crit" />
+                  <span className="text-[10px] font-semibold text-ec-crit">{sp.overdue} overdue</span>
                 </div>
               )}
             </div>
@@ -501,9 +501,9 @@ function LibraryView({
       <div className="flex items-center gap-3 mb-5 text-xs text-ec-t3">
         <span className="font-semibold text-ec-t2">{filtered.length} modules</span>
         <span>·</span>
-        <span className="text-green-600 font-medium">{stats.complete || 0} complete</span>
+        <span className="text-ec-em font-medium">{stats.complete || 0} complete</span>
         <span>·</span>
-        <span className="text-red-500 font-medium">{stats.overdue || 0} overdue</span>
+        <span className="text-ec-crit font-medium">{stats.overdue || 0} overdue</span>
       </div>
 
       {/* ③ Grouped modules with accent border */}
@@ -569,7 +569,7 @@ function ModuleRow({ mod, catColor, expanded, onToggle, effectiveRecords, staffN
           <span className="text-sm font-medium text-ec-t1 truncate">{mod.name}</span>
           {/* ⑤ Mandatory badge — red for urgency */}
           {mod.mandatory && (
-            <span className="flex-shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">
+            <span className="flex-shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold bg-ec-crit-light text-ec-crit">
               REQUIRED
             </span>
           )}
@@ -623,7 +623,7 @@ function ModuleExpander({ mod, moduleRecords, cycleStatus }) {
           return (
             <div
               key={rec.id}
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-white border border-ec-border transition-colors hover:border-ec-em/30"
+              className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-ec-card border border-ec-border transition-colors hover:border-ec-em/30"
             >
               {/* Staff avatar */}
               <div
@@ -717,7 +717,7 @@ function MatrixView({ modules, effectiveRecords, staffNames, cycleStatus }) {
                       <div className="flex items-center gap-1.5">
                         <span className="truncate max-w-[180px]">{mod.name}</span>
                         {mod.mandatory && (
-                          <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-red-500" title="Required" />
+                          <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-ec-crit" title="Required" />
                         )}
                       </div>
                     </td>
@@ -817,8 +817,8 @@ function ByStaffView({
           </div>
           {sp.overdue > 0 && (
             <div className="flex items-center gap-1.5 mt-2">
-              <span className="w-2 h-2 rounded-full bg-red-500" />
-              <span className="text-xs font-semibold text-red-600">{sp.overdue} overdue module{sp.overdue > 1 ? 's' : ''} — action required</span>
+              <span className="w-2 h-2 rounded-full bg-ec-crit" />
+              <span className="text-xs font-semibold text-ec-crit">{sp.overdue} overdue module{sp.overdue > 1 ? 's' : ''} — action required</span>
             </div>
           )}
         </div>
@@ -847,7 +847,7 @@ function ByStaffView({
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-ec-t1 font-medium truncate">{rec.moduleName}</span>
                         {mod?.mandatory && (
-                          <span className="flex-shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">
+                          <span className="flex-shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold bg-ec-crit-light text-ec-crit">
                             REQUIRED
                           </span>
                         )}
@@ -901,10 +901,10 @@ function ExpiryLabel({ expiryDate, renewalMonths }) {
 
   const days = daysUntil(expiryDate)
   if (days < 0) {
-    return <span className="text-[10px] font-semibold text-red-600">Expired {formatDate(expiryDate)}</span>
+    return <span className="text-[10px] font-semibold text-ec-crit">Expired {formatDate(expiryDate)}</span>
   }
   if (days <= 28) {
-    return <span className="text-[10px] font-semibold text-amber-600">Expires {formatDate(expiryDate)}</span>
+    return <span className="text-[10px] font-semibold text-ec-warn">Expires {formatDate(expiryDate)}</span>
   }
   return <span className="text-[10px] text-ec-t3">{formatDate(expiryDate)}</span>
 }

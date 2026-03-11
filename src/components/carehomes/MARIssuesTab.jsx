@@ -132,7 +132,7 @@ export default function MARIssuesTab({ home, issues, patients, isElevated, user,
                     <div className="flex items-center gap-2">
                       {issue.status === 'Open' && (
                         <button onClick={() => onUpdateStatus(issue.id, 'Investigating')}
-                          className="text-xs text-amber-600 hover:text-amber-700 cursor-pointer bg-transparent border-none font-medium">
+                          className="text-xs text-ec-warn hover:text-ec-warn cursor-pointer bg-transparent border-none font-medium">
                           Investigate
                         </button>
                       )}

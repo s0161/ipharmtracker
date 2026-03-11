@@ -28,7 +28,7 @@ const inputClass =
   'w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-1 focus:ring-ec-em/20 transition-colors font-sans'
 
 const inputErrorClass =
-  'w-full bg-ec-card border border-red-500 rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-500/20 transition-colors font-sans'
+  'w-full bg-ec-card border border-ec-crit rounded-lg px-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-crit focus:ring-1 focus:ring-ec-crit/20 transition-colors font-sans'
 
 const severityBadge = (sev) => {
   const cls =
@@ -62,10 +62,10 @@ const typeBadge = (type) => {
 
 const statusBadge = (status) => {
   const styles = {
-    Open: 'bg-red-50 text-red-600 border-red-200',
-    Investigating: 'bg-amber-50 text-amber-600 border-amber-200',
-    Resolved: 'bg-emerald-50 text-emerald-600 border-emerald-200',
-    Closed: 'bg-gray-100 text-gray-500 border-gray-200',
+    Open: 'bg-ec-crit-faint text-ec-crit border-ec-crit/20',
+    Investigating: 'bg-ec-warn/10 text-ec-warn border-ec-warn/20',
+    Resolved: 'bg-ec-em-faint text-ec-em border-ec-em/20',
+    Closed: 'bg-ec-div text-ec-t3 border-ec-div',
   }
   return (
     <span className={`px-2 py-0.5 rounded-full text-xs font-semibold border ${styles[status] || styles.Open}`}>
@@ -219,7 +219,7 @@ export default function Incidents() {
             ))}
           </select>
           {formErrors.type && (
-            <p className="text-xs text-red-500 mt-1">{formErrors.type}</p>
+            <p className="text-xs text-ec-crit mt-1">{formErrors.type}</p>
           )}
         </div>
         <div>
@@ -313,7 +313,7 @@ export default function Incidents() {
           required
         />
         {formErrors.description && (
-          <p className="text-xs text-red-500 mt-1">{formErrors.description}</p>
+          <p className="text-xs text-ec-crit mt-1">{formErrors.description}</p>
         )}
       </div>
 

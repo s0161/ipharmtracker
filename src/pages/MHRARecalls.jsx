@@ -171,12 +171,12 @@ export default function MHRARecalls() {
 
       {/* Error banner */}
       {error && (
-        <div className="flex items-center gap-3 p-3 rounded-xl border border-red-400/30 bg-red-500/10 mb-4">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-red-600 shrink-0">
+        <div className="flex items-center gap-3 p-3 rounded-xl border border-ec-crit/30 bg-ec-crit/10 mb-4">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-ec-crit shrink-0">
             <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
           </svg>
-          <span className="text-sm text-red-700 dark:text-red-400">{error}</span>
-          <button onClick={refresh} className="ml-auto px-3 py-1 rounded-lg text-xs font-medium bg-red-600 text-white border-none cursor-pointer hover:bg-red-700 transition">
+          <span className="text-sm text-ec-crit">{error}</span>
+          <button onClick={refresh} className="ml-auto px-3 py-1 rounded-lg text-xs font-medium bg-ec-crit text-white border-none cursor-pointer hover:bg-ec-crit/90 transition">
             Retry
           </button>
         </div>
@@ -202,12 +202,12 @@ export default function MHRARecalls() {
               onClick={() => { setCategoryTab(tab); setPage(0) }}
               className={`relative px-4 py-2.5 text-xs font-medium whitespace-nowrap border-none cursor-pointer transition-colors bg-transparent
                 ${active
-                  ? 'text-emerald-600'
+                  ? 'text-ec-em'
                   : 'text-ec-t3 hover:text-ec-t1'
                 }`}
             >
               {tab}
-              <span className={`ml-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${active ? 'bg-emerald-500/10 text-emerald-600' : 'bg-ec-border text-ec-t3'}`}>
+              <span className={`ml-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${active ? 'bg-emerald-500/10 text-ec-em' : 'bg-ec-border text-ec-t3'}`}>
                 {count}
               </span>
               {active && (
@@ -419,7 +419,7 @@ function InspectionReport({ alerts, acknowledgements, flags, dateRange, onClose 
           {/* Class 1 alerts */}
           {class1Alerts.length > 0 && (
             <section>
-              <h3 className="text-[11px] font-bold text-red-600 uppercase tracking-widest mb-2">Class 1 Alerts ({class1Alerts.length})</h3>
+              <h3 className="text-[11px] font-bold text-ec-crit uppercase tracking-widest mb-2">Class 1 Alerts ({class1Alerts.length})</h3>
               <div className="overflow-hidden rounded-xl border border-ec-border">
                 <table className="w-full text-sm">
                   <thead>
@@ -434,8 +434,8 @@ function InspectionReport({ alerts, acknowledgements, flags, dateRange, onClose 
                         <td className="px-3 py-2 text-ec-t1 text-xs">{a.title}</td>
                         <td className="px-3 py-2 text-xs">
                           {ackAlertIds.has(a.id)
-                            ? <span className="text-emerald-600 font-semibold">Reviewed</span>
-                            : <span className="text-red-600 font-semibold">Pending</span>
+                            ? <span className="text-ec-em font-semibold">Reviewed</span>
+                            : <span className="text-ec-crit font-semibold">Pending</span>
                           }
                         </td>
                       </tr>
@@ -449,10 +449,10 @@ function InspectionReport({ alerts, acknowledgements, flags, dateRange, onClose 
           {/* Unresolved flags */}
           {unresolvedFlags.length > 0 && (
             <section>
-              <h3 className="text-[11px] font-bold text-amber-600 uppercase tracking-widest mb-2">Unresolved Flags ({unresolvedFlags.length})</h3>
+              <h3 className="text-[11px] font-bold text-ec-warn uppercase tracking-widest mb-2">Unresolved Flags ({unresolvedFlags.length})</h3>
               <div className="space-y-1">
                 {unresolvedFlags.map(f => (
-                  <div key={f.id} className="flex items-center gap-2 py-1.5 px-3 rounded-lg bg-amber-500/[0.05] text-xs">
+                  <div key={f.id} className="flex items-center gap-2 py-1.5 px-3 rounded-lg bg-ec-warn/5 text-xs">
                     <span className="font-medium text-ec-t1">{f.alertTitle}</span>
                     <span className="text-ec-t3 ml-auto">by {f.flaggedBy}</span>
                   </div>

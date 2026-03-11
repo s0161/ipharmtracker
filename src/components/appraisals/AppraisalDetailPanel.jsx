@@ -4,10 +4,10 @@ import RatingStars from './RatingStars'
 import { COMPETENCIES, STATUS_STYLES, GOAL_STATUSES, RATING_LABELS, COMPETENCY_MODULE_MAP, PEER_FEEDBACK_QUESTIONS } from '../../data/appraisalData'
 
 const GOAL_STATUS_COLORS = {
-  'Not Started': 'bg-slate-100 text-slate-600',
-  'In Progress': 'bg-blue-100 text-blue-700',
-  'Completed': 'bg-emerald-100 text-emerald-700',
-  'Carried Over': 'bg-amber-100 text-amber-700',
+  'Not Started': 'bg-ec-bg text-ec-t2',
+  'In Progress': 'bg-ec-info-light text-ec-info',
+  'Completed': 'bg-ec-em-faint text-ec-em',
+  'Carried Over': 'bg-ec-warn-faint text-ec-warn',
 }
 
 export default function AppraisalDetailPanel({
@@ -107,8 +107,8 @@ export default function AppraisalDetailPanel({
 
         {/* Acknowledge banner */}
         {canAcknowledge && (
-          <div className="mx-6 mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg print:hidden">
-            <p className="text-sm text-amber-800 m-0 mb-2">This appraisal is awaiting your acknowledgement.</p>
+          <div className="mx-6 mt-4 p-3 bg-ec-warn-faint border border-ec-warn rounded-lg print:hidden">
+            <p className="text-sm text-ec-warn m-0 mb-2">This appraisal is awaiting your acknowledgement.</p>
             <button
               onClick={() => onAcknowledge(appraisal.id)}
               className="px-4 py-1.5 bg-emerald-600 text-white text-sm font-medium rounded-lg border-none cursor-pointer hover:bg-emerald-700"
@@ -125,7 +125,7 @@ export default function AppraisalDetailPanel({
               key={t.key}
               onClick={() => setTab(t.key)}
               className={`px-3 py-2.5 text-sm font-medium border-none cursor-pointer bg-transparent transition-colors whitespace-nowrap
-                ${tab === t.key ? 'text-emerald-600 border-b-2 border-emerald-600' : 'text-ec-t3 hover:text-ec-t1'}`}
+                ${tab === t.key ? 'text-ec-em border-b-2 border-emerald-600' : 'text-ec-t3 hover:text-ec-t1'}`}
               style={tab === t.key ? { borderBottom: '2px solid var(--ec-em)' } : {}}
             >
               {t.label}
@@ -161,13 +161,13 @@ export default function AppraisalDetailPanel({
               )}
               {appraisal.strengths && (
                 <div>
-                  <h4 className="text-sm font-semibold text-emerald-700 mb-1">Strengths</h4>
+                  <h4 className="text-sm font-semibold text-ec-em mb-1">Strengths</h4>
                   <p className="text-sm text-ec-t2 m-0 leading-relaxed">{appraisal.strengths}</p>
                 </div>
               )}
               {(appraisal.areasForDevelopment || appraisal.areas_for_development) && (
                 <div>
-                  <h4 className="text-sm font-semibold text-amber-700 mb-1">Areas for Development</h4>
+                  <h4 className="text-sm font-semibold text-ec-warn mb-1">Areas for Development</h4>
                   <p className="text-sm text-ec-t2 m-0 leading-relaxed">{appraisal.areasForDevelopment || appraisal.areas_for_development}</p>
                 </div>
               )}
@@ -227,7 +227,7 @@ export default function AppraisalDetailPanel({
                     </div>
                     {comment && <p className="text-xs text-ec-t2 mt-2 m-0 italic">{comment}</p>}
                     {showGap && (
-                      <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded text-xs text-amber-800">
+                      <div className="mt-2 p-2 bg-ec-warn-faint border border-ec-warn rounded text-xs text-ec-warn">
                         Training gap detected — consider re-training: {modules.join(', ')}
                       </div>
                     )}
@@ -332,7 +332,7 @@ export default function AppraisalDetailPanel({
                         <div className="flex gap-3 mt-1 text-xs text-ec-t3">
                           {(a.owner) && <span>Owner: {a.owner}</span>}
                           {(a.dueDate || a.due_date) && (
-                            <span className={isOverdue ? 'text-red-600 font-semibold' : ''}>
+                            <span className={isOverdue ? 'text-ec-crit font-semibold' : ''}>
                               Due: {new Date(a.dueDate || a.due_date).toLocaleDateString('en-GB')}
                               {isOverdue && ' (overdue)'}
                             </span>

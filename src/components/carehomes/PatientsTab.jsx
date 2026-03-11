@@ -133,7 +133,7 @@ export default function PatientsTab({ home, patients, cyclesByHome, itemsByCycle
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-ec-t3">{p.packType || p.pack_type}</span>
                     <span className="text-xs text-ec-t3">{p.medicationCount || p.medication_count || 0} meds</span>
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${isActive ? 'bg-ec-em-faint text-ec-em' : 'bg-ec-bg text-ec-t3'}`}>
                       {isActive ? 'Active' : 'Inactive'}
                     </span>
                   </div>
@@ -141,7 +141,7 @@ export default function PatientsTab({ home, patients, cyclesByHome, itemsByCycle
                 {isExpanded && (
                   <div className="border-t border-ec-div p-3 space-y-2">
                     {p.allergies && (
-                      <p className="text-xs"><span className="text-red-600 font-medium">Allergies:</span> <span className="text-ec-t1">{p.allergies}</span></p>
+                      <p className="text-xs"><span className="text-ec-crit font-medium">Allergies:</span> <span className="text-ec-t1">{p.allergies}</span></p>
                     )}
                     {p.notes && <p className="text-xs text-ec-t3">{p.notes}</p>}
                     {isElevated && (

@@ -363,7 +363,7 @@ function ConcernCard({ concern: c, elevated, onView, onEdit, onCreateReferral })
       <p className="text-xs text-ec-t2 mb-2 line-clamp-2">{c.description}</p>
       <div className="flex flex-wrap items-center gap-3 text-[10px] text-ec-t3">
         <span className="flex items-center gap-1"><MiniAvatar name={c.reportedBy} />{c.reportedBy}</span>
-        {c.riskLevel === 'high' && <span className="px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-bold uppercase text-[9px]">High Risk</span>}
+        {c.riskLevel === 'high' && <span className="px-1.5 py-0.5 rounded bg-ec-crit-faint text-ec-crit font-bold uppercase text-[9px]">High Risk</span>}
         {c.escalatedToSuperintendent && <span className="px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 font-bold uppercase text-[9px]">Escalated</span>}
         {c.followUpRequired && c.followUpDate && <span>Follow-up: {formatDate(c.followUpDate)}</span>}
       </div>
@@ -532,9 +532,9 @@ function ConcernForm({ concerns, setConcerns, user, toast, onClose, existing }) 
             <button key={r} onClick={() => set('riskLevel', r)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold border cursor-pointer transition-colors capitalize
                 ${form.riskLevel === r
-                  ? r === 'high' ? 'bg-red-100 border-red-300 text-red-700'
-                    : r === 'medium' ? 'bg-yellow-100 border-yellow-300 text-yellow-700'
-                    : 'bg-green-100 border-green-300 text-green-700'
+                  ? r === 'high' ? 'bg-ec-crit-faint border-ec-crit text-ec-crit'
+                    : r === 'medium' ? 'bg-ec-warn-faint border-ec-warn text-ec-warn'
+                    : 'bg-ec-em-faint border-ec-em text-ec-em'
                   : 'bg-ec-card border-ec-border text-ec-t2 hover:bg-ec-card-hover'}`}>
               {r}
             </button>
@@ -844,7 +844,7 @@ function ContactsTab({ contacts, loading, elevated, pharmacyRegion, openDrawer }
                   style={{ backgroundColor: CONTACT_CATEGORIES[c.category]?.color || '#6b7280' }}>
                   {CONTACT_CATEGORIES[c.category]?.label || c.category}
                 </span>
-                {c.isEmergency && <span className="px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-bold text-[9px]">EMERGENCY</span>}
+                {c.isEmergency && <span className="px-1.5 py-0.5 rounded bg-ec-crit-faint text-ec-crit font-bold text-[9px]">EMERGENCY</span>}
               </div>
               <h3 className="text-sm font-bold text-ec-t1 mb-0.5">{c.name}</h3>
               {c.organisation && <p className="text-[10px] text-ec-t3 mb-2">{c.organisation}</p>}

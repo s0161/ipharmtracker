@@ -131,7 +131,7 @@ const inputClass =
   'w-full bg-ec-card border border-ec-border rounded-lg px-3 py-2.5 text-sm text-ec-t1 focus:outline-none focus:border-ec-em/40 focus:ring-2 focus:ring-ec-em/20 transition-all placeholder:text-ec-t3 font-sans'
 
 const inputErrorClass =
-  'w-full bg-ec-card border-2 border-red-400 rounded-lg px-3 py-2.5 text-sm text-ec-t1 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all placeholder:text-ec-t3 font-sans'
+  'w-full bg-ec-card border-2 border-ec-crit rounded-lg px-3 py-2.5 text-sm text-ec-t1 focus:outline-none focus:border-ec-crit focus:ring-2 focus:ring-red-500/20 transition-all placeholder:text-ec-t3 font-sans'
 
 const selectClass =
   'bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 font-sans focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all'
@@ -1072,7 +1072,7 @@ export default function NearMissLog() {
                 <option value="">Select category...</option>
                 {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
-              {formErrors.category && <p className="text-xs text-red-500 mt-1">{formErrors.category}</p>}
+              {formErrors.category && <p className="text-xs text-ec-crit mt-1">{formErrors.category}</p>}
             </div>
           </div>
 
@@ -1127,7 +1127,7 @@ export default function NearMissLog() {
               rows={3}
               required
             />
-            {formErrors.description && <p className="text-xs text-red-500 mt-1">{formErrors.description}</p>}
+            {formErrors.description && <p className="text-xs text-ec-crit mt-1">{formErrors.description}</p>}
             <p className="text-[10px] text-ec-t3 mt-1 mb-0.5">Tap to add prompts:</p>
             <PromptChips
               prompts={DESCRIPTION_PROMPTS}

@@ -221,7 +221,7 @@ function StaffView({ appraisals, goalsByAppraisal, pendingFeedback, submitPeerFe
 
       {/* Upcoming banner */}
       {upcomingSoon && (
-        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+        <div className="p-3 bg-ec-info-light border border-ec-info rounded-lg text-sm text-blue-800">
           Your next appraisal is due {new Date(nextDue).toLocaleDateString('en-GB')}
         </div>
       )}
@@ -229,7 +229,7 @@ function StaffView({ appraisals, goalsByAppraisal, pendingFeedback, submitPeerFe
       {/* Acknowledgement alert */}
       {needsAck && (
         <div
-          className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800 cursor-pointer hover:bg-amber-100"
+          className="p-3 bg-ec-warn-faint border border-ec-warn rounded-lg text-sm text-ec-warn cursor-pointer hover:bg-ec-warn-faint"
           onClick={() => onSelect(needsAck.id)}
         >
           You have an appraisal awaiting acknowledgement. Click to review.
@@ -296,9 +296,9 @@ function StaffView({ appraisals, goalsByAppraisal, pendingFeedback, submitPeerFe
                 <p className="text-sm text-ec-t1 m-0">{g.goalText || g.goal_text}</p>
                 <div className="flex items-center gap-2 mt-1">
                   <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                    g.status === 'In Progress' ? 'bg-blue-100 text-blue-700' :
-                    g.status === 'Carried Over' ? 'bg-amber-100 text-amber-700' :
-                    'bg-slate-100 text-slate-600'
+                    g.status === 'In Progress' ? 'bg-ec-info-light text-ec-info' :
+                    g.status === 'Carried Over' ? 'bg-ec-warn-faint text-ec-warn' :
+                    'bg-ec-bg text-ec-t2'
                   }`}>{g.status}</span>
                   {(g.targetDate || g.target_date) && (
                     <span className="text-xs text-ec-t3">Due: {new Date(g.targetDate || g.target_date).toLocaleDateString('en-GB')}</span>
@@ -422,8 +422,8 @@ function ManagerView({
       {/* Staff list */}
       <div className="space-y-2">
         {filteredStaff.map(s => {
-          const dueBg = s.dueStatus.status === 'overdue' ? 'bg-red-500' :
-                        s.dueStatus.status === 'due-soon' ? 'bg-amber-500' : 'bg-emerald-500'
+          const dueBg = s.dueStatus.status === 'overdue' ? 'bg-ec-crit' :
+                        s.dueStatus.status === 'due-soon' ? 'bg-ec-warn' : 'bg-ec-em'
           return (
             <div
               key={s.name}
@@ -443,12 +443,12 @@ function ManagerView({
                     <span>Last: {new Date(s.lastDate).toLocaleDateString('en-GB')}</span>
                   )}
                   {s.activeGoalCount > 0 && (
-                    <span className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full font-medium">
+                    <span className="bg-ec-info-light text-ec-info px-1.5 py-0.5 rounded-full font-medium">
                       {s.activeGoalCount} goal{s.activeGoalCount > 1 ? 's' : ''}
                     </span>
                   )}
                   {s.rating && <RatingStars value={s.rating} size="sm" />}
-                  {!s.latest && <span className="text-red-500 font-medium">No appraisal</span>}
+                  {!s.latest && <span className="text-ec-crit font-medium">No appraisal</span>}
                 </div>
               </div>
             </div>
@@ -487,7 +487,7 @@ function ManagerView({
 }
 
 function StatCard({ label, value, accent }) {
-  const textColor = accent === 'red' ? 'text-red-600' : accent === 'amber' ? 'text-amber-600' : 'text-ec-t1'
+  const textColor = accent === 'red' ? 'text-ec-crit' : accent === 'amber' ? 'text-ec-warn' : 'text-ec-t1'
   return (
     <div className="p-4 bg-ec-card border border-ec-div rounded-xl">
       <p className={`text-2xl font-bold m-0 ${textColor}`}>{value}</p>

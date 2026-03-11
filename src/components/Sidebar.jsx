@@ -180,7 +180,7 @@ export default function Sidebar({ open, onClose }) {
                         <NI name={item.icon} color={isActive ? 'var(--ec-t1)' : 'var(--ec-z6)'} />
                         <span className="flex-1">{item.label}</span>
                         {item.badge === 'soon' ? (
-                          <span className="bg-amber-500/10 text-amber-500 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                          <span className="bg-ec-warn/10 text-ec-warn text-[9px] font-bold px-1.5 py-0.5 rounded-full">
                             Soon
                           </span>
                         ) : total > 0 && (

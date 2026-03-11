@@ -38,7 +38,7 @@ export default function CareHomeCard({ home, patients, latestCycle, issueCount, 
           </span>
         )}
         {issueCount > 0 && (
-          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-red-100 text-red-700">
+          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-ec-crit-faint text-ec-crit">
             {issueCount} issue{issueCount !== 1 ? 's' : ''}
           </span>
         )}
