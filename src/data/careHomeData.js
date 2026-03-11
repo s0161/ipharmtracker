@@ -93,7 +93,7 @@ export const CARE_HOMES_SEED = [
   },
   {
     name: 'The Lakes',
-    address: 'Off Boyds Walk, Dukinfield, SK16 4TY',
+    address: 'Off Boyds Walk, Lakes Road, Dukinfield, SK16 4TX',
     cqcRegistration: '1-113503615',
     residentCount: 77,
     deliveryDays: ['Tuesday', 'Friday'],
@@ -150,31 +150,25 @@ export const CARE_HOMES_SEED = [
 
 export const CARE_HOME_CONTACTS_SEED = {
   "St George's": [
-    { role: 'Care Manager', name: 'Margaret Walsh', phone: '0161 330 1234', email: 'margaret.walsh@stgeorges-care.co.uk', isPrimary: true },
-    { role: 'Deputy Manager', name: 'Susan Barker', phone: '0161 330 1235', email: 'susan.barker@stgeorges-care.co.uk', isPrimary: false },
-    { role: 'Lead Nurse', name: 'Patricia Cole', phone: '0161 330 1236', email: 'patricia.cole@stgeorges-care.co.uk', isPrimary: false },
+    { role: 'Registered Manager', name: 'Cheryl Newsome', phone: '0161 626 4433', email: 'admin@stgeorgescarecentre.co.uk', isPrimary: true },
+    { role: 'Deputy Manager', name: 'Martyn Davies', phone: '0161 626 4433', email: 'deputy@stgeorgescarecentre.co.uk', isPrimary: false },
   ],
   'The Lakes': [
-    { role: 'Care Manager', name: 'David Chen', phone: '0161 338 5678', email: 'david.chen@thelakes.org', isPrimary: true },
-    { role: 'Lead Nurse', name: 'Karen Fisher', phone: '0161 338 5679', email: 'karen.fisher@thelakes.org', isPrimary: false },
+    { role: 'Registered Manager', name: 'Gulzar Nazir', phone: '0161 330 2444', email: 'admin@lakescare.co.uk', isPrimary: true },
+    { role: 'Nominated Individual', name: 'Colin Gallimore', phone: '0161 330 2444', email: 'info@lakescare.co.uk', isPrimary: false },
   ],
   'Downshaw Lodge': [
-    { role: 'Care Manager', name: 'James Whitfield', phone: '0161 368 2345', email: 'j.whitfield@downshawlodge.co.uk', isPrimary: true },
-    { role: 'Deputy Manager', name: 'Angela Moss', phone: '0161 368 2346', email: 'a.moss@downshawlodge.co.uk', isPrimary: false },
-    { role: 'Lead Nurse', name: 'Ranjit Kaur', phone: '0161 368 2347', email: 'r.kaur@downshawlodge.co.uk', isPrimary: false },
+    { role: 'Registered Manager', name: 'Catalin Babici', phone: '0161 330 7059', email: 'info@downshawlodge.co.uk', isPrimary: true },
+    { role: 'Nominated Individual', name: 'Alison Boote', phone: '0161 330 7059', email: 'admin@qualiacare.co.uk', isPrimary: false },
   ],
   'Firbank House': [
-    { role: 'Care Manager', name: 'Helen Brooks', phone: '0161 343 4567', email: 'helen.brooks@firbankhouse.co.uk', isPrimary: true },
-    { role: 'Deputy Manager', name: 'Thomas Reid', phone: '0161 343 4568', email: 'thomas.reid@firbankhouse.co.uk', isPrimary: false },
+    { role: 'Registered Manager', name: 'Wendy Estlick', phone: '0161 330 4772', email: 'info@firbankhouse.co.uk', isPrimary: true },
   ],
   'Clarkson House': [
-    { role: 'Care Manager', name: 'Linda Hartley', phone: '01457 833 111', email: 'l.hartley@clarksonhouse.org', isPrimary: true },
-    { role: 'Lead Nurse', name: 'Mohammed Hussain', phone: '01457 833 112', email: 'm.hussain@clarksonhouse.org', isPrimary: false },
+    { role: 'Registered Manager', name: 'Claire Allwood', phone: '0161 308 4618', email: 'info@clarksonhouse.org', isPrimary: true },
   ],
   'Moss Cottage': [
-    { role: 'Care Manager', name: 'Barbara Green', phone: '0161 336 7890', email: 'b.green@mosscottage.co.uk', isPrimary: true },
-    { role: 'Deputy Manager', name: 'Yusuf Ali', phone: '0161 336 7891', email: 'y.ali@mosscottage.co.uk', isPrimary: false },
-    { role: 'Lead Nurse', name: 'Claire Dawson', phone: '0161 336 7892', email: 'c.dawson@mosscottage.co.uk', isPrimary: false },
+    { role: 'Registered Manager', name: 'Joanne Murray', phone: '0161 343 2557', email: 'info@mosscottagecare.com', isPrimary: true },
   ],
 }
 
