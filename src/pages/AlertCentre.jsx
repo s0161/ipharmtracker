@@ -17,6 +17,7 @@ const SOURCE_FILTERS = [
   { label: 'Staff', value: 'staff' },
   { label: 'MHRA', value: 'mhra' },
   { label: 'Fridge', value: 'fridge' },
+  { label: 'Care Homes', value: 'carehomes' },
 ]
 const SORT_OPTIONS = [
   { label: 'Newest', fn: (a, b) => new Date(b.created_at) - new Date(a.created_at) },
@@ -34,6 +35,7 @@ const SOURCE_MAP = {
   staff: ['documents'],
   mhra: ['mhra_alert_acknowledgements', 'mhra_alert_flags'],
   fridge: ['fridge_temperature_logs'],
+  carehomes: ['care_homes', 'medication_cycles', 'care_home_deliveries', 'care_home_mar_issues', 'care_home_handover_notes'],
 }
 
 export default function AlertCentre() {

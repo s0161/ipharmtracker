@@ -68,6 +68,7 @@ const sections = [
       { to: '/induction', label: 'Induction', icon: 'grad' },
       { to: '/appraisals', label: 'Appraisals', icon: 'star' },
       { to: '/mhra-recalls', label: 'MHRA Recalls', icon: 'shieldAlert' },
+      { to: '/care-homes', label: 'Care Homes', icon: 'users' },
     ],
   },
   {
