@@ -11,6 +11,8 @@ export function useCareHomeData() {
   const [rawDeliveries] = useSupabase('care_home_deliveries', [])
   const [rawNotes] = useSupabase('care_home_handover_notes', [])
   const [rawMARIssues] = useSupabase('care_home_mar_issues', [])
+  const [rawContacts] = useSupabase('care_home_contacts', [])
+  const [rawFlags] = useSupabase('care_home_flags', [])
 
   const loading = homesLoading || patientsLoading || cyclesLoading
 
@@ -104,6 +106,30 @@ export function useCareHomeData() {
     )
     return map
   }, [rawMARIssues])
+
+  // Group contacts by care_home_id
+  const contactsByHome = useMemo(() => {
+    const map = {}
+    rawContacts.forEach(c => {
+      const hid = c.careHomeId || c.care_home_id
+      if (!hid) return
+      if (!map[hid]) map[hid] = []
+      map[hid].push(c)
+    })
+    return map
+  }, [rawContacts])
+
+  // Group flags by care_home_id
+  const flagsByHome = useMemo(() => {
+    const map = {}
+    rawFlags.forEach(f => {
+      const hid = f.careHomeId || f.care_home_id
+      if (!hid) return
+      if (!map[hid]) map[hid] = []
+      map[hid].push(f)
+    })
+    return map
+  }, [rawFlags])
 
   // ─── Computed Stats ───
   const overallStats = useMemo(() => {
@@ -349,6 +375,10 @@ export function useCareHomeData() {
     deliveriesByHome,
     notesByHome,
     marIssuesByHome,
+    contactsByHome,
+    flagsByHome,
+    contacts: rawContacts,
+    flags: rawFlags,
     patients: rawPatients,
     cycles: rawCycles,
     deliveries: rawDeliveries,
