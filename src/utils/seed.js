@@ -3,7 +3,7 @@ import { generateId } from './helpers'
 import DUMMY_SOPS from '../data/sopData'
 import INDUCTION_MODULES from '../data/inductionModules'
 
-const SEED_KEY = 'ipd_seeded_v43'
+const SEED_KEY = 'ipd_seeded_v44'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -14,7 +14,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13', 'ipd_seeded_v14', 'ipd_seeded_v15', 'ipd_seeded_v16',
   'ipd_seeded_v17', 'ipd_seeded_v18', 'ipd_seeded_v19', 'ipd_seeded_v20', 'ipd_seeded_v21', 'ipd_seeded_v22',
   'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28', 'ipd_seeded_v29', 'ipd_seeded_v30', 'ipd_seeded_v31', 'ipd_seeded_v32', 'ipd_seeded_v33', 'ipd_seeded_v34', 'ipd_seeded_v35', 'ipd_seeded_v36', 'ipd_seeded_v37', 'ipd_seeded_v38', 'ipd_seeded_v39', 'ipd_seeded_v40',
-  'ipd_seeded_v41', 'ipd_seeded_v42',
+  'ipd_seeded_v41', 'ipd_seeded_v42', 'ipd_seeded_v43',
 ]
 
 // ─── SOP conversion helpers ───
@@ -1200,12 +1200,12 @@ export async function seedIfNeeded() {
     const home6Id = generateId()
 
     await supabase.from('care_homes').insert([
-      { id: home1Id, name: "St George's", address: '14 Stamford Street, Ashton-under-Lyne, OL6 6QN', phone: '0161 330 1234', email: 'info@stgeorges-care.co.uk', contact_person: 'Margaret Walsh', patient_count: 42, resident_count: 42, cycle_day: 1, delivery_method: 'Delivery', status: 'Active', pharmacy_id: 'FED07', cqc_registration: 'CQC-1-234567890', delivery_days: ['Monday', 'Thursday'], delivery_slot: 'morning', pharmacist_lead: 'Amjid Shakoor' },
-      { id: home2Id, name: 'The Lakes', address: '7 Lake Road, Stalybridge, SK15 1AB', phone: '0161 338 5678', email: 'admin@thelakes.org', contact_person: 'David Chen', patient_count: 31, resident_count: 31, cycle_day: 15, delivery_method: 'Collection', status: 'Active', pharmacy_id: 'FED07', cqc_registration: 'CQC-1-345678901', delivery_days: ['Tuesday', 'Friday'], delivery_slot: 'morning', pharmacist_lead: 'Amjid Shakoor' },
-      { id: home3Id, name: 'Downshaw Lodge', address: '22 Market Street, Hyde, SK14 2LX', phone: '0161 368 2345', email: 'j.whitfield@downshawlodge.co.uk', contact_person: 'James Whitfield', patient_count: 28, resident_count: 28, cycle_day: 7, delivery_method: 'Delivery', status: 'Active', pharmacy_id: 'FED07', cqc_registration: 'CQC-1-456789012', delivery_days: ['Wednesday'], delivery_slot: 'afternoon', pharmacist_lead: 'Amjid Shakoor' },
-      { id: home4Id, name: 'Firbank House', address: '55 King Street, Dukinfield, SK16 4NP', phone: '0161 343 4567', email: 'helen.brooks@firbankhouse.co.uk', contact_person: 'Helen Brooks', patient_count: 55, resident_count: 55, cycle_day: 1, delivery_method: 'Delivery', status: 'Active', pharmacy_id: 'FED07', cqc_registration: 'CQC-1-567890123', delivery_days: ['Monday', 'Wednesday', 'Friday'], delivery_slot: 'morning', pharmacist_lead: 'Amjid Shakoor' },
-      { id: home5Id, name: 'Clarkson House', address: '3 Chapel Street, Mossley, OL5 0HT', phone: '01457 833 111', email: 'l.hartley@clarksonhouse.org', contact_person: 'Linda Hartley', patient_count: 19, resident_count: 19, cycle_day: 10, delivery_method: 'Delivery', status: 'Active', pharmacy_id: 'FED07', cqc_registration: 'CQC-1-678901234', delivery_days: ['Tuesday', 'Thursday'], delivery_slot: 'afternoon', pharmacist_lead: 'Amjid Shakoor' },
-      { id: home6Id, name: 'Moss Cottage', address: '88 Manchester Road, Denton, M34 3LE', phone: '0161 336 7890', email: 'b.green@mosscottage.co.uk', contact_person: 'Barbara Green', patient_count: 24, resident_count: 24, cycle_day: 5, delivery_method: 'Delivery', status: 'Active', pharmacy_id: 'FED07', cqc_registration: 'CQC-1-789012345', delivery_days: ['Monday', 'Friday'], delivery_slot: 'morning', pharmacist_lead: 'Amjid Shakoor' },
+      { id: home1Id, name: "St George's", address: 'Northgate Lane, Moorside, Oldham, OL1 4RU', phone: '0161 626 4433', email: 'admin@stgeorgescarecentre.co.uk', contact_person: 'Cheryl Newsome', patient_count: 77, resident_count: 77, cycle_day: 1, delivery_method: 'Delivery', status: 'Active', pharmacy_id: 'FED07', cqc_registration: '1-1442899058', delivery_days: ['Monday', 'Thursday'], delivery_slot: 'morning', pharmacist_lead: 'Amjid Shakoor' },
+      { id: home2Id, name: 'The Lakes', address: 'Off Boyds Walk, Dukinfield, SK16 4TY', phone: '0161 330 2444', email: 'admin@lakescare.co.uk', contact_person: 'David Chen', patient_count: 77, resident_count: 77, cycle_day: 15, delivery_method: 'Collection', status: 'Active', pharmacy_id: 'FED07', cqc_registration: '1-113503615', delivery_days: ['Tuesday', 'Friday'], delivery_slot: 'morning', pharmacist_lead: 'Amjid Shakoor' },
+      { id: home3Id, name: 'Downshaw Lodge', address: '24 Smallshaw Lane, Ashton-under-Lyne, OL6 8PN', phone: '0161 343 1251', email: 'info@downshawlodge.co.uk', contact_person: 'Catalin Babici', patient_count: 45, resident_count: 45, cycle_day: 7, delivery_method: 'Delivery', status: 'Active', pharmacy_id: 'FED07', cqc_registration: '1-4019291170', delivery_days: ['Wednesday'], delivery_slot: 'afternoon', pharmacist_lead: 'Amjid Shakoor' },
+      { id: home4Id, name: 'Firbank House', address: '24 Smallshaw Lane, Ashton-under-Lyne, OL6 8PN', phone: '0161 330 4772', email: 'info@firbankhouse.co.uk', contact_person: 'Helen Brooks', patient_count: 42, resident_count: 42, cycle_day: 1, delivery_method: 'Delivery', status: 'Active', pharmacy_id: 'FED07', cqc_registration: '1-132017782', delivery_days: ['Monday', 'Wednesday', 'Friday'], delivery_slot: 'morning', pharmacist_lead: 'Amjid Shakoor' },
+      { id: home5Id, name: 'Clarkson House', address: '56 Currier Lane, Ashton-under-Lyne, OL6 6TB', phone: '0161 343 1033', email: 'info@clarksonhouse.org', contact_person: 'Linda Hartley', patient_count: 28, resident_count: 28, cycle_day: 10, delivery_method: 'Delivery', status: 'Active', pharmacy_id: 'FED07', cqc_registration: '1-12775183555', delivery_days: ['Tuesday', 'Thursday'], delivery_slot: 'afternoon', pharmacist_lead: 'Amjid Shakoor' },
+      { id: home6Id, name: 'Moss Cottage', address: '34 Manchester Road, Ashton-under-Lyne, OL7 0BZ', phone: '0161 301 2424', email: 'info@mosscottagecare.com', contact_person: 'Barbara Green', patient_count: 34, resident_count: 34, cycle_day: 5, delivery_method: 'Delivery', status: 'Active', pharmacy_id: 'FED07', cqc_registration: '1-145286241', delivery_days: ['Monday', 'Friday'], delivery_slot: 'morning', pharmacist_lead: 'Amjid Shakoor' },
     ])
 
     // Contacts
