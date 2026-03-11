@@ -78,13 +78,13 @@ export const FLAG_SEVERITY_STYLES = {
   alert: { bg: 'bg-red-500/10', text: 'text-red-600', border: 'border-red-500/20' },
 }
 
-// ─── 6 Care Homes — Dummy seed data (used as fallback if DB is empty) ───
+// ─── 6 Care Homes — Real CQC-registered Tameside care homes ───
 export const CARE_HOMES_SEED = [
   {
     name: "St George's",
-    address: '14 Stamford Street, Ashton-under-Lyne, OL6 6QN',
-    cqcRegistration: 'CQC-1-234567890',
-    residentCount: 42,
+    address: 'Northgate Lane, Moorside, Oldham, OL1 4RU',
+    cqcRegistration: '1-1442899058',
+    residentCount: 77,
     deliveryDays: ['Monday', 'Thursday'],
     deliverySlot: 'morning',
     pharmacistLead: 'Amjid Shakoor',
@@ -93,9 +93,9 @@ export const CARE_HOMES_SEED = [
   },
   {
     name: 'The Lakes',
-    address: '7 Lake Road, Stalybridge, SK15 1AB',
-    cqcRegistration: 'CQC-1-345678901',
-    residentCount: 31,
+    address: 'Off Boyds Walk, Dukinfield, SK16 4TY',
+    cqcRegistration: '1-113503615',
+    residentCount: 77,
     deliveryDays: ['Tuesday', 'Friday'],
     deliverySlot: 'morning',
     pharmacistLead: 'Amjid Shakoor',
@@ -104,9 +104,9 @@ export const CARE_HOMES_SEED = [
   },
   {
     name: 'Downshaw Lodge',
-    address: '22 Market Street, Hyde, SK14 2LX',
-    cqcRegistration: 'CQC-1-456789012',
-    residentCount: 28,
+    address: '24 Smallshaw Lane, Ashton-under-Lyne, OL6 8PN',
+    cqcRegistration: '1-4019291170',
+    residentCount: 45,
     deliveryDays: ['Wednesday'],
     deliverySlot: 'afternoon',
     pharmacistLead: 'Amjid Shakoor',
@@ -115,9 +115,9 @@ export const CARE_HOMES_SEED = [
   },
   {
     name: 'Firbank House',
-    address: '55 King Street, Dukinfield, SK16 4NP',
-    cqcRegistration: 'CQC-1-567890123',
-    residentCount: 55,
+    address: '24 Smallshaw Lane, Ashton-under-Lyne, OL6 8PN',
+    cqcRegistration: '1-132017782',
+    residentCount: 42,
     deliveryDays: ['Monday', 'Wednesday', 'Friday'],
     deliverySlot: 'morning',
     pharmacistLead: 'Amjid Shakoor',
@@ -126,9 +126,9 @@ export const CARE_HOMES_SEED = [
   },
   {
     name: 'Clarkson House',
-    address: '3 Chapel Street, Mossley, OL5 0HT',
-    cqcRegistration: 'CQC-1-678901234',
-    residentCount: 19,
+    address: '56 Currier Lane, Ashton-under-Lyne, OL6 6TB',
+    cqcRegistration: '1-12775183555',
+    residentCount: 28,
     deliveryDays: ['Tuesday', 'Thursday'],
     deliverySlot: 'afternoon',
     pharmacistLead: 'Amjid Shakoor',
@@ -137,9 +137,9 @@ export const CARE_HOMES_SEED = [
   },
   {
     name: 'Moss Cottage',
-    address: '88 Manchester Road, Denton, M34 3LE',
-    cqcRegistration: 'CQC-1-789012345',
-    residentCount: 24,
+    address: '34 Manchester Road, Ashton-under-Lyne, OL7 0BZ',
+    cqcRegistration: '1-145286241',
+    residentCount: 34,
     deliveryDays: ['Monday', 'Friday'],
     deliverySlot: 'morning',
     pharmacistLead: 'Amjid Shakoor',
