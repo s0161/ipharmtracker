@@ -3,7 +3,7 @@ import { generateId } from './helpers'
 import DUMMY_SOPS from '../data/sopData'
 import INDUCTION_MODULES from '../data/inductionModules'
 
-const SEED_KEY = 'ipd_seeded_v42'
+const SEED_KEY = 'ipd_seeded_v43'
 
 const ORPHANED_KEYS = [
   'ipd_staff', 'ipd_tasks', 'ipd_cleaning',
@@ -14,7 +14,7 @@ const ORPHANED_KEYS = [
   'ipd_seeded_v10', 'ipd_seeded_v11', 'ipd_seeded_v12', 'ipd_seeded_v13', 'ipd_seeded_v14', 'ipd_seeded_v15', 'ipd_seeded_v16',
   'ipd_seeded_v17', 'ipd_seeded_v18', 'ipd_seeded_v19', 'ipd_seeded_v20', 'ipd_seeded_v21', 'ipd_seeded_v22',
   'ipd_seeded_v23', 'ipd_seeded_v24', 'ipd_seeded_v25', 'ipd_seeded_v26', 'ipd_seeded_v27', 'ipd_seeded_v28', 'ipd_seeded_v29', 'ipd_seeded_v30', 'ipd_seeded_v31', 'ipd_seeded_v32', 'ipd_seeded_v33', 'ipd_seeded_v34', 'ipd_seeded_v35', 'ipd_seeded_v36', 'ipd_seeded_v37', 'ipd_seeded_v38', 'ipd_seeded_v39', 'ipd_seeded_v40',
-  'ipd_seeded_v41',
+  'ipd_seeded_v41', 'ipd_seeded_v42',
 ]
 
 // ─── SOP conversion helpers ───
@@ -1187,18 +1187,59 @@ export async function seedIfNeeded() {
       supabase.from('cycle_patient_items').delete().not('id', 'is', null),
       supabase.from('medication_cycles').delete().not('id', 'is', null),
       supabase.from('care_home_patients').delete().not('id', 'is', null),
+      supabase.from('care_home_flags').delete().not('id', 'is', null),
+      supabase.from('care_home_contacts').delete().not('id', 'is', null),
       supabase.from('care_homes').delete().not('id', 'is', null),
     ])
 
     const home1Id = generateId()
     const home2Id = generateId()
     const home3Id = generateId()
+    const home4Id = generateId()
+    const home5Id = generateId()
+    const home6Id = generateId()
 
     await supabase.from('care_homes').insert([
-      { id: home1Id, name: 'Greenfield Manor', address: '12 Oak Lane, Ashton-under-Lyne, OL6 8PT', phone: '0161 330 1234', email: 'care@greenfieldmanor.co.uk', contact_person: 'Margaret Walsh', patient_count: 12, cycle_day: 1, delivery_method: 'Delivery', status: 'Active', notes: 'Main care home — monthly blister packs for 12 residents' },
-      { id: home2Id, name: 'Rosewood Lodge', address: '45 Rosewood Drive, Stalybridge, SK15 2QR', phone: '0161 338 5678', email: 'admin@rosewoodlodge.org', contact_person: 'David Chen', patient_count: 8, cycle_day: 15, delivery_method: 'Collection', status: 'Active', notes: 'Mid-month collection — MDS packs preferred' },
-      { id: home3Id, name: "St. Mary's House", address: '78 Church Street, Denton, M34 3AB', phone: '0161 336 9012', email: '', contact_person: 'Sister Agnes', patient_count: 6, cycle_day: 7, delivery_method: 'Delivery', status: 'Inactive', notes: 'Currently transitioning to another pharmacy — winding down' },
+      { id: home1Id, name: "St George's", address: '14 Stamford Street, Ashton-under-Lyne, OL6 6QN', phone: '0161 330 1234', email: 'info@stgeorges-care.co.uk', contact_person: 'Margaret Walsh', patient_count: 42, resident_count: 42, cycle_day: 1, delivery_method: 'Delivery', status: 'Active', pharmacy_id: 'FED07', cqc_registration: 'CQC-1-234567890', delivery_days: ['Monday', 'Thursday'], delivery_slot: 'morning', pharmacist_lead: 'Amjid Shakoor' },
+      { id: home2Id, name: 'The Lakes', address: '7 Lake Road, Stalybridge, SK15 1AB', phone: '0161 338 5678', email: 'admin@thelakes.org', contact_person: 'David Chen', patient_count: 31, resident_count: 31, cycle_day: 15, delivery_method: 'Collection', status: 'Active', pharmacy_id: 'FED07', cqc_registration: 'CQC-1-345678901', delivery_days: ['Tuesday', 'Friday'], delivery_slot: 'morning', pharmacist_lead: 'Amjid Shakoor' },
+      { id: home3Id, name: 'Downshaw Lodge', address: '22 Market Street, Hyde, SK14 2LX', phone: '0161 368 2345', email: 'j.whitfield@downshawlodge.co.uk', contact_person: 'James Whitfield', patient_count: 28, resident_count: 28, cycle_day: 7, delivery_method: 'Delivery', status: 'Active', pharmacy_id: 'FED07', cqc_registration: 'CQC-1-456789012', delivery_days: ['Wednesday'], delivery_slot: 'afternoon', pharmacist_lead: 'Amjid Shakoor' },
+      { id: home4Id, name: 'Firbank House', address: '55 King Street, Dukinfield, SK16 4NP', phone: '0161 343 4567', email: 'helen.brooks@firbankhouse.co.uk', contact_person: 'Helen Brooks', patient_count: 55, resident_count: 55, cycle_day: 1, delivery_method: 'Delivery', status: 'Active', pharmacy_id: 'FED07', cqc_registration: 'CQC-1-567890123', delivery_days: ['Monday', 'Wednesday', 'Friday'], delivery_slot: 'morning', pharmacist_lead: 'Amjid Shakoor' },
+      { id: home5Id, name: 'Clarkson House', address: '3 Chapel Street, Mossley, OL5 0HT', phone: '01457 833 111', email: 'l.hartley@clarksonhouse.org', contact_person: 'Linda Hartley', patient_count: 19, resident_count: 19, cycle_day: 10, delivery_method: 'Delivery', status: 'Active', pharmacy_id: 'FED07', cqc_registration: 'CQC-1-678901234', delivery_days: ['Tuesday', 'Thursday'], delivery_slot: 'afternoon', pharmacist_lead: 'Amjid Shakoor' },
+      { id: home6Id, name: 'Moss Cottage', address: '88 Manchester Road, Denton, M34 3LE', phone: '0161 336 7890', email: 'b.green@mosscottage.co.uk', contact_person: 'Barbara Green', patient_count: 24, resident_count: 24, cycle_day: 5, delivery_method: 'Delivery', status: 'Active', pharmacy_id: 'FED07', cqc_registration: 'CQC-1-789012345', delivery_days: ['Monday', 'Friday'], delivery_slot: 'morning', pharmacist_lead: 'Amjid Shakoor' },
     ])
+
+    // Contacts
+    try {
+      await supabase.from('care_home_contacts').insert([
+        { id: generateId(), care_home_id: home1Id, pharmacy_id: 'FED07', role: 'Care Manager', name: 'Margaret Walsh', phone: '0161 330 1234', email: 'margaret.walsh@stgeorges-care.co.uk', is_primary: true },
+        { id: generateId(), care_home_id: home1Id, pharmacy_id: 'FED07', role: 'Deputy Manager', name: 'Susan Barker', phone: '0161 330 1235', email: 'susan.barker@stgeorges-care.co.uk', is_primary: false },
+        { id: generateId(), care_home_id: home1Id, pharmacy_id: 'FED07', role: 'Lead Nurse', name: 'Patricia Cole', phone: '0161 330 1236', email: 'patricia.cole@stgeorges-care.co.uk', is_primary: false },
+        { id: generateId(), care_home_id: home2Id, pharmacy_id: 'FED07', role: 'Care Manager', name: 'David Chen', phone: '0161 338 5678', email: 'david.chen@thelakes.org', is_primary: true },
+        { id: generateId(), care_home_id: home2Id, pharmacy_id: 'FED07', role: 'Lead Nurse', name: 'Karen Fisher', phone: '0161 338 5679', email: 'karen.fisher@thelakes.org', is_primary: false },
+        { id: generateId(), care_home_id: home3Id, pharmacy_id: 'FED07', role: 'Care Manager', name: 'James Whitfield', phone: '0161 368 2345', email: 'j.whitfield@downshawlodge.co.uk', is_primary: true },
+        { id: generateId(), care_home_id: home3Id, pharmacy_id: 'FED07', role: 'Deputy Manager', name: 'Angela Moss', phone: '0161 368 2346', email: 'a.moss@downshawlodge.co.uk', is_primary: false },
+        { id: generateId(), care_home_id: home3Id, pharmacy_id: 'FED07', role: 'Lead Nurse', name: 'Ranjit Kaur', phone: '0161 368 2347', email: 'r.kaur@downshawlodge.co.uk', is_primary: false },
+        { id: generateId(), care_home_id: home4Id, pharmacy_id: 'FED07', role: 'Care Manager', name: 'Helen Brooks', phone: '0161 343 4567', email: 'helen.brooks@firbankhouse.co.uk', is_primary: true },
+        { id: generateId(), care_home_id: home4Id, pharmacy_id: 'FED07', role: 'Deputy Manager', name: 'Thomas Reid', phone: '0161 343 4568', email: 'thomas.reid@firbankhouse.co.uk', is_primary: false },
+        { id: generateId(), care_home_id: home5Id, pharmacy_id: 'FED07', role: 'Care Manager', name: 'Linda Hartley', phone: '01457 833 111', email: 'l.hartley@clarksonhouse.org', is_primary: true },
+        { id: generateId(), care_home_id: home5Id, pharmacy_id: 'FED07', role: 'Lead Nurse', name: 'Mohammed Hussain', phone: '01457 833 112', email: 'm.hussain@clarksonhouse.org', is_primary: false },
+        { id: generateId(), care_home_id: home6Id, pharmacy_id: 'FED07', role: 'Care Manager', name: 'Barbara Green', phone: '0161 336 7890', email: 'b.green@mosscottage.co.uk', is_primary: true },
+        { id: generateId(), care_home_id: home6Id, pharmacy_id: 'FED07', role: 'Deputy Manager', name: 'Yusuf Ali', phone: '0161 336 7891', email: 'y.ali@mosscottage.co.uk', is_primary: false },
+        { id: generateId(), care_home_id: home6Id, pharmacy_id: 'FED07', role: 'Lead Nurse', name: 'Claire Dawson', phone: '0161 336 7892', email: 'c.dawson@mosscottage.co.uk', is_primary: false },
+      ])
+    } catch (e) { console.warn('[seed] care_home_contacts table not ready — skipping contacts') }
+
+    // Flags
+    try {
+      await supabase.from('care_home_flags').insert([
+        { id: generateId(), care_home_id: home1Id, pharmacy_id: 'FED07', flag_type: 'delivery', flag_label: 'Delivery completed today', severity: 'info' },
+        { id: generateId(), care_home_id: home2Id, pharmacy_id: 'FED07', flag_type: 'prescription_review', flag_label: 'Prescription review overdue — 3 days', severity: 'warning' },
+        { id: generateId(), care_home_id: home3Id, pharmacy_id: 'FED07', flag_type: 'cd_check', flag_label: 'CD balance check due today', severity: 'warning' },
+        { id: generateId(), care_home_id: home4Id, pharmacy_id: 'FED07', flag_type: 'audit', flag_label: 'Last audit completed 3 days ago', severity: 'info' },
+        { id: generateId(), care_home_id: home5Id, pharmacy_id: 'FED07', flag_type: 'incident', flag_label: '1 incident flagged this week', severity: 'alert' },
+        { id: generateId(), care_home_id: home6Id, pharmacy_id: 'FED07', flag_type: 'delivery', flag_label: 'New key contact added: Yusuf Ali (Deputy)', severity: 'info' },
+      ])
+    } catch (e) { console.warn('[seed] care_home_flags table not ready — skipping flags') }
 
     // Patients
     const p1 = generateId(), p2 = generateId(), p3 = generateId(), p4 = generateId()
@@ -1209,12 +1250,12 @@ export async function seedIfNeeded() {
       { id: p1, care_home_id: home1Id, patient_name: 'Dorothy Williams', room_number: '101', medication_count: 8, pack_type: 'Blister', allergies: 'Penicillin', is_active: true },
       { id: p2, care_home_id: home1Id, patient_name: 'Harold Jenkins', room_number: '103', medication_count: 12, pack_type: 'Blister', allergies: '', is_active: true },
       { id: p3, care_home_id: home1Id, patient_name: 'Edith Brown', room_number: '105', medication_count: 6, pack_type: 'MDS', allergies: 'Sulfonamides', is_active: true },
-      { id: p4, care_home_id: home1Id, patient_name: 'Arthur Clarke', room_number: '108', medication_count: 10, pack_type: 'Blister', is_active: true },
+      { id: p4, care_home_id: home4Id, patient_name: 'Arthur Clarke', room_number: '108', medication_count: 10, pack_type: 'Blister', is_active: true },
       { id: p5, care_home_id: home2Id, patient_name: 'Florence Taylor', room_number: 'A2', medication_count: 7, pack_type: 'MDS', is_active: true },
       { id: p6, care_home_id: home2Id, patient_name: 'George Patel', room_number: 'A5', medication_count: 9, pack_type: 'MDS', allergies: 'Codeine', is_active: true },
-      { id: p7, care_home_id: home2Id, patient_name: 'Ivy Robinson', room_number: 'B1', medication_count: 5, pack_type: 'Dosette', is_active: true },
-      { id: p8, care_home_id: home3Id, patient_name: 'Reginald Thompson', room_number: '12', medication_count: 11, pack_type: 'Blister', is_active: true },
-      { id: p9, care_home_id: home3Id, patient_name: 'Mabel Lewis', room_number: '15', medication_count: 4, pack_type: 'Dosette', is_active: false },
+      { id: p7, care_home_id: home3Id, patient_name: 'Ivy Robinson', room_number: 'B1', medication_count: 5, pack_type: 'Dosette', is_active: true },
+      { id: p8, care_home_id: home5Id, patient_name: 'Reginald Thompson', room_number: '12', medication_count: 11, pack_type: 'Blister', is_active: true },
+      { id: p9, care_home_id: home6Id, patient_name: 'Mabel Lewis', room_number: '15', medication_count: 4, pack_type: 'Dosette', is_active: true },
       { id: p10, care_home_id: home1Id, patient_name: 'Stanley Morris', room_number: '110', medication_count: 7, pack_type: 'Blister', is_active: true },
     ])
 
@@ -1250,7 +1291,7 @@ export async function seedIfNeeded() {
       { id: generateId(), care_home_id: home1Id, note_date: '2026-03-03', note_type: 'Medication Change', priority: 'High', content: 'Dorothy Williams — GP has added Amoxicillin 500mg TDS for 7 days starting 3rd March. Emergency supply delivered same day.', created_by: 'Umama Khan', acknowledged_by: 'Margaret Walsh', acknowledged_at: '2026-03-03T15:00:00Z' },
       { id: generateId(), care_home_id: home2Id, note_date: '2026-03-08', note_type: 'Clinical', priority: 'Normal', content: 'George Patel — review of codeine alternatives requested by care home. GP appointment booked for 15th March.', created_by: 'Salma Shakoor' },
       { id: generateId(), care_home_id: home1Id, note_date: '2026-03-10', note_type: 'Urgent', priority: 'Urgent', content: 'Harold Jenkins found to have missed 2 days of Warfarin. MAR chart investigation needed. Care home staff informed.', created_by: 'Amjid Shakoor' },
-      { id: generateId(), care_home_id: home2Id, note_date: '2026-03-05', note_type: 'General', priority: 'Normal', content: 'Reminder: Rosewood Lodge cycle due 15th March. Pre-order GP scripts by 10th.', created_by: 'Moniba Jamil', acknowledged_by: 'David Chen', acknowledged_at: '2026-03-06T09:00:00Z' },
+      { id: generateId(), care_home_id: home2Id, note_date: '2026-03-05', note_type: 'General', priority: 'Normal', content: 'Reminder: The Lakes cycle due 15th March. Pre-order GP scripts by 10th.', created_by: 'Moniba Jamil', acknowledged_by: 'David Chen', acknowledged_at: '2026-03-06T09:00:00Z' },
     ])
 
     // MAR Issues
@@ -1258,10 +1299,10 @@ export async function seedIfNeeded() {
       { id: generateId(), care_home_id: home1Id, patient_id: p2, issue_date: '2026-03-10', issue_type: 'Missing Signature', description: 'Warfarin doses on 8th and 9th March not signed on MAR chart. Harold Jenkins — 2 doses potentially missed.', severity: 'High', status: 'Open', reported_by: 'Amjid Shakoor' },
       { id: generateId(), care_home_id: home1Id, patient_id: p3, issue_date: '2026-02-20', issue_type: 'Wrong Dose', description: 'Edith Brown — morning Amlodipine recorded as 10mg on MAR but prescription is 5mg. Dispensed correctly — MAR transcription error.', severity: 'Medium', status: 'Investigating', reported_by: 'Salma Shakoor' },
       { id: generateId(), care_home_id: home2Id, patient_id: p6, issue_date: '2026-02-15', issue_type: 'Omission', description: 'George Patel — PRN Codeine omitted from February cycle. Patient reported pain not managed. Emergency supply arranged.', severity: 'Medium', status: 'Resolved', reported_by: 'Umama Khan', resolved_by: 'Amjid Shakoor', resolved_at: '2026-02-16T10:00:00Z', resolution_note: 'Emergency supply delivered same day. Added to March cycle. Care home reminded to report PRN usage promptly.' },
-      { id: generateId(), care_home_id: home1Id, issue_date: '2026-03-05', issue_type: 'Other', description: 'MAR chart for Room 108 (Arthur Clarke) returned with coffee stain obscuring 3 days of signatures. Replacement chart issued.', severity: 'Low', status: 'Resolved', reported_by: 'Moniba Jamil', resolved_by: 'Salma Shakoor', resolved_at: '2026-03-06T11:00:00Z', resolution_note: 'New MAR chart issued. Care home advised on proper storage. Previous entries verified by phone with care staff.' },
+      { id: generateId(), care_home_id: home4Id, issue_date: '2026-03-05', issue_type: 'Other', description: 'MAR chart for Room 108 (Arthur Clarke) returned with coffee stain obscuring 3 days of signatures. Replacement chart issued.', severity: 'Low', status: 'Resolved', reported_by: 'Moniba Jamil', resolved_by: 'Salma Shakoor', resolved_at: '2026-03-06T11:00:00Z', resolution_note: 'New MAR chart issued. Care home advised on proper storage. Previous entries verified by phone with care staff.' },
     ])
 
-    console.log('[seed] Seeded 3 care homes, 10 patients, 3 cycles, 4 deliveries, 5 handover notes, 4 MAR issues')
+    console.log('[seed] Seeded 6 care homes, 15 contacts, 6 flags, 10 patients, 3 cycles, 4 deliveries, 5 handover notes, 4 MAR issues')
   } else {
     console.warn('[seed] Care home tables not yet created — skipping. Run create-care-homes-tables.sql first.')
   }

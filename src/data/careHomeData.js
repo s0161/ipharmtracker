@@ -71,3 +71,130 @@ export const HOME_STATUS_STYLES = {
   Active: { bg: 'bg-emerald-100', text: 'text-emerald-700', dot: 'bg-emerald-500' },
   Inactive: { bg: 'bg-slate-100', text: 'text-slate-500', dot: 'bg-slate-400' },
 }
+
+export const FLAG_SEVERITY_STYLES = {
+  info: { bg: 'bg-blue-500/10', text: 'text-blue-600', border: 'border-blue-500/20' },
+  warning: { bg: 'bg-amber-500/10', text: 'text-amber-600', border: 'border-amber-500/20' },
+  alert: { bg: 'bg-red-500/10', text: 'text-red-600', border: 'border-red-500/20' },
+}
+
+// ─── 6 Care Homes — Dummy seed data (used as fallback if DB is empty) ───
+export const CARE_HOMES_SEED = [
+  {
+    name: "St George's",
+    address: '14 Stamford Street, Ashton-under-Lyne, OL6 6QN',
+    cqcRegistration: 'CQC-1-234567890',
+    residentCount: 42,
+    deliveryDays: ['Monday', 'Thursday'],
+    deliverySlot: 'morning',
+    pharmacistLead: 'Amjid Shakoor',
+    status: 'active',
+    tagline: '2 pharmacist contacts, last delivery: today',
+  },
+  {
+    name: 'The Lakes',
+    address: '7 Lake Road, Stalybridge, SK15 1AB',
+    cqcRegistration: 'CQC-1-345678901',
+    residentCount: 31,
+    deliveryDays: ['Tuesday', 'Friday'],
+    deliverySlot: 'morning',
+    pharmacistLead: 'Amjid Shakoor',
+    status: 'active',
+    tagline: 'Pending prescription review overdue',
+  },
+  {
+    name: 'Downshaw Lodge',
+    address: '22 Market Street, Hyde, SK14 2LX',
+    cqcRegistration: 'CQC-1-456789012',
+    residentCount: 28,
+    deliveryDays: ['Wednesday'],
+    deliverySlot: 'afternoon',
+    pharmacistLead: 'Amjid Shakoor',
+    status: 'active',
+    tagline: 'CD balance check due today',
+  },
+  {
+    name: 'Firbank House',
+    address: '55 King Street, Dukinfield, SK16 4NP',
+    cqcRegistration: 'CQC-1-567890123',
+    residentCount: 55,
+    deliveryDays: ['Monday', 'Wednesday', 'Friday'],
+    deliverySlot: 'morning',
+    pharmacistLead: 'Amjid Shakoor',
+    status: 'active',
+    tagline: 'All clear, last audit 3 days ago',
+  },
+  {
+    name: 'Clarkson House',
+    address: '3 Chapel Street, Mossley, OL5 0HT',
+    cqcRegistration: 'CQC-1-678901234',
+    residentCount: 19,
+    deliveryDays: ['Tuesday', 'Thursday'],
+    deliverySlot: 'afternoon',
+    pharmacistLead: 'Amjid Shakoor',
+    status: 'active',
+    tagline: '1 incident flagged this week',
+  },
+  {
+    name: 'Moss Cottage',
+    address: '88 Manchester Road, Denton, M34 3LE',
+    cqcRegistration: 'CQC-1-789012345',
+    residentCount: 24,
+    deliveryDays: ['Monday', 'Friday'],
+    deliverySlot: 'morning',
+    pharmacistLead: 'Amjid Shakoor',
+    status: 'active',
+    tagline: 'New key contact added recently',
+  },
+]
+
+export const CARE_HOME_CONTACTS_SEED = {
+  "St George's": [
+    { role: 'Care Manager', name: 'Margaret Walsh', phone: '0161 330 1234', email: 'margaret.walsh@stgeorges-care.co.uk', isPrimary: true },
+    { role: 'Deputy Manager', name: 'Susan Barker', phone: '0161 330 1235', email: 'susan.barker@stgeorges-care.co.uk', isPrimary: false },
+    { role: 'Lead Nurse', name: 'Patricia Cole', phone: '0161 330 1236', email: 'patricia.cole@stgeorges-care.co.uk', isPrimary: false },
+  ],
+  'The Lakes': [
+    { role: 'Care Manager', name: 'David Chen', phone: '0161 338 5678', email: 'david.chen@thelakes.org', isPrimary: true },
+    { role: 'Lead Nurse', name: 'Karen Fisher', phone: '0161 338 5679', email: 'karen.fisher@thelakes.org', isPrimary: false },
+  ],
+  'Downshaw Lodge': [
+    { role: 'Care Manager', name: 'James Whitfield', phone: '0161 368 2345', email: 'j.whitfield@downshawlodge.co.uk', isPrimary: true },
+    { role: 'Deputy Manager', name: 'Angela Moss', phone: '0161 368 2346', email: 'a.moss@downshawlodge.co.uk', isPrimary: false },
+    { role: 'Lead Nurse', name: 'Ranjit Kaur', phone: '0161 368 2347', email: 'r.kaur@downshawlodge.co.uk', isPrimary: false },
+  ],
+  'Firbank House': [
+    { role: 'Care Manager', name: 'Helen Brooks', phone: '0161 343 4567', email: 'helen.brooks@firbankhouse.co.uk', isPrimary: true },
+    { role: 'Deputy Manager', name: 'Thomas Reid', phone: '0161 343 4568', email: 'thomas.reid@firbankhouse.co.uk', isPrimary: false },
+  ],
+  'Clarkson House': [
+    { role: 'Care Manager', name: 'Linda Hartley', phone: '01457 833 111', email: 'l.hartley@clarksonhouse.org', isPrimary: true },
+    { role: 'Lead Nurse', name: 'Mohammed Hussain', phone: '01457 833 112', email: 'm.hussain@clarksonhouse.org', isPrimary: false },
+  ],
+  'Moss Cottage': [
+    { role: 'Care Manager', name: 'Barbara Green', phone: '0161 336 7890', email: 'b.green@mosscottage.co.uk', isPrimary: true },
+    { role: 'Deputy Manager', name: 'Yusuf Ali', phone: '0161 336 7891', email: 'y.ali@mosscottage.co.uk', isPrimary: false },
+    { role: 'Lead Nurse', name: 'Claire Dawson', phone: '0161 336 7892', email: 'c.dawson@mosscottage.co.uk', isPrimary: false },
+  ],
+}
+
+export const CARE_HOME_FLAGS_SEED = {
+  "St George's": [
+    { flagType: 'delivery', flagLabel: 'Delivery completed today', severity: 'info' },
+  ],
+  'The Lakes': [
+    { flagType: 'prescription_review', flagLabel: 'Prescription review overdue — 3 days', severity: 'warning' },
+  ],
+  'Downshaw Lodge': [
+    { flagType: 'cd_check', flagLabel: 'CD balance check due today', severity: 'warning' },
+  ],
+  'Firbank House': [
+    { flagType: 'audit', flagLabel: 'Last audit completed 3 days ago', severity: 'info' },
+  ],
+  'Clarkson House': [
+    { flagType: 'incident', flagLabel: '1 incident flagged this week', severity: 'alert' },
+  ],
+  'Moss Cottage': [
+    { flagType: 'delivery', flagLabel: 'New key contact added: Yusuf Ali (Deputy)', severity: 'info' },
+  ],
+}
