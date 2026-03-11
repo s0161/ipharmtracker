@@ -14,6 +14,7 @@ function emptyCounts() {
     '/appraisals': { red: 0, amber: 0 },
     '/mhra-recalls': { red: 0, amber: 0 },
     '/alerts': { red: 0, amber: 0 },
+    '/care-homes': { red: 0, amber: 0 },
   }
 }
 
@@ -163,6 +164,31 @@ async function fetchCounts() {
     }
   } catch (e) {
     // Alerts table may not exist yet — graceful degradation
+  }
+
+  // Care Homes: open MAR issues (Critical/High = red, Medium = amber), overdue cycles = red
+  try {
+    const [marRes, cyclesRes] = await Promise.all([
+      supabase.from('care_home_mar_issues').select('severity, status'),
+      supabase.from('medication_cycles').select('status, cycle_month'),
+    ])
+    if (marRes.data) {
+      marRes.data.forEach(i => {
+        if (i.status === 'Resolved') return
+        if (i.severity === 'Critical' || i.severity === 'High') counts['/care-homes'].red++
+        else if (i.severity === 'Medium') counts['/care-homes'].amber++
+      })
+    }
+    if (cyclesRes.data) {
+      const currentMonth = new Date().toISOString().slice(0, 7)
+      cyclesRes.data.forEach(c => {
+        if (c.cycle_month < currentMonth && c.status !== 'Delivered') {
+          counts['/care-homes'].red++
+        }
+      })
+    }
+  } catch (e) {
+    // Care home tables may not exist yet — graceful degradation
   }
 
   return counts

@@ -275,6 +275,107 @@ function generateFridgeAlerts(tempLogs) {
   return alerts
 }
 
+// ── Care Home alerts ──
+function generateCareHomeAlerts(careHomes, cycles, deliveries, marIssues, notes) {
+  const alerts = []
+  const todayStr = today()
+  const currentMonth = todayStr.slice(0, 7)
+
+  for (const home of careHomes) {
+    if (home.status === 'Inactive') continue
+
+    // CYCLE_OVERDUE: cycle_day has passed, no cycle started for current month
+    if (home.cycle_day) {
+      const dayOfMonth = new Date().getDate()
+      if (dayOfMonth > home.cycle_day) {
+        const homeCycles = cycles.filter(c => c.care_home_id === home.id && c.cycle_month === currentMonth)
+        if (homeCycles.length === 0) {
+          alerts.push({
+            alert_type: 'CYCLE_OVERDUE',
+            severity: 'HIGH',
+            title: `Cycle overdue: ${home.name}`,
+            description: `Cycle day ${home.cycle_day} has passed for ${currentMonth} with no cycle started`,
+            source_table: 'care_homes',
+            source_id: home.id,
+          })
+        }
+      }
+    }
+
+    // CYCLE_STALLED: cycle in "In Progress" or "Checking" for >3 days
+    const activeCycles = cycles.filter(c =>
+      c.care_home_id === home.id && (c.status === 'In Progress' || c.status === 'Checking')
+    )
+    for (const cycle of activeCycles) {
+      const startDate = cycle.started_at || cycle.created_at
+      if (startDate && daysAgo(startDate.slice(0, 10)) > 3) {
+        alerts.push({
+          alert_type: 'CYCLE_STALLED',
+          severity: 'MEDIUM',
+          title: `Cycle stalled: ${home.name} (${cycle.cycle_month})`,
+          description: `Cycle has been in "${cycle.status}" for over 3 days`,
+          source_table: 'medication_cycles',
+          source_id: cycle.id,
+        })
+      }
+    }
+  }
+
+  // DELIVERY_MISSED: scheduled delivery date passed, not delivered
+  for (const d of deliveries) {
+    if (d.status === 'Delivered' || d.status === 'Failed') continue
+    if (d.delivery_date && d.delivery_date < todayStr) {
+      const home = careHomes.find(h => h.id === d.care_home_id)
+      alerts.push({
+        alert_type: 'DELIVERY_MISSED',
+        severity: 'HIGH',
+        title: `Delivery missed: ${home?.name || 'Unknown'}`,
+        description: `Scheduled delivery on ${d.delivery_date} not completed`,
+        source_table: 'care_home_deliveries',
+        source_id: d.id,
+        due_date: d.delivery_date,
+      })
+    }
+  }
+
+  // MAR_ISSUE_OPEN: open MAR issue older than 3 days
+  for (const issue of marIssues) {
+    if (issue.status === 'Resolved') continue
+    const age = daysAgo(issue.issue_date || issue.created_at?.slice(0, 10))
+    if (age > 3) {
+      const home = careHomes.find(h => h.id === issue.care_home_id)
+      alerts.push({
+        alert_type: 'MAR_ISSUE_OPEN',
+        severity: issue.severity === 'Critical' ? 'HIGH' : 'MEDIUM',
+        title: `MAR issue unresolved: ${home?.name || 'Unknown'}`,
+        description: `${issue.issue_type} issue open for ${age} days — severity: ${issue.severity}`,
+        source_table: 'care_home_mar_issues',
+        source_id: issue.id,
+      })
+    }
+  }
+
+  // HANDOVER_UNACKED: urgent note not acknowledged after 24h
+  for (const note of notes) {
+    if (note.acknowledged_by) continue
+    if (note.priority !== 'Urgent') continue
+    const age = daysAgo(note.note_date || note.created_at?.slice(0, 10))
+    if (age >= 1) {
+      const home = careHomes.find(h => h.id === note.care_home_id)
+      alerts.push({
+        alert_type: 'HANDOVER_UNACKED',
+        severity: 'HIGH',
+        title: `Urgent handover unacknowledged: ${home?.name || 'Unknown'}`,
+        description: `Urgent note from ${note.created_by || 'Unknown'} not acknowledged after ${age} day(s)`,
+        source_table: 'care_home_handover_notes',
+        source_id: note.id,
+      })
+    }
+  }
+
+  return alerts
+}
+
 // ═══════════════════════════════════════════════════
 // Main: Generate all alerts from source tables
 // ═══════════════════════════════════════════════════
@@ -287,6 +388,7 @@ export async function generateAlerts() {
       sopsRes, sopAcksRes, modulesRes, completionsRes,
       staffRes, appraisalsRes, goalsRes, docsRes,
       mhraAcksRes, mhraFlagsRes, tempRes, existingRes,
+      chHomesRes, chCyclesRes, chDeliveriesRes, chMARRes, chNotesRes,
     ] = await Promise.all([
       supabase.from('sops').select('*'),
       supabase.from('sop_acknowledgements').select('*'),
@@ -300,6 +402,11 @@ export async function generateAlerts() {
       supabase.from('mhra_alert_flags').select('*'),
       supabase.from('fridge_temperature_logs').select('*').catch(() => ({ data: [] })),
       supabase.from('alerts').select('*').in('status', ['ACTIVE', 'SNOOZED']),
+      supabase.from('care_homes').select('*').catch(() => ({ data: [] })),
+      supabase.from('medication_cycles').select('*').catch(() => ({ data: [] })),
+      supabase.from('care_home_deliveries').select('*').catch(() => ({ data: [] })),
+      supabase.from('care_home_mar_issues').select('*').catch(() => ({ data: [] })),
+      supabase.from('care_home_handover_notes').select('*').catch(() => ({ data: [] })),
     ])
 
     const sops = sopsRes.data || []
@@ -314,6 +421,11 @@ export async function generateAlerts() {
     const mhraFlags = mhraFlagsRes.data || []
     const tempLogs = tempRes?.data || []
     const existing = existingRes.data || []
+    const chHomes = chHomesRes?.data || []
+    const chCycles = chCyclesRes?.data || []
+    const chDeliveries = chDeliveriesRes?.data || []
+    const chMAR = chMARRes?.data || []
+    const chNotes = chNotesRes?.data || []
 
     // Build lookup of existing alerts by type+source_id
     const existingMap = new Map()
@@ -329,6 +441,7 @@ export async function generateAlerts() {
       ...generateExpiryAlerts(docs),
       ...generateMHRAAlerts(mhraAcks, mhraFlags),
       ...generateFridgeAlerts(tempLogs),
+      ...generateCareHomeAlerts(chHomes, chCycles, chDeliveries, chMAR, chNotes),
     ]
 
     // Determine which candidates are new (don't already exist)

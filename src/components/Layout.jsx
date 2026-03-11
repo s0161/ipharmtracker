@@ -26,6 +26,7 @@ const titles = {
   '/analytics': 'Analytics',
   '/sop-library': 'SOP Library',
   '/alerts': 'Alert Centre',
+  '/care-homes': 'Care Homes',
 }
 
 const SHORTCUTS = {
@@ -73,6 +74,7 @@ const morePages = [
   { to: '/compliance-report', label: 'Compliance Report', icon: 'printer' },
   { to: '/sop-library', label: 'SOP Library', icon: 'book' },
   { to: '/audit-log', label: 'Audit Log', icon: 'list' },
+  { to: '/care-homes', label: 'Care Homes', icon: 'shield' },
   { to: '/settings', label: 'Settings', icon: 'settings' },
 ]
 
