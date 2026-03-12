@@ -42,6 +42,15 @@
   [data-theme="dark"] .ec-card-purple { background: linear-gradient(145deg, #111916 0%, #13111f 100%); }
   [data-theme="dark"] .ec-card-blue { background: linear-gradient(145deg, #111916 0%, #0f1520 100%); }
   [data-theme="dark"] .ec-card-red { background: linear-gradient(145deg, #111916 0%, #1a1010 100%); }
+
+  /* Gradient page heading — uses CSS vars set by Layout per route */
+  .page-heading {
+    background: linear-gradient(135deg, var(--heading-start, #0a2540) 0%, var(--heading-accent, #10b981) 60%, var(--heading-accent-dark, #059669) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+  }
 }
 
 /* ═══════════════════════════════════════════════

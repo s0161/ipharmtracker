@@ -189,7 +189,7 @@ export default function SOPLibrary() {
       <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-ec-t1 m-0">SOP Library</h1>
+            <h1 className="text-2xl font-bold m-0 page-heading">SOP Library</h1>
           </div>
           <p className="text-sm text-ec-t3 mt-1 mb-0">Standard Operating Procedures — view, acknowledge &amp; track compliance</p>
         </div>

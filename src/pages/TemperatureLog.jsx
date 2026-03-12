@@ -543,7 +543,7 @@ export default function TemperatureLog() {
       <div style={{ marginBottom: 20 }}>
         <div style={{ fontSize: 12, color: 'var(--ec-t3)', marginBottom: 6 }}>Dashboard / Temperature Log</div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 4 }}>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--ec-t1)', margin: 0 }}>Temperature Log</h1>
+          <h1 className="page-heading" style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>Temperature Log</h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <button onClick={handleCsvExport} style={{
               ...sans, display: 'inline-flex', alignItems: 'center', gap: 5,

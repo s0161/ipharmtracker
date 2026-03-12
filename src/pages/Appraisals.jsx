@@ -114,7 +114,7 @@ export default function Appraisals() {
     <div className="max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold text-ec-t1 m-0">Staff Appraisals</h1>
+          <h1 className="text-xl font-bold m-0 page-heading">Staff Appraisals</h1>
           <p className="text-sm text-ec-t3 m-0 mt-1">GPhC compliance — annual performance reviews</p>
         </div>
         {isElevated && (

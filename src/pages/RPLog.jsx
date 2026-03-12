@@ -247,7 +247,7 @@ export default function RPLog() {
       <div className="mb-6">
         <div className="text-xs text-ec-t3 mb-2">Dashboard / RP Log</div>
         <div className="flex items-center justify-between flex-wrap gap-2 mb-1">
-          <h1 className="text-xl font-bold text-ec-t1 m-0">RP Log</h1>
+          <h1 className="text-xl font-bold m-0 page-heading">RP Log</h1>
           <span style={mono} className="text-[13px] text-ec-t3">{todayFormatted}</span>
         </div>
         <p className="text-xs text-ec-t3 m-0 mb-3">

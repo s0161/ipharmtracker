@@ -381,7 +381,7 @@ export default function Settings() {
     <div style={{ fontFamily: DM }}>
       {/* ─── PAGE HEADER ─── */}
       <div style={{ marginBottom: 16 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--ec-t1)', margin: 0, lineHeight: 1.2 }}>Settings</h1>
+        <h1 className="page-heading" style={{ fontSize: 22, fontWeight: 700, margin: 0, lineHeight: 1.2 }}>Settings</h1>
         <p style={{ fontSize: 12, color: 'var(--ec-t3)', margin: '4px 0 0' }}>Configure your pharmacy, staff, and compliance preferences.</p>
       </div>
 

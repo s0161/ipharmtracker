@@ -6,6 +6,34 @@ import Onboarding from './Onboarding'
 import IncidentQuickAdd from './IncidentQuickAdd'
 import CriticalBanner from './alerts/CriticalBanner'
 import { useAlertsData } from '../hooks/useAlertsData'
+import { useTheme } from '../hooks/useTheme'
+
+// Per-page heading gradient accents: [accent, accentDark]
+const headingAccents = {
+  '/rp-log':            ['#10b981', '#059669'],
+  '/temperature':       ['#0073e6', '#0284c7'],
+  '/training':          ['#635bff', '#818cf8'],
+  '/staff-training':    ['#635bff', '#818cf8'],
+  '/my-tasks':          ['#10b981', '#059669'],
+  '/incidents':         ['#ef4444', '#f97316'],
+  '/near-misses':       ['#ef4444', '#f97316'],
+  '/cleaning':          ['#0d9488', '#10b981'],
+  '/documents':         ['#f59e0b', '#d97706'],
+  '/alerts':            ['#ef4444', '#dc2626'],
+  '/cd-register':       ['#635bff', '#4f46e5'],
+  '/care-homes':        ['#0073e6', '#0284c7'],
+  '/staff-directory':   ['#0d9488', '#10b981'],
+  '/safeguarding':      ['#ef4444', '#dc2626'],
+  '/analytics':         ['#0073e6', '#0284c7'],
+  '/compliance-report': ['#10b981', '#059669'],
+  '/settings':          ['#64748b', '#475569'],
+  '/audit-log':         ['#64748b', '#475569'],
+  '/sop-library':       ['#635bff', '#4f46e5'],
+  '/induction':         ['#635bff', '#818cf8'],
+  '/appraisals':        ['#f59e0b', '#d97706'],
+  '/mhra-recalls':      ['#ef4444', '#dc2626'],
+}
+const defaultAccent = ['#10b981', '#059669']
 
 const titles = {
   '/': 'Dashboard',
@@ -120,6 +148,12 @@ export default function Layout({ children }) {
   const title = titles[location.pathname] || 'iPharmacy Direct'
   const isDashboard = location.pathname === '/'
   const { stats: alertStats } = useAlertsData()
+  const { theme } = useTheme()
+
+  // Heading gradient per page
+  const [accent, accentDark] = headingAccents[location.pathname] || defaultAccent
+  const headingStart = theme === 'dark' ? '#e8f5f0' : '#0a2540'
+  const headingGradient = `linear-gradient(135deg, ${headingStart} 0%, ${accent} 60%, ${accentDark} 100%)`
 
   // Close More menu on route change
   useEffect(() => { setMoreOpen(false) }, [location.pathname])
@@ -179,12 +213,19 @@ export default function Layout({ children }) {
           </header>
         )}
 
-        <div className={isDashboard ? '' : 'px-4 lg:px-9 py-6 pb-20 lg:pb-6'}>
+        <div
+          className={isDashboard ? '' : 'px-4 lg:px-9 py-6 pb-20 lg:pb-6'}
+          style={!isDashboard ? {
+            '--heading-start': headingStart,
+            '--heading-accent': accent,
+            '--heading-accent-dark': accentDark,
+          } : undefined}
+        >
           {!isDashboard && (
             <div
               className="rounded-xl mb-6 px-6 py-5 bg-page-header border border-[rgba(16,185,129,0.15)]"
             >
-              <h1 className="text-lg font-bold text-ec-t1 leading-tight">{title}</h1>
+              <h1 className="text-lg font-bold leading-tight page-heading">{title}</h1>
               <p className="text-xs text-ec-t3 mt-0.5">Manage and track your {title.toLowerCase()}</p>
             </div>
           )}
