@@ -282,11 +282,14 @@ export default function DocumentTracker() {
   return (
     <div style={{ fontFamily: DM }}>
       {/* ─── PAGE HEADER ─── */}
-      <div style={{ marginBottom: 20 }}>
+      <div className="page-header-panel" style={{ marginBottom: 20, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '20px 24px', boxShadow: '0 1px 3px rgba(10,37,64,0.06)' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
           <div>
-            <h1 className="page-heading" style={{ fontSize: 22, fontWeight: 700, margin: 0, lineHeight: 1.2 }}>Renewals</h1>
-            <p style={{ fontSize: 12, color: 'var(--ec-t3)', margin: '4px 0 0' }}>Track documents, registrations and renewals. Status updates automatically.</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+              <div style={{ width: 4, height: 32, borderRadius: 4, background: 'linear-gradient(180deg, #f59e0b 0%, #d97706 100%)', flexShrink: 0 }} />
+              <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0, color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Renewals</h1>
+            </div>
+            <p style={{ fontSize: 12, color: 'var(--ec-t3)', margin: '0', marginLeft: 14 }}>Track documents, registrations and renewals. Status updates automatically.</p>
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <button onClick={handleCsvDownload} style={{

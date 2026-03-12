@@ -241,9 +241,12 @@ export default function CareHomes() {
   return (
     <div className="max-w-6xl mx-auto">
       {/* Page header */}
-      <div className="mb-6">
-        <h1 className="text-xl font-bold page-heading">Care Homes</h1>
-        <p className="text-sm text-ec-t3 mt-1">FED07 iPharmacy Direct — {homes.length} registered care homes</p>
+      <div className="page-header-panel mb-6" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '20px 24px', boxShadow: '0 1px 3px rgba(10,37,64,0.06)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+          <div style={{ width: 4, height: 32, borderRadius: 4, background: 'linear-gradient(180deg, #0073e6 0%, #0284c7 100%)', flexShrink: 0 }} />
+          <h1 className="text-xl font-bold m-0" style={{ color: 'var(--text)', letterSpacing: '-0.02em' }}>Care Homes</h1>
+        </div>
+        <p className="text-sm text-ec-t3 mt-0" style={{ marginLeft: 14 }}>FED07 iPharmacy Direct — {homes.length} registered care homes</p>
       </div>
 
       {/* ─── Care Home Selector ─── */}

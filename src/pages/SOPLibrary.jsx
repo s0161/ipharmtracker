@@ -186,12 +186,13 @@ export default function SOPLibrary() {
   return (
     <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-6 ec-fadeup">
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
+      <div className="page-header-panel flex flex-wrap items-start justify-between gap-3 mb-5" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '20px 24px', boxShadow: '0 1px 3px rgba(10,37,64,0.06)' }}>
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold m-0 page-heading">SOP Library</h1>
+            <div style={{ width: 4, height: 32, borderRadius: 4, background: 'linear-gradient(180deg, #f59e0b 0%, #d97706 100%)', flexShrink: 0 }} />
+            <h1 className="text-2xl font-bold m-0" style={{ color: 'var(--text)', letterSpacing: '-0.02em' }}>SOP Library</h1>
           </div>
-          <p className="text-sm text-ec-t3 mt-1 mb-0">Standard Operating Procedures — view, acknowledge &amp; track compliance</p>
+          <p className="text-sm text-ec-t3 mt-1 mb-0" style={{ marginLeft: 14 }}>Standard Operating Procedures — view, acknowledge &amp; track compliance</p>
         </div>
       </div>
 

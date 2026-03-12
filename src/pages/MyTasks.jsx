@@ -106,9 +106,12 @@ export default function MyTasks() {
       <div className="px-4 sm:px-6 py-5 max-w-[960px] mx-auto">
 
         {/* Header strip */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+        <div className="page-header-panel flex flex-col sm:flex-row sm:items-center gap-3 mb-4" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '20px 24px', boxShadow: '0 1px 3px rgba(10,37,64,0.06)' }}>
           <div className="flex-1">
-            <h1 className="text-xl sm:text-2xl font-bold m-0 page-heading">{getGreeting()}, {firstName}</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 4, height: 32, borderRadius: 4, background: 'linear-gradient(180deg, #10b981 0%, #059669 100%)', flexShrink: 0 }} />
+              <h1 className="text-xl sm:text-2xl font-bold m-0" style={{ color: 'var(--text)', letterSpacing: '-0.02em' }}>{getGreeting()}, {firstName}</h1>
+            </div>
             <p className="text-[13px] text-ec-t3 m-0 mt-0.5">{dateStr}</p>
           </div>
 

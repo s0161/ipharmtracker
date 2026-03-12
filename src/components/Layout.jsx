@@ -6,9 +6,7 @@ import Onboarding from './Onboarding'
 import IncidentQuickAdd from './IncidentQuickAdd'
 import CriticalBanner from './alerts/CriticalBanner'
 import { useAlertsData } from '../hooks/useAlertsData'
-import { useTheme } from '../hooks/useTheme'
-
-// Per-page heading gradient accents: [accent, accentDark]
+// Per-page heading accent bar colors: [accent, accentDark]: [accent, accentDark]
 const headingAccents = {
   '/rp-log':            ['#10b981', '#059669'],
   '/temperature':       ['#0073e6', '#0284c7'],
@@ -148,12 +146,9 @@ export default function Layout({ children }) {
   const title = titles[location.pathname] || 'iPharmacy Direct'
   const isDashboard = location.pathname === '/'
   const { stats: alertStats } = useAlertsData()
-  const { theme } = useTheme()
 
-  // Heading gradient per page
+  // Heading accent per page
   const [accent, accentDark] = headingAccents[location.pathname] || defaultAccent
-  const headingStart = theme === 'dark' ? '#e8f5f0' : '#0a2540'
-  const headingGradient = `linear-gradient(135deg, ${headingStart} 0%, ${accent} 60%, ${accentDark} 100%)`
 
   // Close More menu on route change
   useEffect(() => { setMoreOpen(false) }, [location.pathname])
@@ -213,20 +208,24 @@ export default function Layout({ children }) {
           </header>
         )}
 
-        <div
-          className={isDashboard ? '' : 'px-4 lg:px-9 py-6 pb-20 lg:pb-6'}
-          style={!isDashboard ? {
-            '--heading-start': headingStart,
-            '--heading-accent': accent,
-            '--heading-accent-dark': accentDark,
-          } : undefined}
-        >
+        <div className={isDashboard ? '' : 'px-4 lg:px-9 py-6 pb-20 lg:pb-6'}>
           {!isDashboard && (
             <div
-              className="rounded-xl mb-6 px-6 py-5 bg-page-header border border-[rgba(16,185,129,0.15)]"
+              className="page-header-panel rounded-xl mb-6 px-6 py-5"
+              style={{
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                boxShadow: '0 1px 3px rgba(10,37,64,0.06)',
+              }}
             >
-              <h1 className="text-lg font-bold leading-tight page-heading">{title}</h1>
-              <p className="text-xs text-ec-t3 mt-0.5">Manage and track your {title.toLowerCase()}</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{
+                  width: 4, height: 32, borderRadius: 4, flexShrink: 0,
+                  background: `linear-gradient(180deg, ${accent} 0%, ${accentDark} 100%)`,
+                }} />
+                <h1 className="text-lg font-bold leading-tight" style={{ margin: 0, color: 'var(--text)', letterSpacing: '-0.02em' }}>{title}</h1>
+              </div>
+              <p className="text-xs text-ec-t3 mt-1.5" style={{ marginLeft: 14 }}>Manage and track your {title.toLowerCase()}</p>
             </div>
           )}
           {children}
