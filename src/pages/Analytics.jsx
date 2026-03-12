@@ -45,10 +45,10 @@ const INNER_W = CHART_W - PAD.left - PAD.right
 const INNER_H = CHART_H - PAD.top - PAD.bottom
 
 const CATEGORIES = [
-  { key: 'documents', label: 'Documents', color: '#10b981' },
-  { key: 'training', label: 'Training', color: '#6366f1' },
-  { key: 'cleaning', label: 'Cleaning', color: '#f59e0b' },
-  { key: 'safeguarding', label: 'Safeguarding', color: '#14b8a6' },
+  { key: 'documents', label: 'Documents', color: 'var(--ec-em)' },
+  { key: 'training', label: 'Training', color: 'var(--ec-info)' },
+  { key: 'cleaning', label: 'Cleaning', color: 'var(--ec-warn)' },
+  { key: 'safeguarding', label: 'Safeguarding', color: 'var(--ec-cat-teal)' },
 ]
 
 function TrendChart({ history, days }) {

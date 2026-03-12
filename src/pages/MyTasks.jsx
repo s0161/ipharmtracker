@@ -116,9 +116,9 @@ export default function MyTasks() {
           <div className="flex items-center gap-2">
             <ProgressRing pct={todayStats.completionRate} size={48} sw={4} />
             {[
-              { label: 'Remaining', val: stats.total - stats.completed, bg: '#eff6ff', color: '#2563eb', border: '#bfdbfe' },
-              { label: 'Overdue', val: stats.overdue, bg: stats.overdue > 0 ? '#fef2f2' : '#f8fafc', color: stats.overdue > 0 ? '#dc2626' : '#94a3b8', border: stats.overdue > 0 ? '#fecaca' : '#e2e8f0' },
-              { label: 'Due Today', val: todayStats.total - todayStats.completed, bg: todayStats.total > todayStats.completed ? '#fffbeb' : '#f8fafc', color: todayStats.total > todayStats.completed ? '#d97706' : '#94a3b8', border: todayStats.total > todayStats.completed ? '#fde68a' : '#e2e8f0' },
+              { label: 'Remaining', val: stats.total - stats.completed, bg: 'var(--ec-info-bg)', color: 'var(--ec-info)', border: 'var(--ec-info-border)' },
+              { label: 'Overdue', val: stats.overdue, bg: stats.overdue > 0 ? 'var(--ec-crit-bg)' : 'var(--ec-card-hover)', color: stats.overdue > 0 ? 'var(--ec-crit)' : 'var(--ec-t3)', border: stats.overdue > 0 ? 'var(--ec-crit-border)' : 'var(--ec-t5)' },
+              { label: 'Due Today', val: todayStats.total - todayStats.completed, bg: todayStats.total > todayStats.completed ? 'var(--ec-warn-bg)' : 'var(--ec-card-hover)', color: todayStats.total > todayStats.completed ? 'var(--ec-warn)' : 'var(--ec-t3)', border: todayStats.total > todayStats.completed ? 'var(--ec-warn-border)' : 'var(--ec-t5)' },
             ].map(k => (
               <div key={k.label} className="flex flex-col items-center px-3 py-1.5 rounded-lg" style={{ background: k.bg, border: `1px solid ${k.border}` }}>
                 <span className="text-lg font-extrabold leading-none" style={{ color: k.color, fontFamily: "'DM Mono', monospace" }}>{k.val}</span>
@@ -144,9 +144,9 @@ export default function MyTasks() {
 
         {/* Person filter indicator */}
         {personFilter && (
-          <div className="flex items-center gap-2 mb-3 px-3 py-1.5 rounded-lg" style={{ background: '#f0fdf4', border: '1px solid #d1fae5' }}>
-            <span className="text-[12px] font-semibold" style={{ color: '#059669' }}>Filtered: {personFilter}</span>
-            <button onClick={() => setPersonFilter(null)} className="text-[11px] font-semibold bg-transparent border-none cursor-pointer" style={{ color: '#059669', fontFamily: "'Inter', sans-serif" }}>Clear</button>
+          <div className="flex items-center gap-2 mb-3 px-3 py-1.5 rounded-lg" style={{ background: 'var(--ec-em-bg)', border: '1px solid var(--ec-em-border)' }}>
+            <span className="text-[12px] font-semibold" style={{ color: 'var(--ec-em)' }}>Filtered: {personFilter}</span>
+            <button onClick={() => setPersonFilter(null)} className="text-[11px] font-semibold bg-transparent border-none cursor-pointer" style={{ color: 'var(--ec-em)', fontFamily: "'Inter', sans-serif" }}>Clear</button>
           </div>
         )}
 
@@ -209,15 +209,15 @@ export default function MyTasks() {
 function EmptyState({ filter, isElevated, onShowAll, onAssign }) {
   return (
     <div className="bg-ec-card rounded-xl border border-ec-div py-10 px-5 text-center" style={{ boxShadow: '0 1px 4px rgba(5,150,105,0.06)' }}>
-      <div className="w-14 h-14 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: '#f0fdf4' }}>
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><path d="M22 4L12 14.01l-3-3" /></svg>
+      <div className="w-14 h-14 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: 'var(--ec-em-bg)' }}>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--ec-em)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><path d="M22 4L12 14.01l-3-3" /></svg>
       </div>
       {filter !== 'all' ? (
         <>
           <div className="text-base font-semibold text-ec-t1 mb-1">No matches</div>
           <div className="text-[13px] text-ec-t3">
             No tasks match this filter.{' '}
-            <button onClick={onShowAll} className="font-semibold bg-transparent border-none cursor-pointer text-[13px]" style={{ color: '#059669', fontFamily: "'Inter', sans-serif" }}>Show all</button>
+            <button onClick={onShowAll} className="font-semibold bg-transparent border-none cursor-pointer text-[13px]" style={{ color: 'var(--ec-em)', fontFamily: "'Inter', sans-serif" }}>Show all</button>
           </div>
         </>
       ) : isElevated ? (
@@ -227,7 +227,7 @@ function EmptyState({ filter, isElevated, onShowAll, onAssign }) {
           <button
             onClick={onAssign}
             className="px-5 py-2 rounded-full text-[13px] font-semibold border-none cursor-pointer inline-flex items-center gap-1.5"
-            style={{ fontFamily: "'Inter', sans-serif", background: '#059669', color: 'white', boxShadow: '0 4px 14px rgba(5,150,105,0.4)' }}
+            style={{ fontFamily: "'Inter', sans-serif", background: 'var(--ec-em)', color: 'white', boxShadow: '0 4px 14px rgba(16,185,129,0.4)' }}
           >
             <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="white" strokeWidth="2" strokeLinecap="round" /></svg>
             Assign First Task

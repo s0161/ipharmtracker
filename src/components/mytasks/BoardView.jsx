@@ -2,9 +2,9 @@ import { useState, useMemo } from 'react'
 import TaskRow from './TaskRow'
 
 const COLUMNS = [
-  { key: 'pending',     label: 'Pending',     accent: '#3b82f6', bg: '#eff6ff', border: '#bfdbfe' },
-  { key: 'in_progress', label: 'In Progress', accent: '#f59e0b', bg: '#fffbeb', border: '#fde68a' },
-  { key: 'done',        label: 'Done',        accent: '#10b981', bg: '#f0fdf4', border: '#bbf7d0' },
+  { key: 'pending',     label: 'Pending',     accent: 'var(--ec-info)', bg: 'var(--ec-info-bg)', border: 'var(--ec-info-border)' },
+  { key: 'in_progress', label: 'In Progress', accent: 'var(--ec-warn)', bg: 'var(--ec-warn-bg)', border: 'var(--ec-warn-border)' },
+  { key: 'done',        label: 'Done',        accent: 'var(--ec-em)', bg: 'var(--ec-em-bg)', border: 'var(--ec-em-border)' },
 ]
 
 export default function BoardView({ tasks, today, onStatusChange, onComplete, savingId, canModify }) {

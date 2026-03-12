@@ -33,15 +33,15 @@ const CATEGORY_GROUPS = [
 
 // ─── RAG status helper ───
 function getDocStatus(expiryDate) {
-  if (!expiryDate) return { key: 'expired', label: 'No date', bg: '#fef2f2', border: '#fecaca', color: '#dc2626', barColor: '#dc2626' }
+  if (!expiryDate) return { key: 'expired', label: 'No date', bg: 'var(--ec-crit-bg)', border: 'var(--ec-crit-border)', color: 'var(--ec-crit)', barColor: 'var(--ec-crit)' }
   const now = new Date(); now.setHours(0, 0, 0, 0)
   const exp = new Date(expiryDate); exp.setHours(0, 0, 0, 0)
   const days = Math.ceil((exp - now) / 864e5)
-  if (days < 0) return { key: 'expired', label: `${Math.abs(days)}d overdue`, bg: '#fef2f2', border: '#fecaca', color: '#dc2626', barColor: '#dc2626', days }
-  if (days <= 14) return { key: 'critical', label: `${days}d left`, bg: '#fef2f2', border: '#fecaca', color: '#dc2626', barColor: '#dc2626', days }
-  if (days <= 30) return { key: 'due-soon', label: `${days}d left`, bg: '#fffbeb', border: '#fde68a', color: '#d97706', barColor: '#d97706', days }
-  if (days <= 90) return { key: 'upcoming', label: `in ${days}d`, bg: '#eff6ff', border: '#bfdbfe', color: '#2563eb', barColor: '#2563eb', days }
-  return { key: 'valid', label: `${days}d left`, bg: '#f0fdf4', border: '#d1fae5', color: '#059669', barColor: '#059669', days }
+  if (days < 0) return { key: 'expired', label: `${Math.abs(days)}d overdue`, bg: 'var(--ec-crit-bg)', border: 'var(--ec-crit-border)', color: 'var(--ec-crit)', barColor: 'var(--ec-crit)', days }
+  if (days <= 14) return { key: 'critical', label: `${days}d left`, bg: 'var(--ec-crit-bg)', border: 'var(--ec-crit-border)', color: 'var(--ec-crit)', barColor: 'var(--ec-crit)', days }
+  if (days <= 30) return { key: 'due-soon', label: `${days}d left`, bg: 'var(--ec-warn-bg)', border: 'var(--ec-warn-border)', color: 'var(--ec-warn)', barColor: 'var(--ec-warn)', days }
+  if (days <= 90) return { key: 'upcoming', label: `in ${days}d`, bg: 'var(--ec-info-bg)', border: 'var(--ec-info-border)', color: 'var(--ec-info)', barColor: 'var(--ec-info)', days }
+  return { key: 'valid', label: `${days}d left`, bg: 'var(--ec-em-bg)', border: 'var(--ec-em-border)', color: 'var(--ec-em)', barColor: 'var(--ec-em)', days }
 }
 
 function getLifetimePercent(issueDate, expiryDate) {
@@ -194,8 +194,8 @@ export default function DocumentTracker() {
   const Pill = ({ active, label, onClick }) => (
     <button onClick={onClick} style={{
       padding: '4px 14px', borderRadius: 20, fontSize: 11, fontWeight: 600, fontFamily: DM,
-      border: active ? '1.5px solid #059669' : '1px solid var(--border-card)',
-      background: active ? '#059669' : 'transparent',
+      border: active ? '1.5px solid var(--ec-em)' : '1px solid var(--border-card)',
+      background: active ? 'var(--ec-em)' : 'transparent',
       color: active ? '#fff' : 'var(--text-secondary)',
       cursor: 'pointer', transition: 'all 0.15s',
     }}>{label}</button>
@@ -274,7 +274,7 @@ export default function DocumentTracker() {
     background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)',
     outline: 'none',
   }
-  const errorInputStyle = { ...inputStyle, borderColor: '#dc2626' }
+  const errorInputStyle = { ...inputStyle, borderColor: 'var(--ec-crit)' }
   const labelStyle = { fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 4, display: 'block' }
 
   if (loading) return <div style={{ padding: 24 }}><div style={{ ...CARD, height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontFamily: DM, fontSize: 13 }}>Loading renewals…</div></div>
@@ -299,7 +299,7 @@ export default function DocumentTracker() {
             </button>
             <button onClick={openAdd} style={{
               padding: '6px 16px', borderRadius: 8, fontSize: 12, fontWeight: 600, fontFamily: DM,
-              background: '#059669', color: '#fff', border: 'none', cursor: 'pointer',
+              background: 'var(--ec-em)', color: '#fff', border: 'none', cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: 5,
             }}>＋ Add Document</button>
           </div>
@@ -309,10 +309,10 @@ export default function DocumentTracker() {
       {/* ─── STATS BAR ─── */}
       <div style={{ ...CARD, padding: '8px 16px', display: 'flex', gap: 0, marginBottom: 14 }}>
         {[
-          { label: 'Total', value: stats.total, accent: '#3b82f6' },
-          { label: 'Expired', value: stats.expired, color: stats.expired > 0 ? '#ef4444' : undefined, accent: '#ef4444' },
-          { label: 'Expiring this month', value: stats.expiringMonth, color: stats.expiringMonth > 0 ? '#d97706' : undefined, accent: '#d97706' },
-          { label: 'Valid', value: stats.valid, color: stats.valid > 0 ? '#059669' : undefined, accent: '#059669' },
+          { label: 'Total', value: stats.total, accent: 'var(--ec-info)' },
+          { label: 'Expired', value: stats.expired, color: stats.expired > 0 ? 'var(--ec-crit)' : undefined, accent: 'var(--ec-crit)' },
+          { label: 'Expiring this month', value: stats.expiringMonth, color: stats.expiringMonth > 0 ? 'var(--ec-warn)' : undefined, accent: 'var(--ec-warn)' },
+          { label: 'Valid', value: stats.valid, color: stats.valid > 0 ? 'var(--ec-em)' : undefined, accent: 'var(--ec-em)' },
         ].map((s, i) => (
           <div key={i} style={{ flex: 1, textAlign: 'center', padding: '2px 12px', borderLeft: `3px solid ${s.accent}` }}>
             <div style={{ fontFamily: MONO, fontSize: 16, fontWeight: 800, color: s.color || 'var(--text-primary)' }}>{s.value}</div>
@@ -328,13 +328,13 @@ export default function DocumentTracker() {
           <div style={{
             ...CARD,
             marginBottom: 14,
-            background: hasCritical ? '#fef2f2' : '#fffbeb',
-            border: `1px solid ${hasCritical ? '#fecaca' : '#fde68a'}`,
+            background: hasCritical ? 'var(--ec-crit-bg)' : 'var(--ec-warn-bg)',
+            border: `1px solid ${hasCritical ? 'var(--ec-crit-border)' : 'var(--ec-warn-border)'}`,
             display: 'flex', alignItems: 'flex-start', gap: 10,
           }}>
             <span style={{ fontSize: 16, flexShrink: 0, marginTop: 2 }}>🔴</span>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: hasCritical ? '#dc2626' : '#d97706', marginBottom: 6 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: hasCritical ? 'var(--ec-crit)' : 'var(--ec-warn)', marginBottom: 6 }}>
                 {docReminders.length} document{docReminders.length !== 1 ? 's' : ''} require attention
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
@@ -342,8 +342,8 @@ export default function DocumentTracker() {
                   <span key={r.id} style={{
                     fontSize: 10, fontWeight: 600, fontFamily: MONO,
                     padding: '2px 8px', borderRadius: 10,
-                    background: r.type === 'critical' ? 'rgba(220,38,38,0.1)' : 'rgba(217,119,6,0.1)',
-                    color: r.type === 'critical' ? '#dc2626' : '#d97706',
+                    background: r.type === 'critical' ? 'var(--ec-crit-bg)' : 'var(--ec-warn-bg)',
+                    color: r.type === 'critical' ? 'var(--ec-crit)' : 'var(--ec-warn)',
                   }}>
                     {r.docName} ({r.daysLeft <= 0 ? 'expired' : `${r.daysLeft}d`})
                   </span>
@@ -355,7 +355,7 @@ export default function DocumentTracker() {
             </div>
             <button onClick={() => setBannerDismissed(true)} style={{
               background: 'none', border: 'none', cursor: 'pointer', fontSize: 16,
-              color: hasCritical ? '#dc2626' : '#d97706', padding: 0, lineHeight: 1, flexShrink: 0,
+              color: hasCritical ? 'var(--ec-crit)' : 'var(--ec-warn)', padding: 0, lineHeight: 1, flexShrink: 0,
             }}>×</button>
           </div>
         )
@@ -424,7 +424,7 @@ export default function DocumentTracker() {
                         <span style={{
                           fontSize: 9, fontWeight: 700, fontFamily: MONO,
                           padding: '2px 8px', borderRadius: 10, flexShrink: 0,
-                          background: status.bg, color: status.color, border: `1px solid ${status.border}`,
+                          background: status.bg, color: status.color, border: `1px solid ${status.border || 'transparent'}`,
                         }}>{status.label}</span>
                       </div>
 
@@ -472,7 +472,7 @@ export default function DocumentTracker() {
                         }}>Edit</button>
                         <button onClick={() => handleDelete(doc.id)} style={{
                           fontSize: 11, fontWeight: 500, fontFamily: DM, padding: '3px 10px', borderRadius: 6,
-                          background: 'transparent', border: '1px solid #fecaca', color: '#dc2626',
+                          background: 'transparent', border: '1px solid var(--ec-crit-border)', color: 'var(--ec-crit)',
                           cursor: 'pointer', transition: 'all 0.15s',
                         }}>Delete</button>
                       </div>
@@ -561,14 +561,14 @@ export default function DocumentTracker() {
               return (
                 <div key={day.day} style={{
                   position: 'relative', textAlign: 'center', padding: '6px 2px', borderRadius: 6,
-                  background: day.isToday ? '#f0fdf4' : 'transparent',
-                  border: day.isToday ? '1px solid #d1fae5' : '1px solid transparent',
+                  background: day.isToday ? 'var(--ec-em-bg)' : 'transparent',
+                  border: day.isToday ? '1px solid var(--ec-em-border)' : '1px solid transparent',
                   cursor: hasDocs ? 'pointer' : 'default',
                   minHeight: 36,
                 }}
                 title={hasDocs ? day.docs.map(d => d.documentName).join(', ') : ''}
                 >
-                  <div style={{ fontSize: 11, fontWeight: day.isToday ? 700 : 400, color: day.isToday ? '#059669' : 'var(--text-primary)' }}>{day.day}</div>
+                  <div style={{ fontSize: 11, fontWeight: day.isToday ? 700 : 400, color: day.isToday ? 'var(--ec-em)' : 'var(--text-primary)' }}>{day.day}</div>
                   {hasDocs && (
                     <div style={{ display: 'flex', justifyContent: 'center', gap: 2, marginTop: 2 }}>
                       {day.docs.slice(0, 3).map((doc, j) => {
@@ -585,10 +585,10 @@ export default function DocumentTracker() {
           {/* Legend */}
           <div style={{ display: 'flex', gap: 12, marginTop: 12, justifyContent: 'center' }}>
             {[
-              { color: '#dc2626', label: 'Expired/Critical' },
-              { color: '#d97706', label: 'Due Soon' },
-              { color: '#2563eb', label: 'Upcoming' },
-              { color: '#059669', label: 'Valid' },
+              { color: 'var(--ec-crit)', label: 'Expired/Critical' },
+              { color: 'var(--ec-warn)', label: 'Due Soon' },
+              { color: 'var(--ec-info)', label: 'Upcoming' },
+              { color: 'var(--ec-em)', label: 'Valid' },
             ].map(l => (
               <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <div style={{ width: 6, height: 6, borderRadius: '50%', background: l.color }} />
@@ -615,7 +615,7 @@ export default function DocumentTracker() {
               value={form.documentName}
               onChange={(e) => { update('documentName')(e); setErrors(prev => ({ ...prev, documentName: undefined })) }}
             />
-            {errors.documentName && <p style={{ fontSize: 11, color: '#dc2626', margin: '4px 0 0' }}>{errors.documentName}</p>}
+            {errors.documentName && <p style={{ fontSize: 11, color: 'var(--ec-crit)', margin: '4px 0 0' }}>{errors.documentName}</p>}
           </div>
 
           <div style={{ marginBottom: 14 }}>
@@ -628,7 +628,7 @@ export default function DocumentTracker() {
               <option value="">Select category...</option>
               {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
-            {errors.category && <p style={{ fontSize: 11, color: '#dc2626', margin: '4px 0 0' }}>{errors.category}</p>}
+            {errors.category && <p style={{ fontSize: 11, color: 'var(--ec-crit)', margin: '4px 0 0' }}>{errors.category}</p>}
           </div>
 
           <div style={{ marginBottom: 14 }}>
@@ -662,7 +662,7 @@ export default function DocumentTracker() {
                 value={form.expiryDate}
                 onChange={(e) => { update('expiryDate')(e); setErrors(prev => ({ ...prev, expiryDate: undefined })) }}
               />
-              {errors.expiryDate && <p style={{ fontSize: 11, color: '#dc2626', margin: '4px 0 0' }}>{errors.expiryDate}</p>}
+              {errors.expiryDate && <p style={{ fontSize: 11, color: 'var(--ec-crit)', margin: '4px 0 0' }}>{errors.expiryDate}</p>}
             </div>
           </div>
 
@@ -685,7 +685,7 @@ export default function DocumentTracker() {
             }}>Cancel</button>
             <button type="submit" style={{
               padding: '6px 16px', borderRadius: 8, fontSize: 12, fontWeight: 600, fontFamily: DM,
-              background: '#059669', color: '#fff', border: 'none', cursor: 'pointer',
+              background: 'var(--ec-em)', color: '#fff', border: 'none', cursor: 'pointer',
             }}>{editingId ? 'Save Changes' : 'Add Document'}</button>
           </div>
         </form>

@@ -1,7 +1,7 @@
 export default function CategoryTag({ label }) {
   const cfg = {
     "Cleaning":   { bg: "var(--ec-info-bg)", color: "var(--ec-info)", border: "var(--ec-info-border)" },
-    "RP Check":   { bg: "rgba(147,51,234,0.08)", color: "#a855f7", border: "rgba(147,51,234,0.2)" },
+    "RP Check":   { bg: "var(--ec-cat-purple-bg)", color: "var(--ec-cat-purple)", border: "var(--ec-cat-purple-border)" },
     "CD Check":   { bg: "var(--ec-warn-bg)", color: "var(--ec-warn)", border: "var(--ec-warn-border)" },
     "Compliance": { bg: "var(--ec-em-bg)", color: "var(--ec-em)", border: "var(--ec-em-border)" },
     "H&S":        { bg: "var(--ec-warn-bg)", color: "var(--ec-warn)", border: "var(--ec-warn-border)" },

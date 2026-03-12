@@ -28,7 +28,7 @@ const mono = { fontFamily: "'DM Mono', monospace" }
 
 const FREQ_MAP = { daily: 1, weekly: 7, fortnightly: 14, monthly: 30 }
 const FREQ_LABELS = { daily: 'Daily', weekly: 'Weekly', fortnightly: 'Fortnightly', monthly: 'Monthly' }
-const FREQ_COLORS = { daily: { bg: '#dbeafe', text: '#1e40af' }, weekly: { bg: '#dcfce7', text: '#166534' }, fortnightly: { bg: '#ede9fe', text: '#5b21b6' }, monthly: { bg: '#ffedd5', text: '#9a3412' } }
+const FREQ_COLORS = { daily: { bg: 'var(--ec-info-bg)', text: 'var(--ec-info)' }, weekly: { bg: 'var(--ec-em-bg)', text: 'var(--ec-em-dark)' }, fortnightly: { bg: 'var(--ec-cat-purple-bg)', text: 'var(--ec-cat-purple)' }, monthly: { bg: 'var(--ec-cat-orange-bg)', text: 'var(--ec-cat-orange)' } }
 
 // ═══════════════════════════════════════════════════════════
 //  HELPERS
@@ -119,21 +119,21 @@ function lastPassDate(taskName, entries) {
 // ── Stat Pill ──
 function StatPill({ icon, count, label, variant }) {
   const colors = {
-    green: { border: '#c6e8da', count: '#10b981' },
-    amber: { border: '#fde68a', count: '#d97706' },
-    red:   { border: '#fecaca', count: '#dc2626' },
-    blue:  { border: '#bfdbfe', count: '#2563eb' },
+    green: { border: 'var(--ec-em-border)', count: 'var(--ec-em)' },
+    amber: { border: 'var(--ec-warn-border)', count: 'var(--ec-warn)' },
+    red:   { border: 'var(--ec-crit-border)', count: 'var(--ec-crit)' },
+    blue:  { border: 'var(--ec-info-border)', count: 'var(--ec-info)' },
   }
   const c = colors[variant] || colors.blue
   return (
     <div style={{
-      background: '#ffffff', border: `1px solid ${c.border}`, borderRadius: 20,
+      background: 'var(--ec-card)', border: `1px solid ${c.border}`, borderRadius: 20,
       padding: '6px 14px', ...sans, fontSize: 13, fontWeight: 500,
       display: 'inline-flex', alignItems: 'center', gap: 6,
     }}>
       <span>{icon}</span>
       <span style={{ ...mono, fontWeight: 700, color: c.count }}>{count}</span>
-      <span style={{ color: '#6b7280' }}>{label}</span>
+      <span style={{ color: 'var(--ec-t2)' }}>{label}</span>
     </div>
   )
 }
@@ -150,8 +150,8 @@ function AvatarBubble({ name, active, onClick }) {
         width: 36, height: 36, borderRadius: '50%', fontSize: 12, fontWeight: 600,
         cursor: 'pointer', transition: 'all 0.15s', display: 'flex', alignItems: 'center',
         justifyContent: 'center', background: bg, color: '#fff', flexShrink: 0,
-        border: active ? '2px solid #10b981' : '2px solid transparent',
-        boxShadow: active ? '0 0 0 3px rgba(16,185,129,0.2)' : 'none',
+        border: active ? '2px solid var(--ec-em)' : '2px solid transparent',
+        boxShadow: active ? '0 0 0 3px var(--ec-em-faint)' : 'none',
         transform: active ? 'scale(1.1)' : 'scale(1)',
       }}
     >{initials}</button>
@@ -160,7 +160,7 @@ function AvatarBubble({ name, active, onClick }) {
 
 // ── Frequency Badge ──
 function FreqBadge({ freq }) {
-  const c = FREQ_COLORS[freq] || { bg: '#f3f4f6', text: '#6b7280' }
+  const c = FREQ_COLORS[freq] || { bg: 'var(--ec-card-hover)', text: 'var(--ec-t2)' }
   return (
     <span style={{
       ...sans, borderRadius: 20, fontSize: 10, fontWeight: 700, padding: '3px 8px',
@@ -178,7 +178,7 @@ function AreaBadge({ area }) {
   return (
     <span style={{
       ...sans, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 20,
-      background: '#f3f4f6', color: '#6b7280',
+      background: 'var(--ec-card-hover)', color: 'var(--ec-t2)',
     }}>
       {cfg.label}
     </span>
@@ -190,7 +190,7 @@ function GPhCBadge({ small }) {
   return (
     <span style={{
       ...sans, fontSize: small ? 9 : 10, fontWeight: 700, padding: small ? '1px 5px' : '3px 8px',
-      borderRadius: small ? 4 : 20, background: '#dbeafe', color: '#1e40af',
+      borderRadius: small ? 4 : 20, background: 'var(--ec-info-bg)', color: 'var(--ec-info)',
       display: 'inline-flex', alignItems: 'center', gap: 3,
     }}>
       <span style={{ fontSize: small ? 10 : 12 }}>🛡️</span>GPhC
@@ -214,7 +214,7 @@ function ViewSwitcher({ view, onViewChange, selectedDate, onDateChange }) {
 
   return (
     <div style={{
-      display: 'flex', alignItems: 'center', borderBottom: '1px solid #e8f5f0',
+      display: 'flex', alignItems: 'center', borderBottom: '1px solid var(--ec-div)',
       marginBottom: 16, gap: 0, flexWrap: 'wrap',
     }}>
       {tabs.map(t => (
@@ -223,10 +223,10 @@ function ViewSwitcher({ view, onViewChange, selectedDate, onDateChange }) {
           onClick={() => onViewChange(t.key)}
           style={{
             ...sans, fontSize: 13, fontWeight: view === t.key ? 600 : 400,
-            color: view === t.key ? '#10b981' : '#6b7280',
+            color: view === t.key ? 'var(--ec-em)' : 'var(--ec-t2)',
             background: 'none', border: 'none', cursor: 'pointer',
             padding: '10px 16px', whiteSpace: 'nowrap',
-            borderBottom: view === t.key ? '2px solid #10b981' : '2px solid transparent',
+            borderBottom: view === t.key ? '2px solid var(--ec-em)' : '2px solid transparent',
             transition: 'all 150ms', display: 'flex', alignItems: 'center', gap: 5,
           }}
         >
@@ -234,13 +234,13 @@ function ViewSwitcher({ view, onViewChange, selectedDate, onDateChange }) {
         </button>
       ))}
       <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, padding: '6px 0' }}>
-        <button onClick={() => shiftDate(-1)} style={{ ...sans, fontSize: 18, background: 'none', border: 'none', cursor: 'pointer', color: '#10b981', padding: '2px 6px' }}>&lsaquo;</button>
-        <span style={{ ...sans, fontSize: 14, fontWeight: 500, color: '#374151', whiteSpace: 'nowrap' }}>{formatDateNav(selectedDate)}</span>
-        <button onClick={() => shiftDate(1)} style={{ ...sans, fontSize: 18, background: 'none', border: 'none', cursor: 'pointer', color: '#10b981', padding: '2px 6px' }}>&rsaquo;</button>
+        <button onClick={() => shiftDate(-1)} style={{ ...sans, fontSize: 18, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ec-em)', padding: '2px 6px' }}>&lsaquo;</button>
+        <span style={{ ...sans, fontSize: 14, fontWeight: 500, color: 'var(--ec-t1)', whiteSpace: 'nowrap' }}>{formatDateNav(selectedDate)}</span>
+        <button onClick={() => shiftDate(1)} style={{ ...sans, fontSize: 18, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ec-em)', padding: '2px 6px' }}>&rsaquo;</button>
         {selectedDate !== getToday() && (
           <button
             onClick={() => onDateChange(getToday())}
-            style={{ ...sans, fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 6, background: '#f0faf6', color: '#10b981', border: '1px solid #c6e8da', cursor: 'pointer' }}
+            style={{ ...sans, fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 6, background: 'var(--ec-em-bg)', color: 'var(--ec-em)', border: '1px solid var(--ec-em-border)', cursor: 'pointer' }}
           >Today</button>
         )}
       </div>
@@ -286,12 +286,12 @@ function TaskCard({ task, status, assignee, lastDoneTime, entries, staffMembers,
     setMissedReason('')
   }
 
-  const cardBorder = isDone ? '#c6e8da' : isOverdue ? '#fecaca' : '#f59e0b'
-  const cardBg = flashDone ? '#d1fae5' : isDone ? '#f9fffe' : isOverdue ? '#fffafa' : '#ffffff'
+  const cardBorder = isDone ? 'var(--ec-em-border)' : isOverdue ? 'var(--ec-crit-border)' : 'var(--ec-warn)'
+  const cardBg = flashDone ? 'var(--ec-em-bg)' : isDone ? 'var(--ec-card-hover)' : isOverdue ? 'var(--ec-crit-bg)' : 'var(--ec-card)'
 
   return (
     <div style={{
-      background: cardBg, border: `1px solid ${isDone ? '#c6e8da' : isOverdue ? '#fecaca' : '#f0f0f0'}`,
+      background: cardBg, border: `1px solid ${isDone ? 'var(--ec-em-border)' : isOverdue ? 'var(--ec-crit-border)' : 'var(--ec-t5)'}`,
       borderLeft: `4px solid ${cardBorder}`, borderRadius: 12, padding: 16,
       display: 'flex', flexDirection: 'column', gap: 10,
       cursor: 'pointer', transition: 'all 0.2s ease', position: 'relative',
@@ -310,7 +310,7 @@ function TaskCard({ task, status, assignee, lastDoneTime, entries, staffMembers,
       {/* Task name */}
       <div
         onClick={onToggleExpand}
-        style={{ ...sans, fontSize: 15, fontWeight: 600, color: '#111827', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+        style={{ ...sans, fontSize: 15, fontWeight: 600, color: 'var(--ec-t1)', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
       >
         {task.name}
       </div>
@@ -319,9 +319,9 @@ function TaskCard({ task, status, assignee, lastDoneTime, entries, staffMembers,
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <Avatar name={assignee} size={22} />
-          <span style={{ ...sans, fontSize: 13, color: '#6b7280' }}>{assignee}</span>
+          <span style={{ ...sans, fontSize: 13, color: 'var(--ec-t2)' }}>{assignee}</span>
         </div>
-        <span style={{ ...mono, fontSize: 12, color: isDone ? '#059669' : isOverdue ? '#dc2626' : '#d97706' }}>
+        <span style={{ ...mono, fontSize: 12, color: isDone ? 'var(--ec-em)' : isOverdue ? 'var(--ec-crit)' : 'var(--ec-warn)' }}>
           {isDone && todayEntry ? formatTime(todayEntry.dateTime) : isDone ? 'Done' : isOverdue ? 'Overdue' : 'Due today'}
         </span>
       </div>
@@ -329,20 +329,20 @@ function TaskCard({ task, status, assignee, lastDoneTime, entries, staffMembers,
       {/* Expanded content */}
       {expanded && (
         <div style={{
-          borderTop: '1px solid #f3f4f6', paddingTop: 10, marginTop: 2,
+          borderTop: '1px solid var(--ec-card-hover)', paddingTop: 10, marginTop: 2,
           transition: 'max-height 300ms ease', overflow: 'hidden',
         }}>
-          <p style={{ ...sans, fontSize: 13, color: '#4b5563', lineHeight: 1.5, margin: '0 0 8px' }}>{task.description}</p>
+          <p style={{ ...sans, fontSize: 13, color: 'var(--ec-t2)', lineHeight: 1.5, margin: '0 0 8px' }}>{task.description}</p>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 8 }}>
-            {task.estimatedMinutes && <span style={{ ...sans, fontSize: 12, color: '#6b7280' }}>⏱ ~{task.estimatedMinutes} min</span>}
-            {task.gphcRelevant && <span style={{ ...sans, fontSize: 12, color: '#1e40af' }}>🛡️ GPhC relevant</span>}
-            {task.requiresSignOff && <span style={{ ...sans, fontSize: 12, color: '#d97706' }}>Requires sign-off</span>}
+            {task.estimatedMinutes && <span style={{ ...sans, fontSize: 12, color: 'var(--ec-t2)' }}>⏱ ~{task.estimatedMinutes} min</span>}
+            {task.gphcRelevant && <span style={{ ...sans, fontSize: 12, color: 'var(--ec-info)' }}>🛡️ GPhC relevant</span>}
+            {task.requiresSignOff && <span style={{ ...sans, fontSize: 12, color: 'var(--ec-warn)' }}>Requires sign-off</span>}
           </div>
           {recentEntries.length > 0 && (
             <div>
-              <div style={{ ...sans, fontSize: 10, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', marginBottom: 4 }}>Last completed</div>
+              <div style={{ ...sans, fontSize: 10, fontWeight: 700, color: 'var(--ec-t3)', textTransform: 'uppercase', marginBottom: 4 }}>Last completed</div>
               {recentEntries.map((e, i) => (
-                <div key={e.id || i} style={{ ...sans, fontSize: 12, color: '#4b5563', padding: '2px 0' }}>
+                <div key={e.id || i} style={{ ...sans, fontSize: 12, color: 'var(--ec-t2)', padding: '2px 0' }}>
                   {formatShortDate(e.dateTime)} — {getStaffInitials(e.staffMember)}
                 </div>
               ))}
@@ -357,53 +357,53 @@ function TaskCard({ task, status, assignee, lastDoneTime, entries, staffMembers,
           <button
             onClick={e => { e.stopPropagation(); setConfirming(true) }}
             style={{
-              width: '100%', background: '#10b981', color: '#fff', border: 'none', borderRadius: 8,
+              width: '100%', background: 'var(--ec-em)', color: '#fff', border: 'none', borderRadius: 8,
               padding: 10, ...sans, fontSize: 14, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s',
             }}
           >Mark Done</button>
           <button
             onClick={e => { e.stopPropagation(); setMissedMode(true) }}
-            style={{ ...sans, fontSize: 12, color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', padding: '6px 0', width: '100%', textAlign: 'center' }}
+            style={{ ...sans, fontSize: 12, color: 'var(--ec-crit)', background: 'none', border: 'none', cursor: 'pointer', padding: '6px 0', width: '100%', textAlign: 'center' }}
           >Log as Missed</button>
         </div>
       )}
 
       {/* Confirm Mark Done inline */}
       {confirming && (
-        <div style={{ background: '#f0fdf4', borderRadius: 8, padding: 10, border: '1px solid #d1fae5' }} onClick={e => e.stopPropagation()}>
+        <div style={{ background: 'var(--ec-em-bg)', borderRadius: 8, padding: 10, border: '1px solid var(--ec-em-bg)' }} onClick={e => e.stopPropagation()}>
           <div style={{ marginBottom: 8 }}>
-            <label style={{ ...sans, fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 2 }}>Staff</label>
+            <label style={{ ...sans, fontSize: 11, color: 'var(--ec-t2)', fontWeight: 600, display: 'block', marginBottom: 2 }}>Staff</label>
             <select value={staffSelect} onChange={e => setStaffSelect(e.target.value)}
-              style={{ ...sans, fontSize: 12, padding: '5px 8px', borderRadius: 6, border: '1px solid #d1fae5', width: '100%', background: '#fff' }}>
+              style={{ ...sans, fontSize: 12, padding: '5px 8px', borderRadius: 6, border: '1px solid var(--ec-em-bg)', width: '100%', background: '#fff' }}>
               <option value="">Select staff...</option>
               {staffMembers.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
             </select>
           </div>
           <div style={{ marginBottom: 8 }}>
-            <label style={{ ...sans, fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 2 }}>Note (optional)</label>
+            <label style={{ ...sans, fontSize: 11, color: 'var(--ec-t2)', fontWeight: 600, display: 'block', marginBottom: 2 }}>Note (optional)</label>
             <input type="text" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Add a note..."
-              style={{ ...sans, fontSize: 12, padding: '5px 8px', borderRadius: 6, border: '1px solid #d1fae5', width: '100%' }} />
+              style={{ ...sans, fontSize: 12, padding: '5px 8px', borderRadius: 6, border: '1px solid var(--ec-em-bg)', width: '100%' }} />
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
             <button onClick={handleConfirm} disabled={!staffSelect}
-              style={{ ...sans, fontSize: 12, fontWeight: 600, padding: '7px 16px', borderRadius: 6, background: staffSelect ? '#10b981' : '#d1d5db', color: '#fff', border: 'none', cursor: staffSelect ? 'pointer' : 'not-allowed', flex: 1 }}>✓ Confirm</button>
+              style={{ ...sans, fontSize: 12, fontWeight: 600, padding: '7px 16px', borderRadius: 6, background: staffSelect ? 'var(--ec-em)' : 'var(--ec-t4)', color: '#fff', border: 'none', cursor: staffSelect ? 'pointer' : 'not-allowed', flex: 1 }}>✓ Confirm</button>
             <button onClick={() => setConfirming(false)}
-              style={{ ...sans, fontSize: 12, padding: '7px 12px', borderRadius: 6, background: '#f3f4f6', color: '#6b7280', border: 'none', cursor: 'pointer' }}>Cancel</button>
+              style={{ ...sans, fontSize: 12, padding: '7px 12px', borderRadius: 6, background: 'var(--ec-card-hover)', color: 'var(--ec-t2)', border: 'none', cursor: 'pointer' }}>Cancel</button>
           </div>
         </div>
       )}
 
       {/* Log Missed inline */}
       {missedMode && (
-        <div style={{ background: '#fef2f2', borderRadius: 8, padding: 10, border: '1px solid #fecaca' }} onClick={e => e.stopPropagation()}>
-          <label style={{ ...sans, fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 2 }}>Reason</label>
+        <div style={{ background: 'var(--ec-crit-bg)', borderRadius: 8, padding: 10, border: '1px solid var(--ec-crit-border)' }} onClick={e => e.stopPropagation()}>
+          <label style={{ ...sans, fontSize: 11, color: 'var(--ec-t2)', fontWeight: 600, display: 'block', marginBottom: 2 }}>Reason</label>
           <input type="text" value={missedReason} onChange={e => setMissedReason(e.target.value)} placeholder="Why was this missed?"
-            style={{ ...sans, fontSize: 12, padding: '5px 8px', borderRadius: 6, border: '1px solid #fecaca', width: '100%', marginBottom: 8 }} />
+            style={{ ...sans, fontSize: 12, padding: '5px 8px', borderRadius: 6, border: '1px solid var(--ec-crit-border)', width: '100%', marginBottom: 8 }} />
           <div style={{ display: 'flex', gap: 6 }}>
             <button onClick={handleMissed}
-              style={{ ...sans, fontSize: 12, fontWeight: 600, padding: '7px 16px', borderRadius: 6, background: '#ef4444', color: '#fff', border: 'none', cursor: 'pointer', flex: 1 }}>Log Missed</button>
+              style={{ ...sans, fontSize: 12, fontWeight: 600, padding: '7px 16px', borderRadius: 6, background: 'var(--ec-crit)', color: '#fff', border: 'none', cursor: 'pointer', flex: 1 }}>Log Missed</button>
             <button onClick={() => setMissedMode(false)}
-              style={{ ...sans, fontSize: 12, padding: '7px 12px', borderRadius: 6, background: '#f3f4f6', color: '#6b7280', border: 'none', cursor: 'pointer' }}>Cancel</button>
+              style={{ ...sans, fontSize: 12, padding: '7px 12px', borderRadius: 6, background: 'var(--ec-card-hover)', color: 'var(--ec-t2)', border: 'none', cursor: 'pointer' }}>Cancel</button>
           </div>
         </div>
       )}
@@ -412,12 +412,12 @@ function TaskCard({ task, status, assignee, lastDoneTime, entries, staffMembers,
       {isDone && todayEntry && (
         <div style={{
           display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px',
-          background: '#f0faf6', borderRadius: 8, ...sans, fontSize: 13, color: '#065f46',
+          background: 'var(--ec-em-bg)', borderRadius: 8, ...sans, fontSize: 13, color: 'var(--ec-em-dark)',
         }}>
           <span style={{ fontWeight: 700 }}>✓</span>
           <Avatar name={todayEntry.staffMember} size={18} />
           <span style={{ fontWeight: 500 }}>{getStaffInitials(todayEntry.staffMember)}</span>
-          <span style={{ ...mono, fontSize: 12, color: '#6b7280', marginLeft: 'auto' }}>{formatTime(todayEntry.dateTime)}</span>
+          <span style={{ ...mono, fontSize: 12, color: 'var(--ec-t2)', marginLeft: 'auto' }}>{formatTime(todayEntry.dateTime)}</span>
         </div>
       )}
     </div>
@@ -451,15 +451,15 @@ function WeekView({ tasks, entries, weekDates, staffMembers, onMarkDone, onLogMi
   })
 
   return (
-    <div style={{ overflowX: 'auto', borderRadius: 12, border: '1px solid #e8f5f0', background: '#ffffff' }}>
+    <div style={{ overflowX: 'auto', borderRadius: 12, border: '1px solid var(--ec-div)', background: 'var(--ec-card)' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '200px repeat(7, 1fr)', minWidth: 700, position: 'relative' }}>
         {/* Header row */}
-        <div style={{ background: '#f0faf6', padding: '10px 12px', borderBottom: '1px solid #c6e8da', ...sans, fontSize: 12, fontWeight: 600, color: '#374151' }}>Task</div>
+        <div style={{ background: 'var(--ec-em-bg)', padding: '10px 12px', borderBottom: '1px solid var(--ec-em-border)', ...sans, fontSize: 12, fontWeight: 600, color: 'var(--ec-t1)' }}>Task</div>
         {dayLabels.map(dl => (
           <div key={dl.date} style={{
-            background: dl.date === today ? '#10b981' : '#f0faf6',
-            color: dl.date === today ? '#fff' : '#374151',
-            padding: '10px 8px', borderBottom: '1px solid #c6e8da', textAlign: 'center',
+            background: dl.date === today ? 'var(--ec-em)' : 'var(--ec-em-bg)',
+            color: dl.date === today ? '#fff' : 'var(--ec-t1)',
+            padding: '10px 8px', borderBottom: '1px solid var(--ec-em-border)', textAlign: 'center',
             ...sans, fontSize: 12, fontWeight: 600,
           }}>
             {dl.dayName} {dl.dayNum}
@@ -473,9 +473,9 @@ function WeekView({ tasks, entries, weekDates, staffMembers, onMarkDone, onLogMi
           return [
             // Section header
             <div key={`hdr-${freq}`} style={{
-              gridColumn: '1 / -1', background: '#f9fafb', padding: '6px 16px',
+              gridColumn: '1 / -1', background: 'var(--ec-card-hover)', padding: '6px 16px',
               ...sans, fontSize: 10, fontWeight: 700, letterSpacing: '0.1em',
-              textTransform: 'uppercase', color: '#9ca3af', borderBottom: '1px solid #f3f4f6',
+              textTransform: 'uppercase', color: 'var(--ec-t3)', borderBottom: '1px solid var(--ec-card-hover)',
             }}>
               {FREQ_LABELS[freq]}
             </div>,
@@ -500,7 +500,7 @@ function WeekView({ tasks, entries, weekDates, staffMembers, onMarkDone, onLogMi
           position: 'fixed', zIndex: 1000,
           top: popover.rect ? popover.rect.bottom + 4 : 200,
           left: popover.rect ? Math.min(popover.rect.left, window.innerWidth - 260) : 200,
-          background: '#ffffff', border: '1px solid #c6e8da', borderRadius: 10,
+          background: 'var(--ec-card)', border: '1px solid var(--ec-em-border)', borderRadius: 10,
           boxShadow: '0 4px 16px rgba(0,0,0,0.1)', padding: 16, minWidth: 220,
         }}>
           <CellPopover
@@ -522,9 +522,9 @@ function WeekRow({ task, weekDates, entries, today, onCellClick }) {
   return <>
     {/* Task name column */}
     <div style={{
-      padding: '10px 12px', ...sans, fontSize: 13, fontWeight: 500, color: '#111827',
-      borderRight: '1px solid #e8f5f0', borderBottom: '1px solid #f3f4f6',
-      display: 'flex', alignItems: 'center', gap: 6, background: '#ffffff',
+      padding: '10px 12px', ...sans, fontSize: 13, fontWeight: 500, color: 'var(--ec-t1)',
+      borderRight: '1px solid var(--ec-div)', borderBottom: '1px solid var(--ec-card-hover)',
+      display: 'flex', alignItems: 'center', gap: 6, background: 'var(--ec-card)',
     }}>
       <FreqBadge freq={task.frequency} />
       <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.name}</span>
@@ -541,25 +541,25 @@ function WeekRow({ task, weekDates, entries, today, onCellClick }) {
           key={dateStr}
           onClick={e => { if (isDue) onCellClick(dateStr, e.currentTarget.getBoundingClientRect()) }}
           style={{
-            padding: 8, borderRight: '1px solid #f3f4f6', borderBottom: '1px solid #f3f4f6',
+            padding: 8, borderRight: '1px solid var(--ec-card-hover)', borderBottom: '1px solid var(--ec-card-hover)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 44,
             cursor: isDue ? 'pointer' : 'default', transition: 'background 0.1s',
-            background: isToday ? 'rgba(16,185,129,0.04)' : 'transparent',
+            background: isToday ? 'var(--ec-em-faint)' : 'transparent',
           }}
         >
           {!isDue ? (
-            <span style={{ color: '#e5e7eb', fontSize: 16 }}>—</span>
+            <span style={{ color: 'var(--ec-t5)', fontSize: 16 }}>—</span>
           ) : info?.status === 'done' ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 3, color: '#10b981', ...sans, fontSize: 13, fontWeight: 600 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 3, color: 'var(--ec-em)', ...sans, fontSize: 13, fontWeight: 600 }}>
               <span>✓</span>
               <Avatar name={info.entry.staffMember} size={16} />
             </div>
           ) : info?.status === 'missed' ? (
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444', display: 'block' }} />
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--ec-crit)', display: 'block' }} />
           ) : isFuture ? (
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#d1d5db', display: 'block' }} />
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--ec-t4)', display: 'block' }} />
           ) : (
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: dateStr < today ? '#ef4444' : '#f59e0b', display: 'block' }} />
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: dateStr < today ? 'var(--ec-crit)' : 'var(--ec-warn)', display: 'block' }} />
           )}
         </div>
       )
@@ -579,36 +579,36 @@ function CellPopover({ task, dateStr, entries, staffMembers, onMarkDone, onLogMi
 
   return (
     <div>
-      <div style={{ ...sans, fontSize: 14, fontWeight: 600, color: '#111827', marginBottom: 4 }}>{task.name}</div>
-      <div style={{ ...sans, fontSize: 12, color: '#6b7280', marginBottom: 10 }}>
+      <div style={{ ...sans, fontSize: 14, fontWeight: 600, color: 'var(--ec-t1)', marginBottom: 4 }}>{task.name}</div>
+      <div style={{ ...sans, fontSize: 12, color: 'var(--ec-t2)', marginBottom: 10 }}>
         {formatShortDate(dateStr)} · Assigned: {assignee}
       </div>
       {isDone ? (
-        <div style={{ ...sans, fontSize: 13, color: '#059669', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ ...sans, fontSize: 13, color: 'var(--ec-em)', display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ fontWeight: 700 }}>✓</span> Completed by {info.entry.staffMember} at {formatTime(info.entry.dateTime)}
         </div>
       ) : !missedMode ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <select value={staffSelect} onChange={e => setStaffSelect(e.target.value)}
-            style={{ ...sans, fontSize: 12, padding: '5px 8px', borderRadius: 6, border: '1px solid #d1fae5', background: '#fff' }}>
+            style={{ ...sans, fontSize: 12, padding: '5px 8px', borderRadius: 6, border: '1px solid var(--ec-em-bg)', background: '#fff' }}>
             <option value="">Select staff...</option>
             {staffMembers.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
           </select>
           <input type="text" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Note (optional)"
-            style={{ ...sans, fontSize: 12, padding: '5px 8px', borderRadius: 6, border: '1px solid #e8f5f0' }} />
+            style={{ ...sans, fontSize: 12, padding: '5px 8px', borderRadius: 6, border: '1px solid var(--ec-div)' }} />
           <button onClick={() => { if (staffSelect) onMarkDone({ result: 'Pass', notes, staffMember: staffSelect }) }} disabled={!staffSelect}
-            style={{ ...sans, fontSize: 13, fontWeight: 600, padding: '8px', borderRadius: 6, background: staffSelect ? '#10b981' : '#d1d5db', color: '#fff', border: 'none', cursor: staffSelect ? 'pointer' : 'not-allowed' }}>✓ Mark Done</button>
+            style={{ ...sans, fontSize: 13, fontWeight: 600, padding: '8px', borderRadius: 6, background: staffSelect ? 'var(--ec-em)' : 'var(--ec-t4)', color: '#fff', border: 'none', cursor: staffSelect ? 'pointer' : 'not-allowed' }}>✓ Mark Done</button>
           <button onClick={() => setMissedMode(true)}
-            style={{ ...sans, fontSize: 12, color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'center', padding: '4px 0' }}>Log as Missed</button>
+            style={{ ...sans, fontSize: 12, color: 'var(--ec-crit)', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'center', padding: '4px 0' }}>Log as Missed</button>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <input type="text" value={missedReason} onChange={e => setMissedReason(e.target.value)} placeholder="Reason..."
-            style={{ ...sans, fontSize: 12, padding: '5px 8px', borderRadius: 6, border: '1px solid #fecaca' }} />
+            style={{ ...sans, fontSize: 12, padding: '5px 8px', borderRadius: 6, border: '1px solid var(--ec-crit-border)' }} />
           <button onClick={() => onLogMissed(missedReason)}
-            style={{ ...sans, fontSize: 13, fontWeight: 600, padding: '8px', borderRadius: 6, background: '#ef4444', color: '#fff', border: 'none', cursor: 'pointer' }}>Log Missed</button>
+            style={{ ...sans, fontSize: 13, fontWeight: 600, padding: '8px', borderRadius: 6, background: 'var(--ec-crit)', color: '#fff', border: 'none', cursor: 'pointer' }}>Log Missed</button>
           <button onClick={() => setMissedMode(false)}
-            style={{ ...sans, fontSize: 12, color: '#6b7280', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0' }}>Cancel</button>
+            style={{ ...sans, fontSize: 12, color: 'var(--ec-t2)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0' }}>Cancel</button>
         </div>
       )}
     </div>
@@ -653,33 +653,33 @@ function StaffCard({ staffName, tasks, doneCount, entries, staffMembers, onMarkD
   const total = tasks.length
   const pct = total > 0 ? Math.round((doneCount / total) * 100) : 0
   const allDone = doneCount === total
-  const barColor = pct >= 60 ? '#10b981' : pct >= 30 ? '#f59e0b' : '#ef4444'
+  const barColor = pct >= 60 ? 'var(--ec-em)' : pct >= 30 ? 'var(--ec-warn)' : 'var(--ec-crit)'
 
   const staffMember = staffMembers.find(s => s.name === staffName)
   const role = staffMember?.role || ''
 
   return (
     <div style={{
-      background: '#ffffff', border: `1px solid ${allDone ? '#10b981' : '#e8f5f0'}`,
+      background: 'var(--ec-card)', border: `1px solid ${allDone ? 'var(--ec-em)' : 'var(--ec-div)'}`,
       borderRadius: 12, padding: 20,
     }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
         <Avatar name={staffName} size={40} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ ...sans, fontSize: 15, fontWeight: 600, color: '#111827', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ ...sans, fontSize: 15, fontWeight: 600, color: 'var(--ec-t1)', display: 'flex', alignItems: 'center', gap: 6 }}>
             {staffName}
-            {allDone && <span style={{ ...sans, fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 10, background: '#f0fdf4', color: '#10b981' }}>All done!</span>}
+            {allDone && <span style={{ ...sans, fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 10, background: 'var(--ec-em-bg)', color: 'var(--ec-em)' }}>All done!</span>}
           </div>
-          {role && <div style={{ ...sans, fontSize: 13, color: '#6b7280', textTransform: 'capitalize' }}>{role.replace('_', ' ')}</div>}
+          {role && <div style={{ ...sans, fontSize: 13, color: 'var(--ec-t2)', textTransform: 'capitalize' }}>{role.replace('_', ' ')}</div>}
         </div>
       </div>
 
       {/* Progress bar */}
-      <div style={{ height: 6, borderRadius: 3, background: '#f3f4f6', marginBottom: 4 }}>
+      <div style={{ height: 6, borderRadius: 3, background: 'var(--ec-card-hover)', marginBottom: 4 }}>
         <div style={{ height: '100%', borderRadius: 3, background: barColor, width: `${pct}%`, transition: 'width 0.5s ease' }} />
       </div>
-      <div style={{ ...sans, fontSize: 12, color: '#6b7280', marginBottom: 12 }}>{doneCount}/{total} done · {pct}%</div>
+      <div style={{ ...sans, fontSize: 12, color: 'var(--ec-t2)', marginBottom: 12 }}>{doneCount}/{total} done · {pct}%</div>
 
       {/* Task list */}
       {tasks.map(task => {
@@ -714,41 +714,41 @@ function StaffTaskItem({ task, isDone, isOverdue, todayEntry, staffMembers, onMa
       onMouseLeave={() => setHovered(false)}
       style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '8px 0', borderBottom: '1px solid #f3f4f6', ...sans, fontSize: 13,
+        padding: '8px 0', borderBottom: '1px solid var(--ec-card-hover)', ...sans, fontSize: 13,
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, flex: 1 }}>
         <span style={{ fontSize: 14 }}>{isDone ? '✅' : isOverdue ? '🔴' : '⏳'}</span>
-        <span style={{ color: '#111827', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.name}</span>
+        <span style={{ color: 'var(--ec-t1)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.name}</span>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
         {isDone && todayEntry ? (
-          <span style={{ ...mono, fontSize: 12, color: '#10b981' }}>{formatTime(todayEntry.dateTime)}</span>
+          <span style={{ ...mono, fontSize: 12, color: 'var(--ec-em)' }}>{formatTime(todayEntry.dateTime)}</span>
         ) : isOverdue ? (
-          <span style={{ ...sans, fontSize: 11, color: '#dc2626' }}>Overdue</span>
+          <span style={{ ...sans, fontSize: 11, color: 'var(--ec-crit)' }}>Overdue</span>
         ) : (
-          <span style={{ ...sans, fontSize: 11, color: '#d97706' }}>Due today</span>
+          <span style={{ ...sans, fontSize: 11, color: 'var(--ec-warn)' }}>Due today</span>
         )}
         {!isDone && hovered && !confirming && (
           <button
             onClick={() => setConfirming(true)}
-            style={{ ...sans, fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 6, background: '#10b981', color: '#fff', border: 'none', cursor: 'pointer', marginLeft: 4 }}
+            style={{ ...sans, fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 6, background: 'var(--ec-em)', color: '#fff', border: 'none', cursor: 'pointer', marginLeft: 4 }}
           >✓</button>
         )}
       </div>
       {confirming && (
-        <div style={{ position: 'absolute', right: 20, background: '#fff', border: '1px solid #c6e8da', borderRadius: 8, padding: 10, boxShadow: '0 2px 8px rgba(0,0,0,0.1)', zIndex: 10, minWidth: 180 }}
+        <div style={{ position: 'absolute', right: 20, background: '#fff', border: '1px solid var(--ec-em-border)', borderRadius: 8, padding: 10, boxShadow: '0 2px 8px rgba(0,0,0,0.1)', zIndex: 10, minWidth: 180 }}
           onClick={e => e.stopPropagation()}>
           <select value={staffSelect} onChange={e => setStaffSelect(e.target.value)}
-            style={{ ...sans, fontSize: 11, padding: '4px 6px', borderRadius: 6, border: '1px solid #d1fae5', width: '100%', marginBottom: 6, background: '#fff' }}>
+            style={{ ...sans, fontSize: 11, padding: '4px 6px', borderRadius: 6, border: '1px solid var(--ec-em-bg)', width: '100%', marginBottom: 6, background: '#fff' }}>
             <option value="">Staff...</option>
             {staffMembers.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
           </select>
           <div style={{ display: 'flex', gap: 4 }}>
             <button onClick={() => { if (staffSelect) { onMarkDone(task, { result: 'Pass', notes: '', staffMember: staffSelect }); setConfirming(false) } }}
-              style={{ ...sans, fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 6, background: '#10b981', color: '#fff', border: 'none', cursor: 'pointer', flex: 1 }}>Done</button>
+              style={{ ...sans, fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 6, background: 'var(--ec-em)', color: '#fff', border: 'none', cursor: 'pointer', flex: 1 }}>Done</button>
             <button onClick={() => setConfirming(false)}
-              style={{ ...sans, fontSize: 11, padding: '4px 8px', borderRadius: 6, background: '#f3f4f6', color: '#6b7280', border: 'none', cursor: 'pointer' }}>X</button>
+              style={{ ...sans, fontSize: 11, padding: '4px 8px', borderRadius: 6, background: 'var(--ec-card-hover)', color: 'var(--ec-t2)', border: 'none', cursor: 'pointer' }}>X</button>
           </div>
         </div>
       )}
@@ -780,9 +780,9 @@ function CalendarSidebar({ entries, selectedDate, onSelectDate, tasks }) {
       if (dayEntries.length === 0) continue
       const hasPass = dayEntries.some(e => e.result === 'Pass')
       const hasFail = dayEntries.some(e => e.result === 'Fail')
-      if (hasFail) map[dateStr] = '#ef4444'
-      else if (hasPass) map[dateStr] = '#10b981'
-      else map[dateStr] = '#f59e0b'
+      if (hasFail) map[dateStr] = 'var(--ec-crit)'
+      else if (hasPass) map[dateStr] = 'var(--ec-em)'
+      else map[dateStr] = 'var(--ec-warn)'
     }
     return map
   }, [entries, year, month, daysInMonth])
@@ -811,15 +811,15 @@ function CalendarSidebar({ entries, selectedDate, onSelectDate, tasks }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       {/* Calendar */}
-      <div style={{ background: '#ffffff', borderRadius: 12, padding: 14, border: '1px solid #e8f5f0' }}>
+      <div style={{ background: 'var(--ec-card)', borderRadius: 12, padding: 14, border: '1px solid var(--ec-div)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-          <button onClick={() => setViewDate(new Date(year, month - 1, 1))} style={{ ...sans, fontSize: 16, background: 'none', border: 'none', cursor: 'pointer', color: '#10b981' }}>&lsaquo;</button>
-          <span style={{ ...sans, fontSize: 12, fontWeight: 600, color: '#374151' }}>{monthLabel}</span>
-          <button onClick={() => setViewDate(new Date(year, month + 1, 1))} style={{ ...sans, fontSize: 16, background: 'none', border: 'none', cursor: 'pointer', color: '#10b981' }}>&rsaquo;</button>
+          <button onClick={() => setViewDate(new Date(year, month - 1, 1))} style={{ ...sans, fontSize: 16, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ec-em)' }}>&lsaquo;</button>
+          <span style={{ ...sans, fontSize: 12, fontWeight: 600, color: 'var(--ec-t1)' }}>{monthLabel}</span>
+          <button onClick={() => setViewDate(new Date(year, month + 1, 1))} style={{ ...sans, fontSize: 16, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ec-em)' }}>&rsaquo;</button>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, textAlign: 'center' }}>
           {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
-            <div key={i} style={{ ...sans, fontSize: 9, color: '#9ca3af', fontWeight: 600, padding: 3 }}>{d}</div>
+            <div key={i} style={{ ...sans, fontSize: 9, color: 'var(--ec-t3)', fontWeight: 600, padding: 3 }}>{d}</div>
           ))}
           {days.map((d, i) => {
             if (!d) return <div key={`e${i}`} />
@@ -833,8 +833,8 @@ function CalendarSidebar({ entries, selectedDate, onSelectDate, tasks }) {
                 onClick={() => onSelectDate(dateStr)}
                 style={{
                   ...sans, fontSize: 11, padding: 3, borderRadius: 6, cursor: 'pointer',
-                  background: isSelected ? '#10b981' : isToday ? '#f0faf6' : 'transparent',
-                  color: isSelected ? '#fff' : isToday ? '#10b981' : '#374151',
+                  background: isSelected ? 'var(--ec-em)' : isToday ? 'var(--ec-em-bg)' : 'transparent',
+                  color: isSelected ? '#fff' : isToday ? 'var(--ec-em)' : 'var(--ec-t1)',
                   fontWeight: isToday || isSelected ? 700 : 400, position: 'relative',
                 }}
               >
@@ -849,29 +849,29 @@ function CalendarSidebar({ entries, selectedDate, onSelectDate, tasks }) {
       </div>
 
       {/* Week summary */}
-      <div style={{ background: '#ffffff', borderRadius: 12, padding: 14, border: '1px solid #e8f5f0' }}>
-        <div style={{ ...sans, fontSize: 10, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', marginBottom: 6, letterSpacing: '0.08em' }}>This Week</div>
+      <div style={{ background: 'var(--ec-card)', borderRadius: 12, padding: 14, border: '1px solid var(--ec-div)' }}>
+        <div style={{ ...sans, fontSize: 10, fontWeight: 700, color: 'var(--ec-t3)', textTransform: 'uppercase', marginBottom: 6, letterSpacing: '0.08em' }}>This Week</div>
         {weekSummary.map(ws => (
           <div
             key={ws.dateStr}
             onClick={() => onSelectDate(ws.dateStr)}
             style={{
               display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, cursor: 'pointer',
-              background: ws.isToday ? '#f0faf6' : 'transparent',
+              background: ws.isToday ? 'var(--ec-em-bg)' : 'transparent',
               ...sans, fontSize: 12,
             }}
           >
-            <span style={{ fontWeight: ws.isToday ? 700 : 400, color: '#374151', minWidth: 80 }}>{ws.label}</span>
+            <span style={{ fontWeight: ws.isToday ? 700 : 400, color: 'var(--ec-t1)', minWidth: 80 }}>{ws.label}</span>
             {/* Progress dots */}
             <div style={{ flex: 1, display: 'flex', gap: 2, alignItems: 'center' }}>
               {ws.total > 0 && Array.from({ length: Math.min(ws.total, 10) }).map((_, i) => (
                 <span key={i} style={{
                   width: 6, height: 6, borderRadius: '50%',
-                  background: i < ws.done ? '#10b981' : '#e5e7eb',
+                  background: i < ws.done ? 'var(--ec-em)' : 'var(--ec-t5)',
                 }} />
               ))}
             </div>
-            <span style={{ ...mono, fontSize: 11, color: ws.done === ws.total && ws.total > 0 ? '#10b981' : '#6b7280', fontWeight: 600, minWidth: 24, textAlign: 'right' }}>
+            <span style={{ ...mono, fontSize: 11, color: ws.done === ws.total && ws.total > 0 ? 'var(--ec-em)' : 'var(--ec-t2)', fontWeight: 600, minWidth: 24, textAlign: 'right' }}>
               {ws.total > 0 ? `${ws.done}/${ws.total}` : '—'}
             </span>
           </div>
@@ -1031,19 +1031,19 @@ export default function CleaningRota() {
   if (loading) return <div style={{ padding: 24, ...sans }}><SkeletonLoader variant="cards" /></div>
 
   return (
-    <div style={{ ...sans, maxWidth: 1200, margin: '0 auto', padding: '16px 16px 80px', background: '#fafafa', minHeight: '100vh' }}>
+    <div style={{ ...sans, maxWidth: 1200, margin: '0 auto', padding: '16px 16px 80px', background: 'var(--ec-card-hover)', minHeight: '100vh' }}>
       {ConfirmDialog}
 
       {/* ── Page Header ── */}
       <div style={{ marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-          <h1 style={{ ...sans, fontSize: 22, fontWeight: 700, color: '#111827', margin: 0 }}>Cleaning Rota</h1>
+          <h1 style={{ ...sans, fontSize: 22, fontWeight: 700, color: 'var(--ec-t1)', margin: 0 }}>Cleaning Rota</h1>
           <div style={{ display: 'flex', gap: 6 }}>
-            <button onClick={handleExportCsv} style={{ ...sans, fontSize: 12, fontWeight: 500, padding: '6px 12px', borderRadius: 8, background: '#f3f4f6', color: '#374151', border: 'none', cursor: 'pointer' }}>↓ CSV</button>
-            <button onClick={() => setShowAddTask(true)} style={{ ...sans, fontSize: 12, fontWeight: 600, padding: '6px 14px', borderRadius: 8, background: '#10b981', color: '#fff', border: 'none', cursor: 'pointer' }}>+ Add Task</button>
+            <button onClick={handleExportCsv} style={{ ...sans, fontSize: 12, fontWeight: 500, padding: '6px 12px', borderRadius: 8, background: 'var(--ec-card-hover)', color: 'var(--ec-t1)', border: 'none', cursor: 'pointer' }}>↓ CSV</button>
+            <button onClick={() => setShowAddTask(true)} style={{ ...sans, fontSize: 12, fontWeight: 600, padding: '6px 14px', borderRadius: 8, background: 'var(--ec-em)', color: '#fff', border: 'none', cursor: 'pointer' }}>+ Add Task</button>
           </div>
         </div>
-        <p style={{ ...sans, fontSize: 13, color: '#6b7280', margin: '0 0 12px' }}>Log cleaning activities — GPhC compliance requirement.</p>
+        <p style={{ ...sans, fontSize: 13, color: 'var(--ec-t2)', margin: '0 0 12px' }}>Log cleaning activities — GPhC compliance requirement.</p>
 
         {/* Stats Strip */}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
@@ -1059,8 +1059,8 @@ export default function CleaningRota() {
             onClick={() => setStaffFilter('all')}
             style={{
               ...sans, fontSize: 12, fontWeight: 600, padding: '6px 14px', borderRadius: 20, cursor: 'pointer',
-              background: staffFilter === 'all' ? '#111827' : '#f3f4f6',
-              color: staffFilter === 'all' ? '#fff' : '#374151',
+              background: staffFilter === 'all' ? 'var(--ec-t1)' : 'var(--ec-card-hover)',
+              color: staffFilter === 'all' ? '#fff' : 'var(--ec-t1)',
               border: 'none', transition: 'all 0.15s', flexShrink: 0,
             }}
           >All</button>
@@ -1082,19 +1082,19 @@ export default function CleaningRota() {
               {todayTasks.all.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '48px 16px' }}>
                   <div style={{ fontSize: 48, marginBottom: 8 }}>📋</div>
-                  <h3 style={{ ...sans, fontSize: 16, fontWeight: 600, color: '#374151', margin: '0 0 4px' }}>No tasks scheduled</h3>
-                  <p style={{ ...sans, fontSize: 13, color: '#9ca3af' }}>No cleaning tasks are due for this date.</p>
+                  <h3 style={{ ...sans, fontSize: 16, fontWeight: 600, color: 'var(--ec-t1)', margin: '0 0 4px' }}>No tasks scheduled</h3>
+                  <p style={{ ...sans, fontSize: 13, color: 'var(--ec-t3)' }}>No cleaning tasks are due for this date.</p>
                 </div>
               ) : todayTasks.outstanding.length === 0 ? (
                 <>
                   {/* All done state */}
                   <div style={{ textAlign: 'center', padding: '32px 16px', marginBottom: 16 }}>
                     <div style={{ fontSize: 48, marginBottom: 8 }}>✅</div>
-                    <h3 style={{ ...sans, fontSize: 16, fontWeight: 600, color: '#065f46', margin: '0 0 4px' }}>All tasks complete</h3>
-                    <p style={{ ...sans, fontSize: 13, color: '#6b7280' }}>Great work — all cleaning tasks for today are done.</p>
+                    <h3 style={{ ...sans, fontSize: 16, fontWeight: 600, color: 'var(--ec-em-dark)', margin: '0 0 4px' }}>All tasks complete</h3>
+                    <p style={{ ...sans, fontSize: 13, color: 'var(--ec-t2)' }}>Great work — all cleaning tasks for today are done.</p>
                   </div>
                   {/* Completed section */}
-                  <div style={{ gridColumn: '1 / -1', borderTop: '1px solid #e5e7eb', padding: '12px 0 4px', ...sans, fontSize: 12, fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>
+                  <div style={{ gridColumn: '1 / -1', borderTop: '1px solid var(--ec-t5)', padding: '12px 0 4px', ...sans, fontSize: 12, fontWeight: 600, color: 'var(--ec-t3)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>
                     ✅ Completed today ({todayTasks.completed.length})
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
@@ -1119,7 +1119,7 @@ export default function CleaningRota() {
                   {/* Completed divider + cards */}
                   {todayTasks.completed.length > 0 && (
                     <>
-                      <div style={{ borderTop: '1px solid #e5e7eb', padding: '12px 0 4px', ...sans, fontSize: 12, fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 16, marginBottom: 12 }}>
+                      <div style={{ borderTop: '1px solid var(--ec-t5)', padding: '12px 0 4px', ...sans, fontSize: 12, fontWeight: 600, color: 'var(--ec-t3)', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 16, marginBottom: 12 }}>
                         ✅ Completed today ({todayTasks.completed.length})
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
@@ -1172,42 +1172,42 @@ export default function CleaningRota() {
           onClick={() => setShowAddTask(false)}>
           <div style={{ background: '#fff', borderRadius: 12, padding: 24, maxWidth: 400, width: '90%', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}
             onClick={e => e.stopPropagation()}>
-            <h3 style={{ ...sans, fontSize: 16, fontWeight: 700, color: '#111827', margin: '0 0 16px' }}>Add Task Entry</h3>
+            <h3 style={{ ...sans, fontSize: 16, fontWeight: 700, color: 'var(--ec-t1)', margin: '0 0 16px' }}>Add Task Entry</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div>
-                <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 2 }}>Task</label>
+                <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--ec-t2)', display: 'block', marginBottom: 2 }}>Task</label>
                 <select value={addForm.taskName} onChange={e => setAddForm(f => ({ ...f, taskName: e.target.value }))}
-                  style={{ ...sans, fontSize: 12, padding: '6px 10px', borderRadius: 6, border: '1px solid #e8f5f0', width: '100%' }}>
+                  style={{ ...sans, fontSize: 12, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--ec-div)', width: '100%' }}>
                   <option value="">Select task...</option>
                   {DEFAULT_CLEANING_TASKS.map(t => <option key={t.name} value={t.name}>{t.name}</option>)}
                 </select>
               </div>
               <div>
-                <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 2 }}>Staff</label>
+                <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--ec-t2)', display: 'block', marginBottom: 2 }}>Staff</label>
                 <select value={addForm.staffMember} onChange={e => setAddForm(f => ({ ...f, staffMember: e.target.value }))}
-                  style={{ ...sans, fontSize: 12, padding: '6px 10px', borderRadius: 6, border: '1px solid #e8f5f0', width: '100%' }}>
+                  style={{ ...sans, fontSize: 12, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--ec-div)', width: '100%' }}>
                   <option value="">Select staff...</option>
                   {staffMembers.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
                 </select>
               </div>
               <div>
-                <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 2 }}>Result</label>
+                <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--ec-t2)', display: 'block', marginBottom: 2 }}>Result</label>
                 <select value={addForm.result} onChange={e => setAddForm(f => ({ ...f, result: e.target.value }))}
-                  style={{ ...sans, fontSize: 12, padding: '6px 10px', borderRadius: 6, border: '1px solid #e8f5f0', width: '100%' }}>
+                  style={{ ...sans, fontSize: 12, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--ec-div)', width: '100%' }}>
                   <option>Pass</option>
                   <option>Fail</option>
                 </select>
               </div>
               <div>
-                <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 2 }}>Notes</label>
+                <label style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--ec-t2)', display: 'block', marginBottom: 2 }}>Notes</label>
                 <input type="text" value={addForm.notes} onChange={e => setAddForm(f => ({ ...f, notes: e.target.value }))} placeholder="Optional..."
-                  style={{ ...sans, fontSize: 12, padding: '6px 10px', borderRadius: 6, border: '1px solid #e8f5f0', width: '100%' }} />
+                  style={{ ...sans, fontSize: 12, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--ec-div)', width: '100%' }} />
               </div>
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 4 }}>
                 <button onClick={() => setShowAddTask(false)}
-                  style={{ ...sans, fontSize: 12, padding: '8px 14px', borderRadius: 6, background: '#f3f4f6', color: '#6b7280', border: 'none', cursor: 'pointer' }}>Cancel</button>
+                  style={{ ...sans, fontSize: 12, padding: '8px 14px', borderRadius: 6, background: 'var(--ec-card-hover)', color: 'var(--ec-t2)', border: 'none', cursor: 'pointer' }}>Cancel</button>
                 <button onClick={handleAddEntry} disabled={!addForm.taskName || !addForm.staffMember}
-                  style={{ ...sans, fontSize: 12, fontWeight: 600, padding: '8px 18px', borderRadius: 6, background: addForm.taskName && addForm.staffMember ? '#10b981' : '#d1d5db', color: '#fff', border: 'none', cursor: addForm.taskName && addForm.staffMember ? 'pointer' : 'not-allowed' }}>Add Entry</button>
+                  style={{ ...sans, fontSize: 12, fontWeight: 600, padding: '8px 18px', borderRadius: 6, background: addForm.taskName && addForm.staffMember ? 'var(--ec-em)' : 'var(--ec-t4)', color: '#fff', border: 'none', cursor: addForm.taskName && addForm.staffMember ? 'pointer' : 'not-allowed' }}>Add Entry</button>
               </div>
             </div>
           </div>
@@ -1217,9 +1217,9 @@ export default function CleaningRota() {
       {/* ── Animations + responsive ── */}
       <style>{`
         @keyframes confirmFlash {
-          0% { background: #ffffff; }
-          30% { background: #d1fae5; }
-          100% { background: #f9fffe; }
+          0% { background: var(--ec-card); }
+          30% { background: var(--ec-em-bg); }
+          100% { background: var(--ec-card-hover); }
         }
         @media (max-width: 768px) {
           .cr-sidebar { display: none; }

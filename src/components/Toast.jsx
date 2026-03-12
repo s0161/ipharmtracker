@@ -15,22 +15,22 @@ const TOAST_STYLES = {
   },
   error: {
     backgroundColor: 'var(--ec-card-solid)',
-    borderLeft: '3px solid #ef4444',
-    color: '#fca5a5',
+    borderLeft: '3px solid var(--ec-crit)',
+    color: 'var(--ec-crit-border)',
     boxShadow: 'var(--shadow-md)',
   },
   info: {
     backgroundColor: 'var(--ec-card-solid)',
-    borderLeft: '3px solid #6366f1',
-    color: '#a5b4fc',
+    borderLeft: '3px solid var(--ec-info)',
+    color: 'var(--ec-info-border)',
     boxShadow: 'var(--shadow-md)',
   },
 }
 
 const ICON_COLORS = {
   success: 'var(--ec-em)',
-  error: '#ef4444',
-  info: '#6366f1',
+  error: 'var(--ec-crit)',
+  info: 'var(--ec-info)',
 }
 
 let nextId = 0

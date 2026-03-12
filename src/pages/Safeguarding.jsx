@@ -17,11 +17,11 @@ import SkeletonLoader from '../components/SkeletonLoader'
 const TABS = ['Concerns', 'Referrals', 'Contacts', 'Signposting', 'Training']
 
 const CONCERN_CATEGORIES = {
-  adult_at_risk: { label: 'Adult at Risk', color: '#f59e0b', bg: '#fef3c7' },
-  child: { label: 'Child Concern', color: '#3b82f6', bg: '#dbeafe' },
-  domestic_abuse: { label: 'Domestic Abuse', color: '#8b5cf6', bg: '#ede9fe' },
-  mental_health: { label: 'Mental Health', color: '#14b8a6', bg: '#ccfbf1' },
-  substance_misuse: { label: 'Substance Misuse', color: '#f97316', bg: '#ffedd5' },
+  adult_at_risk: { label: 'Adult at Risk', color: 'var(--ec-warn)', bg: 'var(--ec-warn-bg)' },
+  child: { label: 'Child Concern', color: 'var(--ec-info)', bg: 'var(--ec-info-bg)' },
+  domestic_abuse: { label: 'Domestic Abuse', color: 'var(--ec-cat-purple)', bg: 'var(--ec-cat-purple-bg)' },
+  mental_health: { label: 'Mental Health', color: 'var(--ec-cat-teal)', bg: 'var(--ec-cat-teal-bg)' },
+  substance_misuse: { label: 'Substance Misuse', color: 'var(--ec-cat-orange)', bg: 'var(--ec-cat-orange-bg)' },
 }
 
 const RISK_LEVELS = ['low', 'medium', 'high']
@@ -35,12 +35,12 @@ const CONSENT_TYPES = [
 ]
 
 const CONTACT_CATEGORIES = {
-  emergency: { label: 'Emergency', color: '#ef4444' },
-  domestic_abuse: { label: 'Domestic Abuse', color: '#8b5cf6' },
-  mental_health: { label: 'Mental Health', color: '#14b8a6' },
-  child_concern: { label: 'Child Concern', color: '#3b82f6' },
-  substance_misuse: { label: 'Substance Misuse', color: '#f97316' },
-  general: { label: 'General', color: '#6b7280' },
+  emergency: { label: 'Emergency', color: 'var(--ec-crit)' },
+  domestic_abuse: { label: 'Domestic Abuse', color: 'var(--ec-cat-purple)' },
+  mental_health: { label: 'Mental Health', color: 'var(--ec-cat-teal)' },
+  child_concern: { label: 'Child Concern', color: 'var(--ec-info)' },
+  substance_misuse: { label: 'Substance Misuse', color: 'var(--ec-cat-orange)' },
+  general: { label: 'General', color: 'var(--ec-t2)' },
 }
 
 const SIGNPOSTING_ICONS = {
@@ -53,17 +53,17 @@ const SIGNPOSTING_ICONS = {
 }
 
 const STATUS_STYLES = {
-  open: { bg: '#fef3c7', text: '#92400e' },
-  referred: { bg: '#dbeafe', text: '#1e40af' },
-  resolved: { bg: '#f0faf6', text: '#065f46' },
-  no_further_action: { bg: '#f3f4f6', text: '#6b7280' },
+  open: { bg: 'var(--ec-warn-bg)', text: 'var(--ec-warn-dark)' },
+  referred: { bg: 'var(--ec-info-bg)', text: 'var(--ec-info)' },
+  resolved: { bg: 'var(--ec-em-bg)', text: 'var(--ec-em-dark)' },
+  no_further_action: { bg: 'var(--ec-card-hover)', text: 'var(--ec-t2)' },
 }
 
 const REFERRAL_STATUS_STYLES = {
-  pending: { bg: '#fef3c7', text: '#92400e' },
-  in_progress: { bg: '#dbeafe', text: '#1e40af' },
-  completed: { bg: '#f0faf6', text: '#065f46' },
-  withdrawn: { bg: '#f3f4f6', text: '#6b7280' },
+  pending: { bg: 'var(--ec-warn-bg)', text: 'var(--ec-warn-dark)' },
+  in_progress: { bg: 'var(--ec-info-bg)', text: 'var(--ec-info)' },
+  completed: { bg: 'var(--ec-em-bg)', text: 'var(--ec-em-dark)' },
+  withdrawn: { bg: 'var(--ec-card-hover)', text: 'var(--ec-t2)' },
 }
 
 const inputClass =
@@ -120,7 +120,7 @@ function Drawer({ open, onClose, title, children }) {
 
 // ─── Status/Category Badges ───
 function StatusPill({ status, styles }) {
-  const s = styles[status] || { bg: '#f3f4f6', text: '#6b7280' }
+  const s = styles[status] || { bg: 'var(--ec-card-hover)', text: 'var(--ec-t2)' }
   return (
     <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide"
       style={{ backgroundColor: s.bg, color: s.text }}>
@@ -177,10 +177,10 @@ function TabBar({ active, onChange, openCount, pendingCount }) {
 // ─── Stat Strip ───
 function StatStrip({ openConcerns, pendingReferrals, trainingOverdue, region }) {
   const pills = [
-    { label: 'Open Concerns', value: openConcerns, color: openConcerns > 0 ? '#f59e0b' : '#059669' },
-    { label: 'Pending Referrals', value: pendingReferrals, color: pendingReferrals > 0 ? '#3b82f6' : '#059669' },
-    { label: 'Training Overdue', value: trainingOverdue, color: trainingOverdue > 0 ? '#ef4444' : '#059669' },
-    { label: 'Region', value: region || 'National', color: '#6b7280', isText: true },
+    { label: 'Open Concerns', value: openConcerns, color: openConcerns > 0 ? 'var(--ec-warn)' : 'var(--ec-em)' },
+    { label: 'Pending Referrals', value: pendingReferrals, color: pendingReferrals > 0 ? 'var(--ec-info)' : 'var(--ec-em)' },
+    { label: 'Training Overdue', value: trainingOverdue, color: trainingOverdue > 0 ? 'var(--ec-crit)' : 'var(--ec-em)' },
+    { label: 'Region', value: region || 'National', color: 'var(--ec-t2)', isText: true },
   ]
   return (
     <div className="flex flex-wrap gap-2 mb-5">
@@ -309,7 +309,7 @@ function ConcernsTab({ concerns, setConcerns, loading, user, elevated, toast, co
   return (
     <div>
       {!elevated && (
-        <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg mb-4 text-xs" style={{ backgroundColor: '#fef3c7', color: '#92400e' }}>
+        <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg mb-4 text-xs" style={{ backgroundColor: 'var(--ec-warn-bg)', color: 'var(--ec-warn-dark)' }}>
           <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M8 1.5L1.5 13h13L8 1.5z" /><line x1="8" y1="6" x2="8" y2="9" /><line x1="8" y1="11" x2="8.01" y2="11" /></svg>
           You can only see concerns you have reported. Contact a manager for full access.
         </div>
@@ -838,10 +838,10 @@ function ContactsTab({ contacts, loading, elevated, pharmacyRegion, openDrawer }
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
           {filtered.map((c) => (
             <div key={c.id} className="bg-ec-card border border-ec-div rounded-xl p-4 ec-fadeup hover:shadow-sm transition-shadow"
-              style={c.isEmergency ? { borderLeft: '3px solid #ef4444' } : {}}>
+              style={c.isEmergency ? { borderLeft: '3px solid var(--ec-crit)' } : {}}>
               <div className="flex items-center gap-2 mb-2">
                 <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase text-white"
-                  style={{ backgroundColor: CONTACT_CATEGORIES[c.category]?.color || '#6b7280' }}>
+                  style={{ backgroundColor: CONTACT_CATEGORIES[c.category]?.color || 'var(--ec-t2)' }}>
                   {CONTACT_CATEGORIES[c.category]?.label || c.category}
                 </span>
                 {c.isEmergency && <span className="px-1.5 py-0.5 rounded bg-ec-crit-faint text-ec-crit font-bold text-[9px]">EMERGENCY</span>}
@@ -955,12 +955,12 @@ function SignpostingTab({ resources, contacts, loading, pharmacyConfig }) {
     const doc = printWin.document
     const style = doc.createElement('style')
     style.textContent = [
-      'body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;padding:40px;color:#1e293b;max-width:700px;margin:0 auto}',
-      'h1{font-size:20px;border-bottom:2px solid #059669;padding-bottom:8px}',
-      'h2{font-size:14px;color:#059669;margin-top:24px}',
+      'body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;padding:40px;color:var(--ec-t1);max-width:700px;margin:0 auto}',
+      'h1{font-size:20px;border-bottom:2px solid var(--ec-em);padding-bottom:8px}',
+      'h2{font-size:14px;color:var(--ec-em);margin-top:24px}',
       'p,li{font-size:12px;line-height:1.6}',
-      'blockquote{border-left:3px solid #059669;padding-left:12px;font-style:italic;color:#374151}',
-      '.pharmacy{margin-top:32px;padding-top:16px;border-top:1px solid #d1d5db;font-size:11px;color:#6b7280}',
+      'blockquote{border-left:3px solid var(--ec-em);padding-left:12px;font-style:italic;color:var(--ec-t1)}',
+      '.pharmacy{margin-top:32px;padding-top:16px;border-top:1px solid var(--ec-t4);font-size:11px;color:var(--ec-t2)}',
     ].join('\n')
     doc.head.appendChild(style)
     doc.title = 'Signposting - ' + (resource?.title || '')
@@ -1082,7 +1082,7 @@ function TrainingTab({ trainingLogs, staffMembers, loading }) {
     })
   }, [staffNames, trainingLogs])
 
-  const cellColors = { complete: { bg: '#dcfce7', text: '#166534' }, overdue: { bg: '#fecaca', text: '#991b1b' }, due_soon: { bg: '#fef3c7', text: '#92400e' }, not_started: { bg: '#f3f4f6', text: '#6b7280' } }
+  const cellColors = { complete: { bg: 'var(--ec-em-bg)', text: 'var(--ec-em-dark)' }, overdue: { bg: 'var(--ec-crit-border)', text: 'var(--ec-crit-dark)' }, due_soon: { bg: 'var(--ec-warn-bg)', text: 'var(--ec-warn-dark)' }, not_started: { bg: 'var(--ec-card-hover)', text: 'var(--ec-t2)' } }
   const cellLabels = { complete: 'Complete', overdue: 'Overdue', due_soon: 'Due Soon', not_started: '—' }
 
   if (loading) return <SkeletonLoader />

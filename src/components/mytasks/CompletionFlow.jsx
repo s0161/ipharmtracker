@@ -15,36 +15,36 @@ export default function CompletionFlow({ task, open, onClose, onConfirm }) {
   return (
     <Modal open={open} onClose={onClose} title="Complete Task">
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b', marginBottom: 4 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--ec-t1)', marginBottom: 4 }}>
           {task.taskName || task.title}
         </div>
         {task.notes && (
-          <div style={{ fontSize: 12, color: '#64748b', fontStyle: 'italic' }}>{task.notes}</div>
+          <div style={{ fontSize: 12, color: 'var(--ec-t2)', fontStyle: 'italic' }}>{task.notes}</div>
         )}
       </div>
 
       {task.linkedLog && (
         <div style={{
           padding: '10px 14px', borderRadius: 10, marginBottom: 14,
-          background: '#f0fdf4', border: '1px solid #d1fae5',
+          background: 'var(--ec-em-bg)', border: '1px solid var(--ec-em-border)',
           display: 'flex', alignItems: 'center', gap: 8,
         }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ec-em)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" />
           </svg>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 11, fontWeight: 600, color: '#059669' }}>Log entry recommended</div>
-            <div style={{ fontSize: 10, color: '#64748b' }}>This task links to a log page.</div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--ec-em)' }}>Log entry recommended</div>
+            <div style={{ fontSize: 10, color: 'var(--ec-t2)' }}>This task links to a log page.</div>
           </div>
           <a href={`#${task.linkedLog}`} style={{
-            fontSize: 11, fontWeight: 600, color: '#059669', textDecoration: 'none',
-            padding: '4px 12px', borderRadius: 20, border: '1px solid #d1fae5',
+            fontSize: 11, fontWeight: 600, color: 'var(--ec-em)', textDecoration: 'none',
+            padding: '4px 12px', borderRadius: 20, border: '1px solid var(--ec-em-border)',
           }}>Open Log</a>
         </div>
       )}
 
       <div style={{ marginBottom: 16 }}>
-        <label style={{ fontSize: 11, fontWeight: 600, color: '#64748b', marginBottom: 4, display: 'block' }}>
+        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--ec-t2)', marginBottom: 4, display: 'block' }}>
           Notes (optional)
         </label>
         <textarea
@@ -54,7 +54,7 @@ export default function CompletionFlow({ task, open, onClose, onConfirm }) {
           rows={2}
           style={{
             width: '100%', padding: '8px 12px', borderRadius: 8, fontSize: 13,
-            border: '1px solid #d1fae5', outline: 'none', fontFamily: "'Inter', sans-serif",
+            border: '1px solid var(--ec-em-border)', outline: 'none', fontFamily: "'Inter', sans-serif",
             background: 'white', boxSizing: 'border-box', resize: 'vertical',
           }}
         />
@@ -63,12 +63,12 @@ export default function CompletionFlow({ task, open, onClose, onConfirm }) {
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
         <button onClick={onClose} style={{
           padding: '8px 18px', borderRadius: 8, fontSize: 13, fontWeight: 600,
-          border: '1px solid #d1fae5', background: 'white', color: '#64748b',
+          border: '1px solid var(--ec-em-border)', background: 'white', color: 'var(--ec-t2)',
           cursor: 'pointer', fontFamily: "'Inter', sans-serif",
         }}>Cancel</button>
         <button onClick={handleConfirm} style={{
           padding: '8px 18px', borderRadius: 8, fontSize: 13, fontWeight: 600, border: 'none',
-          background: '#059669', color: 'white',
+          background: 'var(--ec-em)', color: 'white',
           cursor: 'pointer', fontFamily: "'Inter', sans-serif",
         }}>Mark Complete</button>
       </div>

@@ -53,8 +53,8 @@ function Pill({ active, label, onClick }) {
   return (
     <button onClick={onClick} style={{
       padding: '4px 14px', borderRadius: 20, fontSize: 11, fontWeight: 600, fontFamily: DM,
-      border: active ? '1.5px solid #059669' : '1px solid var(--border-card)',
-      background: active ? '#059669' : 'transparent',
+      border: active ? '1.5px solid var(--ec-em)' : '1px solid var(--border-card)',
+      background: active ? 'var(--ec-em)' : 'transparent',
       color: active ? '#fff' : 'var(--text-secondary)',
       cursor: 'pointer', transition: 'all 0.15s',
     }}>{label}</button>
@@ -69,7 +69,7 @@ function Toggle({ checked, onChange, size = 'normal' }) {
   return (
     <button onClick={onChange} style={{
       width: w, height: h, borderRadius: h, padding: 2,
-      background: checked ? '#059669' : '#d4d4d8',
+      background: checked ? 'var(--ec-em)' : 'var(--ec-t4)',
       border: 'none', cursor: 'pointer', position: 'relative',
       transition: 'background 0.2s', flexShrink: 0,
     }}>
@@ -85,15 +85,15 @@ function Toggle({ checked, onChange, size = 'normal' }) {
 
 // ─── Role pill ───
 const ROLE_PILL_COLORS = {
-  superintendent: { bg: '#fdf4ff', color: '#9333ea', border: '#e9d5ff' },
-  manager: { bg: '#fff7ed', color: '#c2410c', border: '#fed7aa' },
-  pharmacist: { bg: '#fdf4ff', color: '#9333ea', border: '#e9d5ff' },
-  technician: { bg: '#eff6ff', color: '#2563eb', border: '#bfdbfe' },
-  dispenser: { bg: '#f0fdf4', color: '#059669', border: '#d1fae5' },
-  stock_assistant: { bg: '#fef9c3', color: '#a16207', border: '#fde68a' },
-  driver: { bg: '#f1f5f9', color: '#475569', border: '#cbd5e1' },
-  aca: { bg: '#fff7ed', color: '#ea580c', border: '#fed7aa' },
-  staff: { bg: '#f0fdf4', color: '#059669', border: '#d1fae5' },
+  superintendent: { bg: 'var(--ec-cat-purple-bg)', color: 'var(--ec-cat-purple)', border: 'var(--ec-cat-purple-border)' },
+  manager: { bg: 'var(--ec-cat-orange-bg)', color: 'var(--ec-cat-orange)', border: 'var(--ec-warn-border)' },
+  pharmacist: { bg: 'var(--ec-cat-purple-bg)', color: 'var(--ec-cat-purple)', border: 'var(--ec-cat-purple-border)' },
+  technician: { bg: 'var(--ec-info-bg)', color: 'var(--ec-info)', border: 'var(--ec-info-border)' },
+  dispenser: { bg: 'var(--ec-em-bg)', color: 'var(--ec-em)', border: 'var(--ec-em-border)' },
+  stock_assistant: { bg: 'var(--ec-warn-bg)', color: 'var(--ec-warn-light)', border: 'var(--ec-warn-border)' },
+  driver: { bg: 'var(--ec-cat-slate-bg)', color: 'var(--ec-t2)', border: 'var(--ec-t5)' },
+  aca: { bg: 'var(--ec-cat-orange-bg)', color: 'var(--ec-cat-orange)', border: 'var(--ec-warn-border)' },
+  staff: { bg: 'var(--ec-em-bg)', color: 'var(--ec-em)', border: 'var(--ec-em-border)' },
 }
 const SETTINGS_ROLE_OPTIONS = [
   'superintendent', 'manager', 'pharmacist', 'technician',
@@ -360,8 +360,8 @@ export default function Settings() {
   // ─── Small button helper ───
   const SmBtn = ({ children, onClick, variant = 'default', style: extra }) => {
     const base = { fontSize: 11, fontWeight: 500, fontFamily: DM, padding: '3px 10px', borderRadius: 6, cursor: 'pointer', transition: 'all 0.15s', ...extra }
-    if (variant === 'danger') return <button onClick={onClick} style={{ ...base, background: 'transparent', border: '1px solid #fecaca', color: '#dc2626' }}>{children}</button>
-    if (variant === 'primary') return <button onClick={onClick} style={{ ...base, background: '#059669', border: 'none', color: '#fff' }}>{children}</button>
+    if (variant === 'danger') return <button onClick={onClick} style={{ ...base, background: 'transparent', border: '1px solid var(--ec-crit-border)', color: 'var(--ec-crit)' }}>{children}</button>
+    if (variant === 'primary') return <button onClick={onClick} style={{ ...base, background: 'var(--ec-em)', border: 'none', color: '#fff' }}>{children}</button>
     return <button onClick={onClick} style={{ ...base, background: 'transparent', border: '1px solid var(--border-card)', color: 'var(--text-secondary)' }}>{children}</button>
   }
 
@@ -400,7 +400,7 @@ export default function Settings() {
           <div>
             {/* Staff Members Card */}
             <div style={{ ...CARD, marginBottom: 14, overflow: 'hidden' }}>
-              <DashCardHeader gradient="linear-gradient(90deg, #064e3b, #059669)" icon="👥" title="Staff Members" right={<span style={{ fontSize: 11, fontFamily: MONO }}>{staffMembers.length} members</span>} />
+              <DashCardHeader variant="em" icon="👥" title="Staff Members" right={<span style={{ fontSize: 11, fontFamily: MONO }}>{staffMembers.length} members</span>} />
 
               {staffMembers.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-muted)', fontSize: 13 }}>No staff added yet.</div>
@@ -506,7 +506,7 @@ export default function Settings() {
                 ) : (
                   <button onClick={() => setShowAddStaff(true)} style={{
                     padding: '6px 16px', borderRadius: 8, fontSize: 12, fontWeight: 600, fontFamily: DM,
-                    background: '#059669', color: '#fff', border: 'none', cursor: 'pointer',
+                    background: 'var(--ec-em)', color: '#fff', border: 'none', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', gap: 5,
                   }}>＋ Add Staff Member</button>
                 )}
@@ -515,7 +515,7 @@ export default function Settings() {
 
             {/* Training Topics Card */}
             <div style={{ ...CARD, overflow: 'hidden' }}>
-              <DashCardHeader gradient="linear-gradient(90deg, #1e40af, #3b82f6)" icon="📚" title="Training Topics" right={<span style={{ fontSize: 11, fontFamily: MONO }}>{trainingTopics.length}</span>} />
+              <DashCardHeader variant="blue" icon="📚" title="Training Topics" right={<span style={{ fontSize: 11, fontFamily: MONO }}>{trainingTopics.length}</span>} />
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
                 {trainingTopics.length === 0 && (
                   <span style={{ fontSize: 12, color: 'var(--text-muted)', fontStyle: 'italic' }}>No topics added yet.</span>
@@ -524,12 +524,12 @@ export default function Settings() {
                   <span key={topic} style={{
                     display: 'inline-flex', alignItems: 'center', gap: 4,
                     fontSize: 11, padding: '3px 10px', borderRadius: 20,
-                    background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe',
+                    background: 'var(--ec-info-bg)', color: 'var(--ec-info)', border: '1px solid var(--ec-info-border)',
                     fontWeight: 500,
                   }}>
                     {topic}
                     <button onClick={() => handleRemoveTopic(topic)} style={{
-                      background: 'none', border: 'none', cursor: 'pointer', color: '#2563eb',
+                      background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ec-info)',
                       fontSize: 12, padding: 0, lineHeight: 1, opacity: 0.6,
                     }}>×</button>
                   </span>
@@ -552,7 +552,7 @@ export default function Settings() {
         {/* ═══ TAB 2 — PHARMACY ═══ */}
         {activeTab === 'pharmacy' && (
           <div style={{ ...CARD, overflow: 'hidden' }}>
-            <DashCardHeader gradient="linear-gradient(90deg, #064e3b, #059669)" icon="🏥" title="Pharmacy Details" />
+            <DashCardHeader variant="em" icon="🏥" title="Pharmacy Details" />
             {pharmacyForm ? (
               <div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -579,7 +579,7 @@ export default function Settings() {
                 </div>
                 <button onClick={handleSavePharmacy} style={{
                   marginTop: 14, padding: '6px 16px', borderRadius: 8, fontSize: 12, fontWeight: 600, fontFamily: DM,
-                  background: '#059669', color: '#fff', border: 'none', cursor: 'pointer',
+                  background: 'var(--ec-em)', color: '#fff', border: 'none', cursor: 'pointer',
                 }}>Save Pharmacy Details</button>
               </div>
             ) : (
@@ -606,7 +606,7 @@ export default function Settings() {
         {/* ═══ TAB 3 — CLEANING ═══ */}
         {activeTab === 'cleaning' && (
           <div style={{ ...CARD, overflow: 'hidden' }}>
-            <DashCardHeader gradient="linear-gradient(90deg, #064e3b, #047857)" icon="🧹" title="Cleaning Task Templates" right={<span style={{ fontSize: 11, fontFamily: MONO }}>{cleaningTasks.length} tasks</span>} />
+            <DashCardHeader variant="em" icon="🧹" title="Cleaning Task Templates" right={<span style={{ fontSize: 11, fontFamily: MONO }}>{cleaningTasks.length} tasks</span>} />
 
             {groupedTasks.map(group => {
               const isCollapsed = collapsedFreqs[group.freq]
@@ -680,7 +680,7 @@ export default function Settings() {
           <div>
             {/* RP Rotation */}
             <div style={{ ...CARD, marginBottom: 14, overflow: 'hidden' }}>
-              <DashCardHeader gradient="linear-gradient(90deg, #064e3b, #059669)" icon="⚕" title="RP Rotation" />
+              <DashCardHeader variant="em" icon="⚕" title="RP Rotation" />
               <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>
                 Configure which pharmacists are responsible for RP duties and their assigned days.
               </div>
@@ -699,7 +699,7 @@ export default function Settings() {
                     {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
                       <span key={day} style={{
                         fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 6,
-                        background: '#f0fdf4', color: '#059669', border: '1px solid #d1fae5',
+                        background: 'var(--ec-em-bg)', color: 'var(--ec-em)', border: '1px solid var(--ec-em-border)',
                         cursor: 'pointer',
                       }}>{day}</span>
                     ))}
@@ -715,7 +715,7 @@ export default function Settings() {
 
             {/* Default Shift Tasks */}
             <div style={{ ...CARD, overflow: 'hidden' }}>
-              <DashCardHeader gradient="linear-gradient(90deg, #0f766e, #14b8a6)" icon="📋" title="Default Shift Tasks" />
+              <DashCardHeader variant="teal" icon="📋" title="Default Shift Tasks" />
               <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>
                 These tasks appear on the Dashboard shift checklist. Configure the default task set for daily operations.
               </div>
@@ -743,9 +743,9 @@ export default function Settings() {
                       )}
                       <span style={{
                         fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 10,
-                        background: task.priority === 'HIGH' ? '#fef2f2' : '#fffbeb',
-                        color: task.priority === 'HIGH' ? '#dc2626' : '#d97706',
-                        border: `1px solid ${task.priority === 'HIGH' ? '#fecaca' : '#fde68a'}`,
+                        background: task.priority === 'HIGH' ? 'var(--ec-crit-bg)' : 'var(--ec-warn-bg)',
+                        color: task.priority === 'HIGH' ? 'var(--ec-crit)' : 'var(--ec-warn)',
+                        border: `1px solid ${task.priority === 'HIGH' ? 'var(--ec-crit-border)' : 'var(--ec-warn-border)'}`,
                       }}>{task.priority}</span>
                     </div>
                   ))}
@@ -758,7 +758,7 @@ export default function Settings() {
         {/* ═══ TAB — TASK TEMPLATES ═══ */}
         {activeTab === 'templates' && (
           <div style={{ ...CARD, overflow: 'hidden' }}>
-            <DashCardHeader gradient="linear-gradient(90deg, #7c3aed, #a78bfa)" icon="📝" title="Task Templates" right={<span style={{ fontSize: 11, fontFamily: MONO }}>{taskTemplates.length} templates</span>} />
+            <DashCardHeader variant="purple" icon="📝" title="Task Templates" right={<span style={{ fontSize: 11, fontFamily: MONO }}>{taskTemplates.length} templates</span>} />
 
             {taskTemplates.length === 0 ? (
               <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-muted)', fontSize: 13 }}>No task templates found. Re-seed to restore defaults.</div>
@@ -800,16 +800,16 @@ export default function Settings() {
                           </div>
                           <span style={{
                             fontSize: 9, fontWeight: 600, padding: '1px 7px', borderRadius: 20,
-                            background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe',
+                            background: 'var(--ec-info-bg)', color: 'var(--ec-info)', border: '1px solid var(--ec-info-border)',
                             textTransform: 'capitalize',
                           }}>{t.frequency}</span>
                           <span style={{
                             fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 20,
                             fontFamily: MONO, letterSpacing: '0.05em', textTransform: 'uppercase',
-                            ...(t.priority === 'urgent' ? { background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' } :
-                               t.priority === 'high' ? { background: '#fff7ed', color: '#ea580c', border: '1px solid #fed7aa' } :
-                               t.priority === 'normal' ? { background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0' } :
-                               { background: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0' }),
+                            ...(t.priority === 'urgent' ? { background: 'var(--ec-crit-bg)', color: 'var(--ec-crit)', border: '1px solid var(--ec-crit-border)' } :
+                               t.priority === 'high' ? { background: 'var(--ec-cat-orange-bg)', color: 'var(--ec-cat-orange)', border: '1px solid var(--ec-warn-border)' } :
+                               t.priority === 'normal' ? { background: 'var(--ec-em-bg)', color: 'var(--ec-em)', border: '1px solid var(--ec-em-border)' } :
+                               { background: 'var(--ec-card-hover)', color: 'var(--ec-t2)', border: '1px solid var(--ec-t5)' }),
                           }}>{t.priority}</span>
                           {t.applicableRoles && (
                             <span style={{ fontSize: 9, color: 'var(--text-muted)' }} title={t.applicableRoles.join(', ')}>
@@ -829,7 +829,7 @@ export default function Settings() {
         {/* ═══ TAB 5 — NOTIFICATIONS ═══ */}
         {activeTab === 'notifications' && (
           <div style={{ ...CARD, overflow: 'hidden' }}>
-            <DashCardHeader gradient="linear-gradient(90deg, #92400e, #d97706)" icon="🔔" title="Notification Preferences" />
+            <DashCardHeader variant="warn" icon="🔔" title="Notification Preferences" />
             <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 12 }}>
               Control which alerts appear in the sidebar and dashboard.
             </div>
@@ -878,13 +878,13 @@ export default function Settings() {
         {activeTab === 'data' && (
           <div>
             <div style={{ ...CARD, marginBottom: 14, overflow: 'hidden' }}>
-              <DashCardHeader gradient="linear-gradient(90deg, #475569, #64748b)" icon="📊" title="Data & Reports" />
+              <DashCardHeader variant="muted" icon="📊" title="Data & Reports" />
 
               {/* Backend status */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, padding: '6px 10px', borderRadius: 8, background: 'var(--bg-card)', border: '1px solid var(--border-card)' }}>
                 <div style={{
                   width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
-                  background: backendStatus.checking ? '#71717a' : backendStatus.ok ? '#059669' : '#ef4444',
+                  background: backendStatus.checking ? 'var(--ec-t2)' : backendStatus.ok ? 'var(--ec-em)' : 'var(--ec-crit)',
                   boxShadow: backendStatus.ok ? '0 0 0 3px rgba(5,150,105,0.15)' : 'none',
                 }} />
                 <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
@@ -910,7 +910,7 @@ export default function Settings() {
               </ActionCard>
 
               {importMsg && (
-                <div style={{ fontSize: 12, color: importMsg.type === 'success' ? '#059669' : '#dc2626', marginTop: 8 }}>{importMsg.text}</div>
+                <div style={{ fontSize: 12, color: importMsg.type === 'success' ? 'var(--ec-em)' : 'var(--ec-crit)', marginTop: 8 }}>{importMsg.text}</div>
               )}
 
               <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--border-card)' }}>
@@ -922,13 +922,13 @@ export default function Settings() {
 
             {/* Weekly Report Card */}
             <div style={{ ...CARD, marginBottom: 14, overflow: 'hidden' }}>
-              <DashCardHeader gradient="linear-gradient(90deg, #1e40af, #3b82f6)" icon="📋" title="Weekly Compliance Report" />
+              <DashCardHeader variant="blue" icon="📋" title="Weekly Compliance Report" />
               <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>
                 Generate a CSV summary of this week's compliance scores, incidents, expiring documents, and overdue training.
               </div>
               <button onClick={handleWeeklyReport} style={{
                 padding: '6px 16px', borderRadius: 8, fontSize: 12, fontWeight: 600, fontFamily: DM,
-                background: '#059669', color: '#fff', border: 'none', cursor: 'pointer',
+                background: 'var(--ec-em)', color: '#fff', border: 'none', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: 5,
               }}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
@@ -938,7 +938,7 @@ export default function Settings() {
 
             {/* Audit Trail Card */}
             <div style={{ ...CARD, overflow: 'hidden' }}>
-              <DashCardHeader gradient="linear-gradient(90deg, #475569, #64748b)" icon="📝" title="Audit Trail" />
+              <DashCardHeader variant="muted" icon="📝" title="Audit Trail" />
               <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>
                 View a log of all actions performed in the system.
               </div>

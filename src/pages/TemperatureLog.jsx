@@ -103,37 +103,37 @@ function TempChart({ data }) {
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 200, display: 'block' }}>
-      <rect x={PAD.l} y={safeTop} width={pW} height={safeBot - safeTop} fill="#f0fdf4" opacity="0.4" />
-      <line x1={PAD.l} y1={toY(RANGE_MIN)} x2={W - PAD.r} y2={toY(RANGE_MIN)} stroke="#d1fae5" strokeDasharray="3 3" strokeWidth="1" />
-      <line x1={PAD.l} y1={toY(RANGE_MAX)} x2={W - PAD.r} y2={toY(RANGE_MAX)} stroke="#d1fae5" strokeDasharray="3 3" strokeWidth="1" />
-      <text x={PAD.l - 4} y={toY(RANGE_MIN) + 3} textAnchor="end" fill="#94a3b8" fontSize="9" style={mono}>2°C</text>
-      <text x={PAD.l - 4} y={toY(RANGE_MAX) + 3} textAnchor="end" fill="#94a3b8" fontSize="9" style={mono}>8°C</text>
+      <rect x={PAD.l} y={safeTop} width={pW} height={safeBot - safeTop} fill="var(--ec-em-bg)" opacity="0.4" />
+      <line x1={PAD.l} y1={toY(RANGE_MIN)} x2={W - PAD.r} y2={toY(RANGE_MIN)} stroke="var(--ec-em-border)" strokeDasharray="3 3" strokeWidth="1" />
+      <line x1={PAD.l} y1={toY(RANGE_MAX)} x2={W - PAD.r} y2={toY(RANGE_MAX)} stroke="var(--ec-em-border)" strokeDasharray="3 3" strokeWidth="1" />
+      <text x={PAD.l - 4} y={toY(RANGE_MIN) + 3} textAnchor="end" fill="var(--ec-t3)" fontSize="9" style={mono}>2°C</text>
+      <text x={PAD.l - 4} y={toY(RANGE_MAX) + 3} textAnchor="end" fill="var(--ec-t3)" fontSize="9" style={mono}>8°C</text>
 
       {[0, 2, 4, 6, 8, 10, 12].map(v => (
         <g key={v}>
           {v !== RANGE_MIN && v !== RANGE_MAX && (
-            <line x1={PAD.l} y1={toY(v)} x2={W - PAD.r} y2={toY(v)} stroke="#e2e8f0" strokeWidth="0.5" />
+            <line x1={PAD.l} y1={toY(v)} x2={W - PAD.r} y2={toY(v)} stroke="var(--ec-t5)" strokeWidth="0.5" />
           )}
-          <text x={PAD.l - 4} y={toY(v) + 3} textAnchor="end" fill="#cbd5e1" fontSize="8" style={mono}>{v}</text>
+          <text x={PAD.l - 4} y={toY(v) + 3} textAnchor="end" fill="var(--ec-t3)" fontSize="8" style={mono}>{v}</text>
         </g>
       ))}
 
-      <polyline points={makeLine('min')} fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      <polyline points={makeLine('max')} fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      <polyline points={makeLine('current')} fill="none" stroke="#059669" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="4 2" />
+      <polyline points={makeLine('min')} fill="none" stroke="var(--ec-info)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <polyline points={makeLine('max')} fill="none" stroke="var(--ec-crit)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <polyline points={makeLine('current')} fill="none" stroke="var(--ec-em)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="4 2" />
 
       {data.map((d, i) => (
         <g key={i}>
-          <circle cx={toX(i)} cy={toY(d.min)} r="2.5" fill="#3b82f6" />
-          <circle cx={toX(i)} cy={toY(d.max)} r="2.5" fill="#ef4444" />
-          <circle cx={toX(i)} cy={toY(d.current)} r="2.5" fill="#059669" />
+          <circle cx={toX(i)} cy={toY(d.min)} r="2.5" fill="var(--ec-info)" />
+          <circle cx={toX(i)} cy={toY(d.max)} r="2.5" fill="var(--ec-crit)" />
+          <circle cx={toX(i)} cy={toY(d.current)} r="2.5" fill="var(--ec-em)" />
         </g>
       ))}
 
       {dateLabels.map((d) => {
         const idx = data.indexOf(d)
         return (
-          <text key={d.date} x={toX(idx)} y={H - 6} textAnchor="middle" fill="#94a3b8" fontSize="9" style={mono}>
+          <text key={d.date} x={toX(idx)} y={H - 6} textAnchor="middle" fill="var(--ec-t3)" fontSize="9" style={mono}>
             {d.date.slice(5)}
           </text>
         )
@@ -144,9 +144,9 @@ function TempChart({ data }) {
 
 function ChartLegend() {
   const items = [
-    { label: 'Min', color: '#3b82f6', dash: false },
-    { label: 'Max', color: '#ef4444', dash: false },
-    { label: 'Current', color: '#059669', dash: true },
+    { label: 'Min', color: 'var(--ec-info)', dash: false },
+    { label: 'Max', color: 'var(--ec-crit)', dash: false },
+    { label: 'Current', color: 'var(--ec-em)', dash: true },
   ]
   return (
     <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 8 }}>
@@ -167,8 +167,8 @@ function AnimatedCheck({ checked, onChange, disabled }) {
       onClick={disabled ? undefined : onChange}
       style={{
         width: 18, height: 18, borderRadius: 5, flexShrink: 0,
-        border: `2px solid ${checked ? '#059669' : 'var(--text-muted, #94a3b8)'}`,
-        backgroundColor: checked ? '#059669' : 'transparent',
+        border: `2px solid ${checked ? 'var(--ec-em)' : 'var(--text-muted, var(--ec-t3))'}`,
+        backgroundColor: checked ? 'var(--ec-em)' : 'transparent',
         cursor: disabled ? 'not-allowed' : 'pointer',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         transition: 'all 0.2s cubic-bezier(0.34,1.56,0.64,1)',
@@ -233,7 +233,7 @@ function SafeHandlingSection() {
         <svg width={12} height={12} viewBox="0 0 12 12" fill="none"
           style={{ transform: open ? 'rotate(90deg)' : 'rotate(0)', transition: 'transform 0.2s cubic-bezier(0.34,1.56,0.64,1)' }}
         >
-          <path d="M4.5 2.5L8 6L4.5 9.5" stroke="var(--text-muted, #94a3b8)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M4.5 2.5L8 6L4.5 9.5" stroke="var(--text-muted, var(--ec-t3))" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
 
@@ -241,7 +241,7 @@ function SafeHandlingSection() {
         <div style={{ padding: '0 14px 14px', borderTop: '1px solid var(--border-card)' }}>
           {guidelines.map(section => (
             <div key={section.title} style={{ marginTop: 12 }}>
-              <div style={{ ...sans, fontSize: 11, fontWeight: 700, color: '#059669', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>
+              <div style={{ ...sans, fontSize: 11, fontWeight: 700, color: 'var(--ec-em)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>
                 {section.title}
               </div>
               <ul style={{ margin: 0, paddingLeft: 16 }}>
@@ -494,11 +494,11 @@ export default function TemperatureLog() {
   // ── Status pill ──
   const statusPill = todayEntry
     ? todayEntry.notChecked
-      ? { label: 'Not checked', bg: '#f1f5f9', color: '#475569', border: '#e2e8f0' }
+      ? { label: 'Not checked', bg: 'var(--ec-t5)', color: 'var(--ec-t2)', border: 'var(--ec-t5)' }
       : todayEntry.excursion
-        ? { label: '⚠ Excursion', bg: '#fffbeb', color: '#d97706', border: '#fde68a' }
-        : { label: '✓ Logged today', bg: '#f0fdf4', color: '#059669', border: '#6ee7b7' }
-    : { label: 'Not logged today', bg: '#fef2f2', color: '#dc2626', border: '#fecaca' }
+        ? { label: '⚠ Excursion', bg: 'var(--ec-warn-bg)', color: 'var(--ec-warn)', border: 'var(--ec-warn-border)' }
+        : { label: '✓ Logged today', bg: 'var(--ec-em-bg)', color: 'var(--ec-em)', border: 'var(--ec-em-border)' }
+    : { label: 'Not logged today', bg: 'var(--ec-crit-bg)', color: 'var(--ec-crit)', border: 'var(--ec-crit-border)' }
 
   const showForm = !todayEntry || editing
 
@@ -514,9 +514,9 @@ export default function TemperatureLog() {
           style={{
             ...mono, width: 80, padding: '8px 10px', borderRadius: 8,
             fontSize: 14, fontWeight: 700, textAlign: 'center',
-            border: `1px solid ${ok ? 'var(--input-border)' : '#fecaca'}`,
-            background: ok ? 'var(--input-bg)' : '#fef2f2',
-            color: ok ? 'var(--text-primary)' : '#dc2626',
+            border: `1px solid ${ok ? 'var(--input-border)' : 'var(--ec-crit-border)'}`,
+            background: ok ? 'var(--input-bg)' : 'var(--ec-crit-bg)',
+            color: ok ? 'var(--text-primary)' : 'var(--ec-crit)',
             outline: 'none', boxSizing: 'border-box', transition: 'border 0.15s, background 0.15s',
           }}
         />
@@ -530,7 +530,7 @@ export default function TemperatureLog() {
     return (
       <div style={{ textAlign: 'center' }}>
         <div style={{ ...sans, fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4, fontWeight: 600 }}>{label}</div>
-        <div style={{ ...mono, fontSize: 18, fontWeight: 700, color: ok ? '#059669' : '#dc2626' }}>
+        <div style={{ ...mono, fontSize: 18, fontWeight: 700, color: ok ? 'var(--ec-em)' : 'var(--ec-crit)' }}>
           {isNaN(v) ? '—' : `${v.toFixed(1)}°C`}
         </div>
       </div>
@@ -570,9 +570,9 @@ export default function TemperatureLog() {
             <div key={i} style={{
               ...sans, display: 'flex', alignItems: 'center', gap: 8,
               padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600,
-              background: a.type === 'danger' ? '#fef2f2' : '#fffbeb',
-              color: a.type === 'danger' ? '#dc2626' : '#92400e',
-              border: `1px solid ${a.type === 'danger' ? '#fecaca' : '#fde68a'}`,
+              background: a.type === 'danger' ? 'var(--ec-crit-bg)' : 'var(--ec-warn-bg)',
+              color: a.type === 'danger' ? 'var(--ec-crit)' : 'var(--ec-warn-dark)',
+              border: `1px solid ${a.type === 'danger' ? 'var(--ec-crit-border)' : 'var(--ec-warn-border)'}`,
             }}>
               <span style={{ fontSize: 14 }}>{a.type === 'danger' ? '🔴' : '🟡'}</span>
               {a.text}
@@ -595,7 +595,7 @@ export default function TemperatureLog() {
             style={{
               ...sans, padding: '5px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600,
               border: 'none', cursor: 'pointer', transition: 'all 0.15s',
-              background: selectedFridge === f.id ? '#059669' : 'transparent',
+              background: selectedFridge === f.id ? 'var(--ec-em)' : 'transparent',
               color: selectedFridge === f.id ? 'white' : 'var(--text-secondary)',
               boxShadow: selectedFridge === f.id ? '0 2px 8px rgba(5,150,105,0.3)' : 'none',
             }}
@@ -616,7 +616,7 @@ export default function TemperatureLog() {
 
           {/* ── Today's Reading Card ── */}
           <div style={card}>
-            <SectionHeader accent="#0f766e" icon="🌡️" title="Today's Reading" right={
+            <SectionHeader accent="var(--ec-cat-teal)" icon="🌡️" title="Today's Reading" right={
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{
                   ...sans, fontSize: 10, fontWeight: 600, padding: '2px 10px', borderRadius: 20,
@@ -632,11 +632,11 @@ export default function TemperatureLog() {
                 <div style={{
                   display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12,
                   padding: '8px 12px', borderRadius: 8,
-                  background: notChecked ? '#f1f5f9' : 'transparent',
-                  border: notChecked ? '1px solid #e2e8f0' : '1px solid transparent',
+                  background: notChecked ? 'var(--ec-t5)' : 'transparent',
+                  border: notChecked ? '1px solid var(--ec-t5)' : '1px solid transparent',
                 }}>
                   <AnimatedCheck checked={notChecked} onChange={() => setNotChecked(!notChecked)} />
-                  <span style={{ ...sans, fontSize: 12, fontWeight: 600, color: notChecked ? '#475569' : 'var(--text-secondary)' }}>
+                  <span style={{ ...sans, fontSize: 12, fontWeight: 600, color: notChecked ? 'var(--ec-t2)' : 'var(--text-secondary)' }}>
                     Not checked today
                   </span>
                 </div>
@@ -654,9 +654,9 @@ export default function TemperatureLog() {
                           style={{
                             ...sans, padding: '5px 12px', borderRadius: 20, fontSize: 11, fontWeight: 600,
                             cursor: 'pointer', transition: 'all 0.15s',
-                            border: notCheckedReason === reason ? '1px solid #059669' : '1px solid var(--border-card)',
-                            background: notCheckedReason === reason ? '#f0fdf4' : 'transparent',
-                            color: notCheckedReason === reason ? '#059669' : 'var(--text-secondary)',
+                            border: notCheckedReason === reason ? '1px solid var(--ec-em)' : '1px solid var(--border-card)',
+                            background: notCheckedReason === reason ? 'var(--ec-em-bg)' : 'transparent',
+                            color: notCheckedReason === reason ? 'var(--ec-em)' : 'var(--text-secondary)',
                           }}
                         >
                           {reason}
@@ -677,9 +677,9 @@ export default function TemperatureLog() {
                     {hasExcursion && (
                       <div style={{ marginBottom: 12 }}>
                         <div style={{
-                          ...sans, fontSize: 11, color: '#92400e', background: '#fffbeb',
+                          ...sans, fontSize: 11, color: 'var(--ec-warn-dark)', background: 'var(--ec-warn-bg)',
                           padding: '8px 12px', borderRadius: 8, marginBottom: 8, lineHeight: 1.4,
-                          border: '1px solid #fde68a',
+                          border: '1px solid var(--ec-warn-border)',
                         }}>
                           ⚠️ Out-of-range reading detected — please record reason and action taken
                         </div>
@@ -736,7 +736,7 @@ export default function TemperatureLog() {
 
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button type="submit" disabled={submitting} style={{
-                    ...sans, flex: 1, padding: 9, background: '#059669', color: 'white',
+                    ...sans, flex: 1, padding: 9, background: 'var(--ec-em)', color: 'white',
                     borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 700,
                     cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.6 : 1,
                   }}>{submitting ? 'Saving…' : notChecked ? 'Record Not Checked' : 'Save Reading'}</button>
@@ -755,12 +755,12 @@ export default function TemperatureLog() {
                 {todayEntry.notChecked ? (
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: 8, padding: '12px 14px',
-                    borderRadius: 8, background: '#f1f5f9', border: '1px solid #e2e8f0', marginBottom: 8,
+                    borderRadius: 8, background: 'var(--ec-t5)', border: '1px solid var(--ec-t5)', marginBottom: 8,
                   }}>
                     <span style={{ fontSize: 14 }}>⏭️</span>
                     <div>
-                      <div style={{ ...sans, fontSize: 13, fontWeight: 600, color: '#475569' }}>Not checked</div>
-                      <div style={{ ...sans, fontSize: 11, color: '#94a3b8' }}>{todayEntry.notCheckedReason || 'No reason given'}</div>
+                      <div style={{ ...sans, fontSize: 13, fontWeight: 600, color: 'var(--ec-t2)' }}>Not checked</div>
+                      <div style={{ ...sans, fontSize: 11, color: 'var(--ec-t3)' }}>{todayEntry.notCheckedReason || 'No reason given'}</div>
                     </div>
                   </div>
                 ) : (
@@ -778,21 +778,21 @@ export default function TemperatureLog() {
                     {todayEntry.excursionReason && (
                       <div style={{
                         padding: '6px 10px', borderRadius: 6,
-                        background: '#fffbeb', border: '1px solid #fde68a',
-                        fontSize: 11, color: '#92400e', fontStyle: 'italic', marginBottom: 6,
+                        background: 'var(--ec-warn-bg)', border: '1px solid var(--ec-warn-border)',
+                        fontSize: 11, color: 'var(--ec-warn-dark)', fontStyle: 'italic', marginBottom: 6,
                       }}>
                         ⚠️ {todayEntry.excursionReason}
                       </div>
                     )}
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                       {todayEntry.stockQuarantined && (
-                        <span style={{ ...sans, fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 10, background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' }}>Stock quarantined</span>
+                        <span style={{ ...sans, fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 10, background: 'var(--ec-crit-bg)', color: 'var(--ec-crit)', border: '1px solid var(--ec-crit-border)' }}>Stock quarantined</span>
                       )}
                       {todayEntry.stockDestroyed && (
-                        <span style={{ ...sans, fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 10, background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' }}>Stock destroyed</span>
+                        <span style={{ ...sans, fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 10, background: 'var(--ec-crit-bg)', color: 'var(--ec-crit)', border: '1px solid var(--ec-crit-border)' }}>Stock destroyed</span>
                       )}
                       {todayEntry.reportedTo && (
-                        <span style={{ ...sans, fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 10, background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe' }}>Reported to {todayEntry.reportedTo}</span>
+                        <span style={{ ...sans, fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 10, background: 'var(--ec-info-bg)', color: 'var(--ec-info)', border: '1px solid var(--ec-info-border)' }}>Reported to {todayEntry.reportedTo}</span>
                       )}
                     </div>
                   </div>
@@ -823,10 +823,10 @@ export default function TemperatureLog() {
             background: 'var(--bg-card)', border: '1px solid var(--border-card)',
           }}>
             {[
-              { label: 'Days This Month', val: monthlyStats.totalDays, color: '#64748b', bg: '#f8fafc', border: '#e2e8f0' },
-              { label: 'Recorded', val: monthlyStats.recordedDays, color: '#059669', bg: '#f0fdf4', border: '#6ee7b7' },
-              { label: 'Excursions', val: monthlyStats.excursionDays, color: monthlyStats.excursionDays > 0 ? '#dc2626' : '#94a3b8', bg: monthlyStats.excursionDays > 0 ? '#fef2f2' : '#f8fafc', border: monthlyStats.excursionDays > 0 ? '#fecaca' : '#e2e8f0' },
-              { label: 'Not Checked', val: monthlyStats.notCheckedDays, color: monthlyStats.notCheckedDays > 0 ? '#d97706' : '#94a3b8', bg: monthlyStats.notCheckedDays > 0 ? '#fffbeb' : '#f8fafc', border: monthlyStats.notCheckedDays > 0 ? '#fde68a' : '#e2e8f0' },
+              { label: 'Days This Month', val: monthlyStats.totalDays, color: 'var(--ec-t2)', bg: 'var(--ec-card-hover)', border: 'var(--ec-t5)' },
+              { label: 'Recorded', val: monthlyStats.recordedDays, color: 'var(--ec-em)', bg: 'var(--ec-em-bg)', border: 'var(--ec-em-border)' },
+              { label: 'Excursions', val: monthlyStats.excursionDays, color: monthlyStats.excursionDays > 0 ? 'var(--ec-crit)' : 'var(--ec-t3)', bg: monthlyStats.excursionDays > 0 ? 'var(--ec-crit-bg)' : 'var(--ec-card-hover)', border: monthlyStats.excursionDays > 0 ? 'var(--ec-crit-border)' : 'var(--ec-t5)' },
+              { label: 'Not Checked', val: monthlyStats.notCheckedDays, color: monthlyStats.notCheckedDays > 0 ? 'var(--ec-warn)' : 'var(--ec-t3)', bg: monthlyStats.notCheckedDays > 0 ? 'var(--ec-warn-bg)' : 'var(--ec-card-hover)', border: monthlyStats.notCheckedDays > 0 ? 'var(--ec-warn-border)' : 'var(--ec-t5)' },
             ].map(s => (
               <div key={s.label} style={{
                 flex: 1, textAlign: 'center', padding: '6px 4px', borderRadius: 8,
@@ -840,7 +840,7 @@ export default function TemperatureLog() {
 
           {/* ── History Table ── */}
           <div style={card}>
-            <SectionHeader accent="#064e3b" icon="📋" title="History" right={
+            <SectionHeader accent="var(--ec-em-dark)" icon="📋" title="History" right={
               <span style={{ ...sans, fontSize: 11, color: 'var(--text-muted)' }}>Last 30 days</span>
             } />
 
@@ -878,7 +878,7 @@ export default function TemperatureLog() {
 
             {historyLogs.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '24px 0' }}>
-                <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="#d1d5db" strokeWidth="1.5" style={{ margin: '0 auto 8px', display: 'block' }}>
+                <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="var(--ec-t4)" strokeWidth="1.5" style={{ margin: '0 auto 8px', display: 'block' }}>
                   <path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z" />
                 </svg>
                 <div style={{ ...sans, fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>No readings match this filter.</div>
@@ -907,13 +907,13 @@ export default function TemperatureLog() {
                       const isExpanded = expandedRow === log.id
 
                       const tempCell = (val) => {
-                        if (isNC) return <td style={{ ...mono, fontSize: 12, padding: '6px 8px', color: '#94a3b8', borderBottom: '1px solid var(--border-card)' }}>—</td>
+                        if (isNC) return <td style={{ ...mono, fontSize: 12, padding: '6px 8px', color: 'var(--ec-t3)', borderBottom: '1px solid var(--border-card)' }}>—</td>
                         const v = parseFloat(val)
                         const ok = inRange(v)
                         return (
                           <td style={{
                             ...mono, fontSize: 12, fontWeight: 600, padding: '6px 8px',
-                            color: ok ? '#059669' : '#dc2626',
+                            color: ok ? 'var(--ec-em)' : 'var(--ec-crit)',
                             borderBottom: '1px solid var(--border-card)',
                           }}>{isNaN(v) ? '—' : v.toFixed(1)}</td>
                         )
@@ -925,9 +925,9 @@ export default function TemperatureLog() {
                           onClick={() => (log.excursionReason || log.notCheckedReason) ? setExpandedRow(isExpanded ? null : log.id) : null}
                           style={{
                             cursor: (log.excursionReason || log.notCheckedReason) ? 'pointer' : 'default',
-                            background: isExcursion ? '#fffbeb' : isNC ? '#f8fafc' : idx % 2 === 0 ? 'transparent' : '#f9fffe',
+                            background: isExcursion ? 'var(--ec-warn-bg)' : isNC ? 'var(--ec-card-hover)' : idx % 2 === 0 ? 'transparent' : 'var(--ec-card-hover)',
                             fontWeight: isToday ? 600 : 400,
-                            borderLeft: isExcursion ? '3px solid #f59e0b' : isNC ? '3px solid #94a3b8' : '3px solid transparent',
+                            borderLeft: isExcursion ? '3px solid var(--ec-warn)' : isNC ? '3px solid var(--ec-t3)' : '3px solid transparent',
                           }}
                         >
                           <td style={{ ...mono, fontSize: 11, padding: '6px 8px', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-card)', whiteSpace: 'nowrap' }}>
@@ -935,7 +935,7 @@ export default function TemperatureLog() {
                             {isToday && <span style={{
                               ...sans, marginLeft: 4, fontSize: 9, fontWeight: 600,
                               padding: '1px 5px', borderRadius: 20,
-                              background: '#f0fdf4', color: '#059669', border: '1px solid #6ee7b7',
+                              background: 'var(--ec-em-bg)', color: 'var(--ec-em)', border: '1px solid var(--ec-em-border)',
                             }}>Today</span>}
                           </td>
                           {tempCell(log.tempMin)}
@@ -946,15 +946,15 @@ export default function TemperatureLog() {
                           </td>
                           <td style={{ padding: '6px 8px', borderBottom: '1px solid var(--border-card)' }}>
                             {isNC ? (
-                              <span style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 20, background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0' }}>
+                              <span style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 20, background: 'var(--ec-t5)', color: 'var(--ec-t2)', border: '1px solid var(--ec-t5)' }}>
                                 ⏭️ Not checked
                               </span>
                             ) : isExcursion ? (
-                              <span style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 20, background: '#fffbeb', color: '#d97706', border: '1px solid #fde68a' }}>
+                              <span style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 20, background: 'var(--ec-warn-bg)', color: 'var(--ec-warn)', border: '1px solid var(--ec-warn-border)' }}>
                                 ⚠ Excursion
                               </span>
                             ) : (
-                              <span style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 20, background: '#f0fdf4', color: '#059669', border: '1px solid #6ee7b7' }}>
+                              <span style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 20, background: 'var(--ec-em-bg)', color: 'var(--ec-em)', border: '1px solid var(--ec-em-border)' }}>
                                 ✓ In range
                               </span>
                             )}
@@ -973,17 +973,17 @@ export default function TemperatureLog() {
                   return (
                     <div style={{
                       ...sans, fontSize: 11, color: 'var(--text-muted)', fontStyle: 'italic',
-                      padding: '8px 12px', background: 'var(--bg-card-hover, #f8fafc)',
-                      borderBottom: '1px solid var(--border-card)', borderLeft: '3px solid #d97706',
+                      padding: '8px 12px', background: 'var(--bg-card-hover, var(--ec-card-hover))',
+                      borderBottom: '1px solid var(--border-card)', borderLeft: '3px solid var(--ec-warn)',
                     }}>
                       <strong style={{ fontWeight: 600, fontStyle: 'normal' }}>
                         {log.notChecked ? 'Reason:' : 'Excursion reason:'}
                       </strong> {reason}
                       {log.excursion && (log.stockQuarantined || log.stockDestroyed || log.reportedTo) && (
                         <div style={{ marginTop: 4, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                          {log.stockQuarantined && <span style={{ fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 8, background: '#fef2f2', color: '#dc2626' }}>Stock quarantined</span>}
-                          {log.stockDestroyed && <span style={{ fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 8, background: '#fef2f2', color: '#dc2626' }}>Stock destroyed</span>}
-                          {log.reportedTo && <span style={{ fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 8, background: '#eff6ff', color: '#2563eb' }}>Reported to {log.reportedTo}</span>}
+                          {log.stockQuarantined && <span style={{ fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 8, background: 'var(--ec-crit-bg)', color: 'var(--ec-crit)' }}>Stock quarantined</span>}
+                          {log.stockDestroyed && <span style={{ fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 8, background: 'var(--ec-crit-bg)', color: 'var(--ec-crit)' }}>Stock destroyed</span>}
+                          {log.reportedTo && <span style={{ fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 8, background: 'var(--ec-info-bg)', color: 'var(--ec-info)' }}>Reported to {log.reportedTo}</span>}
                         </div>
                       )}
                     </div>
@@ -1002,7 +1002,7 @@ export default function TemperatureLog() {
 
           {/* ── Chart Card ── */}
           <div style={card}>
-            <SectionHeader accent="#0f766e" icon="📈" title={`${chartDays}-Day Trend`} right={
+            <SectionHeader accent="var(--ec-cat-teal)" icon="📈" title={`${chartDays}-Day Trend`} right={
               <div style={{ display: 'flex', gap: 4 }}>
                 {[7, 30].map(d => (
                   <button
@@ -1010,7 +1010,7 @@ export default function TemperatureLog() {
                     style={{
                       ...sans, fontSize: 10, fontWeight: 600, padding: '3px 10px',
                       borderRadius: 10, border: '1px solid var(--border-card)', cursor: 'pointer',
-                      background: chartDays === d ? '#059669' : 'transparent',
+                      background: chartDays === d ? 'var(--ec-em)' : 'transparent',
                       color: chartDays === d ? 'white' : 'var(--text-secondary)',
                     }}
                   >{d}d</button>
@@ -1023,10 +1023,10 @@ export default function TemperatureLog() {
 
           {/* ── Excursion Log Card ── */}
           <div style={card}>
-            <SectionHeader accent="#b45309" icon="⚠️" title="Excursion Log" />
+            <SectionHeader accent="var(--ec-warn)" icon="⚠️" title="Excursion Log" />
 
             {excursions.length === 0 ? (
-              <p style={{ ...sans, fontSize: 11, color: '#059669', fontStyle: 'italic', textAlign: 'center', padding: '12px 0' }}>
+              <p style={{ ...sans, fontSize: 11, color: 'var(--ec-em)', fontStyle: 'italic', textAlign: 'center', padding: '12px 0' }}>
                 ✓ No excursions recorded for this fridge
               </p>
             ) : (
@@ -1034,25 +1034,25 @@ export default function TemperatureLog() {
                 {(showAllExcursions ? excursions : excursions.slice(0, 5)).map(log => (
                   <div key={log.id} style={{
                     padding: '8px 12px', borderRadius: 8, marginBottom: 4,
-                    background: '#fffbeb', border: '1px solid #fde68a',
+                    background: 'var(--ec-warn-bg)', border: '1px solid var(--ec-warn-border)',
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
-                      <span style={{ ...mono, fontSize: 11, fontWeight: 600, color: '#92400e' }}>{formatDate(log.date)}</span>
+                      <span style={{ ...mono, fontSize: 11, fontWeight: 600, color: 'var(--ec-warn-dark)' }}>{formatDate(log.date)}</span>
                       <Avatar name={log.loggedBy} size={18} />
                     </div>
-                    <div style={{ ...mono, fontSize: 10, color: '#d97706', marginBottom: 2 }}>
+                    <div style={{ ...mono, fontSize: 10, color: 'var(--ec-warn)', marginBottom: 2 }}>
                       Min: {parseFloat(log.tempMin || 0).toFixed(1)}°C &nbsp; Max: {parseFloat(log.tempMax || 0).toFixed(1)}°C &nbsp; Current: {parseFloat(log.tempCurrent || 0).toFixed(1)}°C
                     </div>
                     {log.excursionReason && (
-                      <div style={{ ...sans, fontSize: 11, color: '#78350f', fontStyle: 'italic' }}>
+                      <div style={{ ...sans, fontSize: 11, color: 'var(--ec-warn-dark)', fontStyle: 'italic' }}>
                         {log.excursionReason}
                       </div>
                     )}
                     {(log.stockQuarantined || log.stockDestroyed || log.reportedTo) && (
                       <div style={{ display: 'flex', gap: 4, marginTop: 4, flexWrap: 'wrap' }}>
-                        {log.stockQuarantined && <span style={{ fontSize: 8, fontWeight: 600, padding: '1px 5px', borderRadius: 6, background: '#fef2f2', color: '#dc2626' }}>Quarantined</span>}
-                        {log.stockDestroyed && <span style={{ fontSize: 8, fontWeight: 600, padding: '1px 5px', borderRadius: 6, background: '#fef2f2', color: '#dc2626' }}>Destroyed</span>}
-                        {log.reportedTo && <span style={{ fontSize: 8, fontWeight: 600, padding: '1px 5px', borderRadius: 6, background: '#eff6ff', color: '#2563eb' }}>→ {log.reportedTo}</span>}
+                        {log.stockQuarantined && <span style={{ fontSize: 8, fontWeight: 600, padding: '1px 5px', borderRadius: 6, background: 'var(--ec-crit-bg)', color: 'var(--ec-crit)' }}>Quarantined</span>}
+                        {log.stockDestroyed && <span style={{ fontSize: 8, fontWeight: 600, padding: '1px 5px', borderRadius: 6, background: 'var(--ec-crit-bg)', color: 'var(--ec-crit)' }}>Destroyed</span>}
+                        {log.reportedTo && <span style={{ fontSize: 8, fontWeight: 600, padding: '1px 5px', borderRadius: 6, background: 'var(--ec-info-bg)', color: 'var(--ec-info)' }}>→ {log.reportedTo}</span>}
                       </div>
                     )}
                   </div>
@@ -1062,7 +1062,7 @@ export default function TemperatureLog() {
                     onClick={() => setShowAllExcursions(!showAllExcursions)}
                     style={{
                       ...sans, width: '100%', padding: '6px', fontSize: 11,
-                      fontWeight: 600, color: '#d97706', background: 'none',
+                      fontWeight: 600, color: 'var(--ec-warn)', background: 'none',
                       border: 'none', cursor: 'pointer', textAlign: 'center',
                     }}
                   >{showAllExcursions ? 'Show less' : `View all ${excursions.length}`}</button>
@@ -1073,7 +1073,7 @@ export default function TemperatureLog() {
 
           {/* ── Fridge Details Card ── */}
           <div style={card}>
-            <SectionHeader accent="#059669" icon="❄️" title="Fridge Details" />
+            <SectionHeader accent="var(--ec-em)" icon="❄️" title="Fridge Details" />
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {[
                 { label: 'Name', val: currentFridge.name },
@@ -1091,7 +1091,7 @@ export default function TemperatureLog() {
 
           {/* ── Assigned To Card ── */}
           <div style={card}>
-            <SectionHeader accent="#2563eb" icon="👤" title="Assigned To" />
+            <SectionHeader accent="var(--ec-info)" icon="👤" title="Assigned To" />
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <Avatar name={user?.name} size={32} />
               <div>

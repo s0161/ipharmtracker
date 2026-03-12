@@ -195,7 +195,7 @@ export default function SOPViewer({ sop, acks = [], onClose, onAcknowledge, onFl
                 className="h-full rounded-full transition-all"
                 style={{
                   width: `${ackPct}%`,
-                  backgroundColor: ackPct === 100 ? '#059669' : ackPct >= 70 ? '#10b981' : '#f59e0b',
+                  backgroundColor: ackPct === 100 ? 'var(--ec-em-dark)' : ackPct >= 70 ? 'var(--ec-em)' : 'var(--ec-warn)',
                 }}
               />
             </div>

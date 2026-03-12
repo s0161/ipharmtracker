@@ -50,7 +50,7 @@ export default function FilterBar({
             className="px-3 py-1 rounded-full text-[11px] font-semibold border-none cursor-pointer whitespace-nowrap transition-all duration-150"
             style={{
               fontFamily: "'Inter', sans-serif",
-              backgroundColor: filter === f.key ? '#059669' : 'transparent',
+              backgroundColor: filter === f.key ? 'var(--ec-em)' : 'transparent',
               color: filter === f.key ? 'white' : 'var(--ec-t2)',
             }}
           >
@@ -59,8 +59,8 @@ export default function FilterBar({
               <span
                 className="ml-1 text-[9px] font-bold px-1 rounded-full"
                 style={{
-                  backgroundColor: filter === f.key ? 'rgba(255,255,255,0.25)' : '#fef2f2',
-                  color: filter === f.key ? 'white' : '#dc2626',
+                  backgroundColor: filter === f.key ? 'rgba(255,255,255,0.25)' : 'var(--ec-crit-bg)',
+                  color: filter === f.key ? 'white' : 'var(--ec-crit)',
                 }}
               >
                 {overdueCount}
@@ -168,7 +168,7 @@ export default function FilterBar({
             className="px-3 py-1 rounded-full text-[11px] font-semibold border-none cursor-pointer flex items-center gap-1 transition-all duration-150"
             style={{
               fontFamily: "'Inter', sans-serif",
-              backgroundColor: '#059669',
+              backgroundColor: 'var(--ec-em)',
               color: 'white',
               boxShadow: '0 2px 8px rgba(5,150,105,0.3)',
             }}

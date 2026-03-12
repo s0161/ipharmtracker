@@ -578,7 +578,7 @@ export default function Dashboard() {
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "11px 22px",
-        background: "linear-gradient(135deg, #064e3b 0%, #059669 60%, #10b981 100%)",
+        background: "var(--ec-grad-hero)",
         position: "sticky", top: 0, zIndex: 10,
       }}>
         <div>
@@ -671,7 +671,7 @@ export default function Dashboard() {
         {/* ── To Do ── */}
         <div style={{ ...card, marginBottom: 12, overflow: "hidden" }}>
           <CardHeader
-            gradient="linear-gradient(90deg, #b45309, #d97706)"
+            variant="warn"
             icon={<SvgCheckSquare size={14} />} title="To Do"
             right={actionItems.filter(t => !t.done).length > 0
               ? <span style={{ fontSize: 10, fontFamily: "'DM Mono', 'SF Mono', monospace", background: "rgba(255,255,255,0.2)", padding: "1px 7px", borderRadius: 20 }}>{actionItems.filter(t => !t.done).length} remaining</span>
@@ -711,7 +711,7 @@ export default function Dashboard() {
             {/* ── Shift Checklist ── */}
             <div style={{ ...card, overflow: "hidden" }}>
               <CardHeader
-                gradient="linear-gradient(90deg, #064e3b, #059669)"
+                variant="em"
                 icon={<SvgClipboard size={14} />} title="Shift Checklist"
                 right={
                   <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
@@ -765,7 +765,7 @@ export default function Dashboard() {
             {/* ── CD Balance Check ── */}
             <div style={{ ...card, overflow: "hidden" }}>
               <CardHeader
-                gradient="linear-gradient(90deg, #064e3b, #0f766e)"
+                variant="teal"
                 icon={<SvgPill size={14} />} title="CD Balance Check"
                 right={
                   cdCheckStatus.isDone
@@ -825,7 +825,7 @@ export default function Dashboard() {
             {/* ── Bank Holiday Warning ── */}
             <div style={{ ...card, overflow: "hidden" }}>
               <CardHeader
-                gradient="linear-gradient(90deg, #1e40af, #2563eb)"
+                variant="blue"
                 icon={<span>🏦</span>}
                 title="Bank Holidays"
               />
@@ -909,7 +909,7 @@ export default function Dashboard() {
             {/* Compliance Health */}
             <div style={{ ...card, overflow: "hidden" }}>
               <CardHeader
-                gradient="linear-gradient(90deg, #064e3b, #047857)"
+                variant="em"
                 icon={<SvgHospital size={14} />} title="Compliance Health"
                 right={<span style={{ fontSize: 13, fontWeight: 800, fontFamily: "'DM Mono', 'SF Mono', monospace" }}>{overallPct}% <span style={{ fontSize: 9, fontWeight: 400, opacity: 0.7 }}>overall</span></span>}
               />
@@ -929,7 +929,7 @@ export default function Dashboard() {
 
             {/* Expiring Soon */}
             <div style={{ ...card, overflow: "hidden" }}>
-              <CardHeader gradient="linear-gradient(90deg, #166534, #16a34a)" icon={<SvgCalendar size={14} />} title="Expiring Soon" />
+              <CardHeader variant="em" icon={<SvgCalendar size={14} />} title="Expiring Soon" />
               {expiringDocs.length === 0
                 ? <div style={{ fontSize: 11, color: "var(--ec-t3)", textAlign: "center", padding: "8px 0", fontStyle: "italic" }}>No documents expiring within 90 days</div>
                 : <>
@@ -971,7 +971,7 @@ export default function Dashboard() {
 
         <div style={{ ...card, overflow: "hidden" }}>
           <CardHeader
-            gradient="linear-gradient(90deg, #064e3b, #059669)"
+            variant="em"
             icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 14l2 2 4-4"/></svg>}
             title="Staff Tasks"
             right={canAssign ? (

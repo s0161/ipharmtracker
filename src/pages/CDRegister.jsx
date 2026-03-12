@@ -95,8 +95,8 @@ export default function CDRegister() {
       {/* Amber Banner */}
       {bannerVisible && (
         <div className="flex items-start gap-3 px-4 py-3 rounded-xl mb-5 border"
-          style={{ backgroundColor: '#fffbeb', borderColor: '#f59e0b', color: '#92400e' }}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0 mt-0.5">
+          style={{ backgroundColor: 'var(--ec-warn-bg)', borderColor: 'var(--ec-warn)', color: 'var(--ec-warn-dark)' }}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--ec-warn)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0 mt-0.5">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
             <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -107,7 +107,7 @@ export default function CDRegister() {
           </div>
           <button onClick={dismissBanner}
             className="bg-transparent border-none cursor-pointer text-lg leading-none p-0 shrink-0"
-            style={{ color: '#92400e' }} aria-label="Dismiss banner">
+            style={{ color: 'var(--ec-warn-dark)' }} aria-label="Dismiss banner">
             ✕
           </button>
         </div>

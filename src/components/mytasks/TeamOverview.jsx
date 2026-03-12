@@ -35,9 +35,9 @@ export default function TeamOverview({ allTasks, staff, today, onFilterByPerson,
               className="flex items-center gap-2 px-3 py-2 rounded-xl border cursor-pointer shrink-0 transition-all duration-150 bg-ec-card"
               style={{
                 fontFamily: "'Inter', sans-serif",
-                borderColor: isFiltered ? '#059669' : 'var(--ec-div)',
-                backgroundColor: isFiltered ? '#f0fdf4' : 'var(--ec-card)',
-                boxShadow: isFiltered ? '0 0 0 1px #05966930' : 'none',
+                borderColor: isFiltered ? 'var(--ec-em)' : 'var(--ec-div)',
+                backgroundColor: isFiltered ? 'var(--ec-em-bg)' : 'var(--ec-card)',
+                boxShadow: isFiltered ? '0 0 0 1px rgba(16,185,129,0.19)' : 'none',
               }}
             >
               <Avatar name={member.name} size={24} />
