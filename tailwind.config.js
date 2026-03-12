@@ -52,6 +52,26 @@ export default {
         'ec-grad-hero':   'var(--ec-grad-hero)',
         'ec-grad-teal':   'var(--ec-grad-teal)',
         'ec-grad-purple': 'var(--ec-grad-purple)',
+        // Mesh page backgrounds
+        'mesh-light': 'radial-gradient(ellipse at 20% 0%, rgba(16,185,129,0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 0%, rgba(99,91,255,0.06) 0%, transparent 50%), radial-gradient(ellipse at 50% 100%, rgba(0,115,230,0.05) 0%, transparent 50%)',
+        'mesh-dark': 'radial-gradient(ellipse at 20% 0%, rgba(16,185,129,0.07) 0%, transparent 50%), radial-gradient(ellipse at 80% 0%, rgba(99,91,255,0.07) 0%, transparent 50%), radial-gradient(ellipse at 50% 100%, rgba(0,115,230,0.05) 0%, transparent 50%)',
+        // Hero banner
+        'hero-banner': 'linear-gradient(135deg, #0a2540 0%, #0f3d2b 45%, #1a1a4e 100%)',
+        // Sidebar logo area
+        'sidebar-logo': 'linear-gradient(135deg, #0f2d1e 0%, #1a3a4a 100%)',
+        // Emerald button gradient
+        'btn-primary': 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+        // Page header (inner pages)
+        'page-header': 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(99,91,255,0.05) 100%)',
+        // Active nav highlight
+        'nav-active': 'linear-gradient(90deg, rgba(16,185,129,0.12) 0%, rgba(16,185,129,0.04) 100%)',
+        // Brand logo pill
+        'logo-pill': 'linear-gradient(135deg, #10b981, #059669)',
+        // User avatar
+        'avatar-em': 'linear-gradient(135deg, var(--ec-em), var(--ec-em-dark))',
+        // Glow blobs (decorative)
+        'glow-em': 'radial-gradient(circle, rgba(16,185,129,0.3) 0%, transparent 60%)',
+        'glow-purple': 'radial-gradient(circle, rgba(99,91,255,0.2) 0%, transparent 60%)',
       },
       fontFamily: {
         sans: [

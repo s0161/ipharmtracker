@@ -110,15 +110,10 @@ export default function Sidebar({ open, onClose }) {
       >
         {/* Brand — gradient logo area */}
         <div
-          className="flex items-center gap-2.5 px-5 py-5"
-          style={{ background: 'linear-gradient(135deg, #0f2d1e 0%, #1a3a4a 100%)' }}
+          className="flex items-center gap-2.5 px-5 py-5 bg-sidebar-logo"
         >
           <div
-            className="w-[30px] h-[30px] rounded-lg flex items-center justify-center text-[9px] font-extrabold text-white tracking-tighter"
-            style={{
-              background: 'linear-gradient(135deg, #10b981, #059669)',
-              boxShadow: '0 2px 8px rgba(16,185,129,0.4)',
-            }}
+            className="w-[30px] h-[30px] rounded-lg flex items-center justify-center text-[9px] font-extrabold text-white tracking-tighter bg-logo-pill shadow-[0_2px_8px_rgba(16,185,129,0.4)]"
           >
             {brandInitials}
           </div>
@@ -159,7 +154,7 @@ export default function Sidebar({ open, onClose }) {
                        border-none cursor-pointer text-[13px] text-left no-underline
                        transition-all duration-150 ease-in-out
                        ${isActive
-                        ? 'font-semibold'
+                        ? 'font-semibold bg-nav-active'
                         : 'font-normal'
                       }`
                     }
@@ -174,9 +169,6 @@ export default function Sidebar({ open, onClose }) {
                       }
                     }}
                     style={({ isActive }) => ({
-                      background: isActive
-                        ? 'linear-gradient(90deg, rgba(16,185,129,0.12) 0%, rgba(16,185,129,0.04) 100%)'
-                        : 'transparent',
                       color: isActive ? '#10b981' : undefined,
                       borderLeft: isActive ? '3px solid #10b981' : '3px solid transparent',
                       borderRadius: isActive ? '0 7px 7px 0' : '7px',
@@ -228,11 +220,7 @@ export default function Sidebar({ open, onClose }) {
         {user && (
           <div className="flex items-center gap-2.5 px-4 py-3.5 border-t border-ec-div">
             <div
-              className="w-[30px] h-[30px] rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
-              style={{
-                background: 'linear-gradient(135deg, var(--ec-em), var(--ec-em-dark))',
-                boxShadow: '0 2px 8px rgba(16,185,129,0.2)',
-              }}
+              className="w-[30px] h-[30px] rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0 bg-avatar-em shadow-[0_2px_8px_rgba(16,185,129,0.2)]"
             >
               {getStaffInitials(user.name)}
             </div>
