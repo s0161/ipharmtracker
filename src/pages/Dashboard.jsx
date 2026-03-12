@@ -577,78 +577,132 @@ export default function Dashboard() {
 
       <div style={{ padding: "14px 20px", maxWidth: 1100, margin: "0 auto" }}>
 
-        {/* Hero Banner — dark gradient */}
+        {/* ── Hero Banner ── */}
         <div style={{
-          background: "linear-gradient(135deg, #0a2540 0%, #0f3d2b 45%, #1a1a4e 100%)",
-          borderRadius: 14, padding: "28px 32px", marginBottom: 24,
+          background: "linear-gradient(135deg, #0a2540 0%, #0f3d2b 50%, #1a1a4e 100%)",
+          borderRadius: 16, padding: "28px 32px", marginBottom: 24,
           position: "relative", overflow: "hidden",
-          boxShadow: "0 8px 32px rgba(10,37,64,0.25)",
+          boxShadow: "0 8px 32px rgba(10,37,64,0.2)",
         }}>
           {/* Glow blobs */}
-          <div style={{ position: "absolute", top: -60, right: -60, width: 280, height: 280, background: "radial-gradient(circle, rgba(16,185,129,0.3) 0%, transparent 60%)", pointerEvents: "none" }} />
-          <div style={{ position: "absolute", bottom: -40, left: "30%", width: 200, height: 200, background: "radial-gradient(circle, rgba(99,91,255,0.2) 0%, transparent 60%)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", top: -80, right: -80, width: 320, height: 320, background: "radial-gradient(circle, rgba(16,185,129,0.28) 0%, transparent 65%)", pointerEvents: "none", zIndex: 0 }} />
+          <div style={{ position: "absolute", bottom: -60, left: "30%", width: 240, height: 240, background: "radial-gradient(circle, rgba(99,91,255,0.2) 0%, transparent 65%)", pointerEvents: "none", zIndex: 0 }} />
+          <div style={{ position: "absolute", top: -40, left: -40, width: 180, height: 180, background: "radial-gradient(circle, rgba(0,115,230,0.15) 0%, transparent 65%)", pointerEvents: "none", zIndex: 0 }} />
 
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative", zIndex: 1, flexWrap: "wrap", gap: 16 }}>
-            <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: "white", letterSpacing: "-0.02em" }}>{getGreeting()}, {firstName}</div>
-              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", fontFamily: "'DM Mono', 'SF Mono', monospace" }}>{dateStr} · {timeStr}</div>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-              {[
-                { label: "Overall", val: `${overallPct}%`, bg: "rgba(255,255,255,0.1)", border: "rgba(255,255,255,0.2)" },
-                { label: "Overdue", val: String(overdueCount), bg: overdueCount > 0 ? "rgba(239,68,68,0.25)" : "rgba(255,255,255,0.1)", border: overdueCount > 0 ? "rgba(239,68,68,0.4)" : "rgba(255,255,255,0.2)" },
-                { label: "Due Today", val: String(dueTodayCount), bg: dueTodayCount > 0 ? "rgba(245,158,11,0.25)" : "rgba(255,255,255,0.1)", border: dueTodayCount > 0 ? "rgba(245,158,11,0.4)" : "rgba(255,255,255,0.2)" },
-              ].map(k => (
-                <div key={k.label} style={{
-                  display: "flex", flexDirection: "column", alignItems: "center",
-                  padding: "5px 14px", borderRadius: 20,
-                  background: k.bg, border: `1px solid ${k.border}`,
-                  backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)",
-                }}>
-                  <span style={{ fontSize: 16, fontWeight: 800, color: "white", lineHeight: 1, fontFamily: "'DM Mono', 'SF Mono', monospace" }}>{k.val}</span>
-                  <span style={{ fontSize: 9, color: "rgba(255,255,255,0.6)", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>{k.label}</span>
+          <div style={{ position: "relative", zIndex: 1 }}>
+            {/* Top row: greeting left, RP + stats right */}
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 16, marginBottom: 20 }}>
+              {/* Left — greeting */}
+              <div>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(16,185,129,0.2)", border: "1px solid rgba(16,185,129,0.35)", borderRadius: 20, padding: "3px 10px", marginBottom: 10 }}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#10b981", display: "inline-block" }} />
+                  <span style={{ color: "rgba(255,255,255,0.8)", fontSize: 11, fontWeight: 600, letterSpacing: "0.04em" }}>
+                    {pharmacyConfig.pharmacyName || "iPharmacy Direct"} · {pharmacyConfig.gphcNumber || "FED07"}
+                  </span>
                 </div>
-              ))}
-              <div style={{ position: "relative", cursor: "pointer", padding: "5px 8px" }}>
-                <SvgBell size={17} color="rgba(255,255,255,0.7)" />
-                {unreadCount > 0 && (
-                  <div style={{ position: "absolute", top: 1, right: 3, width: 15, height: 15, borderRadius: "50%", background: "var(--red)", fontSize: 8, fontWeight: 700, color: "white", display: "flex", alignItems: "center", justifyContent: "center" }}>{unreadCount}</div>
-                )}
+                <div style={{ color: "white", fontSize: 24, fontWeight: 800, lineHeight: 1.2, letterSpacing: "-0.02em" }}>
+                  {getGreeting()}, {firstName}
+                </div>
+                <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 12, marginTop: 4, fontFamily: "'DM Mono', 'SF Mono', monospace" }}>
+                  {dateStr} · {timeStr}
+                </div>
               </div>
-              <div style={{ padding: "4px 9px", borderRadius: 7, background: "rgba(255,255,255,0.1)", color: "white", fontSize: 11, fontWeight: 700, border: "1px solid rgba(255,255,255,0.2)" }}>{pharmacyConfig.gphcNumber || "—"}</div>
+
+              {/* Right — RP pill + stat badges */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 10 }}>
+                {/* RP status pill */}
+                {rpSigned ? (
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(16,185,129,0.2)", border: "1px solid rgba(16,185,129,0.4)", borderRadius: 20, padding: "5px 12px" }}>
+                    <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#10b981", boxShadow: "0 0 6px rgba(16,185,129,0.8)", display: "inline-block" }} />
+                    <span style={{ color: "white", fontSize: 12, fontWeight: 600 }}>RP: {getRPAssignee()}</span>
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(239,68,68,0.2)", border: "1px solid rgba(239,68,68,0.4)", borderRadius: 20, padding: "5px 12px" }}>
+                    <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#ef4444", boxShadow: "0 0 6px rgba(239,68,68,0.7)", display: "inline-block" }} />
+                    <span style={{ color: "white", fontSize: 12, fontWeight: 600 }}>No RP signed in</span>
+                  </div>
+                )}
+                {/* Stat badges */}
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                  <div style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.18)", backdropFilter: "blur(4px)", borderRadius: 20, padding: "5px 14px", textAlign: "center" }}>
+                    <div style={{ color: "white", fontSize: 16, fontWeight: 800, fontFamily: "'DM Mono', 'SF Mono', monospace" }}>{overallPct}%</div>
+                    <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 9, fontWeight: 600, letterSpacing: "0.06em" }}>OVERALL</div>
+                  </div>
+                  <div style={{ background: overdueCount > 0 ? "rgba(239,68,68,0.25)" : "rgba(255,255,255,0.1)", border: `1px solid ${overdueCount > 0 ? "rgba(239,68,68,0.45)" : "rgba(255,255,255,0.18)"}`, backdropFilter: "blur(4px)", borderRadius: 20, padding: "5px 14px", textAlign: "center" }}>
+                    <div style={{ color: "white", fontSize: 16, fontWeight: 800, fontFamily: "'DM Mono', 'SF Mono', monospace" }}>{overdueCount}</div>
+                    <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 9, fontWeight: 600, letterSpacing: "0.06em" }}>OVERDUE</div>
+                  </div>
+                  <div style={{ background: dueTodayCount > 0 ? "rgba(245,158,11,0.25)" : "rgba(255,255,255,0.1)", border: `1px solid ${dueTodayCount > 0 ? "rgba(245,158,11,0.45)" : "rgba(255,255,255,0.18)"}`, backdropFilter: "blur(4px)", borderRadius: 20, padding: "5px 14px", textAlign: "center" }}>
+                    <div style={{ color: "white", fontSize: 16, fontWeight: 800, fontFamily: "'DM Mono', 'SF Mono', monospace" }}>{dueTodayCount}</div>
+                    <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 9, fontWeight: 600, letterSpacing: "0.06em" }}>DUE TODAY</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Divider + Quick Actions */}
+            <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", marginBottom: 16 }} />
+            <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", marginBottom: 10 }}>QUICK ACTIONS</div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <button
+                onClick={() => navigate(rpSigned ? "/rp-log" : "/rp-log")}
+                style={{ display: "flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: "8px 14px", color: "white", fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "all 0.15s", backdropFilter: "blur(4px)", fontFamily: "'Inter', sans-serif" }}
+                onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.15)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; }}
+              >
+                <span style={{ fontSize: 15 }}>{rpSigned ? "📋" : "✅"}</span>
+                {rpSigned ? "View RP Log" : "Sign RP In"}
+              </button>
+              <button
+                onClick={() => navigate("/temperature")}
+                style={{ display: "flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: "8px 14px", color: "white", fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "all 0.15s", backdropFilter: "blur(4px)", fontFamily: "'Inter', sans-serif" }}
+                onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.15)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; }}
+              >
+                <span style={{ fontSize: 15 }}>🌡️</span>
+                Log Temperature
+              </button>
+              <button
+                onClick={() => navigate("/incidents")}
+                style={{ display: "flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: "8px 14px", color: "white", fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "all 0.15s", backdropFilter: "blur(4px)", fontFamily: "'Inter', sans-serif" }}
+                onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.15)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; }}
+              >
+                <span style={{ fontSize: 15 }}>⚠️</span>
+                Log Incident
+              </button>
+              <button
+                onClick={() => navigate("/my-tasks")}
+                style={{ display: "flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: "8px 14px", color: "white", fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "all 0.15s", backdropFilter: "blur(4px)", fontFamily: "'Inter', sans-serif" }}
+                onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.15)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; }}
+              >
+                <span style={{ fontSize: 15 }}>✔️</span>
+                My Tasks
+              </button>
+              <button
+                onClick={() => navigate("/training")}
+                style={{ display: "flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: "8px 14px", color: "white", fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "all 0.15s", backdropFilter: "blur(4px)", fontFamily: "'Inter', sans-serif" }}
+                onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.15)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; }}
+              >
+                <span style={{ fontSize: 15 }}>🎓</span>
+                Training
+              </button>
+              <button
+                onClick={() => navigate("/alerts")}
+                style={{ display: "flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: "8px 14px", color: "white", fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "all 0.15s", backdropFilter: "blur(4px)", fontFamily: "'Inter', sans-serif", position: "relative" }}
+                onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.15)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; }}
+              >
+                {alerts.length > 0 && (
+                  <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#ef4444", position: "absolute", top: -3, right: -3 }} />
+                )}
+                <span style={{ fontSize: 15 }}>🔔</span>
+                Alerts
+              </button>
             </div>
           </div>
-        </div>
-
-        {/* ── RP Banner ── */}
-        <div style={{
-          display: "flex", alignItems: "center", gap: 10, padding: "8px 14px",
-          borderRadius: 10, marginBottom: 10,
-          background: rpSigned ? "var(--ec-em-bg)" : "var(--ec-crit-bg)",
-          border: `1px solid ${rpSigned ? "var(--ec-em-border)" : "var(--ec-crit-border)"}`,
-        }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: rpSigned ? "var(--ec-em)" : "var(--ec-crit)", boxShadow: rpSigned ? "0 0 0 3px var(--ec-em-border)" : "0 0 0 3px var(--ec-crit-border)" }} />
-          <div style={{ flex: 1, fontSize: 13, fontWeight: 500, color: rpSigned ? "var(--ec-em)" : "var(--ec-crit)" }}>
-            {rpSigned ? `RP signed in — ${getRPAssignee()}` : `No RP signed in · Last: ${getRPAssignee()}`}
-          </div>
-          {!rpSigned && (
-            <button onClick={() => navigate("/rp-log")} style={{
-              padding: "6px 14px", borderRadius: 8, border: "none", cursor: "pointer",
-              background: "var(--ec-crit)", color: "white",
-              fontSize: 12, fontWeight: 700, fontFamily: "'Inter', sans-serif",
-            }}>
-              Sign In as RP →
-            </button>
-          )}
-          {rpSigned && (
-            <span style={{
-              padding: "6px 14px", borderRadius: 8,
-              background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", color: "white", boxShadow: "0 2px 8px rgba(16,185,129,0.3)",
-              fontSize: 12, fontWeight: 700,
-            }}>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><SvgCheck size={10} color="white" /> Signed In</span>
-            </span>
-          )}
         </div>
 
         {/* ── Collapsed Alert Banner ── */}
@@ -696,7 +750,7 @@ export default function Dashboard() {
               style={{ flex: 1, padding: "7px 12px", borderRadius: 8, fontSize: 12, border: "1px solid var(--ec-div)", outline: "none", fontFamily: "'Inter', sans-serif", background: "var(--ec-card)" }}
             />
             <button onClick={addTodo}
-              style={{ padding: "7px 14px", borderRadius: 8, border: "none", cursor: "pointer", background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", color: "white", boxShadow: "0 2px 8px rgba(16,185,129,0.3)", fontSize: 12, fontWeight: 600, fontFamily: "'Inter', sans-serif" }}>
+              style={{ padding: "7px 14px", borderRadius: 8, border: "none", cursor: "pointer", background: "var(--ec-btn-primary)", color: "white", boxShadow: "0 2px 8px rgba(16,185,129,0.3)", fontSize: 12, fontWeight: 600, fontFamily: "'Inter', sans-serif" }}>
               + Add
             </button>
           </div>
@@ -808,7 +862,7 @@ export default function Dashboard() {
                   </div>
                   <button
                     onClick={handleCDCheck}
-                    style={{ fontSize: 11, fontWeight: 600, padding: "5px 14px", borderRadius: 8, border: "none", background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", color: "white", boxShadow: "0 2px 8px rgba(16,185,129,0.3)", cursor: "pointer" }}
+                    style={{ fontSize: 11, fontWeight: 600, padding: "5px 14px", borderRadius: 8, border: "none", background: "var(--ec-btn-primary)", color: "white", boxShadow: "0 2px 8px rgba(16,185,129,0.3)", cursor: "pointer" }}
                   >
                     Mark Complete
                   </button>

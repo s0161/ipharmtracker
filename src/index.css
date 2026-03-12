@@ -167,6 +167,9 @@
   --ec-grad-blue:   linear-gradient(135deg, #1e3a8a, #3b82f6);
   --ec-grad-muted:  linear-gradient(135deg, #334155, #64748b);
   --ec-grad-hero:   linear-gradient(135deg, #064e3b 0%, #059669 60%, #10b981 100%);
+
+  /* ── Component gradient tokens ── */
+  --ec-btn-primary: linear-gradient(135deg, #10b981 0%, #059669 100%);
   --ec-grad-teal:   linear-gradient(135deg, #0f766e, #14b8a6);
   --ec-grad-purple: linear-gradient(135deg, #7c3aed, #a78bfa);
 
