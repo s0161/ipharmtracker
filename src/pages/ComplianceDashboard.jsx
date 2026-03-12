@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
 
-const fontLink = document.createElement("link");
-fontLink.rel = "stylesheet";
-fontLink.href = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap";
-document.head.appendChild(fontLink);
+// Inter font loaded via index.html
 
 // ── Data ───────────────────────────────────────────────────────────────────
 
@@ -280,7 +277,7 @@ export default function ComplianceDashboard() {
   };
 
   return (
-    <div style={{ fontFamily: "'DM Sans', sans-serif" }}>
+    <div style={{ fontFamily: "'Inter', sans-serif" }}>
 
       {/* ── Main ── */}
       <div>
@@ -331,7 +328,7 @@ export default function ComplianceDashboard() {
             <button onClick={() => setRpSigned(!rpSigned)} style={{
               padding: "6px 14px", borderRadius: 8, border: "none", cursor: "pointer",
               background: rpSigned ? "#059669" : "#dc2626", color: "white",
-              fontSize: 12, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
+              fontSize: 12, fontWeight: 700, fontFamily: "'Inter', sans-serif",
             }}>
               {rpSigned ? "✓ Signed In" : "Sign In as RP →"}
             </button>
@@ -378,10 +375,10 @@ export default function ComplianceDashboard() {
               <input value={todoInput} onChange={e => setTodoInput(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter" && todoInput.trim()) { setTodos(ts => [...ts, { id: Date.now(), text: todoInput.trim(), done: false }]); setTodoInput(""); }}}
                 placeholder="Add an action item and press Enter…"
-                style={{ flex: 1, padding: "7px 12px", borderRadius: 8, fontSize: 12, border: "1px solid #d1fae5", outline: "none", fontFamily: "'DM Sans', sans-serif", background: "#f9fafb" }}
+                style={{ flex: 1, padding: "7px 12px", borderRadius: 8, fontSize: 12, border: "1px solid #d1fae5", outline: "none", fontFamily: "'Inter', sans-serif", background: "#f9fafb" }}
               />
               <button onClick={() => { if (todoInput.trim()) { setTodos(ts => [...ts, { id: Date.now(), text: todoInput.trim(), done: false }]); setTodoInput(""); }}}
-                style={{ padding: "7px 14px", borderRadius: 8, border: "none", cursor: "pointer", background: "#059669", color: "white", fontSize: 12, fontWeight: 600, fontFamily: "'DM Sans', sans-serif" }}>
+                style={{ padding: "7px 14px", borderRadius: 8, border: "none", cursor: "pointer", background: "#059669", color: "white", fontSize: 12, fontWeight: 600, fontFamily: "'Inter', sans-serif" }}>
                 + Add
               </button>
             </div>
@@ -434,7 +431,7 @@ export default function ComplianceDashboard() {
                           border: isActive ? "none" : "1px solid #d1fae5",
                           background: isActive ? "#059669" : "white",
                           color: isActive ? "white" : "#059669",
-                          cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
+                          cursor: "pointer", fontFamily: "'Inter', sans-serif",
                           transition: "background 0.12s",
                         }}>
                         {tab.label} <span style={{ opacity: 0.7, fontFamily: "'DM Mono', monospace", fontSize: 9 }}>{done}/{tab.tasks.length}</span>

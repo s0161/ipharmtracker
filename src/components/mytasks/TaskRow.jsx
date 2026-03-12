@@ -151,7 +151,7 @@ export function TaskTile({ task, today, onStatusChange, onComplete, savingId, ca
           </div>
           <span
             className={`text-[13px] font-semibold leading-snug transition-all duration-300 ${isDone ? 'line-through text-ec-t3' : 'text-ec-t1'}`}
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
+            style={{ fontFamily: "'Inter', sans-serif" }}
           >
             {task.taskName || task.title}
           </span>
@@ -241,7 +241,7 @@ export default function TaskRow({ task, today, onStatusChange, onComplete, savin
         {/* Title */}
         <span
           className={`flex-1 text-[13px] font-medium transition-all duration-300 ${isDone ? 'line-through opacity-40 text-ec-t3' : 'text-ec-t1'}`}
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
+          style={{ fontFamily: "'Inter', sans-serif" }}
         >
           {task.taskName || task.title}
         </span>

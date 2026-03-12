@@ -5,7 +5,7 @@ import { PRIORITY_ORDER, CATEGORY_LABELS, CATEGORY_ORDER } from '../../utils/tas
 
 const inputStyle = {
   width: '100%', padding: '8px 12px', borderRadius: 8, fontSize: 13,
-  border: '1px solid #d1fae5', outline: 'none', fontFamily: "'DM Sans', sans-serif",
+  border: '1px solid #d1fae5', outline: 'none', fontFamily: "'Inter', sans-serif",
   background: 'white', boxSizing: 'border-box',
 }
 
@@ -53,7 +53,7 @@ export default function AssignModal({ open, onClose, staff, templates, onAssign 
             flex: 1, padding: '7px 0', fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer',
             background: mode === key ? '#059669' : 'white',
             color: mode === key ? 'white' : '#64748b',
-            fontFamily: "'DM Sans', sans-serif",
+            fontFamily: "'Inter', sans-serif",
           }}>{label}</button>
         ))}
       </div>
@@ -95,7 +95,7 @@ export default function AssignModal({ open, onClose, staff, templates, onAssign 
                 border: assignTo === s.name ? '2px solid #059669' : '1px solid #d1fae5',
                 background: assignTo === s.name ? '#f0fdf4' : 'white',
                 color: assignTo === s.name ? '#059669' : '#64748b',
-                cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
+                cursor: 'pointer', fontFamily: "'Inter', sans-serif",
               }}
             >
               <Avatar name={s.name} size={18} />
@@ -115,7 +115,7 @@ export default function AssignModal({ open, onClose, staff, templates, onAssign 
                 flex: 1, padding: '7px 0', fontSize: 11, fontWeight: 600, border: 'none', cursor: 'pointer',
                 background: priority === p ? '#059669' : 'white',
                 color: priority === p ? 'white' : '#64748b',
-                fontFamily: "'DM Sans', sans-serif", textTransform: 'capitalize',
+                fontFamily: "'Inter', sans-serif", textTransform: 'capitalize',
               }}>{p}</button>
             ))}
           </div>
@@ -153,12 +153,12 @@ export default function AssignModal({ open, onClose, staff, templates, onAssign 
         <button onClick={() => { reset(); onClose() }} style={{
           padding: '8px 18px', borderRadius: 8, fontSize: 13, fontWeight: 600,
           border: '1px solid #d1fae5', background: 'white', color: '#64748b',
-          cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
+          cursor: 'pointer', fontFamily: "'Inter', sans-serif",
         }}>Cancel</button>
         <button onClick={handleSubmit} disabled={!canSubmit} style={{
           padding: '8px 18px', borderRadius: 8, fontSize: 13, fontWeight: 600, border: 'none',
           background: canSubmit ? '#059669' : '#d1d5db', color: 'white',
-          cursor: canSubmit ? 'pointer' : 'default', fontFamily: "'DM Sans', sans-serif",
+          cursor: canSubmit ? 'pointer' : 'default', fontFamily: "'Inter', sans-serif",
         }}>Assign</button>
       </div>
     </Modal>

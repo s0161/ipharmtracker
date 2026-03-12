@@ -49,7 +49,7 @@ export default function FilterBar({
             onClick={() => onFilterChange(f.key)}
             className="px-3 py-1 rounded-full text-[11px] font-semibold border-none cursor-pointer whitespace-nowrap transition-all duration-150"
             style={{
-              fontFamily: "'DM Sans', sans-serif",
+              fontFamily: "'Inter', sans-serif",
               backgroundColor: filter === f.key ? '#059669' : 'transparent',
               color: filter === f.key ? 'white' : 'var(--ec-t2)',
             }}
@@ -79,7 +79,7 @@ export default function FilterBar({
         <button
           onClick={() => setCatPopoverOpen(!catPopoverOpen)}
           className="sm:hidden px-2 py-1 rounded-lg text-[11px] font-semibold border border-ec-div bg-transparent cursor-pointer text-ec-t2 shrink-0"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
+          style={{ fontFamily: "'Inter', sans-serif" }}
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" />
@@ -96,7 +96,7 @@ export default function FilterBar({
                 onClick={() => onCategoryToggle(cat)}
                 className="px-2 py-0.5 rounded-full text-[10px] font-semibold border cursor-pointer whitespace-nowrap transition-all duration-150"
                 style={{
-                  fontFamily: "'DM Sans', sans-serif",
+                  fontFamily: "'Inter', sans-serif",
                   backgroundColor: isActive ? cc.bg : 'transparent',
                   color: isActive ? cc.color : 'var(--ec-t3)',
                   borderColor: isActive ? cc.border : 'transparent',
@@ -122,7 +122,7 @@ export default function FilterBar({
                 onClick={() => onCategoryToggle(cat)}
                 className="px-2 py-0.5 rounded-full text-[10px] font-semibold border cursor-pointer whitespace-nowrap"
                 style={{
-                  fontFamily: "'DM Sans', sans-serif",
+                  fontFamily: "'Inter', sans-serif",
                   backgroundColor: isActive ? cc.bg : 'transparent',
                   color: isActive ? cc.color : 'var(--ec-t3)',
                   borderColor: isActive ? cc.border : 'transparent',
@@ -167,7 +167,7 @@ export default function FilterBar({
             onClick={onAssignClick}
             className="px-3 py-1 rounded-full text-[11px] font-semibold border-none cursor-pointer flex items-center gap-1 transition-all duration-150"
             style={{
-              fontFamily: "'DM Sans', sans-serif",
+              fontFamily: "'Inter', sans-serif",
               backgroundColor: '#059669',
               color: 'white',
               boxShadow: '0 2px 8px rgba(5,150,105,0.3)',

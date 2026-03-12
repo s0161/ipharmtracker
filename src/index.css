@@ -36,151 +36,211 @@
    Design System & Styles
    ═══════════════════════════════════════════════ */
 
-/* ── Emerald Mint Light (default) ── */
+/* ── Emerald Stripe — Light (default) ── */
 :root {
-  --primary: #059669;
-  --primary-dark: #047857;
-  --primary-light: #10b981;
-  --primary-fade: rgba(5, 150, 105, 0.08);
+  /* Backgrounds */
+  --bg: #f6f9fc;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --border: #e3e8ef;
+  --border-light: #f0f4f8;
+
+  /* Text */
+  --text: #0a2540;
+  --text-2: #425466;
+  --text-3: #8898aa;
+
+  /* Brand */
+  --em: #10b981;
+  --em-light: #d1fae5;
+  --em-mid: #6ee7b7;
+  --em-glow: rgba(16,185,129,0.12);
+
+  /* Supporting palette */
+  --purple: #635bff;
+  --purple-light: #ede9fe;
+  --blue: #0073e6;
+  --blue-light: #dbeafe;
+  --amber: #f59e0b;
+  --amber-light: #fef3c7;
+  --red: #ef4444;
+  --red-light: #fee2e2;
+
+  /* Shadows — Stripe blue-tint */
+  --shadow-sm: 0 1px 3px rgba(10,37,64,0.06), 0 1px 2px rgba(10,37,64,0.04);
+  --shadow: 0 4px 12px rgba(10,37,64,0.08), 0 1px 3px rgba(10,37,64,0.04);
+  --shadow-md: 0 4px 12px rgba(10,37,64,0.08), 0 1px 3px rgba(10,37,64,0.04);
+  --shadow-lg: 0 10px 40px rgba(10,37,64,0.12), 0 2px 8px rgba(10,37,64,0.06);
+  --shadow-card: 0 1px 3px rgba(10,37,64,0.06), 0 1px 2px rgba(10,37,64,0.04);
+
+  /* Radius */
+  --radius: 8px;
+  --radius-sm: 6px;
+  --radius-lg: 12px;
+
+  /* Legacy compat */
+  --primary: #10b981;
+  --primary-dark: #059669;
+  --primary-light: #34d399;
+  --primary-fade: rgba(16,185,129,0.08);
   --accent: #10b981;
   --accent-light: #34d399;
-  --success: #059669;
-  --success-bg: rgba(5, 150, 105, 0.1);
-  --warning: #d97706;
-  --warning-bg: rgba(217, 119, 6, 0.1);
-  --danger: #dc2626;
-  --danger-bg: rgba(220, 38, 38, 0.1);
-  --info: #4f46e5;
-  --info-bg: rgba(79, 70, 229, 0.08);
-  --bg: #f0faf4;
-  --bg-secondary: #f0fdf4;
+  --success: #10b981;
+  --success-bg: rgba(16,185,129,0.1);
+  --warning: #f59e0b;
+  --warning-bg: rgba(245,158,11,0.1);
+  --danger: #ef4444;
+  --danger-bg: rgba(239,68,68,0.1);
+  --info: #635bff;
+  --info-bg: rgba(99,91,255,0.08);
+  --bg-secondary: #f0f4f8;
   --bg-card: #ffffff;
-  --bg-card-hover: #f0fdf4;
-  --text: #1e293b;
-  --text-secondary: #64748b;
-  --text-muted: #94a3b8;
-  --border: #d1fae5;
-  --border-light: #ecfdf5;
-  --bg-page: #f0faf4;
-  --border-card: #d1fae5;
-  --text-primary: #1e293b;
-  --shadow-card: 0 1px 4px rgba(5, 150, 105, 0.06);
-  --task-done-bg: #f0fdf4;
+  --bg-card-hover: #f8fafc;
+  --text-secondary: #425466;
+  --text-muted: #8898aa;
+  --bg-page: #f6f9fc;
+  --border-card: #e3e8ef;
+  --text-primary: #0a2540;
+  --task-done-bg: #d1fae5;
   --task-done-border: #6ee7b7;
   --input-bg: #ffffff;
-  --input-border: #e2e8f0;
+  --input-border: #e3e8ef;
   --sidebar-w: 220px;
-  --radius: 10px;
-  --radius-sm: 6px;
-  --shadow: 0 1px 4px rgba(5, 150, 105, 0.06);
-  --shadow-md: 0 4px 12px rgba(5, 150, 105, 0.08), 0 2px 4px rgba(5, 150, 105, 0.04);
-  --shadow-lg: 0 12px 32px rgba(5, 150, 105, 0.1), 0 4px 8px rgba(5, 150, 105, 0.06);
   --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
-  --mono-font: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
-  --heading-font: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-  /* Emerald Command token variables — light */
-  --ec-bg: #f0faf4;
-  --ec-sidebar: #065f46;
+  --mono-font: 'DM Mono', 'SF Mono', 'Fira Code', monospace;
+  --heading-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* ── ec-* token aliases (consumed by Tailwind & inline styles) ── */
+  --ec-bg: #f6f9fc;
+  --ec-sidebar: #0a2540;
   --ec-card: #ffffff;
   --ec-card-solid: #ffffff;
-  --ec-card-hover: #f0fdf4;
-  --ec-border: #d1fae5;
-  --ec-div: #d1fae5;
-  --ec-t1: #1e293b;
-  --ec-t2: #64748b;
-  --ec-t3: #94a3b8;
-  --ec-t4: #cbd5e1;
-  --ec-t5: #e2e8f0;
-  --ec-em: #059669;
-  --ec-em-dark: #047857;
-  --ec-em-faint: rgba(5,150,105,0.06);
-  --ec-em-bg: #f0fdf4;
+  --ec-card-hover: #f8fafc;
+  --ec-border: #e3e8ef;
+  --ec-div: #e3e8ef;
+  --ec-t1: #0a2540;
+  --ec-t2: #425466;
+  --ec-t3: #8898aa;
+  --ec-t4: #c1cdd7;
+  --ec-t5: #e3e8ef;
+  --ec-em: #10b981;
+  --ec-em-dark: #059669;
+  --ec-em-faint: rgba(16,185,129,0.06);
+  --ec-em-bg: #d1fae5;
   --ec-em-border: #6ee7b7;
-  --ec-warn: #d97706;
-  --ec-warn-light: #b45309;
-  --ec-warn-faint: rgba(217,119,6,0.08);
-  --ec-warn-bg: #fffbeb;
+  --ec-warn: #f59e0b;
+  --ec-warn-light: #d97706;
+  --ec-warn-faint: rgba(245,158,11,0.08);
+  --ec-warn-bg: #fef3c7;
   --ec-warn-border: #fde68a;
-  --ec-crit: #dc2626;
-  --ec-crit-light: #b91c1c;
-  --ec-crit-faint: rgba(220,38,38,0.06);
-  --ec-crit-bg: #fef2f2;
+  --ec-crit: #ef4444;
+  --ec-crit-light: #dc2626;
+  --ec-crit-faint: rgba(239,68,68,0.06);
+  --ec-crit-bg: #fee2e2;
   --ec-crit-border: #fecaca;
-  --ec-info: #4f46e5;
+  --ec-info: #635bff;
   --ec-info-light: #4338ca;
-  --ec-info-bg: #eff6ff;
-  --ec-info-border: #bfdbfe;
-  --ec-z6: #6b7280;
+  --ec-info-bg: #ede9fe;
+  --ec-info-border: #c4b5fd;
+  --ec-z6: #8898aa;
 }
 
-/* ── Dark-green sidebar (always dark regardless of theme) ── */
+/* ── Sidebar scoping (always navy regardless of theme) ── */
 .ec-sidebar-dark {
-  --ec-t1: #ffffff;
-  --ec-t2: rgba(255,255,255,0.7);
-  --ec-t3: rgba(255,255,255,0.5);
-  --ec-t4: rgba(255,255,255,0.35);
-  --ec-z6: rgba(255,255,255,0.6);
-  --ec-card: rgba(255,255,255,0.08);
-  --ec-card-hover: rgba(255,255,255,0.12);
-  --ec-div: rgba(255,255,255,0.1);
-  --ec-border: rgba(255,255,255,0.1);
+  --ec-t1: #f1f5f9;
+  --ec-t2: rgba(255,255,255,0.65);
+  --ec-t3: rgba(255,255,255,0.45);
+  --ec-t4: rgba(255,255,255,0.3);
+  --ec-z6: rgba(255,255,255,0.55);
+  --ec-card: rgba(255,255,255,0.06);
+  --ec-card-hover: rgba(255,255,255,0.10);
+  --ec-div: rgba(255,255,255,0.08);
+  --ec-border: rgba(255,255,255,0.08);
 }
 
-/* ── Dark theme (toggle) ── */
-/* Slate grey palette — warm neutral grey, not blue-black */
+/* ── Emerald Stripe — Dark (toggle) ── */
 [data-theme="dark"] {
+  /* Backgrounds — deep emerald-tinted dark */
+  --bg: #0a0f0d;
+  --surface: #111916;
+  --surface-raised: #172118;
+  --border: #1e2e28;
+  --border-light: #182420;
+
+  /* Text */
+  --text: #e8f5f0;
+  --text-2: #8db8a6;
+  --text-3: #4d7a68;
+
+  /* Brand */
+  --em: #10b981;
+  --em-light: rgba(16,185,129,0.15);
+  --em-mid: #059669;
+  --em-glow: rgba(16,185,129,0.20);
+
+  /* Supporting palette */
+  --purple: #818cf8;
+  --purple-light: rgba(129,140,248,0.15);
+  --blue: #60a5fa;
+  --blue-light: rgba(96,165,250,0.15);
+  --amber: #fbbf24;
+  --amber-light: rgba(251,191,36,0.15);
+  --red: #f87171;
+  --red-light: rgba(248,113,113,0.15);
+
+  /* Shadows — dark mode depth */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3), 0 0 1px rgba(255,255,255,0.03);
+  --shadow: 0 4px 12px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.25);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.25);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.3);
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.4);
+
+  /* Legacy compat — dark */
   --primary: #34d399;
   --primary-dark: #10b981;
   --primary-light: #6ee7b7;
-  --primary-fade: rgba(52, 211, 153, 0.12);
+  --primary-fade: rgba(52,211,153,0.12);
   --accent: #34d399;
   --accent-light: #6ee7b7;
   --success: #34d399;
-  --success-bg: rgba(52, 211, 153, 0.12);
+  --success-bg: rgba(52,211,153,0.12);
   --warning: #fbbf24;
-  --warning-bg: rgba(251, 191, 36, 0.12);
+  --warning-bg: rgba(251,191,36,0.12);
   --danger: #f87171;
-  --danger-bg: rgba(248, 113, 113, 0.12);
+  --danger-bg: rgba(248,113,113,0.12);
   --info: #818cf8;
-  --info-bg: rgba(129, 140, 248, 0.10);
-  --bg: #1a1a1f;
-  --bg-secondary: #202025;
-  --bg-card: #252529;
-  --bg-card-hover: #2e2e33;
-  --text: #ececef;
-  --text-secondary: #9494a0;
-  --text-muted: #65656f;
-  --border: #38383f;
-  --border-light: #2c2c32;
-  --bg-page: #1a1a1f;
-  --border-card: #38383f;
-  --text-primary: #ececef;
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4);
-  --task-done-bg: rgba(52,211,153,0.10);
-  --task-done-border: rgba(52,211,153,0.25);
-  --input-bg: #252529;
-  --input-border: #38383f;
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 0 1px rgba(255, 255, 255, 0.03);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.25);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5), 0 4px 8px rgba(0, 0, 0, 0.3);
-  /* Emerald Command token variables — dark */
-  --ec-bg: #1a1a1f;
-  --ec-sidebar: #151518;
-  --ec-card: #252529;
-  --ec-card-solid: #252529;
-  --ec-card-hover: #2e2e33;
-  --ec-border: #38383f;
-  --ec-div: #2c2c32;
-  --ec-t1: #ececef;
-  --ec-t2: #9494a0;
-  --ec-t3: #65656f;
-  --ec-t4: #45454f;
-  --ec-t5: #38383f;
+  --info-bg: rgba(129,140,248,0.10);
+  --bg-secondary: #111916;
+  --bg-card: #111916;
+  --bg-card-hover: #172118;
+  --text-secondary: #8db8a6;
+  --text-muted: #4d7a68;
+  --border-card: #1e2e28;
+  --bg-page: #0a0f0d;
+  --text-primary: #e8f5f0;
+  --task-done-bg: rgba(16,185,129,0.10);
+  --task-done-border: rgba(16,185,129,0.25);
+  --input-bg: #111916;
+  --input-border: #1e2e28;
+
+  /* ── ec-* token aliases — dark ── */
+  --ec-bg: #0a0f0d;
+  --ec-sidebar: #070b09;
+  --ec-card: #111916;
+  --ec-card-solid: #111916;
+  --ec-card-hover: #172118;
+  --ec-border: #1e2e28;
+  --ec-div: #182420;
+  --ec-t1: #e8f5f0;
+  --ec-t2: #8db8a6;
+  --ec-t3: #4d7a68;
+  --ec-t4: #2d4a3e;
+  --ec-t5: #1e2e28;
   --ec-em: #34d399;
   --ec-em-dark: #10b981;
-  --ec-em-faint: rgba(52,211,153,0.08);
-  --ec-em-bg: rgba(52,211,153,0.12);
-  --ec-em-border: rgba(52,211,153,0.3);
+  --ec-em-faint: rgba(16,185,129,0.08);
+  --ec-em-bg: rgba(16,185,129,0.12);
+  --ec-em-border: rgba(16,185,129,0.3);
   --ec-warn: #fbbf24;
   --ec-warn-light: #fcd34d;
   --ec-warn-faint: rgba(251,191,36,0.10);
@@ -195,7 +255,7 @@
   --ec-info-light: #a5b4fc;
   --ec-info-bg: rgba(129,140,248,0.12);
   --ec-info-border: rgba(129,140,248,0.3);
-  --ec-z6: #7a7a85;
+  --ec-z6: #5a7a6e;
 }
 
 /* Dark-first card gradients (base = dark) */
@@ -253,6 +313,22 @@
   border-color: rgba(239, 68, 68, 0.25);
 }
 
+/* ── Scrollbar — Stripe-style thin ─────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--ec-t4); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ec-t3); }
+* { scrollbar-width: thin; scrollbar-color: var(--ec-t4) transparent; }
+
+/* ── Page load animation ──────────────────── */
+.fade-up {
+  animation: fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* ── Reset ──────────────────────────────────── */
 
 *,
@@ -272,7 +348,7 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: var(--text);
   background: var(--bg);
   line-height: 1.6;
@@ -308,7 +384,7 @@ a:hover {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: rgba(15, 23, 42, 0.85);
+  background: rgba(246, 249, 252, 0.85);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
   padding: 0 2rem;
@@ -316,6 +392,9 @@ a:hover {
   display: flex;
   align-items: center;
   gap: 1rem;
+}
+[data-theme="dark"] .main-header {
+  background: rgba(10, 15, 13, 0.85);
 }
 
 .main-title {
@@ -362,10 +441,8 @@ a:hover {
   left: 0;
   bottom: 0;
   width: var(--sidebar-w);
-  background: #0b1120;
+  background: #0a2540;
   border-right: 1px solid rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   display: flex;
   flex-direction: column;
   z-index: 50;
@@ -440,9 +517,9 @@ a:hover {
 }
 
 .sidebar-link--active {
-  color: var(--ec-t1);
-  background: rgba(16, 185, 129, 0.08);
-  border-left: none;
+  color: #ffffff;
+  background: rgba(16, 185, 129, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(16, 185, 129, 0.15);
   font-weight: 600;
 }
 
@@ -530,7 +607,10 @@ a:hover {
   content: '';
   position: fixed;
   inset: 0;
-  background: radial-gradient(ellipse 80% 60% at 50% 30%, #111c36 0%, #0f172a 50%, #0b1222 100%);
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 20%, rgba(16,185,129,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 80% 30%, rgba(99,91,255,0.06) 0%, transparent 70%),
+    linear-gradient(180deg, #0a2540 0%, #0d1f35 40%, #0a1628 100%);
   z-index: -2;
   pointer-events: none;
 }
