@@ -26,7 +26,7 @@ export default function BoardView({ tasks, today, onStatusChange, onComplete, sa
             onClick={() => setMobileTab(col.key)}
             className="px-3 py-1.5 rounded-full text-[11px] font-semibold border-none cursor-pointer whitespace-nowrap flex items-center gap-1.5 transition-all duration-150"
             style={{
-              fontFamily: "'DM Sans', sans-serif",
+              fontFamily: "'Inter', sans-serif",
               backgroundColor: mobileTab === col.key ? col.accent : 'transparent',
               color: mobileTab === col.key ? 'white' : col.accent,
               border: `1px solid ${mobileTab === col.key ? col.accent : col.border}`,

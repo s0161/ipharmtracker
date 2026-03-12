@@ -23,16 +23,9 @@ import Modal from '../components/Modal'
 import EmptyState from '../components/EmptyState'
 import SkeletonLoader from '../components/SkeletonLoader'
 
-// ── Font injection ──
-if (!document.getElementById('tl-fonts')) {
-  const fl = document.createElement('link')
-  fl.id = 'tl-fonts'
-  fl.rel = 'stylesheet'
-  fl.href = 'https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap'
-  document.head.appendChild(fl)
-}
+// Inter font loaded via index.html
 
-const sans = { fontFamily: "'DM Sans', sans-serif" }
+const sans = { fontFamily: "'Inter', sans-serif" }
 const mono = { fontFamily: "'DM Mono', monospace" }
 
 // ═══════════════════════════════════════════════════════════
@@ -1177,7 +1170,7 @@ export default function TrainingLogs() {
 function FormField({ label, error, span, children }) {
   return (
     <div style={span ? { gridColumn: '1 / -1' } : {}}>
-      <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, color: error ? '#ef4444' : '#6b7280', display: 'block', marginBottom: 4 }}>
+      <label style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, fontWeight: 600, color: error ? '#ef4444' : '#6b7280', display: 'block', marginBottom: 4 }}>
         {label}
       </label>
       {children}
@@ -1187,7 +1180,7 @@ function FormField({ label, error, span, children }) {
 
 function inputStyle(error) {
   return {
-    fontFamily: "'DM Sans', sans-serif", fontSize: 12, width: '100%',
+    fontFamily: "'Inter', sans-serif", fontSize: 12, width: '100%',
     padding: '7px 8px', borderRadius: 6, outline: 'none', cursor: 'pointer',
     border: `1px solid ${error ? '#ef4444' : '#e8f5f0'}`,
     background: '#fff', color: '#111827',

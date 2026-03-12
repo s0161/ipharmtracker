@@ -16,16 +16,9 @@ import Modal from '../components/Modal'
 import { useConfirm } from '../components/ConfirmDialog'
 import Avatar from '../components/Avatar'
 
-// ─── Google Font injection ───
-if (!document.getElementById('dm-fonts-link')) {
-  const l = document.createElement('link')
-  l.id = 'dm-fonts-link'
-  l.rel = 'stylesheet'
-  l.href = 'https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap'
-  document.head.appendChild(l)
-}
+// Inter font loaded via index.html
 
-const DM = "'DM Sans', sans-serif"
+const DM = "'Inter', sans-serif"
 const MONO = "'DM Mono', monospace"
 const CARD = { background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-card)', boxShadow: 'var(--shadow-card)' }
 

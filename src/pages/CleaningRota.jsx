@@ -21,16 +21,9 @@ import { useConfirm } from '../components/ConfirmDialog'
 import Avatar from '../components/Avatar'
 import SkeletonLoader from '../components/SkeletonLoader'
 
-// ─── Font injection ───
-if (!document.getElementById('cr-fonts')) {
-  const fl = document.createElement('link')
-  fl.id = 'cr-fonts'
-  fl.rel = 'stylesheet'
-  fl.href = 'https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap'
-  document.head.appendChild(fl)
-}
+// Inter font loaded via index.html
 
-const sans = { fontFamily: "'DM Sans', sans-serif" }
+const sans = { fontFamily: "'Inter', sans-serif" }
 const mono = { fontFamily: "'DM Mono', monospace" }
 
 const FREQ_MAP = { daily: 1, weekly: 7, fortnightly: 14, monthly: 30 }

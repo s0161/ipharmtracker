@@ -24,7 +24,7 @@ export default function TaskGroup({
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center gap-2 py-2 px-1 bg-transparent border-none cursor-pointer text-left select-none"
-        style={{ fontFamily: "'DM Sans', sans-serif" }}
+        style={{ fontFamily: "'Inter', sans-serif" }}
       >
         <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: config.accent }} />
         <svg

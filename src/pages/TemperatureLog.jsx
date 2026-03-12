@@ -34,21 +34,14 @@ import { downloadCsv } from '../utils/exportCsv'
 import SkeletonLoader from '../components/SkeletonLoader'
 import Avatar from '../components/Avatar'
 
-// ── Font injection ──
-if (!document.getElementById('temp-fonts')) {
-  const fl = document.createElement('link')
-  fl.id = 'temp-fonts'
-  fl.rel = 'stylesheet'
-  fl.href = 'https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap'
-  document.head.appendChild(fl)
-}
+// Inter font loaded via index.html
 
 // ── Constants ──
 const RANGE_MIN = 2
 const RANGE_MAX = 8
 const inRange = (v) => { const n = parseFloat(v); return !isNaN(n) && n >= RANGE_MIN && n <= RANGE_MAX }
 
-const sans = { fontFamily: "'DM Sans', sans-serif" }
+const sans = { fontFamily: "'Inter', sans-serif" }
 const mono = { fontFamily: "'DM Mono', monospace" }
 
 const FRIDGES = [

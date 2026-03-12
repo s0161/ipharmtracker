@@ -23,10 +23,7 @@ import Avatar from "../components/Avatar";
 import PriorityBadge from "../components/PriorityBadge";
 import CategoryTag from "../components/CategoryTag";
 
-const fontLink = document.createElement("link");
-fontLink.rel = "stylesheet";
-fontLink.href = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap";
-document.head.appendChild(fontLink);
+// Inter font loaded via index.html
 
 // ── SVG Icons ─────────────────────────────────────────────────────────────
 
@@ -123,7 +120,7 @@ function CircleProgress({ pct, color, size = 52 }) {
       </svg>
       <div style={{
         position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
-        fontSize: 11, fontWeight: 700, color: pctColor, fontFamily: "'DM Mono', monospace",
+        fontSize: 11, fontWeight: 700, color: pctColor, fontFamily: "'DM Mono', 'SF Mono', monospace",
       }}>{pct}%</div>
     </div>
   );
@@ -156,7 +153,7 @@ function TaskRow({ task, onToggle }) {
       <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
         <PriorityBadge level={task.priority} />
         <CategoryTag label={task.category} />
-        {task.byTime && <span style={{ fontSize: 9, color: "var(--ec-t3)", fontFamily: "'DM Mono', monospace", display: "inline-flex", alignItems: "center", gap: 2 }}><SvgClock size={9} />{task.byTime}</span>}
+        {task.byTime && <span style={{ fontSize: 9, color: "var(--ec-t3)", fontFamily: "'DM Mono', 'SF Mono', monospace", display: "inline-flex", alignItems: "center", gap: 2 }}><SvgClock size={9} />{task.byTime}</span>}
         <Avatar name={task.assigneeName} size={22} />
       </div>
     </div>
@@ -563,7 +560,7 @@ export default function Dashboard() {
   // ── Loading ──
   if (loading) {
     return (
-      <div style={{ fontFamily: "'DM Sans', sans-serif", background: "var(--ec-bg)", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ fontFamily: "'Inter', sans-serif", background: "var(--ec-bg)", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ textAlign: "center", color: "var(--ec-z6)" }}>
           <div style={{ marginBottom: 8 }}><SvgChart size={32} /></div>
           <div style={{ fontSize: 14, fontWeight: 600 }}>Loading Dashboard...</div>
@@ -575,7 +572,7 @@ export default function Dashboard() {
   const firstName = user?.name?.split(" ")[0] || "there";
 
   return (
-    <div style={{ fontFamily: "'DM Sans', sans-serif", background: "var(--ec-bg)", minHeight: "100vh" }}>
+    <div style={{ fontFamily: "'Inter', sans-serif", background: "var(--ec-bg)", minHeight: "100vh" }}>
 
       {/* Topbar */}
       <div style={{
@@ -595,7 +592,7 @@ export default function Dashboard() {
             { label: "Due Today", val: String(dueTodayCount), bg: dueTodayCount > 0 ? "var(--ec-warn)" : "rgba(255,255,255,0.18)" },
           ].map(k => (
             <div key={k.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "5px 12px", borderRadius: 9, background: k.bg }}>
-              <span style={{ fontSize: 18, fontWeight: 800, color: "white", lineHeight: 1, fontFamily: "'DM Mono', monospace" }}>{k.val}</span>
+              <span style={{ fontSize: 18, fontWeight: 800, color: "white", lineHeight: 1, fontFamily: "'DM Mono', 'SF Mono', monospace" }}>{k.val}</span>
               <span style={{ fontSize: 9, color: "rgba(255,255,255,0.7)", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>{k.label}</span>
             </div>
           ))}
@@ -626,7 +623,7 @@ export default function Dashboard() {
             <button onClick={() => navigate("/rp-log")} style={{
               padding: "6px 14px", borderRadius: 8, border: "none", cursor: "pointer",
               background: "var(--ec-crit)", color: "white",
-              fontSize: 12, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
+              fontSize: 12, fontWeight: 700, fontFamily: "'Inter', sans-serif",
             }}>
               Sign In as RP →
             </button>
@@ -677,17 +674,17 @@ export default function Dashboard() {
             gradient="linear-gradient(90deg, #b45309, #d97706)"
             icon={<SvgCheckSquare size={14} />} title="To Do"
             right={actionItems.filter(t => !t.done).length > 0
-              ? <span style={{ fontSize: 10, fontFamily: "'DM Mono', monospace", background: "rgba(255,255,255,0.2)", padding: "1px 7px", borderRadius: 20 }}>{actionItems.filter(t => !t.done).length} remaining</span>
+              ? <span style={{ fontSize: 10, fontFamily: "'DM Mono', 'SF Mono', monospace", background: "rgba(255,255,255,0.2)", padding: "1px 7px", borderRadius: 20 }}>{actionItems.filter(t => !t.done).length} remaining</span>
               : null}
           />
           <div style={{ display: "flex", gap: 6, marginBottom: actionItems.length ? 8 : 0 }}>
             <input value={todoInput} onChange={e => setTodoInput(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter") addTodo(); }}
               placeholder="Add an action item and press Enter…"
-              style={{ flex: 1, padding: "7px 12px", borderRadius: 8, fontSize: 12, border: "1px solid var(--ec-div)", outline: "none", fontFamily: "'DM Sans', sans-serif", background: "var(--ec-card)" }}
+              style={{ flex: 1, padding: "7px 12px", borderRadius: 8, fontSize: 12, border: "1px solid var(--ec-div)", outline: "none", fontFamily: "'Inter', sans-serif", background: "var(--ec-card)" }}
             />
             <button onClick={addTodo}
-              style={{ padding: "7px 14px", borderRadius: 8, border: "none", cursor: "pointer", background: "var(--ec-em)", color: "white", fontSize: 12, fontWeight: 600, fontFamily: "'DM Sans', sans-serif" }}>
+              style={{ padding: "7px 14px", borderRadius: 8, border: "none", cursor: "pointer", background: "var(--ec-em)", color: "white", fontSize: 12, fontWeight: 600, fontFamily: "'Inter', sans-serif" }}>
               + Add
             </button>
           </div>
@@ -721,7 +718,7 @@ export default function Dashboard() {
                     <div style={{ width: 80, height: 4, background: "rgba(255,255,255,0.25)", borderRadius: 99, overflow: "hidden" }}>
                       <div style={{ width: `${shiftPct}%`, height: "100%", background: shiftPct === 100 ? "var(--ec-em)" : "white", borderRadius: 99, transition: "width 0.4s" }} />
                     </div>
-                    <span style={{ fontSize: 11, fontFamily: "'DM Mono', monospace" }}>{shiftDone}/{shiftTotal}</span>
+                    <span style={{ fontSize: 11, fontFamily: "'DM Mono', 'SF Mono', monospace" }}>{shiftDone}/{shiftTotal}</span>
                   </div>
                 }
               />
@@ -740,10 +737,10 @@ export default function Dashboard() {
                         border: isActive ? "none" : "1px solid var(--ec-div)",
                         background: isActive ? "var(--ec-em)" : "var(--ec-card)",
                         color: isActive ? "white" : "var(--ec-em)",
-                        cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
+                        cursor: "pointer", fontFamily: "'Inter', sans-serif",
                         transition: "background 0.12s",
                       }}>
-                      {tab.label} <span style={{ opacity: 0.7, fontFamily: "'DM Mono', monospace", fontSize: 9 }}>{done}/{tab.tasks.length}</span>
+                      {tab.label} <span style={{ opacity: 0.7, fontFamily: "'DM Mono', 'SF Mono', monospace", fontSize: 9 }}>{done}/{tab.tasks.length}</span>
                     </button>
                   );
                 })}
@@ -812,7 +809,7 @@ export default function Dashboard() {
                   {cdCheckStatus.recentChecks.map((e, i) => (
                     <div key={e.id || i} style={{ fontSize: 11, color: "var(--ec-t2)", padding: "3px 0", display: "flex", alignItems: "center", gap: 6 }}>
                       <SvgDot size={6} color="var(--ec-em-border)" />
-                      <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 10 }}>{e.dateTime ? new Date(e.dateTime).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "—"}</span>
+                      <span style={{ fontFamily: "'DM Mono', 'SF Mono', monospace", fontSize: 10 }}>{e.dateTime ? new Date(e.dateTime).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "—"}</span>
                       <span>—</span>
                       <span>{e.staffMember}</span>
                       <span style={{ color: "var(--ec-t3)", fontSize: 10 }}>{e.dateTime ? <>at {new Date(e.dateTime).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}</> : null}</span>
@@ -877,14 +874,14 @@ export default function Dashboard() {
                           border: `1px solid ${isToday ? "var(--ec-crit-border)" : isSoon ? "var(--ec-warn-border)" : "var(--ec-div)"}`,
                         }}>
                           <div>
-                            <div style={{ fontSize: 11, fontWeight: 600, color: "var(--ec-t1)", fontFamily: "'DM Mono', monospace" }}>
+                            <div style={{ fontSize: 11, fontWeight: 600, color: "var(--ec-t1)", fontFamily: "'DM Mono', 'SF Mono', monospace" }}>
                               {hDate.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}
                             </div>
                             <div style={{ fontSize: 10, color: "var(--ec-t3)" }}>{h.title}</div>
                           </div>
                           <span style={{
                             fontSize: 9, fontWeight: 700, padding: "1px 8px", borderRadius: 20,
-                            fontFamily: "'DM Mono', monospace", ...pillStyle,
+                            fontFamily: "'DM Mono', 'SF Mono', monospace", ...pillStyle,
                           }}>
                             {isToday ? "TODAY" : `in ${diff}d`}
                           </span>
@@ -894,7 +891,7 @@ export default function Dashboard() {
                     {bankHolidays.length > 4 && (
                       <button onClick={() => setBhShowAll(v => !v)} style={{
                         fontSize: 10, color: "var(--ec-em)", fontWeight: 600, background: "none", border: "none",
-                        cursor: "pointer", padding: "4px 0", fontFamily: "'DM Sans', sans-serif",
+                        cursor: "pointer", padding: "4px 0", fontFamily: "'Inter', sans-serif",
                       }}>
                         {bhShowAll ? "Show less" : `View all ${bankHolidays.length} upcoming`}
                       </button>
@@ -914,7 +911,7 @@ export default function Dashboard() {
               <CardHeader
                 gradient="linear-gradient(90deg, #064e3b, #047857)"
                 icon={<SvgHospital size={14} />} title="Compliance Health"
-                right={<span style={{ fontSize: 13, fontWeight: 800, fontFamily: "'DM Mono', monospace" }}>{overallPct}% <span style={{ fontSize: 9, fontWeight: 400, opacity: 0.7 }}>overall</span></span>}
+                right={<span style={{ fontSize: 13, fontWeight: 800, fontFamily: "'DM Mono', 'SF Mono', monospace" }}>{overallPct}% <span style={{ fontSize: 9, fontWeight: 400, opacity: 0.7 }}>overall</span></span>}
               />
               <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                 {complianceHealth.map(item => (
@@ -950,7 +947,7 @@ export default function Dashboard() {
                           <div style={{ fontSize: 11, fontWeight: 600, color: "var(--ec-t1)" }}>{doc.name}</div>
                           <div style={{ fontSize: 9, color: "var(--ec-t3)", marginTop: 1 }}>{r.sublabel}</div>
                         </div>
-                        <span style={{ fontSize: 10, fontWeight: 700, color: r.text, fontFamily: "'DM Mono', monospace", minWidth: 54, textAlign: "right" }}>{r.label}</span>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: r.text, fontFamily: "'DM Mono', 'SF Mono', monospace", minWidth: 54, textAlign: "right" }}>{r.label}</span>
                       </div>
                     );
                   })}
@@ -980,7 +977,7 @@ export default function Dashboard() {
             right={canAssign ? (
               <button
                 onClick={() => setStFormOpen(o => !o)}
-                style={{ fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.4)", background: "rgba(255,255,255,0.15)", color: "white", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}
+                style={{ fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.4)", background: "rgba(255,255,255,0.15)", color: "white", cursor: "pointer", fontFamily: "'Inter', sans-serif" }}
               >
                 {stFormOpen ? "Cancel" : "+ Assign"}
               </button>
@@ -993,7 +990,7 @@ export default function Dashboard() {
               <div style={{ flex: 1, height: 6, borderRadius: 99, background: "var(--ec-div)", overflow: "hidden" }}>
                 <div style={{ width: `${stProgressPct}%`, height: "100%", background: "var(--ec-em)", borderRadius: 99, transition: "width 0.4s" }} />
               </div>
-              <span style={{ fontSize: 10, fontFamily: "'DM Mono', monospace", color: "var(--ec-t2)", marginLeft: 10, flexShrink: 0 }}>{stDoneCount}/{stTotal} tasks complete</span>
+              <span style={{ fontSize: 10, fontFamily: "'DM Mono', 'SF Mono', monospace", color: "var(--ec-t2)", marginLeft: 10, flexShrink: 0 }}>{stDoneCount}/{stTotal} tasks complete</span>
             </div>
           </div>
 
@@ -1004,13 +1001,13 @@ export default function Dashboard() {
                 <div style={{ gridColumn: "1 / -1" }}>
                   <label style={{ fontSize: 10, fontWeight: 600, color: "var(--ec-t2)", marginBottom: 2, display: "block" }}>Task title *</label>
                   <input value={stTitle} onChange={e => setStTitle(e.target.value)} placeholder="Enter task title…"
-                    style={{ width: "100%", padding: "6px 10px", borderRadius: 7, fontSize: 12, border: "1px solid var(--ec-div)", outline: "none", fontFamily: "'DM Sans', sans-serif", background: "var(--ec-card)", boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "6px 10px", borderRadius: 7, fontSize: 12, border: "1px solid var(--ec-div)", outline: "none", fontFamily: "'Inter', sans-serif", background: "var(--ec-card)", boxSizing: "border-box" }}
                   />
                 </div>
                 <div>
                   <label style={{ fontSize: 10, fontWeight: 600, color: "var(--ec-t2)", marginBottom: 2, display: "block" }}>Assign to *</label>
                   <select value={stAssignTo} onChange={e => setStAssignTo(e.target.value)}
-                    style={{ width: "100%", padding: "6px 10px", borderRadius: 7, fontSize: 12, border: "1px solid var(--ec-div)", background: "var(--ec-card)", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "6px 10px", borderRadius: 7, fontSize: 12, border: "1px solid var(--ec-div)", background: "var(--ec-card)", fontFamily: "'Inter', sans-serif", boxSizing: "border-box" }}
                   >
                     {staffAssignees.map(s => <option key={s.initials} value={s.initials}>{s.initials} — {s.name}</option>)}
                   </select>
@@ -1018,7 +1015,7 @@ export default function Dashboard() {
                 <div>
                   <label style={{ fontSize: 10, fontWeight: 600, color: "var(--ec-t2)", marginBottom: 2, display: "block" }}>Priority *</label>
                   <select value={stPriority} onChange={e => setStPriority(e.target.value)}
-                    style={{ width: "100%", padding: "6px 10px", borderRadius: 7, fontSize: 12, border: "1px solid var(--ec-div)", background: "var(--ec-card)", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "6px 10px", borderRadius: 7, fontSize: 12, border: "1px solid var(--ec-div)", background: "var(--ec-card)", fontFamily: "'Inter', sans-serif", boxSizing: "border-box" }}
                   >
                     <option value="HIGH">HIGH</option>
                     <option value="MED">MED</option>
@@ -1028,19 +1025,19 @@ export default function Dashboard() {
                 <div>
                   <label style={{ fontSize: 10, fontWeight: 600, color: "var(--ec-t2)", marginBottom: 2, display: "block" }}>Due date</label>
                   <input type="date" value={stDueDate} onChange={e => setStDueDate(e.target.value)}
-                    style={{ width: "100%", padding: "6px 10px", borderRadius: 7, fontSize: 12, border: "1px solid var(--ec-div)", background: "var(--ec-card)", fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "6px 10px", borderRadius: 7, fontSize: 12, border: "1px solid var(--ec-div)", background: "var(--ec-card)", fontFamily: "'Inter', sans-serif", boxSizing: "border-box" }}
                   />
                 </div>
                 <div>
                   <label style={{ fontSize: 10, fontWeight: 600, color: "var(--ec-t2)", marginBottom: 2, display: "block" }}>Notes</label>
                   <input value={stNotes} onChange={e => setStNotes(e.target.value)} placeholder="Optional notes…"
-                    style={{ width: "100%", padding: "6px 10px", borderRadius: 7, fontSize: 12, border: "1px solid var(--ec-div)", outline: "none", fontFamily: "'DM Sans', sans-serif", background: "var(--ec-card)", boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "6px 10px", borderRadius: 7, fontSize: 12, border: "1px solid var(--ec-div)", outline: "none", fontFamily: "'Inter', sans-serif", background: "var(--ec-card)", boxSizing: "border-box" }}
                   />
                 </div>
               </div>
               <div style={{ display: "flex", justifyContent: "flex-end" }}>
                 <button onClick={handleAssignTask} disabled={!stTitle.trim()}
-                  style={{ padding: "6px 16px", borderRadius: 7, border: "none", cursor: stTitle.trim() ? "pointer" : "default", background: stTitle.trim() ? "var(--ec-em)" : "var(--ec-t4)", color: "white", fontSize: 12, fontWeight: 600, fontFamily: "'DM Sans', sans-serif" }}
+                  style={{ padding: "6px 16px", borderRadius: 7, border: "none", cursor: stTitle.trim() ? "pointer" : "default", background: stTitle.trim() ? "var(--ec-em)" : "var(--ec-t4)", color: "white", fontSize: 12, fontWeight: 600, fontFamily: "'Inter', sans-serif" }}
                 >
                   Assign
                 </button>
@@ -1078,9 +1075,9 @@ export default function Dashboard() {
                           </div>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-                          {task.dueDate && <span style={{ fontSize: 9, fontFamily: "'DM Mono', monospace", color: isOverdue ? "var(--ec-crit)" : "var(--ec-t3)" }}>{new Date(task.dueDate + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>}
+                          {task.dueDate && <span style={{ fontSize: 9, fontFamily: "'DM Mono', 'SF Mono', monospace", color: isOverdue ? "var(--ec-crit)" : "var(--ec-t3)" }}>{new Date(task.dueDate + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>}
                           <select value={task.status} onChange={e => handleStStatusChange(task.id, e.target.value)} disabled={!canModifyTask(task)}
-                            style={{ fontSize: 10, padding: "2px 4px", borderRadius: 6, border: "1px solid var(--ec-div)", background: "var(--ec-card)", color: "var(--ec-t1)", cursor: canModifyTask(task) ? "pointer" : "default", fontFamily: "'DM Sans', sans-serif" }}
+                            style={{ fontSize: 10, padding: "2px 4px", borderRadius: 6, border: "1px solid var(--ec-div)", background: "var(--ec-card)", color: "var(--ec-t1)", cursor: canModifyTask(task) ? "pointer" : "default", fontFamily: "'Inter', sans-serif" }}
                           >
                             <option value="pending">Pending</option>
                             <option value="in_progress">In Progress</option>
@@ -1118,9 +1115,9 @@ export default function Dashboard() {
                           </div>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-                          {task.dueDate && <span style={{ fontSize: 9, fontFamily: "'DM Mono', monospace", color: isOverdue ? "var(--ec-crit)" : "var(--ec-t3)" }}>{new Date(task.dueDate + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>}
+                          {task.dueDate && <span style={{ fontSize: 9, fontFamily: "'DM Mono', 'SF Mono', monospace", color: isOverdue ? "var(--ec-crit)" : "var(--ec-t3)" }}>{new Date(task.dueDate + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>}
                           <select value={task.status} onChange={e => handleStStatusChange(task.id, e.target.value)} disabled={!canModifyTask(task)}
-                            style={{ fontSize: 10, padding: "2px 4px", borderRadius: 6, border: "1px solid var(--ec-div)", background: "var(--ec-card)", color: "var(--ec-t1)", cursor: canModifyTask(task) ? "pointer" : "default", fontFamily: "'DM Sans', sans-serif" }}
+                            style={{ fontSize: 10, padding: "2px 4px", borderRadius: 6, border: "1px solid var(--ec-div)", background: "var(--ec-card)", color: "var(--ec-t1)", cursor: canModifyTask(task) ? "pointer" : "default", fontFamily: "'Inter', sans-serif" }}
                           >
                             <option value="pending">Pending</option>
                             <option value="in_progress">In Progress</option>
@@ -1160,9 +1157,9 @@ export default function Dashboard() {
                         <Avatar name={initialsToName(task.assignedTo)} size={22} />
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-                        {task.dueDate && <span style={{ fontSize: 9, fontFamily: "'DM Mono', monospace", color: "var(--ec-t3)" }}>{new Date(task.dueDate + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>}
+                        {task.dueDate && <span style={{ fontSize: 9, fontFamily: "'DM Mono', 'SF Mono', monospace", color: "var(--ec-t3)" }}>{new Date(task.dueDate + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>}
                         <select value={task.status} onChange={e => handleStStatusChange(task.id, e.target.value)} disabled={!canModifyTask(task)}
-                          style={{ fontSize: 10, padding: "2px 4px", borderRadius: 6, border: "1px solid var(--ec-div)", background: "var(--ec-card)", color: "var(--ec-t1)", cursor: canModifyTask(task) ? "pointer" : "default", fontFamily: "'DM Sans', sans-serif" }}
+                          style={{ fontSize: 10, padding: "2px 4px", borderRadius: 6, border: "1px solid var(--ec-div)", background: "var(--ec-card)", color: "var(--ec-t1)", cursor: canModifyTask(task) ? "pointer" : "default", fontFamily: "'Inter', sans-serif" }}
                         >
                           <option value="pending">Pending</option>
                           <option value="in_progress">In Progress</option>

@@ -34,7 +34,7 @@ export default function TeamOverview({ allTasks, staff, today, onFilterByPerson,
               onClick={() => onFilterByPerson?.(isFiltered ? null : member.name)}
               className="flex items-center gap-2 px-3 py-2 rounded-xl border cursor-pointer shrink-0 transition-all duration-150 bg-ec-card"
               style={{
-                fontFamily: "'DM Sans', sans-serif",
+                fontFamily: "'Inter', sans-serif",
                 borderColor: isFiltered ? '#059669' : 'var(--ec-div)',
                 backgroundColor: isFiltered ? '#f0fdf4' : 'var(--ec-card)',
                 boxShadow: isFiltered ? '0 0 0 1px #05966930' : 'none',

@@ -95,14 +95,14 @@ export default function MyTasks() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--ec-bg)' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ fontFamily: "'Inter', sans-serif", background: 'var(--ec-bg)' }}>
         <p className="text-ec-t3 text-[13px]">Loading tasks...</p>
       </div>
     )
   }
 
   return (
-    <div style={{ fontFamily: "'DM Sans', sans-serif", background: 'var(--ec-bg)', minHeight: '100vh' }}>
+    <div style={{ fontFamily: "'Inter', sans-serif", background: 'var(--ec-bg)', minHeight: '100vh' }}>
       <div className="px-4 sm:px-6 py-5 max-w-[960px] mx-auto">
 
         {/* Header strip */}
@@ -146,7 +146,7 @@ export default function MyTasks() {
         {personFilter && (
           <div className="flex items-center gap-2 mb-3 px-3 py-1.5 rounded-lg" style={{ background: '#f0fdf4', border: '1px solid #d1fae5' }}>
             <span className="text-[12px] font-semibold" style={{ color: '#059669' }}>Filtered: {personFilter}</span>
-            <button onClick={() => setPersonFilter(null)} className="text-[11px] font-semibold bg-transparent border-none cursor-pointer" style={{ color: '#059669', fontFamily: "'DM Sans', sans-serif" }}>Clear</button>
+            <button onClick={() => setPersonFilter(null)} className="text-[11px] font-semibold bg-transparent border-none cursor-pointer" style={{ color: '#059669', fontFamily: "'Inter', sans-serif" }}>Clear</button>
           </div>
         )}
 
@@ -217,7 +217,7 @@ function EmptyState({ filter, isElevated, onShowAll, onAssign }) {
           <div className="text-base font-semibold text-ec-t1 mb-1">No matches</div>
           <div className="text-[13px] text-ec-t3">
             No tasks match this filter.{' '}
-            <button onClick={onShowAll} className="font-semibold bg-transparent border-none cursor-pointer text-[13px]" style={{ color: '#059669', fontFamily: "'DM Sans', sans-serif" }}>Show all</button>
+            <button onClick={onShowAll} className="font-semibold bg-transparent border-none cursor-pointer text-[13px]" style={{ color: '#059669', fontFamily: "'Inter', sans-serif" }}>Show all</button>
           </div>
         </>
       ) : isElevated ? (
@@ -227,7 +227,7 @@ function EmptyState({ filter, isElevated, onShowAll, onAssign }) {
           <button
             onClick={onAssign}
             className="px-5 py-2 rounded-full text-[13px] font-semibold border-none cursor-pointer inline-flex items-center gap-1.5"
-            style={{ fontFamily: "'DM Sans', sans-serif", background: '#059669', color: 'white', boxShadow: '0 4px 14px rgba(5,150,105,0.4)' }}
+            style={{ fontFamily: "'Inter', sans-serif", background: '#059669', color: 'white', boxShadow: '0 4px 14px rgba(5,150,105,0.4)' }}
           >
             <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="white" strokeWidth="2" strokeLinecap="round" /></svg>
             Assign First Task

@@ -54,7 +54,7 @@ export default function CompletionFlow({ task, open, onClose, onConfirm }) {
           rows={2}
           style={{
             width: '100%', padding: '8px 12px', borderRadius: 8, fontSize: 13,
-            border: '1px solid #d1fae5', outline: 'none', fontFamily: "'DM Sans', sans-serif",
+            border: '1px solid #d1fae5', outline: 'none', fontFamily: "'Inter', sans-serif",
             background: 'white', boxSizing: 'border-box', resize: 'vertical',
           }}
         />
@@ -64,12 +64,12 @@ export default function CompletionFlow({ task, open, onClose, onConfirm }) {
         <button onClick={onClose} style={{
           padding: '8px 18px', borderRadius: 8, fontSize: 13, fontWeight: 600,
           border: '1px solid #d1fae5', background: 'white', color: '#64748b',
-          cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
+          cursor: 'pointer', fontFamily: "'Inter', sans-serif",
         }}>Cancel</button>
         <button onClick={handleConfirm} style={{
           padding: '8px 18px', borderRadius: 8, fontSize: 13, fontWeight: 600, border: 'none',
           background: '#059669', color: 'white',
-          cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
+          cursor: 'pointer', fontFamily: "'Inter', sans-serif",
         }}>Mark Complete</button>
       </div>
     </Modal>

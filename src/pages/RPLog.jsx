@@ -7,14 +7,7 @@ import { logAudit } from '../utils/auditLog'
 import { useUser } from '../contexts/UserContext'
 import SkeletonLoader from '../components/SkeletonLoader'
 
-// ── Font injection ──
-if (!document.getElementById('rp-fonts')) {
-  const fl = document.createElement('link')
-  fl.id = 'rp-fonts'
-  fl.rel = 'stylesheet'
-  fl.href = 'https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap'
-  document.head.appendChild(fl)
-}
+// Inter font loaded via index.html
 
 const DAILY_ITEMS = [
   'RP notice displayed',
@@ -42,7 +35,7 @@ const FORTNIGHTLY_ITEMS = [
 const ALL_ITEMS = [...DAILY_ITEMS, ...WEEKLY_ITEMS, ...FORTNIGHTLY_ITEMS]
 
 // ── Shared styles ──
-const sans = { fontFamily: "'DM Sans', sans-serif" }
+const sans = { fontFamily: "'Inter', sans-serif" }
 const mono = { fontFamily: "'DM Mono', monospace" }
 
 const SvgCheck = ({ size = 10, color = 'white' }) => (

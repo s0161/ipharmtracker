@@ -44,12 +44,18 @@ export default {
       },
       fontFamily: {
         sans: [
+          'Inter',
           '-apple-system',
           'BlinkMacSystemFont',
           'Segoe UI',
           'Roboto',
-          'Helvetica',
           'sans-serif',
+        ],
+        mono: [
+          'DM Mono',
+          'JetBrains Mono',
+          'SF Mono',
+          'monospace',
         ],
       },
       animation: {
