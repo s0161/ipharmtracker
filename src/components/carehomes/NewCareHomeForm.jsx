@@ -49,35 +49,35 @@ export default function NewCareHomeForm({ initial, onSave, onClose }) {
           <div>
             <label className="block text-xs font-medium text-ec-t2 mb-1">Name *</label>
             <input value={form.name} onChange={set('name')} required
-              className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-emerald-500/30" />
+              className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-ec-em/30" />
           </div>
           <div>
             <label className="block text-xs font-medium text-ec-t2 mb-1">Address</label>
             <input value={form.address} onChange={set('address')}
-              className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-emerald-500/30" />
+              className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-ec-em/30" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-ec-t2 mb-1">Phone</label>
               <input value={form.phone} onChange={set('phone')}
-                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-emerald-500/30" />
+                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-ec-em/30" />
             </div>
             <div>
               <label className="block text-xs font-medium text-ec-t2 mb-1">Email</label>
               <input value={form.email} onChange={set('email')} type="email"
-                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-emerald-500/30" />
+                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-ec-em/30" />
             </div>
           </div>
           <div>
             <label className="block text-xs font-medium text-ec-t2 mb-1">Contact Person</label>
             <input value={form.contactPerson} onChange={set('contactPerson')}
-              className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-emerald-500/30" />
+              className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-ec-em/30" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-ec-t2 mb-1">Cycle Day (1-28)</label>
               <select value={form.cycleDay} onChange={set('cycleDay')}
-                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
+                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-ec-em/30">
                 <option value="">—</option>
                 {Array.from({ length: 28 }, (_, i) => (
                   <option key={i + 1} value={i + 1}>{i + 1}</option>
@@ -87,7 +87,7 @@ export default function NewCareHomeForm({ initial, onSave, onClose }) {
             <div>
               <label className="block text-xs font-medium text-ec-t2 mb-1">Delivery Method</label>
               <select value={form.deliveryMethod} onChange={set('deliveryMethod')}
-                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
+                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-ec-em/30">
                 <option>Delivery</option>
                 <option>Collection</option>
               </select>
@@ -96,12 +96,12 @@ export default function NewCareHomeForm({ initial, onSave, onClose }) {
           <div>
             <label className="block text-xs font-medium text-ec-t2 mb-1">Notes</label>
             <textarea value={form.notes} onChange={set('notes')} rows={3}
-              className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 resize-none" />
+              className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-ec-em/30 resize-none" />
           </div>
 
           <div className="flex gap-2 pt-2">
             <button type="submit" disabled={saving || !form.name.trim()}
-              className="flex-1 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg border-none cursor-pointer hover:bg-emerald-700 shadow-sm disabled:opacity-50">
+              className="flex-1 px-4 py-2 bg-ec-em-dark text-white text-sm font-semibold rounded-lg border-none cursor-pointer hover:bg-ec-em-dark shadow-sm disabled:opacity-50">
               {saving ? 'Saving...' : (initial ? 'Update' : 'Add Care Home')}
             </button>
             <button type="button" onClick={onClose}

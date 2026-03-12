@@ -47,7 +47,7 @@ export default function CareHomeDetail({
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`px-3 py-1.5 text-xs font-medium rounded-full border-none cursor-pointer transition-colors whitespace-nowrap
-              ${activeTab === tab ? 'bg-emerald-600 text-white' : 'bg-ec-bg text-ec-t2 hover:bg-ec-div'}`}
+              ${activeTab === tab ? 'bg-ec-em-dark text-white' : 'bg-ec-bg text-ec-t2 hover:bg-ec-div'}`}
           >
             {tab}
           </button>

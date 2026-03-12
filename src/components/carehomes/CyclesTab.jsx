@@ -43,7 +43,7 @@ export default function CyclesTab({ home, cycles, itemsByCycle, patients, isElev
         <h3 className="text-sm font-semibold text-ec-t1">Medication Cycles</h3>
         {isElevated && (
           <button onClick={handleStartCycle}
-            className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-lg border-none cursor-pointer hover:bg-emerald-700 shadow-sm">
+            className="px-3 py-1.5 bg-ec-em-dark text-white text-xs font-semibold rounded-lg border-none cursor-pointer hover:bg-ec-em-dark shadow-sm">
             Start New Cycle
           </button>
         )}
@@ -85,7 +85,7 @@ export default function CyclesTab({ home, cycles, itemsByCycle, patients, isElev
                   <div className="px-4 pb-2">
                     <div className="flex items-center gap-2">
                       <div className="flex-1 h-1.5 bg-ec-div rounded-full overflow-hidden">
-                        <div className="h-full bg-emerald-500 rounded-full transition-all" style={{ width: `${progress}%` }} />
+                        <div className="h-full bg-ec-em rounded-full transition-all" style={{ width: `${progress}%` }} />
                       </div>
                       <span className="text-[10px] text-ec-t3 tabular-nums">{progress}%</span>
                     </div>
@@ -98,7 +98,7 @@ export default function CyclesTab({ home, cycles, itemsByCycle, patients, isElev
                     {isElevated && next && (
                       <div className="mb-3">
                         <button onClick={() => handleAdvance(cycle)}
-                          className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-lg border-none cursor-pointer hover:bg-emerald-700 shadow-sm">
+                          className="px-3 py-1.5 bg-ec-em-dark text-white text-xs font-semibold rounded-lg border-none cursor-pointer hover:bg-ec-em-dark shadow-sm">
                           Advance to {next}
                         </button>
                       </div>
@@ -124,13 +124,13 @@ export default function CyclesTab({ home, cycles, itemsByCycle, patients, isElev
                                 </span>
                                 {isElevated && item.status === 'Pending' && (
                                   <button onClick={() => onUpdateCycleItem(item.id, { status: 'Dispensed', dispensedBy: user?.name })}
-                                    className="text-xs text-emerald-600 hover:text-emerald-700 cursor-pointer bg-transparent border-none font-medium">
+                                    className="text-xs text-ec-em hover:text-ec-em cursor-pointer bg-transparent border-none font-medium">
                                     Dispense
                                   </button>
                                 )}
                                 {isElevated && item.status === 'Dispensed' && (
                                   <button onClick={() => onUpdateCycleItem(item.id, { status: 'Checked', checkedBy: user?.name })}
-                                    className="text-xs text-emerald-600 hover:text-emerald-700 cursor-pointer bg-transparent border-none font-medium">
+                                    className="text-xs text-ec-em hover:text-ec-em cursor-pointer bg-transparent border-none font-medium">
                                     Check
                                   </button>
                                 )}

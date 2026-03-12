@@ -159,11 +159,11 @@ export default function AlertDetailPanel({ alert, acks, user, onClose, onResolve
                     onChange={e => setResolveNote(e.target.value)}
                     placeholder="Resolution note..."
                     rows={3}
-                    className="w-full px-2.5 py-1.5 rounded-lg border border-ec-border bg-ec-card text-xs text-ec-t1 placeholder:text-ec-t3 outline-none focus:ring-2 focus:ring-emerald-500/30 resize-none"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-ec-border bg-ec-card text-xs text-ec-t1 placeholder:text-ec-t3 outline-none focus:ring-2 focus:ring-ec-em/30 resize-none"
                   />
                   <div className="flex gap-2">
                     <button onClick={handleResolve}
-                      className="px-4 py-2 rounded-lg text-xs font-semibold bg-emerald-600 text-white border-none cursor-pointer hover:bg-emerald-700 transition">
+                      className="px-4 py-2 rounded-lg text-xs font-semibold bg-ec-em-dark text-white border-none cursor-pointer hover:bg-ec-em-dark transition">
                       Confirm Resolve
                     </button>
                     <button onClick={() => setShowResolve(false)}
@@ -175,7 +175,7 @@ export default function AlertDetailPanel({ alert, acks, user, onClose, onResolve
               ) : (
                 <div className="flex gap-2 flex-wrap">
                   <button onClick={() => setShowResolve(true)}
-                    className="px-4 py-2 rounded-lg text-xs font-semibold bg-emerald-600 text-white border-none cursor-pointer hover:bg-emerald-700 transition">
+                    className="px-4 py-2 rounded-lg text-xs font-semibold bg-ec-em-dark text-white border-none cursor-pointer hover:bg-ec-em-dark transition">
                     Resolve
                   </button>
                   {SNOOZE_OPTIONS.map(o => (

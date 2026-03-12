@@ -42,6 +42,17 @@ export default {
           z9: '#18181b',
         },
       },
+      backgroundImage: {
+        'ec-grad-em':     'var(--ec-grad-em)',
+        'ec-grad-warn':   'var(--ec-grad-warn)',
+        'ec-grad-crit':   'var(--ec-grad-crit)',
+        'ec-grad-info':   'var(--ec-grad-info)',
+        'ec-grad-blue':   'var(--ec-grad-blue)',
+        'ec-grad-muted':  'var(--ec-grad-muted)',
+        'ec-grad-hero':   'var(--ec-grad-hero)',
+        'ec-grad-teal':   'var(--ec-grad-teal)',
+        'ec-grad-purple': 'var(--ec-grad-purple)',
+      },
       fontFamily: {
         sans: [
           'Inter',

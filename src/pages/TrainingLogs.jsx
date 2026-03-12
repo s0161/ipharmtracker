@@ -61,19 +61,19 @@ const TRAINING_ITEMS = [
 ]
 
 const CATEGORIES = [
-  { key: 'mandatory', label: 'Mandatory', accent: '#10b981', icon: '🛡️' },
-  { key: 'dispensing', label: 'Dispensing', accent: '#3b82f6', icon: '💊' },
-  { key: 'admin', label: 'Administrative', accent: '#8b5cf6', icon: '📋' },
-  { key: 'superintendent', label: 'Superintendent', accent: '#f59e0b', icon: '⚕️' },
+  { key: 'mandatory', label: 'Mandatory', accent: 'var(--ec-em)', icon: '🛡️' },
+  { key: 'dispensing', label: 'Dispensing', accent: 'var(--ec-info)', icon: '💊' },
+  { key: 'admin', label: 'Administrative', accent: 'var(--ec-cat-purple)', icon: '📋' },
+  { key: 'superintendent', label: 'Superintendent', accent: 'var(--ec-warn)', icon: '⚕️' },
 ]
 
 const STATUS_CONFIG = {
-  complete:    { bg: '#f0fdf4', color: '#059669', border: '#6ee7b7', label: 'Complete', shortLabel: '✓' },
-  expiring:    { bg: '#fffbeb', color: '#d97706', border: '#fde68a', label: 'Expiring', shortLabel: 'DUE' },
-  expired:     { bg: '#fef2f2', color: '#ef4444', border: '#fca5a5', label: 'Overdue', shortLabel: 'OVR' },
-  in_progress: { bg: '#eff6ff', color: '#2563eb', border: '#bfdbfe', label: 'In Progress', shortLabel: '◐' },
-  not_started: { bg: '#f9fafb', color: '#9ca3af', border: '#e5e7eb', label: 'Not Started', shortLabel: '—' },
-  na:          { bg: 'transparent', color: '#d1d5db', border: 'transparent', label: 'N/A', shortLabel: 'N/A' },
+  complete:    { bg: 'var(--ec-em-bg)', color: 'var(--ec-em)', border: 'var(--ec-em-border)', label: 'Complete', shortLabel: '✓' },
+  expiring:    { bg: 'var(--ec-warn-bg)', color: 'var(--ec-warn)', border: 'var(--ec-warn-border)', label: 'Expiring', shortLabel: 'DUE' },
+  expired:     { bg: 'var(--ec-crit-bg)', color: 'var(--ec-crit)', border: 'var(--ec-crit-border)', label: 'Overdue', shortLabel: 'OVR' },
+  in_progress: { bg: 'var(--ec-info-bg)', color: 'var(--ec-info)', border: 'var(--ec-info-border)', label: 'In Progress', shortLabel: '◐' },
+  not_started: { bg: 'var(--ec-card-hover)', color: 'var(--ec-t3)', border: 'var(--ec-t5)', label: 'Not Started', shortLabel: '—' },
+  na:          { bg: 'transparent', color: 'var(--ec-t4)', border: 'transparent', label: 'N/A', shortLabel: 'N/A' },
 }
 
 const DELIVERY_METHODS = ['Classroom', 'Online', 'On-the-job', 'Self-study']
@@ -140,7 +140,7 @@ function SectionHeader({ accent, icon, title, right }) {
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
         <span style={{ fontSize: 14 }}>{icon}</span>
-        <span style={{ ...sans, fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{title}</span>
+        <span style={{ ...sans, fontSize: 13, fontWeight: 700, color: 'var(--ec-t1)' }}>{title}</span>
       </div>
       {right && <div>{right}</div>}
     </div>
@@ -153,9 +153,9 @@ function StatCard({ icon, label, value, total, accent, showBar, onClick, active 
     <div
       onClick={onClick}
       style={{
-        background: active ? `${accent}10` : '#ffffff',
+        background: active ? `${accent}10` : 'var(--ec-card)',
         borderRadius: 12, padding: '14px 16px',
-        border: `1px solid ${active ? accent : '#e8f5f0'}`,
+        border: `1px solid ${active ? accent : 'var(--ec-div)'}`,
         cursor: onClick ? 'pointer' : 'default',
         transition: 'all 150ms',
         minWidth: 0,
@@ -167,11 +167,11 @@ function StatCard({ icon, label, value, total, accent, showBar, onClick, active 
           <div style={{ ...mono, fontSize: 22, fontWeight: 700, color: accent, lineHeight: 1 }}>
             {total !== undefined ? `${value} / ${total}` : value}
           </div>
-          <div style={{ ...sans, fontSize: 10, color: '#6b7280', marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
+          <div style={{ ...sans, fontSize: 10, color: 'var(--ec-t2)', marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
         </div>
       </div>
       {showBar && (
-        <div style={{ height: 6, borderRadius: 3, background: '#e5e7eb', overflow: 'hidden' }}>
+        <div style={{ height: 6, borderRadius: 3, background: 'var(--ec-t5)', overflow: 'hidden' }}>
           <div style={{
             height: '100%', borderRadius: 3, background: accent,
             width: `${pct}%`, transition: 'width 600ms ease',
@@ -199,7 +199,7 @@ function StatusPill({ status, compact }) {
 function TabBar({ active, tabs, onChange }) {
   return (
     <div style={{
-      display: 'flex', gap: 0, borderBottom: '1px solid #e8f5f0',
+      display: 'flex', gap: 0, borderBottom: '1px solid var(--ec-div)',
       marginBottom: 16, overflowX: 'auto',
     }}>
       {tabs.map(tab => (
@@ -208,10 +208,10 @@ function TabBar({ active, tabs, onChange }) {
           onClick={() => onChange(tab.key)}
           style={{
             ...sans, fontSize: 12, fontWeight: active === tab.key ? 600 : 400,
-            color: active === tab.key ? '#10b981' : '#6b7280',
+            color: active === tab.key ? 'var(--ec-em)' : 'var(--ec-t2)',
             background: 'none', border: 'none', cursor: 'pointer',
             padding: '10px 16px', whiteSpace: 'nowrap',
-            borderBottom: active === tab.key ? '2px solid #10b981' : '2px solid transparent',
+            borderBottom: active === tab.key ? '2px solid var(--ec-em)' : '2px solid transparent',
             transition: 'all 150ms',
           }}
         >
@@ -220,7 +220,7 @@ function TabBar({ active, tabs, onChange }) {
             <span style={{
               ...mono, fontSize: 9, fontWeight: 700,
               padding: '1px 5px', borderRadius: 10, marginLeft: 6,
-              background: tab.badgeColor || '#f3f4f6', color: tab.badgeTextColor || '#6b7280',
+              background: tab.badgeColor || 'var(--ec-card-hover)', color: tab.badgeTextColor || 'var(--ec-t2)',
             }}>
               {tab.badge}
             </span>
@@ -237,9 +237,9 @@ function MatrixCell({ status, record, onClick, compact }) {
   if (status === 'na') {
     return (
       <td style={{
-        ...sans, fontSize: 10, color: '#d1d5db', textAlign: 'center',
-        padding: '6px 4px', borderBottom: '1px solid #f3f4f6',
-        borderRight: '1px solid #f9fafb',
+        ...sans, fontSize: 10, color: 'var(--ec-t4)', textAlign: 'center',
+        padding: '6px 4px', borderBottom: '1px solid var(--ec-card-hover)',
+        borderRight: '1px solid var(--ec-card-hover)',
       }}>
         N/A
       </td>
@@ -263,7 +263,7 @@ function MatrixCell({ status, record, onClick, compact }) {
       onClick={onClick}
       style={{
         textAlign: 'center', padding: '6px 4px', cursor: onClick ? 'pointer' : 'default',
-        borderBottom: '1px solid #f3f4f6', borderRight: '1px solid #f9fafb',
+        borderBottom: '1px solid var(--ec-card-hover)', borderRight: '1px solid var(--ec-card-hover)',
         minWidth: 80, height: 44, verticalAlign: 'middle',
       }}
       title={`${s.label}${record?.dateCompleted ? ` — ${formatDate(record.dateCompleted)}` : ''}${record?.certificateExpiry ? ` (exp: ${formatDate(record.certificateExpiry)})` : ''}`}
@@ -539,7 +539,7 @@ export default function TrainingLogs() {
   const tabs = [
     { key: 'matrix', label: 'Matrix' },
     { key: 'my-records', label: 'My Records' },
-    { key: 'expiring', label: 'Expiring Soon', badge: expiringRecords.length, badgeColor: '#fef2f2', badgeTextColor: '#ef4444' },
+    { key: 'expiring', label: 'Expiring Soon', badge: expiringRecords.length, badgeColor: 'var(--ec-crit-bg)', badgeTextColor: 'var(--ec-crit)' },
     ...(elevated ? [{ key: 'library', label: 'Training Library' }] : []),
   ]
 
@@ -561,19 +561,19 @@ export default function TrainingLogs() {
     <div style={{ ...sans, padding: '24px 28px', maxWidth: 1400 }}>
       {/* ═══ HEADER ═══ */}
       <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 11, color: '#9ca3af', marginBottom: 6 }}>Dashboard / Training</div>
+        <div style={{ fontSize: 11, color: 'var(--ec-t3)', marginBottom: 6 }}>Dashboard / Training</div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 4 }}>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: '#111827', margin: 0 }}>Training &amp; Competency</h1>
-          <span style={{ ...mono, fontSize: 13, color: '#9ca3af' }}>{dateFormatted}</span>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--ec-t1)', margin: 0 }}>Training &amp; Competency</h1>
+          <span style={{ ...mono, fontSize: 13, color: 'var(--ec-t3)' }}>{dateFormatted}</span>
         </div>
-        <p style={{ fontSize: 11, color: '#9ca3af', margin: '0 0 10px' }}>
+        <p style={{ fontSize: 11, color: 'var(--ec-t3)', margin: '0 0 10px' }}>
           Staff training records, compliance matrix &amp; certification tracking
         </p>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
           {elevated && (
             <button
               onClick={() => openAdd('', '')}
-              style={{ ...sans, fontSize: 11, fontWeight: 600, padding: '6px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', background: '#10b981', color: 'white' }}
+              style={{ ...sans, fontSize: 11, fontWeight: 600, padding: '6px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', background: 'var(--ec-em)', color: 'white' }}
             >
               + Add Record
             </button>
@@ -581,13 +581,13 @@ export default function TrainingLogs() {
           <div style={{ flex: 1 }} />
           <button
             onClick={handleExportMatrix}
-            style={{ ...sans, fontSize: 11, fontWeight: 500, padding: '5px 12px', borderRadius: 7, border: '1px solid #e8f5f0', background: '#fff', color: '#6b7280', cursor: 'pointer' }}
+            style={{ ...sans, fontSize: 11, fontWeight: 500, padding: '5px 12px', borderRadius: 7, border: '1px solid var(--ec-div)', background: '#fff', color: 'var(--ec-t2)', cursor: 'pointer' }}
           >
             Export CSV
           </button>
           <button
             onClick={() => window.print()}
-            style={{ ...sans, fontSize: 11, fontWeight: 500, padding: '5px 12px', borderRadius: 7, border: '1px solid #e8f5f0', background: '#fff', color: '#6b7280', cursor: 'pointer' }}
+            style={{ ...sans, fontSize: 11, fontWeight: 500, padding: '5px 12px', borderRadius: 7, border: '1px solid var(--ec-div)', background: '#fff', color: 'var(--ec-t2)', cursor: 'pointer' }}
           >
             Print
           </button>
@@ -596,20 +596,20 @@ export default function TrainingLogs() {
 
       {/* ═══ STAT CARDS ═══ */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(145px, 1fr))', gap: 10, marginBottom: 8 }}>
-        <StatCard icon="✅" label="Completed" value={myStats.complete} total={myStats.total} accent="#10b981" showBar />
-        <StatCard icon="🔵" label="In Progress" value={myStats.inProgress} accent="#3b82f6" />
-        <StatCard icon="⚠️" label="Due Soon" value={myStats.expiring} accent="#f59e0b" />
-        <StatCard icon="🔴" label="Overdue" value={myStats.expired} accent="#ef4444" />
+        <StatCard icon="✅" label="Completed" value={myStats.complete} total={myStats.total} accent="var(--ec-em)" showBar />
+        <StatCard icon="🔵" label="In Progress" value={myStats.inProgress} accent="var(--ec-info)" />
+        <StatCard icon="⚠️" label="Due Soon" value={myStats.expiring} accent="var(--ec-warn)" />
+        <StatCard icon="🔴" label="Overdue" value={myStats.expired} accent="var(--ec-crit)" />
       </div>
 
       {/* Overall progress bar */}
-      <div style={{ marginBottom: 20, padding: '10px 14px', background: '#ffffff', borderRadius: 10, border: '1px solid #e8f5f0' }}>
+      <div style={{ marginBottom: 20, padding: '10px 14px', background: 'var(--ec-card)', borderRadius: 10, border: '1px solid var(--ec-div)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-          <span style={{ ...sans, fontSize: 11, color: '#6b7280' }}>Your overall training completion</span>
-          <span style={{ ...mono, fontSize: 13, fontWeight: 700, color: '#10b981' }}>{pct}%</span>
+          <span style={{ ...sans, fontSize: 11, color: 'var(--ec-t2)' }}>Your overall training completion</span>
+          <span style={{ ...mono, fontSize: 13, fontWeight: 700, color: 'var(--ec-em)' }}>{pct}%</span>
         </div>
-        <div style={{ height: 10, borderRadius: 5, background: '#e5e7eb', overflow: 'hidden' }}>
-          <div style={{ height: '100%', borderRadius: 5, background: 'linear-gradient(90deg, #10b981, #059669)', width: `${pct}%`, transition: 'width 800ms ease' }} />
+        <div style={{ height: 10, borderRadius: 5, background: 'var(--ec-t5)', overflow: 'hidden' }}>
+          <div style={{ height: '100%', borderRadius: 5, background: 'linear-gradient(90deg, var(--ec-em), var(--ec-em-dark))', width: `${pct}%`, transition: 'width 800ms ease' }} />
         </div>
       </div>
 
@@ -624,17 +624,17 @@ export default function TrainingLogs() {
             <input
               type="text" placeholder="Search training items..."
               value={search} onChange={e => setSearch(e.target.value)}
-              style={{ ...sans, fontSize: 11, padding: '5px 10px', borderRadius: 6, border: '1px solid #e8f5f0', background: '#fff', color: '#111827', outline: 'none', width: 180 }}
+              style={{ ...sans, fontSize: 11, padding: '5px 10px', borderRadius: 6, border: '1px solid var(--ec-div)', background: '#fff', color: 'var(--ec-t1)', outline: 'none', width: 180 }}
             />
-            <select value={filterRole} onChange={e => setFilterRole(e.target.value)} style={{ ...sans, fontSize: 11, padding: '5px 8px', borderRadius: 6, border: '1px solid #e8f5f0', background: '#fff', color: '#6b7280', outline: 'none', cursor: 'pointer' }}>
+            <select value={filterRole} onChange={e => setFilterRole(e.target.value)} style={{ ...sans, fontSize: 11, padding: '5px 8px', borderRadius: 6, border: '1px solid var(--ec-div)', background: '#fff', color: 'var(--ec-t2)', outline: 'none', cursor: 'pointer' }}>
               <option value="">All Roles</option>
               {usedRoles.map(r => <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
             </select>
-            <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} style={{ ...sans, fontSize: 11, padding: '5px 8px', borderRadius: 6, border: '1px solid #e8f5f0', background: '#fff', color: '#6b7280', outline: 'none', cursor: 'pointer' }}>
+            <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} style={{ ...sans, fontSize: 11, padding: '5px 8px', borderRadius: 6, border: '1px solid var(--ec-div)', background: '#fff', color: 'var(--ec-t2)', outline: 'none', cursor: 'pointer' }}>
               <option value="">All Categories</option>
               {CATEGORIES.map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
             </select>
-            <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ ...sans, fontSize: 11, padding: '5px 8px', borderRadius: 6, border: '1px solid #e8f5f0', background: '#fff', color: '#6b7280', outline: 'none', cursor: 'pointer' }}>
+            <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ ...sans, fontSize: 11, padding: '5px 8px', borderRadius: 6, border: '1px solid var(--ec-div)', background: '#fff', color: 'var(--ec-t2)', outline: 'none', cursor: 'pointer' }}>
               <option value="">All Statuses</option>
               <option value="expired">Overdue</option>
               <option value="expiring">Expiring Soon</option>
@@ -642,47 +642,47 @@ export default function TrainingLogs() {
               <option value="complete">Complete</option>
             </select>
             {hasFilters && (
-              <button onClick={clearFilters} style={{ ...sans, fontSize: 10, color: '#10b981', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
+              <button onClick={clearFilters} style={{ ...sans, fontSize: 10, color: 'var(--ec-em)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
                 Clear All
               </button>
             )}
             <div style={{ flex: 1 }} />
-            <span style={{ ...mono, fontSize: 11, color: '#10b981', fontWeight: 600 }}>
+            <span style={{ ...mono, fontSize: 11, color: 'var(--ec-em)', fontWeight: 600 }}>
               {matrixStats.complete}/{matrixStats.total} complete ({matrixStats.total ? Math.round(matrixStats.complete / matrixStats.total * 100) : 0}%)
             </span>
           </div>
 
           {/* Matrix Table */}
-          <div style={{ overflowX: 'auto', borderRadius: 12, border: '1px solid #e8f5f0', background: '#ffffff', marginBottom: 24 }}>
+          <div style={{ overflowX: 'auto', borderRadius: 12, border: '1px solid var(--ec-div)', background: 'var(--ec-card)', marginBottom: 24 }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr>
                   <th style={{
-                    ...sans, fontSize: 10, fontWeight: 600, color: '#6b7280',
+                    ...sans, fontSize: 10, fontWeight: 600, color: 'var(--ec-t2)',
                     textAlign: 'left', padding: '10px 12px',
-                    background: '#ffffff', position: 'sticky', left: 0, zIndex: 15,
-                    borderBottom: '2px solid #e8f5f0', borderRight: '2px solid #e8f5f0',
+                    background: 'var(--ec-card)', position: 'sticky', left: 0, zIndex: 15,
+                    borderBottom: '2px solid var(--ec-div)', borderRight: '2px solid var(--ec-div)',
                     minWidth: 220,
                   }}>
                     TRAINING ITEM
                   </th>
                   {matrixStaff.map(staff => (
                     <th key={staff.name} style={{
-                      ...sans, fontSize: 9, fontWeight: 600, color: '#6b7280',
+                      ...sans, fontSize: 9, fontWeight: 600, color: 'var(--ec-t2)',
                       textAlign: 'center', padding: '8px 6px',
-                      background: '#ffffff', position: 'sticky', top: 0, zIndex: 10,
-                      borderBottom: '2px solid #e8f5f0',
+                      background: 'var(--ec-card)', position: 'sticky', top: 0, zIndex: 10,
+                      borderBottom: '2px solid var(--ec-div)',
                       minWidth: 80, maxWidth: 100, whiteSpace: 'nowrap',
                     }}>
                       <div style={{
                         width: 28, height: 28, borderRadius: '50%', margin: '0 auto 3px',
-                        background: '#f0faf6', color: '#10b981', fontSize: 10, fontWeight: 700,
+                        background: 'var(--ec-em-bg)', color: 'var(--ec-em)', fontSize: 10, fontWeight: 700,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}>
                         {getInitials(staff.name)}
                       </div>
                       <div style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{staff.name?.split(' ')[0]}</div>
-                      <div style={{ fontSize: 8, color: '#9ca3af', textTransform: 'capitalize' }}>{staff.role}</div>
+                      <div style={{ fontSize: 8, color: 'var(--ec-t3)', textTransform: 'capitalize' }}>{staff.role}</div>
                     </th>
                   ))}
                 </tr>
@@ -704,7 +704,7 @@ export default function TrainingLogs() {
                       >
                         <span style={{ marginRight: 6 }}>{cat.icon}</span>
                         {cat.label}
-                        <span style={{ ...mono, fontSize: 9, color: '#9ca3af', marginLeft: 8, fontWeight: 400 }}>
+                        <span style={{ ...mono, fontSize: 9, color: 'var(--ec-t3)', marginLeft: 8, fontWeight: 400 }}>
                           {cat.items.length} items
                         </span>
                       </td>
@@ -713,10 +713,10 @@ export default function TrainingLogs() {
                     {cat.items.map(({ item, cells }) => (
                       <tr key={item.id}>
                         <td style={{
-                          ...sans, fontSize: 11, fontWeight: 500, color: '#111827',
-                          padding: '6px 12px', background: '#ffffff',
+                          ...sans, fontSize: 11, fontWeight: 500, color: 'var(--ec-t1)',
+                          padding: '6px 12px', background: 'var(--ec-card)',
                           position: 'sticky', left: 0, zIndex: 5,
-                          borderBottom: '1px solid #f3f4f6', borderRight: '2px solid #e8f5f0',
+                          borderBottom: '1px solid var(--ec-card-hover)', borderRight: '2px solid var(--ec-div)',
                           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                           maxWidth: 220,
                         }}
@@ -724,12 +724,12 @@ export default function TrainingLogs() {
                         >
                           {item.name}
                           {item.renewalMonths && (
-                            <span style={{ ...mono, fontSize: 8, color: '#9ca3af', marginLeft: 6 }}>
+                            <span style={{ ...mono, fontSize: 8, color: 'var(--ec-t3)', marginLeft: 6 }}>
                               {item.renewalMonths === 12 ? 'Annual' : item.renewalMonths === 24 ? '2-yr' : item.renewalMonths === 36 ? '3-yr' : `${item.renewalMonths}m`}
                             </span>
                           )}
                           {!item.renewalMonths && (
-                            <span style={{ ...mono, fontSize: 8, color: '#9ca3af', marginLeft: 6 }}>One-off</span>
+                            <span style={{ ...mono, fontSize: 8, color: 'var(--ec-t3)', marginLeft: 6 }}>One-off</span>
                           )}
                         </td>
                         {cells.map((cell, ci) => (
@@ -762,8 +762,8 @@ export default function TrainingLogs() {
       {/* ═══ TAB: MY RECORDS ═══ */}
       {activeTab === 'my-records' && (
         <>
-          <SectionHeader accent="#10b981" icon="👤" title={`Training Records — ${user?.name || 'You'}`} right={
-            <span style={{ ...mono, fontSize: 11, color: '#10b981', fontWeight: 600 }}>
+          <SectionHeader accent="var(--ec-em)" icon="👤" title={`Training Records — ${user?.name || 'You'}`} right={
+            <span style={{ ...mono, fontSize: 11, color: 'var(--ec-em)', fontWeight: 600 }}>
               {myStats.complete}/{myStats.total} complete
             </span>
           } />
@@ -780,9 +780,9 @@ export default function TrainingLogs() {
                   <tr>
                     {['Training Item', 'Category', 'Status', 'Completed', 'Expiry', 'Outcome', 'Actions'].map(h => (
                       <th key={h} style={{
-                        ...sans, fontSize: 9, fontWeight: 600, color: '#9ca3af',
+                        ...sans, fontSize: 9, fontWeight: 600, color: 'var(--ec-t3)',
                         textAlign: 'left', padding: '6px 8px', textTransform: 'uppercase',
-                        letterSpacing: 0.5, borderBottom: '1px solid #e8f5f0',
+                        letterSpacing: 0.5, borderBottom: '1px solid var(--ec-div)',
                       }}>{h}</th>
                     ))}
                   </tr>
@@ -791,11 +791,11 @@ export default function TrainingLogs() {
                   {myRecords.map(({ item, record, status }) => {
                     const catInfo = CATEGORIES.find(c => c.key === item.category)
                     return (
-                      <tr key={item.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                        <td style={{ ...sans, fontSize: 12, fontWeight: 500, padding: '10px 8px', color: '#111827' }}>
+                      <tr key={item.id} style={{ borderBottom: '1px solid var(--ec-card-hover)' }}>
+                        <td style={{ ...sans, fontSize: 12, fontWeight: 500, padding: '10px 8px', color: 'var(--ec-t1)' }}>
                           {item.name}
                           {item.renewalMonths && (
-                            <span style={{ ...mono, fontSize: 8, color: '#9ca3af', marginLeft: 6 }}>
+                            <span style={{ ...mono, fontSize: 8, color: 'var(--ec-t3)', marginLeft: 6 }}>
                               {item.renewalMonths === 12 ? 'Annual' : `${item.renewalMonths}m`}
                             </span>
                           )}
@@ -811,47 +811,47 @@ export default function TrainingLogs() {
                         <td style={{ padding: '10px 8px' }}>
                           <StatusPill status={status} />
                         </td>
-                        <td style={{ ...mono, fontSize: 11, padding: '10px 8px', color: '#6b7280' }}>
+                        <td style={{ ...mono, fontSize: 11, padding: '10px 8px', color: 'var(--ec-t2)' }}>
                           {record?.dateCompleted ? formatDate(record.dateCompleted) : '—'}
                         </td>
                         <td style={{ padding: '10px 8px' }}>
                           {record?.certificateExpiry ? (
                             <div>
-                              <div style={{ ...mono, fontSize: 11, color: '#6b7280' }}>{formatDate(record.certificateExpiry)}</div>
+                              <div style={{ ...mono, fontSize: 11, color: 'var(--ec-t2)' }}>{formatDate(record.certificateExpiry)}</div>
                               {(() => {
                                 const days = daysUntil(record.certificateExpiry)
                                 if (days === null) return null
-                                const color = days < 0 ? '#ef4444' : days <= 30 ? '#d97706' : days <= 60 ? '#f59e0b' : '#10b981'
+                                const color = days < 0 ? 'var(--ec-crit)' : days <= 30 ? 'var(--ec-warn)' : days <= 60 ? 'var(--ec-warn)' : 'var(--ec-em)'
                                 const label = days < 0 ? `${Math.abs(days)}d overdue` : `${days}d left`
                                 return <div style={{ ...sans, fontSize: 9, color, fontWeight: 600 }}>{label}</div>
                               })()}
                             </div>
-                          ) : <span style={{ color: '#d1d5db', fontSize: 11 }}>—</span>}
+                          ) : <span style={{ color: 'var(--ec-t4)', fontSize: 11 }}>—</span>}
                         </td>
                         <td style={{ padding: '10px 8px' }}>
                           {record?.outcome ? (
                             <span style={{
                               ...sans, fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 20,
-                              background: record.outcome === 'Pass' ? '#f0fdf4' : '#eff6ff',
-                              color: record.outcome === 'Pass' ? '#059669' : '#2563eb',
-                              border: `1px solid ${record.outcome === 'Pass' ? '#6ee7b7' : '#bfdbfe'}`,
+                              background: record.outcome === 'Pass' ? 'var(--ec-em-bg)' : 'var(--ec-info-bg)',
+                              color: record.outcome === 'Pass' ? 'var(--ec-em)' : 'var(--ec-info)',
+                              border: `1px solid ${record.outcome === 'Pass' ? 'var(--ec-em-border)' : 'var(--ec-info-border)'}`,
                             }}>
                               {record.outcome}
                             </span>
-                          ) : <span style={{ color: '#d1d5db', fontSize: 11 }}>—</span>}
+                          ) : <span style={{ color: 'var(--ec-t4)', fontSize: 11 }}>—</span>}
                         </td>
                         <td style={{ padding: '10px 8px', whiteSpace: 'nowrap' }}>
                           {record ? (
                             <button
                               onClick={() => openEdit(record)}
-                              style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 6, border: '1px solid #e8f5f0', background: '#fff', color: '#6b7280', cursor: 'pointer' }}
+                              style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 6, border: '1px solid var(--ec-div)', background: '#fff', color: 'var(--ec-t2)', cursor: 'pointer' }}
                             >
                               {elevated ? 'Edit' : 'View'}
                             </button>
                           ) : elevated ? (
                             <button
                               onClick={() => openAdd(user?.name, item.name)}
-                              style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 6, border: 'none', background: '#10b981', color: '#fff', cursor: 'pointer' }}
+                              style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 6, border: 'none', background: 'var(--ec-em)', color: '#fff', cursor: 'pointer' }}
                             >
                               Record
                             </button>
@@ -870,8 +870,8 @@ export default function TrainingLogs() {
       {/* ═══ TAB: EXPIRING SOON ═══ */}
       {activeTab === 'expiring' && (
         <>
-          <SectionHeader accent="#ef4444" icon="⏰" title="Expiring &amp; Overdue Training" right={
-            <span style={{ ...mono, fontSize: 11, color: '#ef4444', fontWeight: 600 }}>
+          <SectionHeader accent="var(--ec-crit)" icon="⏰" title="Expiring &amp; Overdue Training" right={
+            <span style={{ ...mono, fontSize: 11, color: 'var(--ec-crit)', fontWeight: 600 }}>
               {expiringRecords.length} items need attention
             </span>
           } />
@@ -890,24 +890,24 @@ export default function TrainingLogs() {
                   <div
                     key={idx}
                     style={{
-                      background: '#ffffff', borderRadius: 12, padding: '14px 16px',
-                      border: `1px solid ${isExpired ? '#fca5a5' : '#fde68a'}`,
-                      borderLeft: `4px solid ${isExpired ? '#ef4444' : '#f59e0b'}`,
+                      background: 'var(--ec-card)', borderRadius: 12, padding: '14px 16px',
+                      border: `1px solid ${isExpired ? 'var(--ec-crit-border)' : 'var(--ec-warn-border)'}`,
+                      borderLeft: `4px solid ${isExpired ? 'var(--ec-crit)' : 'var(--ec-warn)'}`,
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                       <span style={{ fontSize: 16 }}>{isExpired ? '🔴' : '🟡'}</span>
                       <div style={{ flex: 1, minWidth: 200 }}>
-                        <div style={{ ...sans, fontSize: 13, fontWeight: 600, color: '#111827' }}>
+                        <div style={{ ...sans, fontSize: 13, fontWeight: 600, color: 'var(--ec-t1)' }}>
                           {item.name}
-                          <span style={{ ...sans, fontSize: 11, fontWeight: 400, color: '#6b7280', marginLeft: 8 }}>
+                          <span style={{ ...sans, fontSize: 11, fontWeight: 400, color: 'var(--ec-t2)', marginLeft: 8 }}>
                             — {staff.name}
                           </span>
                         </div>
-                        <div style={{ ...sans, fontSize: 11, color: isExpired ? '#ef4444' : '#d97706', marginTop: 2 }}>
+                        <div style={{ ...sans, fontSize: 11, color: isExpired ? 'var(--ec-crit)' : 'var(--ec-warn)', marginTop: 2 }}>
                           {isExpired ? `Expired ${Math.abs(daysLeft)} days ago` : `Expires in ${daysLeft} days`}
                           {record?.dateCompleted && (
-                            <span style={{ color: '#9ca3af', marginLeft: 8 }}>
+                            <span style={{ color: 'var(--ec-t3)', marginLeft: 8 }}>
                               Last completed: {formatDate(record.dateCompleted)}
                             </span>
                           )}
@@ -917,7 +917,7 @@ export default function TrainingLogs() {
                       {elevated && (
                         <button
                           onClick={() => record ? openEdit(record) : openAdd(staff.name, item.name)}
-                          style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '5px 12px', borderRadius: 7, border: '1px solid #e8f5f0', background: '#fff', color: '#10b981', cursor: 'pointer' }}
+                          style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '5px 12px', borderRadius: 7, border: '1px solid var(--ec-div)', background: '#fff', color: 'var(--ec-em)', cursor: 'pointer' }}
                         >
                           Update Record
                         </button>
@@ -934,8 +934,8 @@ export default function TrainingLogs() {
       {/* ═══ TAB: TRAINING LIBRARY ═══ */}
       {activeTab === 'library' && elevated && (
         <>
-          <SectionHeader accent="#8b5cf6" icon="📖" title="Training Library" right={
-            <span style={{ ...mono, fontSize: 11, color: '#8b5cf6', fontWeight: 600 }}>
+          <SectionHeader accent="var(--ec-cat-purple)" icon="📖" title="Training Library" right={
+            <span style={{ ...mono, fontSize: 11, color: 'var(--ec-cat-purple)', fontWeight: 600 }}>
               {TRAINING_ITEMS.length} items
             </span>
           } />
@@ -946,9 +946,9 @@ export default function TrainingLogs() {
                 <tr>
                   {['Name', 'Category', 'Required Roles', 'Renewal', 'Evidence', 'Mandatory'].map(h => (
                     <th key={h} style={{
-                      ...sans, fontSize: 9, fontWeight: 600, color: '#9ca3af',
+                      ...sans, fontSize: 9, fontWeight: 600, color: 'var(--ec-t3)',
                       textAlign: 'left', padding: '6px 8px', textTransform: 'uppercase',
-                      letterSpacing: 0.5, borderBottom: '1px solid #e8f5f0',
+                      letterSpacing: 0.5, borderBottom: '1px solid var(--ec-div)',
                     }}>{h}</th>
                   ))}
                 </tr>
@@ -961,8 +961,8 @@ export default function TrainingLogs() {
                     item.renewalMonths === 24 ? 'Biennial' :
                     item.renewalMonths === 36 ? '3-yearly' : `${item.renewalMonths}m`
                   return (
-                    <tr key={item.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                      <td style={{ ...sans, fontSize: 12, fontWeight: 500, padding: '10px 8px', color: '#111827' }}>
+                    <tr key={item.id} style={{ borderBottom: '1px solid var(--ec-card-hover)' }}>
+                      <td style={{ ...sans, fontSize: 12, fontWeight: 500, padding: '10px 8px', color: 'var(--ec-t1)' }}>
                         {item.name}
                       </td>
                       <td style={{ padding: '10px 8px' }}>
@@ -973,24 +973,24 @@ export default function TrainingLogs() {
                           {catInfo?.label}
                         </span>
                       </td>
-                      <td style={{ ...sans, fontSize: 10, padding: '10px 8px', color: '#6b7280' }}>
+                      <td style={{ ...sans, fontSize: 10, padding: '10px 8px', color: 'var(--ec-t2)' }}>
                         {item.requiredRoles.includes('all') ? 'All Staff' : item.requiredRoles.map(r => r.charAt(0).toUpperCase() + r.slice(1)).join(', ')}
                       </td>
-                      <td style={{ ...mono, fontSize: 11, padding: '10px 8px', color: '#6b7280' }}>
+                      <td style={{ ...mono, fontSize: 11, padding: '10px 8px', color: 'var(--ec-t2)' }}>
                         {renewalLabel}
                       </td>
                       <td style={{ padding: '10px 8px', textAlign: 'center' }}>
                         {item.evidenceRequired ? (
-                          <span style={{ color: '#10b981', fontSize: 12 }}>✓</span>
+                          <span style={{ color: 'var(--ec-em)', fontSize: 12 }}>✓</span>
                         ) : (
-                          <span style={{ color: '#d1d5db', fontSize: 12 }}>—</span>
+                          <span style={{ color: 'var(--ec-t4)', fontSize: 12 }}>—</span>
                         )}
                       </td>
                       <td style={{ padding: '10px 8px', textAlign: 'center' }}>
                         {item.isMandatory ? (
-                          <span style={{ ...sans, fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 4, background: '#fef2f2', color: '#ef4444' }}>Required</span>
+                          <span style={{ ...sans, fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 4, background: 'var(--ec-crit-bg)', color: 'var(--ec-crit)' }}>Required</span>
                         ) : (
-                          <span style={{ ...sans, fontSize: 9, color: '#9ca3af' }}>Optional</span>
+                          <span style={{ ...sans, fontSize: 9, color: 'var(--ec-t3)' }}>Optional</span>
                         )}
                       </td>
                     </tr>
@@ -1125,7 +1125,7 @@ export default function TrainingLogs() {
                   const record = logs.find(r => r.id === editingId)
                   if (record) { handleDelete(record); setModalOpen(false) }
                 }}
-                style={{ ...sans, fontSize: 11, fontWeight: 600, padding: '7px 14px', borderRadius: 8, border: '1px solid #fca5a5', background: '#fef2f2', color: '#ef4444', cursor: 'pointer' }}
+                style={{ ...sans, fontSize: 11, fontWeight: 600, padding: '7px 14px', borderRadius: 8, border: '1px solid var(--ec-crit-border)', background: 'var(--ec-crit-bg)', color: 'var(--ec-crit)', cursor: 'pointer' }}
               >
                 Delete
               </button>
@@ -1134,13 +1134,13 @@ export default function TrainingLogs() {
           <div style={{ display: 'flex', gap: 8 }}>
             <button
               onClick={() => setModalOpen(false)}
-              style={{ ...sans, fontSize: 12, fontWeight: 500, padding: '7px 16px', borderRadius: 8, border: '1px solid #e8f5f0', background: '#fff', color: '#6b7280', cursor: 'pointer' }}
+              style={{ ...sans, fontSize: 12, fontWeight: 500, padding: '7px 16px', borderRadius: 8, border: '1px solid var(--ec-div)', background: '#fff', color: 'var(--ec-t2)', cursor: 'pointer' }}
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
-              style={{ ...sans, fontSize: 12, fontWeight: 600, padding: '7px 16px', borderRadius: 8, border: 'none', background: '#10b981', color: 'white', cursor: 'pointer' }}
+              style={{ ...sans, fontSize: 12, fontWeight: 600, padding: '7px 16px', borderRadius: 8, border: 'none', background: 'var(--ec-em)', color: 'white', cursor: 'pointer' }}
             >
               {editingId ? 'Update' : 'Save'}
             </button>
@@ -1170,7 +1170,7 @@ export default function TrainingLogs() {
 function FormField({ label, error, span, children }) {
   return (
     <div style={span ? { gridColumn: '1 / -1' } : {}}>
-      <label style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, fontWeight: 600, color: error ? '#ef4444' : '#6b7280', display: 'block', marginBottom: 4 }}>
+      <label style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, fontWeight: 600, color: error ? 'var(--ec-crit)' : 'var(--ec-t2)', display: 'block', marginBottom: 4 }}>
         {label}
       </label>
       {children}
@@ -1182,7 +1182,7 @@ function inputStyle(error) {
   return {
     fontFamily: "'Inter', sans-serif", fontSize: 12, width: '100%',
     padding: '7px 8px', borderRadius: 6, outline: 'none', cursor: 'pointer',
-    border: `1px solid ${error ? '#ef4444' : '#e8f5f0'}`,
-    background: '#fff', color: '#111827',
+    border: `1px solid ${error ? 'var(--ec-crit)' : 'var(--ec-div)'}`,
+    background: '#fff', color: 'var(--ec-t1)',
   }
 }

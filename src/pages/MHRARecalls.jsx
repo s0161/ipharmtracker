@@ -161,7 +161,7 @@ export default function MHRARecalls() {
           {canManage && (
             <button
               onClick={() => setShowInspection(true)}
-              className="px-3 py-2 rounded-lg text-xs font-semibold bg-emerald-600 text-white border-none cursor-pointer hover:bg-emerald-700 transition shadow-sm"
+              className="px-3 py-2 rounded-lg text-xs font-semibold bg-ec-em-dark text-white border-none cursor-pointer hover:bg-ec-em-dark transition shadow-sm"
             >
               Inspection Report
             </button>
@@ -207,11 +207,11 @@ export default function MHRARecalls() {
                 }`}
             >
               {tab}
-              <span className={`ml-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${active ? 'bg-emerald-500/10 text-ec-em' : 'bg-ec-border text-ec-t3'}`}>
+              <span className={`ml-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${active ? 'bg-ec-em-faint text-ec-em' : 'bg-ec-border text-ec-t3'}`}>
                 {count}
               </span>
               {active && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-600 rounded-t-full" />
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-ec-em-dark rounded-t-full" />
               )}
             </button>
           )
@@ -230,7 +230,7 @@ export default function MHRARecalls() {
             placeholder="Search alerts..."
             value={search}
             onChange={e => { setSearch(e.target.value); setPage(0) }}
-            className="w-full pl-9 pr-3 py-2 rounded-lg border border-ec-border bg-ec-card text-sm text-ec-t1 placeholder:text-ec-t3 outline-none focus:ring-2 focus:ring-emerald-500/30 transition"
+            className="w-full pl-9 pr-3 py-2 rounded-lg border border-ec-border bg-ec-card text-sm text-ec-t1 placeholder:text-ec-t3 outline-none focus:ring-2 focus:ring-ec-em/30 transition"
           />
         </div>
 
@@ -240,7 +240,7 @@ export default function MHRARecalls() {
             <button key={tab} onClick={() => handleFilterChange(setShowFilter)(tab)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium border-none cursor-pointer transition-all
                 ${showFilter === tab
-                  ? 'bg-emerald-600 text-white shadow-sm'
+                  ? 'bg-ec-em-dark text-white shadow-sm'
                   : 'bg-ec-card text-ec-t2 hover:bg-ec-card-hover border border-ec-border'
                 }`}
             >
@@ -256,7 +256,7 @@ export default function MHRARecalls() {
         <select
           value={classFilter}
           onChange={e => handleFilterChange(setClassFilter)(e.target.value)}
-          className="px-2.5 py-1.5 rounded-lg border border-ec-border bg-ec-card text-xs text-ec-t1 outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
+          className="px-2.5 py-1.5 rounded-lg border border-ec-border bg-ec-card text-xs text-ec-t1 outline-none focus:ring-2 focus:ring-ec-em/30 cursor-pointer"
         >
           <option value="All">All Classes</option>
           {CLASSIFICATIONS.map(c => <option key={c} value={c}>{c}</option>)}
@@ -266,7 +266,7 @@ export default function MHRARecalls() {
         <select
           value={dateRange.label}
           onChange={e => handleFilterChange(setDateRange)(DATE_RANGES.find(d => d.label === e.target.value) || DATE_RANGES[2])}
-          className="px-2.5 py-1.5 rounded-lg border border-ec-border bg-ec-card text-xs text-ec-t1 outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
+          className="px-2.5 py-1.5 rounded-lg border border-ec-border bg-ec-card text-xs text-ec-t1 outline-none focus:ring-2 focus:ring-ec-em/30 cursor-pointer"
         >
           {DATE_RANGES.map(d => <option key={d.label} value={d.label}>{d.label}</option>)}
         </select>
@@ -381,7 +381,7 @@ function InspectionReport({ alerts, acknowledgements, flags, dateRange, onClose 
           </div>
           <div className="flex gap-2">
             <button onClick={() => window.print()}
-              className="px-3 py-2 rounded-lg text-xs font-semibold bg-emerald-600 text-white border-none cursor-pointer hover:bg-emerald-700 transition inspection-print-btn">
+              className="px-3 py-2 rounded-lg text-xs font-semibold bg-ec-em-dark text-white border-none cursor-pointer hover:bg-ec-em-dark transition inspection-print-btn">
               Print Report
             </button>
             <button onClick={onClose}

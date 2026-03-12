@@ -12,18 +12,18 @@ import SkeletonLoader from '../components/SkeletonLoader'
 // ─── Constants ───────────────────────────────────────────────────
 
 const CATEGORIES = {
-  gphc_regulatory:         { label: 'GPhC & Regulatory',        color: '#8b5cf6', bg: 'rgba(139,92,246,0.08)', icon: '⚖️' },
-  dispensing_clinical:     { label: 'Dispensing & Clinical',     color: '#3b82f6', bg: 'rgba(59,130,246,0.08)',  icon: '💊' },
-  health_safety:           { label: 'Health & Safety',           color: '#f59e0b', bg: 'rgba(245,158,11,0.08)',  icon: '🛡️' },
-  safeguarding_governance: { label: 'Safeguarding & Governance', color: '#059669', bg: 'rgba(5,150,105,0.08)',   icon: '👥' },
-  operational:             { label: 'Operational',               color: '#06b6d4', bg: 'rgba(6,182,212,0.08)',   icon: '⚙️' },
+  gphc_regulatory:         { label: 'GPhC & Regulatory',        color: 'var(--ec-cat-purple)', bg: 'var(--ec-cat-purple-bg)', icon: '⚖️' },
+  dispensing_clinical:     { label: 'Dispensing & Clinical',     color: 'var(--ec-info)', bg: 'var(--ec-info-bg)',  icon: '💊' },
+  health_safety:           { label: 'Health & Safety',           color: 'var(--ec-warn)', bg: 'var(--ec-warn-bg)',  icon: '🛡️' },
+  safeguarding_governance: { label: 'Safeguarding & Governance', color: 'var(--ec-em)', bg: 'var(--ec-em-bg)',   icon: '👥' },
+  operational:             { label: 'Operational',               color: 'var(--ec-cat-teal)', bg: 'var(--ec-cat-teal-bg)',   icon: '⚙️' },
 }
 
 const STATUS_COLORS = {
-  pending:     { label: 'Pending',     color: '#f59e0b', bg: 'rgba(245,158,11,0.10)', ring: 'rgba(245,158,11,0.25)' },
-  in_progress: { label: 'In Progress', color: '#3b82f6', bg: 'rgba(59,130,246,0.10)',  ring: 'rgba(59,130,246,0.25)' },
-  complete:    { label: 'Complete',    color: '#059669', bg: 'rgba(5,150,105,0.10)',   ring: 'rgba(5,150,105,0.25)' },
-  overdue:     { label: 'Overdue',     color: '#ef4444', bg: 'rgba(239,68,68,0.10)',   ring: 'rgba(239,68,68,0.25)' },
+  pending:     { label: 'Pending',     color: 'var(--ec-warn)', bg: 'var(--ec-warn-bg)', ring: 'var(--ec-warn-border)' },
+  in_progress: { label: 'In Progress', color: 'var(--ec-info)', bg: 'var(--ec-info-bg)',  ring: 'var(--ec-info-border)' },
+  complete:    { label: 'Complete',    color: 'var(--ec-em)', bg: 'var(--ec-em-bg)',   ring: 'var(--ec-em-border)' },
+  overdue:     { label: 'Overdue',     color: 'var(--ec-crit)', bg: 'var(--ec-crit-bg)',   ring: 'var(--ec-crit-border)' },
 }
 
 const STATUS_CYCLE = ['pending', 'in_progress', 'complete']
@@ -370,7 +370,7 @@ function ComplianceCards({ staffProgress, onSelect }) {
       <h3 className="text-xs font-semibold text-ec-t3 uppercase tracking-wider mb-2.5">Staff Compliance</h3>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5">
         {staffProgress.map(sp => {
-          const barColor = sp.pct >= 80 ? '#16a34a' : sp.pct >= 50 ? '#f59e0b' : '#ef4444'
+          const barColor = sp.pct >= 80 ? 'var(--ec-em)' : sp.pct >= 50 ? 'var(--ec-warn)' : 'var(--ec-crit)'
           return (
             <div
               key={sp.name}
@@ -555,7 +555,7 @@ function ModuleRow({ mod, catColor, expanded, onToggle, effectiveRecords, staffN
     >
       {/* ④ Full row clickable, hover green, tighter padding, bigger chevron */}
       <button
-        className="w-full flex items-center justify-between px-4 py-2 text-left bg-transparent border-none cursor-pointer font-sans hover:bg-[#f0fdf4] transition-colors group"
+        className="w-full flex items-center justify-between px-4 py-2 text-left bg-transparent border-none cursor-pointer font-sans hover:bg-[var(--ec-em-bg)] transition-colors group"
         onClick={onToggle}
       >
         <div className="flex items-center gap-2.5 min-w-0">
@@ -616,7 +616,7 @@ function ModuleExpander({ mod, moduleRecords, cycleStatus }) {
   }
 
   return (
-    <div className="border-t border-ec-div bg-[#fafdf9] px-4 py-3">
+    <div className="border-t border-ec-div bg-[var(--ec-card-hover)] px-4 py-3">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
         {moduleRecords.map(rec => {
           const sc = STATUS_COLORS[rec.status] || STATUS_COLORS.pending
@@ -711,9 +711,9 @@ function MatrixView({ modules, effectiveRecords, staffNames, cycleStatus }) {
               ...mods.map(mod => {
                 const isEven = rowIdx++ % 2 === 0
                 return (
-                  <tr key={mod.id} className={isEven ? 'bg-ec-card' : 'bg-[#f8faf8]'}>
+                  <tr key={mod.id} className={isEven ? 'bg-ec-card' : 'bg-[var(--ec-card-hover)]'}>
                     {/* ⑨ Alternating row bg, sticky name col */}
-                    <td className={`sticky left-0 z-10 px-3 py-1.5 text-ec-t1 border-b border-ec-div font-medium ${isEven ? 'bg-ec-card' : 'bg-[#f8faf8]'}`}>
+                    <td className={`sticky left-0 z-10 px-3 py-1.5 text-ec-t1 border-b border-ec-div font-medium ${isEven ? 'bg-ec-card' : 'bg-[var(--ec-card-hover)]'}`}>
                       <div className="flex items-center gap-1.5">
                         <span className="truncate max-w-[180px]">{mod.name}</span>
                         {mod.mandatory && (
@@ -777,7 +777,7 @@ function ByStaffView({
     return g
   }, [staffRecords])
 
-  const barColor = sp ? (sp.pct >= 80 ? '#16a34a' : sp.pct >= 50 ? '#f59e0b' : '#ef4444') : '#94a3b8'
+  const barColor = sp ? (sp.pct >= 80 ? 'var(--ec-em)' : sp.pct >= 50 ? 'var(--ec-warn)' : 'var(--ec-crit)') : 'var(--ec-t3)'
 
   return (
     <div>
@@ -840,7 +840,7 @@ function ByStaffView({
                 return (
                   <div
                     key={rec.id}
-                    className="flex items-center gap-3 px-4 py-2 rounded-lg border border-ec-border hover:bg-[#f0fdf4] transition-colors"
+                    className="flex items-center gap-3 px-4 py-2 rounded-lg border border-ec-border hover:bg-[var(--ec-em-bg)] transition-colors"
                     style={{ backgroundColor: 'var(--ec-card)' }}
                   >
                     <div className="flex-1 min-w-0">

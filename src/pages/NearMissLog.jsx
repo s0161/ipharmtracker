@@ -10,18 +10,18 @@ import PageActions from '../components/PageActions'
 import SkeletonLoader from '../components/SkeletonLoader'
 
 // ─── Design Tokens ────────────────────────────────────────────────
-const PRIMARY = '#16a34a'
+const PRIMARY = 'var(--ec-em)'
 
 const SEV_COLORS = {
-  Low:    { color: '#16a34a', bg: 'rgba(22,163,74,0.10)' },
-  Medium: { color: '#d97706', bg: 'rgba(217,119,6,0.10)' },
-  High:   { color: '#dc2626', bg: 'rgba(220,38,38,0.10)' },
+  Low:    { color: 'var(--ec-em)', bg: 'rgba(22,163,74,0.10)' },
+  Medium: { color: 'var(--ec-warn)', bg: 'rgba(217,119,6,0.10)' },
+  High:   { color: 'var(--ec-crit)', bg: 'rgba(220,38,38,0.10)' },
 }
 
 const STATUS_STYLE = {
-  Open:           { color: '#dc2626', bg: 'rgba(220,38,38,0.10)', icon: '●' },
-  'Action Taken': { color: '#d97706', bg: 'rgba(217,119,6,0.10)', icon: '◐' },
-  Resolved:       { color: '#16a34a', bg: 'rgba(22,163,74,0.10)', icon: '✓' },
+  Open:           { color: 'var(--ec-crit)', bg: 'rgba(220,38,38,0.10)', icon: '●' },
+  'Action Taken': { color: 'var(--ec-warn)', bg: 'rgba(217,119,6,0.10)', icon: '◐' },
+  Resolved:       { color: 'var(--ec-em)', bg: 'rgba(22,163,74,0.10)', icon: '✓' },
 }
 
 // ─── Constants ────────────────────────────────────────────────────
@@ -134,7 +134,7 @@ const inputErrorClass =
   'w-full bg-ec-card border-2 border-ec-crit rounded-lg px-3 py-2.5 text-sm text-ec-t1 focus:outline-none focus:border-ec-crit focus:ring-2 focus:ring-red-500/20 transition-all placeholder:text-ec-t3 font-sans'
 
 const selectClass =
-  'bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 font-sans focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all'
+  'bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 font-sans focus:outline-none focus:border-ec-em focus:ring-2 focus:ring-ec-em/20 transition-all'
 
 // ─── Helpers ──────────────────────────────────────────────────────
 
@@ -219,7 +219,7 @@ function StatusBadge({ status }) {
 function CategoryBadge({ category }) {
   const isHighRisk = category === 'Wrong patient' || category === 'Near miss — controlled drug'
   const isMedRisk = category === 'Wrong medication dispensed' || category === 'Wrong dose'
-  const color = isHighRisk ? '#dc2626' : isMedRisk ? '#d97706' : '#6b7280'
+  const color = isHighRisk ? 'var(--ec-crit)' : isMedRisk ? 'var(--ec-warn)' : 'var(--ec-t2)'
   const bg = isHighRisk ? 'rgba(220,38,38,0.08)' : isMedRisk ? 'rgba(217,119,6,0.08)' : 'rgba(107,114,128,0.08)'
   return (
     <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: bg, color }}>
@@ -398,7 +398,7 @@ function ImprovementChecklist({ entryId, category }) {
           className="text-xs font-semibold px-2 py-0.5 rounded-full"
           style={{
             backgroundColor: pct === 100 ? 'rgba(22,163,74,0.10)' : 'rgba(217,119,6,0.10)',
-            color: pct === 100 ? '#16a34a' : '#d97706',
+            color: pct === 100 ? 'var(--ec-em)' : 'var(--ec-warn)',
           }}
         >
           {completed}/{total} complete
@@ -408,7 +408,7 @@ function ImprovementChecklist({ entryId, category }) {
       <div className="h-1.5 rounded-full mb-3" style={{ backgroundColor: 'var(--ec-border)' }}>
         <div
           className="h-full rounded-full transition-all"
-          style={{ width: `${pct}%`, backgroundColor: pct === 100 ? '#16a34a' : '#d97706' }}
+          style={{ width: `${pct}%`, backgroundColor: pct === 100 ? 'var(--ec-em)' : 'var(--ec-warn)' }}
         />
       </div>
       <div className="space-y-1.5">
@@ -676,7 +676,7 @@ function NearMissCard({ entry, expanded, onToggle, onEdit, onDelete }) {
             </button>
             <button
               className="px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all border font-sans"
-              style={{ borderColor: 'rgba(220,38,38,0.2)', backgroundColor: 'rgba(220,38,38,0.05)', color: '#dc2626' }}
+              style={{ borderColor: 'rgba(220,38,38,0.2)', backgroundColor: 'rgba(220,38,38,0.05)', color: 'var(--ec-crit)' }}
               onClick={() => onDelete(entry)}
             >
               Delete
@@ -903,8 +903,8 @@ export default function NearMissLog() {
       {/* 4 Stat Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard icon="⚠️" value={stats.total} label="Total Near Misses" accent={PRIMARY} />
-        <StatCard icon="🔴" value={stats.highSeverity} label="High Severity" accent="#dc2626" />
-        <StatCard icon="📅" value={stats.thisMonth} label="This Month" accent="#3b82f6" />
+        <StatCard icon="🔴" value={stats.highSeverity} label="High Severity" accent="var(--ec-crit)" />
+        <StatCard icon="📅" value={stats.thisMonth} label="This Month" accent="var(--ec-info)" />
         <StatCard icon="✓" value={stats.resolved} label="Resolved" accent={PRIMARY} />
       </div>
 
@@ -921,7 +921,7 @@ export default function NearMissLog() {
           </svg>
           <input
             type="text"
-            className="w-full bg-ec-card border border-ec-border rounded-lg pl-9 pr-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all font-sans"
+            className="w-full bg-ec-card border border-ec-border rounded-lg pl-9 pr-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em focus:ring-2 focus:ring-ec-em/20 transition-all font-sans"
             placeholder="Search..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1) }}

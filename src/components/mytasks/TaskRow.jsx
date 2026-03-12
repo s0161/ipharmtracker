@@ -3,21 +3,21 @@ import Avatar from '../Avatar'
 import { isTaskOverdue, CATEGORY_LABELS } from '../../utils/taskEngine'
 
 export const PRIORITY_STYLES = {
-  urgent: { bg: '#fef2f2', color: '#dc2626', border: '#fecaca', label: 'URGENT' },
-  high:   { bg: '#fff7ed', color: '#ea580c', border: '#fed7aa', label: 'HIGH' },
-  normal: { bg: '#f0fdf4', color: '#16a34a', border: '#bbf7d0', label: 'NORMAL' },
-  low:    { bg: '#f8fafc', color: '#64748b', border: '#e2e8f0', label: 'LOW' },
+  urgent: { bg: 'var(--ec-crit-bg)', color: 'var(--ec-crit)', border: 'var(--ec-crit-border)', label: 'URGENT' },
+  high:   { bg: 'var(--ec-warn-bg)', color: 'var(--ec-cat-orange)', border: 'var(--ec-warn-border)', label: 'HIGH' },
+  normal: { bg: 'var(--ec-em-bg)', color: 'var(--ec-em)', border: 'var(--ec-em-border)', label: 'NORMAL' },
+  low:    { bg: 'var(--ec-card-hover)', color: 'var(--ec-t2)', border: 'var(--ec-t5)', label: 'LOW' },
 }
 
 export const CATEGORY_COLORS = {
-  opening:    { bg: '#fef9c3', color: '#a16207', border: '#fde68a' },
-  clinical:   { bg: '#fdf4ff', color: '#9333ea', border: '#e9d5ff' },
-  dispensary: { bg: '#eff6ff', color: '#2563eb', border: '#bfdbfe' },
-  stock:      { bg: '#fff7ed', color: '#c2410c', border: '#fed7aa' },
-  compliance: { bg: '#f0fdf4', color: '#16a34a', border: '#bbf7d0' },
-  closing:    { bg: '#f1f5f9', color: '#475569', border: '#cbd5e1' },
-  admin:      { bg: '#fef9c3', color: '#a16207', border: '#fde68a' },
-  other:      { bg: '#f1f5f9', color: '#475569', border: '#e2e8f0' },
+  opening:    { bg: 'var(--ec-warn-bg)', color: 'var(--ec-warn-light)', border: 'var(--ec-warn-border)' },
+  clinical:   { bg: 'var(--ec-cat-purple-bg)', color: 'var(--ec-cat-purple)', border: 'var(--ec-cat-purple-border)' },
+  dispensary: { bg: 'var(--ec-info-bg)', color: 'var(--ec-info)', border: 'var(--ec-info-border)' },
+  stock:      { bg: 'var(--ec-cat-orange-bg)', color: 'var(--ec-cat-orange)', border: 'var(--ec-warn-border)' },
+  compliance: { bg: 'var(--ec-em-bg)', color: 'var(--ec-em)', border: 'var(--ec-em-border)' },
+  closing:    { bg: 'var(--ec-cat-slate-bg)', color: 'var(--ec-t2)', border: 'var(--ec-t5)' },
+  admin:      { bg: 'var(--ec-warn-bg)', color: 'var(--ec-warn-light)', border: 'var(--ec-warn-border)' },
+  other:      { bg: 'var(--ec-cat-slate-bg)', color: 'var(--ec-t2)', border: 'var(--ec-t5)' },
 }
 
 const Check = ({ s = 10 }) => (
@@ -47,15 +47,15 @@ function getDueLabel(task, today) {
   if (!task.dueDate) return null
   if (task.dueDate < today) {
     const days = Math.floor((new Date(today + 'T00:00:00') - new Date(task.dueDate + 'T00:00:00')) / 86400000)
-    return { text: `${days}d late`, color: '#dc2626', bg: '#fef2f2', border: '#fecaca' }
+    return { text: `${days}d late`, color: 'var(--ec-crit)', bg: 'var(--ec-crit-bg)', border: 'var(--ec-crit-border)' }
   }
   if (task.dueDate === today) {
-    return { text: 'Today', color: '#d97706', bg: '#fffbeb', border: '#fde68a' }
+    return { text: 'Today', color: 'var(--ec-warn)', bg: 'var(--ec-warn-bg)', border: 'var(--ec-warn-border)' }
   }
   const d = new Date(task.dueDate + 'T00:00:00')
   return {
     text: d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
-    color: '#94a3b8', bg: 'transparent', border: 'transparent',
+    color: 'var(--ec-t3)', bg: 'transparent', border: 'transparent',
   }
 }
 
@@ -93,9 +93,9 @@ export function TaskTile({ task, today, onStatusChange, onComplete, savingId, ca
   const { isDone, pri, cat, due, isSaving, justChecked, handleCheck } =
     useTaskCommon({ task, today, onStatusChange, onComplete, savingId, canModify })
 
-  const topAccent = urgency === 'overdue' ? '#ef4444'
-    : urgency === 'dueToday' ? '#f59e0b'
-    : urgency === 'completed' ? '#10b981'
+  const topAccent = urgency === 'overdue' ? 'var(--ec-crit)'
+    : urgency === 'dueToday' ? 'var(--ec-warn)'
+    : urgency === 'completed' ? 'var(--ec-em)'
     : 'var(--ec-div)'
 
   return (
@@ -180,7 +180,7 @@ export function TaskTile({ task, today, onStatusChange, onComplete, savingId, ca
               href={`#${task.linkedLog}`}
               onClick={e => e.stopPropagation()}
               className="shrink-0 flex items-center"
-              style={{ color: '#059669' }}
+              style={{ color: 'var(--ec-em)' }}
               title="Open linked log"
             >
               <LinkIcon />
@@ -199,8 +199,8 @@ export default function TaskRow({ task, today, onStatusChange, onComplete, savin
   const { isDone, pri, cat, due, isSaving, justChecked, handleCheck } =
     useTaskCommon({ task, today, onStatusChange, onComplete, savingId, canModify })
 
-  const leftBorder = urgency === 'overdue' ? '#ef4444'
-    : urgency === 'dueToday' ? '#f59e0b'
+  const leftBorder = urgency === 'overdue' ? 'var(--ec-crit)'
+    : urgency === 'dueToday' ? 'var(--ec-warn)'
     : 'transparent'
 
   const hasDetails = task.notes || task.assignedBy || task.linkedLog
@@ -311,7 +311,7 @@ export default function TaskRow({ task, today, onStatusChange, onComplete, savin
               href={`#${task.linkedLog}`}
               onClick={e => e.stopPropagation()}
               className="inline-flex items-center gap-1 text-[11px] font-semibold no-underline hover:underline"
-              style={{ color: '#059669' }}
+              style={{ color: 'var(--ec-em)' }}
             >
               <LinkIcon /> Open linked log
             </a>

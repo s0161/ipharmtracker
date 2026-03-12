@@ -112,7 +112,7 @@
 
   /* ── ec-* token aliases (consumed by Tailwind & inline styles) ── */
   --ec-bg: #f6f9fc;
-  --ec-sidebar: #0a2540;
+  --ec-sidebar: var(--surface);
   --ec-card: #ffffff;
   --ec-card-solid: #ffffff;
   --ec-card-hover: #f8fafc;
@@ -130,11 +130,13 @@
   --ec-em-border: #6ee7b7;
   --ec-warn: #f59e0b;
   --ec-warn-light: #d97706;
+  --ec-warn-dark: #92400e;
   --ec-warn-faint: rgba(245,158,11,0.08);
   --ec-warn-bg: #fef3c7;
   --ec-warn-border: #fde68a;
   --ec-crit: #ef4444;
   --ec-crit-light: #dc2626;
+  --ec-crit-dark: #991b1b;
   --ec-crit-faint: rgba(239,68,68,0.06);
   --ec-crit-bg: #fee2e2;
   --ec-crit-border: #fecaca;
@@ -143,20 +145,27 @@
   --ec-info-bg: #ede9fe;
   --ec-info-border: #c4b5fd;
   --ec-z6: #8898aa;
+
+  /* ── Gradient tokens ── */
+  --ec-grad-em:     linear-gradient(135deg, #064e3b, #059669);
+  --ec-grad-warn:   linear-gradient(135deg, #92400e, #d97706);
+  --ec-grad-crit:   linear-gradient(135deg, #991b1b, #dc2626);
+  --ec-grad-info:   linear-gradient(135deg, #312e81, #635bff);
+  --ec-grad-blue:   linear-gradient(135deg, #1e3a8a, #3b82f6);
+  --ec-grad-muted:  linear-gradient(135deg, #334155, #64748b);
+  --ec-grad-hero:   linear-gradient(135deg, #064e3b 0%, #059669 60%, #10b981 100%);
+  --ec-grad-teal:   linear-gradient(135deg, #0f766e, #14b8a6);
+  --ec-grad-purple: linear-gradient(135deg, #7c3aed, #a78bfa);
+
+  /* ── Category accent tokens ── */
+  --ec-cat-purple: #8b5cf6;  --ec-cat-purple-bg: rgba(139,92,246,0.08); --ec-cat-purple-border: rgba(139,92,246,0.2);
+  --ec-cat-teal: #06b6d4;    --ec-cat-teal-bg: rgba(6,182,212,0.08);    --ec-cat-teal-border: rgba(6,182,212,0.2);
+  --ec-cat-orange: #f97316;  --ec-cat-orange-bg: rgba(249,115,22,0.08); --ec-cat-orange-border: rgba(249,115,22,0.2);
+  --ec-cat-slate: #64748b;   --ec-cat-slate-bg: rgba(100,116,139,0.08); --ec-cat-slate-border: rgba(100,116,139,0.2);
 }
 
-/* ── Sidebar scoping (always navy regardless of theme) ── */
-.ec-sidebar-dark {
-  --ec-t1: #f1f5f9;
-  --ec-t2: rgba(255,255,255,0.65);
-  --ec-t3: rgba(255,255,255,0.45);
-  --ec-t4: rgba(255,255,255,0.3);
-  --ec-z6: rgba(255,255,255,0.55);
-  --ec-card: rgba(255,255,255,0.06);
-  --ec-card-hover: rgba(255,255,255,0.10);
-  --ec-div: rgba(255,255,255,0.08);
-  --ec-border: rgba(255,255,255,0.08);
-}
+/* ── Sidebar scoping ── */
+/* Sidebar now uses default ec-* tokens (white in light, dark surface in dark) */
 
 /* ── Emerald Stripe — Dark (toggle) ── */
 [data-theme="dark"] {
@@ -225,7 +234,7 @@
 
   /* ── ec-* token aliases — dark ── */
   --ec-bg: #0a0f0d;
-  --ec-sidebar: #070b09;
+  --ec-sidebar: var(--surface);
   --ec-card: #111916;
   --ec-card-solid: #111916;
   --ec-card-hover: #172118;
@@ -243,11 +252,13 @@
   --ec-em-border: rgba(16,185,129,0.3);
   --ec-warn: #fbbf24;
   --ec-warn-light: #fcd34d;
+  --ec-warn-dark: #b45309;
   --ec-warn-faint: rgba(251,191,36,0.10);
   --ec-warn-bg: rgba(251,191,36,0.12);
   --ec-warn-border: rgba(251,191,36,0.3);
   --ec-crit: #f87171;
   --ec-crit-light: #fca5a5;
+  --ec-crit-dark: #dc2626;
   --ec-crit-faint: rgba(248,113,113,0.08);
   --ec-crit-bg: rgba(248,113,113,0.12);
   --ec-crit-border: rgba(248,113,113,0.3);
@@ -256,61 +267,55 @@
   --ec-info-bg: rgba(129,140,248,0.12);
   --ec-info-border: rgba(129,140,248,0.3);
   --ec-z6: #5a7a6e;
+
+  /* ── Gradient tokens — dark ── */
+  --ec-grad-em:     linear-gradient(135deg, #065f46, #10b981);
+  --ec-grad-warn:   linear-gradient(135deg, #78350f, #fbbf24);
+  --ec-grad-crit:   linear-gradient(135deg, #7f1d1d, #f87171);
+  --ec-grad-info:   linear-gradient(135deg, #3730a3, #818cf8);
+  --ec-grad-blue:   linear-gradient(135deg, #1e3a8a, #60a5fa);
+  --ec-grad-muted:  linear-gradient(135deg, #1e293b, #475569);
+  --ec-grad-hero:   linear-gradient(135deg, #065f46 0%, #10b981 60%, #34d399 100%);
+  --ec-grad-teal:   linear-gradient(135deg, #115e59, #2dd4bf);
+  --ec-grad-purple: linear-gradient(135deg, #5b21b6, #a78bfa);
+
+  /* ── Category accent tokens — dark ── */
+  --ec-cat-purple: #a78bfa;  --ec-cat-purple-bg: rgba(167,139,250,0.12); --ec-cat-purple-border: rgba(167,139,250,0.3);
+  --ec-cat-teal: #22d3ee;    --ec-cat-teal-bg: rgba(34,211,238,0.12);    --ec-cat-teal-border: rgba(34,211,238,0.3);
+  --ec-cat-orange: #fb923c;  --ec-cat-orange-bg: rgba(251,146,60,0.12);  --ec-cat-orange-border: rgba(251,146,60,0.3);
+  --ec-cat-slate: #94a3b8;   --ec-cat-slate-bg: rgba(148,163,184,0.12);  --ec-cat-slate-border: rgba(148,163,184,0.3);
 }
 
-/* Dark-first card gradients (base = dark) */
-.dash-card--info {
-  background: linear-gradient(135deg, #1e40af 0%, #1e3a5f 100%);
-}
+/* ── Card gradient classes (use ec-grad-* tokens) ── */
+.dash-card--info    { background: var(--ec-grad-blue); }
+.dash-card--success { background: var(--ec-grad-em); }
+.dash-card--danger  { background: var(--ec-grad-crit); }
+.dash-card--warning { background: var(--ec-grad-warn); }
 
-.dash-card--success {
-  background: linear-gradient(135deg, #15803D 0%, #166534 100%);
-}
-
-.dash-card--danger {
-  background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
-}
-
-.dash-card--warning {
-  background: linear-gradient(135deg, #CA8A04 0%, #A16207 100%);
-}
-
-.training-summary-card--pending {
-  background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
-}
-
-.training-summary-card--inprogress {
-  background: linear-gradient(135deg, #CA8A04 0%, #A16207 100%);
-}
-
-.training-summary-card--complete {
-  background: linear-gradient(135deg, #15803D 0%, #166534 100%);
-}
+.training-summary-card--pending    { background: var(--ec-grad-crit); }
+.training-summary-card--inprogress { background: var(--ec-grad-warn); }
+.training-summary-card--complete   { background: var(--ec-grad-em); }
 
 .todays-panel--action {
-  background: linear-gradient(135deg, rgba(234, 179, 8, 0.2) 0%, rgba(202, 138, 4, 0.25) 100%);
-  border-color: #CA8A04;
+  background: var(--ec-warn-faint);
+  border-color: var(--ec-warn);
 }
-
-/* Dark-first base styles for panels and overlays */
 .todays-panel--clear {
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(22, 163, 74, 0.2) 100%);
-  border-color: #22C55E;
+  background: var(--ec-em-faint);
+  border-color: var(--ec-em);
 }
 
 .todays-task--done,
 .todays-task--upcoming {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--ec-em-faint);
 }
-
 .todays-task--due {
-  background: rgba(234, 179, 8, 0.1);
-  border-color: rgba(234, 179, 8, 0.25);
+  background: var(--ec-warn-faint);
+  border-color: var(--ec-warn-border);
 }
-
 .todays-task--overdue {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.25);
+  background: var(--ec-crit-faint);
+  border-color: var(--ec-crit-border);
 }
 
 /* ── Scrollbar — Stripe-style thin ─────────── */
@@ -358,7 +363,7 @@ body {
 }
 
 a {
-  color: var(--primary);
+  color: var(--em);
   text-decoration: none;
 }
 a:hover {
@@ -736,18 +741,7 @@ a:hover {
   transform: translateY(-2px);
 }
 
-.dash-card--danger {
-  background: linear-gradient(135deg, #D62828 0%, #B91C1C 100%);
-}
-.dash-card--warning {
-  background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
-}
-.dash-card--success {
-  background: linear-gradient(135deg, #2D6A4F 0%, #1B4332 100%);
-}
-.dash-card--info {
-  background: linear-gradient(135deg, #1e40af 0%, #1e3a5f 100%);
-}
+/* dash-card gradient classes consolidated above */
 
 .dash-card-number {
   font-family: var(--heading-font);
@@ -3074,15 +3068,7 @@ select.input {
   box-shadow: var(--shadow);
 }
 
-.todays-panel--action {
-  background: linear-gradient(135deg, #FEF3C7 0%, #FDEFC3 50%, #FDE68A 100%);
-  border: 1px solid #F59E0B;
-}
-
-.todays-panel--clear {
-  background: linear-gradient(135deg, #D1FAE5 0%, #C6F6D5 50%, #A7F3D0 100%);
-  border: 1px solid #34D399;
-}
+/* todays-panel gradient classes consolidated above */
 
 .todays-panel-header {
   display: flex;
@@ -3123,20 +3109,7 @@ select.input {
   transform: translateX(2px);
 }
 
-.todays-task--done,
-.todays-task--upcoming {
-  background: rgba(255, 255, 255, 0.7);
-}
-
-.todays-task--due {
-  background: rgba(217, 119, 6, 0.15);
-  border: 1px solid rgba(217, 119, 6, 0.3);
-}
-
-.todays-task--overdue {
-  background: rgba(214, 40, 40, 0.12);
-  border: 1px solid rgba(214, 40, 40, 0.3);
-}
+/* todays-task state classes consolidated above */
 
 .todays-task-icon {
   width: 22px;
@@ -3228,15 +3201,7 @@ select.input {
   box-shadow: var(--shadow);
 }
 
-.training-summary-card--pending {
-  background: linear-gradient(135deg, #D62828 0%, #B91C1C 100%);
-}
-.training-summary-card--inprogress {
-  background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
-}
-.training-summary-card--complete {
-  background: linear-gradient(135deg, #2D6A4F 0%, #1B4332 100%);
-}
+/* training-summary-card gradient classes consolidated above */
 
 .training-summary-num {
   font-family: var(--heading-font);

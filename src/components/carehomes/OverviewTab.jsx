@@ -62,7 +62,7 @@ export default function OverviewTab({ home, patients, deliveries, notes, marIssu
           <h3 className="text-sm font-semibold text-ec-t1">Details</h3>
           {isElevated && (
             <button onClick={() => setEditing(true)}
-              className="text-xs text-emerald-600 hover:text-emerald-700 cursor-pointer bg-transparent border-none font-medium">
+              className="text-xs text-ec-em hover:text-ec-em cursor-pointer bg-transparent border-none font-medium">
               Edit
             </button>
           )}
@@ -83,7 +83,7 @@ export default function OverviewTab({ home, patients, deliveries, notes, marIssu
         <h3 className="text-sm font-semibold text-ec-t1 mb-3">Patient Summary</h3>
         <div className="flex gap-4 text-sm mb-3">
           <div><span className="text-ec-t3">Total</span><p className="text-lg font-bold text-ec-t1">{totalPatients}</p></div>
-          <div><span className="text-ec-t3">Active</span><p className="text-lg font-bold text-emerald-600">{activePatients}</p></div>
+          <div><span className="text-ec-t3">Active</span><p className="text-lg font-bold text-ec-em">{activePatients}</p></div>
         </div>
         <div className="flex gap-2">
           {PACK_TYPES.map(t => (

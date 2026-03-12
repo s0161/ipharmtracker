@@ -55,13 +55,13 @@ export default function KanbanBoard({
             <div className="kanban-col-progress">
               <div className="kanban-col-progress-fill" style={{
                 width: prog.total > 0 ? `${(prog.done / prog.total) * 100}%` : '0%',
-                background: allDone ? 'var(--success)' : prog.done > 0 ? 'var(--warning)' : 'var(--border)',
+                background: allDone ? 'var(--ec-em)' : prog.done > 0 ? 'var(--ec-warn)' : 'var(--border)',
               }} />
             </div>
             {!isCollapsed && <div className="kanban-cards">
               {allDone ? (
                 <div className="kanban-all-done">
-                  <svg className="kanban-all-done-icon" viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2.5" width="32" height="32">
+                  <svg className="kanban-all-done-icon" viewBox="0 0 24 24" fill="none" stroke="var(--ec-em)" strokeWidth="2.5" width="32" height="32">
                     <path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
                   </svg>
                   <span className="kanban-all-done-text">All done!</span>
@@ -90,7 +90,7 @@ export default function KanbanBoard({
                     className="kanban-completed-toggle"
                     onClick={() => setCompletedAccordion(prev => ({ ...prev, [col.key]: !prev[col.key] }))}
                   >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2.5" width="14" height="14">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--ec-em)" strokeWidth="2.5" width="14" height="14">
                       <path d="M20 6L9 17l-5-5" />
                     </svg>
                     Completed ({completed.length})

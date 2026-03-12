@@ -49,7 +49,7 @@ export default function AlertSummaryCards({ stats, activeSeverity, onSeverityCli
             onClick={() => onSeverityClick(isActive ? null : c.key)}
             className={`relative p-4 rounded-xl border cursor-pointer transition-all text-left bg-transparent
               ${c.bg} ${c.border}
-              ${isActive ? 'ring-2 ring-emerald-500/30 shadow-md' : 'hover:shadow-sm'}`}
+              ${isActive ? 'ring-2 ring-ec-em/30 shadow-md' : 'hover:shadow-sm'}`}
           >
             {/* Pulsing dot for CRITICAL */}
             {c.dot && count > 0 && (

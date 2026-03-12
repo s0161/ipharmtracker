@@ -59,11 +59,11 @@ export default function PatientsTab({ home, patients, cyclesByHome, itemsByCycle
         <input
           value={search} onChange={e => setSearch(e.target.value)}
           placeholder="Search patients..."
-          className="flex-1 px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+          className="flex-1 px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-ec-em/30"
         />
         {isElevated && (
           <button onClick={() => setAdding(!adding)}
-            className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-lg border-none cursor-pointer hover:bg-emerald-700 shadow-sm whitespace-nowrap">
+            className="px-3 py-1.5 bg-ec-em-dark text-white text-xs font-semibold rounded-lg border-none cursor-pointer hover:bg-ec-em-dark shadow-sm whitespace-nowrap">
             Add Patient
           </button>
         )}
@@ -76,24 +76,24 @@ export default function PatientsTab({ home, patients, cyclesByHome, itemsByCycle
             <div>
               <label className="block text-xs font-medium text-ec-t2 mb-1">Name *</label>
               <input value={form.patientName} onChange={e => setForm(f => ({ ...f, patientName: e.target.value }))} required
-                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-emerald-500/30" />
+                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-ec-em/30" />
             </div>
             <div>
               <label className="block text-xs font-medium text-ec-t2 mb-1">Room</label>
               <input value={form.roomNumber} onChange={e => setForm(f => ({ ...f, roomNumber: e.target.value }))}
-                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-emerald-500/30" />
+                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-ec-em/30" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-ec-t2 mb-1">Medication Count</label>
               <input type="number" value={form.medicationCount} onChange={e => setForm(f => ({ ...f, medicationCount: e.target.value }))}
-                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-emerald-500/30" />
+                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-ec-em/30" />
             </div>
             <div>
               <label className="block text-xs font-medium text-ec-t2 mb-1">Pack Type</label>
               <select value={form.packType} onChange={e => setForm(f => ({ ...f, packType: e.target.value }))}
-                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
+                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-ec-em/30">
                 {PACK_TYPES.map(t => <option key={t}>{t}</option>)}
               </select>
             </div>
@@ -101,10 +101,10 @@ export default function PatientsTab({ home, patients, cyclesByHome, itemsByCycle
           <div>
             <label className="block text-xs font-medium text-ec-t2 mb-1">Allergies</label>
             <input value={form.allergies} onChange={e => setForm(f => ({ ...f, allergies: e.target.value }))}
-              className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-emerald-500/30" />
+              className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-ec-em/30" />
           </div>
           <div className="flex gap-2">
-            <button type="submit" className="px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg border-none cursor-pointer hover:bg-emerald-700 shadow-sm">Save</button>
+            <button type="submit" className="px-4 py-2 bg-ec-em-dark text-white text-sm font-semibold rounded-lg border-none cursor-pointer hover:bg-ec-em-dark shadow-sm">Save</button>
             <button type="button" onClick={() => setAdding(false)} className="px-4 py-2 text-sm text-ec-t2 border border-ec-div rounded-lg bg-ec-card cursor-pointer hover:bg-ec-bg">Cancel</button>
           </div>
         </form>

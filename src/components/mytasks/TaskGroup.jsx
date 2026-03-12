@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { TaskTile } from './TaskRow'
 
 const GROUP_CONFIG = {
-  overdue:   { label: 'OVERDUE',   accent: '#ef4444', dotBg: '#fef2f2' },
-  dueToday:  { label: 'DUE TODAY', accent: '#f59e0b', dotBg: '#fffbeb' },
-  upcoming:  { label: 'UPCOMING',  accent: '#3b82f6', dotBg: '#eff6ff' },
-  completed: { label: 'COMPLETED', accent: '#10b981', dotBg: '#f0fdf4' },
+  overdue:   { label: 'OVERDUE',   accent: 'var(--ec-crit)', dotBg: 'var(--ec-crit-bg)' },
+  dueToday:  { label: 'DUE TODAY', accent: 'var(--ec-warn)', dotBg: 'var(--ec-warn-bg)' },
+  upcoming:  { label: 'UPCOMING',  accent: 'var(--ec-info)', dotBg: 'var(--ec-info-bg)' },
+  completed: { label: 'COMPLETED', accent: 'var(--ec-em)', dotBg: 'var(--ec-em-bg)' },
 }
 
 export default function TaskGroup({
@@ -28,7 +28,7 @@ export default function TaskGroup({
       >
         <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: config.accent }} />
         <svg
-          width={8} height={8} viewBox="0 0 8 8" fill="#94a3b8"
+          width={8} height={8} viewBox="0 0 8 8" fill="var(--ec-t3)"
           className="shrink-0 transition-transform duration-200"
           style={{ transform: open ? 'rotate(90deg)' : 'rotate(0)' }}
         >

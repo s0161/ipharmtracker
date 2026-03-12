@@ -104,19 +104,14 @@ export default function Sidebar({ open, onClose }) {
 
       <aside
         className={`fixed left-0 top-0 h-screen w-[220px] bg-ec-sidebar z-50 flex flex-col
-          border-r border-ec-div font-sans ec-sidebar-dark
+          border-r border-ec-div font-sans
           transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
-          lg:translate-x-0 ${open ? 'translate-x-0 shadow-[8px_0_32px_rgba(5,150,105,0.1)]' : '-translate-x-full'}`}
+          lg:translate-x-0 ${open ? 'translate-x-0 shadow-[8px_0_32px_rgba(10,37,64,0.08)]' : '-translate-x-full'}`}
       >
-        {/* Emerald gradient edge */}
+        {/* Emerald gradient edge — subtle accent on white sidebar */}
         <div
-          className="absolute left-0 top-0 w-[2px] h-1/2 pointer-events-none"
-          style={{ background: 'linear-gradient(to bottom, var(--ec-em) 0%, rgba(5,150,105,0.3) 40%, transparent 100%)' }}
-        />
-        {/* Emerald radial glow */}
-        <div
-          className="absolute left-0 top-0 w-full h-[120px] pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse at 0% 0%, rgba(5,150,105,0.06), transparent 70%)' }}
+          className="absolute left-0 top-0 w-[2px] h-1/3 pointer-events-none"
+          style={{ background: 'linear-gradient(to bottom, var(--em) 0%, rgba(16,185,129,0.2) 60%, transparent 100%)' }}
         />
 
         {/* Brand */}
@@ -147,7 +142,7 @@ export default function Sidebar({ open, onClose }) {
         <nav className="flex-1 overflow-y-auto py-1">
           {sections.map((section) => (
             <div key={section.label}>
-              <div className="text-[9px] font-bold text-ec-t4 tracking-[1.5px] uppercase px-4 pt-[22px] pb-1.5">
+              <div className="text-[11px] font-semibold text-ec-t3 tracking-[0.6px] uppercase px-4 pt-[22px] pb-1.5">
                 {section.label}
               </div>
               {section.items.map((item) => {
@@ -171,13 +166,13 @@ export default function Sidebar({ open, onClose }) {
                       }`
                     }
                     style={({ isActive }) => ({
-                      backgroundColor: isActive ? 'var(--ec-card)' : 'transparent',
-                      color: isActive ? 'var(--ec-t1)' : undefined,
+                      backgroundColor: isActive ? 'var(--em-glow)' : 'transparent',
+                      color: isActive ? 'var(--em)' : undefined,
                     })}
                   >
                     {({ isActive }) => (
                       <>
-                        <NI name={item.icon} color={isActive ? 'var(--ec-t1)' : 'var(--ec-z6)'} />
+                        <NI name={item.icon} color={isActive ? 'var(--em)' : 'var(--ec-z6)'} />
                         <span className="flex-1">{item.label}</span>
                         {item.badge === 'soon' ? (
                           <span className="bg-ec-warn/10 text-ec-warn text-[9px] font-bold px-1.5 py-0.5 rounded-full">

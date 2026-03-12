@@ -9,8 +9,8 @@ import INDUCTION_MODULES from '../data/inductionModules'
 const CAT_STYLES = {
   Compliance: 'bg-ec-info/10 text-ec-info',
   'Health & Safety': 'bg-ec-warn/10 text-ec-warn',
-  Practical: 'bg-teal-500/10 text-teal-600 dark:text-teal-400',
-  Policies: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
+  Practical: 'bg-ec-em/10 text-ec-em',
+  Policies: 'bg-[var(--ec-cat-purple-bg)] text-[var(--ec-cat-purple)]',
 }
 
 const PROGRESS_COLORS = {
@@ -51,7 +51,7 @@ function MiniRing({ percent, size = 36, stroke = 3 }) {
   const r = (size - stroke) / 2
   const circ = 2 * Math.PI * r
   const offset = circ - (percent / 100) * circ
-  const color = percent >= 100 ? '#059669' : percent >= 50 ? '#3b82f6' : '#f59e0b'
+  const color = percent >= 100 ? 'var(--ec-em)' : percent >= 50 ? 'var(--ec-info)' : 'var(--ec-warn)'
   return (
     <svg width={size} height={size} className="shrink-0">
       <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="currentColor" strokeWidth={stroke} className="text-ec-div" />
@@ -72,14 +72,14 @@ function ModuleCard({ module, isCompleted, completedDate, score, onClick }) {
     <button
       onClick={onClick}
       className="bg-ec-card rounded-xl border border-ec-div p-5 text-left w-full
-        hover:shadow-md hover:border-emerald-500/30 transition-all duration-200 cursor-pointer group"
+        hover:shadow-md hover:border-ec-em-border transition-all duration-200 cursor-pointer group"
     >
       <div className="flex items-start justify-between gap-3 mb-2">
         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${catStyle}`}>
           {module.category}
         </span>
         {isCompleted ? (
-          <span className="bg-emerald-500/10 text-ec-em dark:text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+          <span className="bg-ec-em/10 text-ec-em  text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 h-3">
               <polyline points="3 8 7 12 13 4" />
             </svg>
@@ -92,7 +92,7 @@ function ModuleCard({ module, isCompleted, completedDate, score, onClick }) {
         )}
       </div>
       <div className="text-[11px] font-mono text-ec-t3 mb-1">{module.code}</div>
-      <h3 className="text-sm font-semibold text-ec-t1 mb-1 group-hover:text-ec-em dark:group-hover:text-emerald-400 transition-colors">
+      <h3 className="text-sm font-semibold text-ec-t1 mb-1 group-hover:text-ec-em transition-colors">
         {module.title}
       </h3>
       <p className="text-xs text-ec-t3 line-clamp-2 mb-3">{module.description}</p>
@@ -104,7 +104,7 @@ function ModuleCard({ module, isCompleted, completedDate, score, onClick }) {
           {module.estimatedMinutes} min
         </span>
         {isCompleted && score != null && (
-          <span className="font-semibold text-ec-em dark:text-emerald-400">Score: {score}%</span>
+          <span className="font-semibold text-ec-em ">Score: {score}%</span>
         )}
         {isCompleted && completedDate && (
           <span>{formatDate(completedDate)}</span>
@@ -238,7 +238,7 @@ function ModuleViewer({ module, isCompleted, onClose, onComplete }) {
                     <ul className="space-y-2 mb-4">
                       {sections[currentSection].bullets.map((b, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm text-ec-t2">
-                          <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                          <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-ec-em shrink-0" />
                           {b}
                         </li>
                       ))}
@@ -252,8 +252,8 @@ function ModuleViewer({ module, isCompleted, onClose, onComplete }) {
                 {sections.map((_, i) => (
                   <button key={i} onClick={() => setCurrentSection(i)}
                     className={`w-2 h-2 rounded-full transition-all ${
-                      i === currentSection ? 'bg-emerald-500 w-4' :
-                      i <= currentSection ? 'bg-emerald-500/40' : 'bg-ec-div'
+                      i === currentSection ? 'bg-ec-em w-4' :
+                      i <= currentSection ? 'bg-ec-em/40' : 'bg-ec-div'
                     }`} />
                 ))}
               </div>
@@ -266,7 +266,7 @@ function ModuleViewer({ module, isCompleted, onClose, onComplete }) {
               {quiz.map((q, qi) => (
                 <div key={qi} className="bg-ec-card rounded-lg border border-ec-div p-4">
                   <p className="text-sm font-semibold text-ec-t1 mb-3">
-                    <span className="text-ec-em dark:text-emerald-400 mr-1">Q{qi + 1}.</span>
+                    <span className="text-ec-em  mr-1">Q{qi + 1}.</span>
                     {q.question}
                   </p>
                   <div className="space-y-2">
@@ -275,7 +275,7 @@ function ModuleViewer({ module, isCompleted, onClose, onComplete }) {
                         onClick={() => setQuizAnswers(prev => ({ ...prev, [qi]: oi }))}
                         className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all border ${
                           quizAnswers[qi] === oi
-                            ? 'border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-medium'
+                            ? 'border-ec-em bg-ec-em/10 text-ec-em  font-medium'
                             : 'border-ec-div hover:border-ec-t3 text-ec-t2'
                         }`}
                       >
@@ -294,7 +294,7 @@ function ModuleViewer({ module, isCompleted, onClose, onComplete }) {
           {/* Quiz Results */}
           {quizSubmitted && (
             <div className="ec-fadeup">
-              <div className={`text-center py-8 ${quizScore >= 70 ? 'text-ec-em dark:text-emerald-400' : 'text-ec-warn dark:text-amber-400'}`}>
+              <div className={`text-center py-8 ${quizScore >= 70 ? 'text-ec-em ' : 'text-ec-warn '}`}>
                 <MiniRing percent={quizScore} size={80} stroke={5} />
                 <h3 className="text-xl font-bold mt-4">
                   {quizScore >= 70 ? 'Well Done!' : 'Keep Learning'}
@@ -308,7 +308,7 @@ function ModuleViewer({ module, isCompleted, onClose, onComplete }) {
                 {quiz.map((q, qi) => {
                   const correct = quizAnswers[qi] === q.correctIndex
                   return (
-                    <div key={qi} className={`rounded-lg border p-4 ${correct ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-red-500/30 bg-ec-crit/5'}`}>
+                    <div key={qi} className={`rounded-lg border p-4 ${correct ? 'border-ec-em-border bg-ec-em/5' : 'border-ec-crit-border bg-ec-crit/5'}`}>
                       <p className="text-sm font-semibold text-ec-t1 mb-2">
                         {correct ? '✓' : '✗'} Q{qi + 1}. {q.question}
                       </p>
@@ -318,7 +318,7 @@ function ModuleViewer({ module, isCompleted, onClose, onComplete }) {
                         </span>
                       </p>
                       {!correct && (
-                        <p className="text-xs text-ec-em dark:text-emerald-400 mt-1">
+                        <p className="text-xs text-ec-em  mt-1">
                           Correct: {q.options[q.correctIndex]}
                         </p>
                       )}
@@ -346,26 +346,26 @@ function ModuleViewer({ module, isCompleted, onClose, onComplete }) {
                 {isLastSection && hasQuiz && !isCompleted && (
                   <button onClick={() => setQuizStarted(true)}
                     className="px-4 py-2 rounded-lg text-sm font-semibold text-white
-                      bg-emerald-600 hover:bg-emerald-700 transition-colors">
+                      bg-ec-em-dark hover:bg-ec-em transition-colors">
                     Take Quiz
                   </button>
                 )}
                 {isLastSection && !hasQuiz && !isCompleted && (
                   <button onClick={handleMarkComplete}
                     className="px-4 py-2 rounded-lg text-sm font-semibold text-white
-                      bg-emerald-600 hover:bg-emerald-700 transition-colors">
+                      bg-ec-em-dark hover:bg-ec-em transition-colors">
                     Mark Complete
                   </button>
                 )}
                 {isLastSection && isCompleted && (
-                  <span className="px-4 py-2 rounded-lg text-sm font-semibold bg-emerald-500/10 text-ec-em dark:text-emerald-400">
+                  <span className="px-4 py-2 rounded-lg text-sm font-semibold bg-ec-em/10 text-ec-em ">
                     ✓ Completed
                   </span>
                 )}
                 {!isLastSection && (
                   <button onClick={() => setCurrentSection(currentSection + 1)}
                     className="px-4 py-2 rounded-lg text-sm font-semibold text-white
-                      bg-emerald-600 hover:bg-emerald-700 transition-colors">
+                      bg-ec-em-dark hover:bg-ec-em transition-colors">
                     Next
                   </button>
                 )}
@@ -382,7 +382,7 @@ function ModuleViewer({ module, isCompleted, onClose, onComplete }) {
               <button onClick={handleQuizSubmit}
                 disabled={Object.keys(quizAnswers).length < quiz.length}
                 className="px-4 py-2 rounded-lg text-sm font-semibold text-white
-                  bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                  bg-ec-em-dark hover:bg-ec-em disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                 Submit Quiz
               </button>
             </>
@@ -390,7 +390,7 @@ function ModuleViewer({ module, isCompleted, onClose, onComplete }) {
           {quizSubmitted && (
             <button onClick={onClose}
               className="px-4 py-2 rounded-lg text-sm font-semibold text-white ml-auto
-                bg-emerald-600 hover:bg-emerald-700 transition-colors">
+                bg-ec-em-dark hover:bg-ec-em transition-colors">
               Close
             </button>
           )}
@@ -451,8 +451,8 @@ function TeamOverview({ modules, completionsByModule }) {
                     return (
                       <td key={m.id || m.code} className="px-2 py-2.5 text-center">
                         {done ? (
-                          <span className="inline-flex w-5 h-5 items-center justify-center rounded-full bg-emerald-500/10">
-                            <svg viewBox="0 0 16 16" fill="none" stroke="#059669" strokeWidth="2.5" className="w-3 h-3">
+                          <span className="inline-flex w-5 h-5 items-center justify-center rounded-full bg-ec-em/10">
+                            <svg viewBox="0 0 16 16" fill="none" stroke="var(--ec-em)" strokeWidth="2.5" className="w-3 h-3">
                               <polyline points="3 8 7 12 13 4" />
                             </svg>
                           </span>
@@ -561,7 +561,7 @@ export default function Induction() {
           <div className="text-xs text-ec-t3">Mandatory</div>
         </div>
         <div className="bg-ec-card rounded-xl border border-ec-div p-4">
-          <div className="text-2xl font-bold text-ec-em dark:text-emerald-400">{staffProgress.completed}</div>
+          <div className="text-2xl font-bold text-ec-em ">{staffProgress.completed}</div>
           <div className="text-xs text-ec-t3">You Completed</div>
         </div>
         <div className="bg-ec-card rounded-xl border border-ec-div p-4">
@@ -576,7 +576,7 @@ export default function Induction() {
           {['modules', 'team'].map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)}
               className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors capitalize ${
-                activeTab === tab ? 'bg-emerald-600 text-white' : 'text-ec-t3 hover:text-ec-t1'
+                activeTab === tab ? 'bg-ec-em-dark text-white' : 'text-ec-t3 hover:text-ec-t1'
               }`}>
               {tab === 'team' ? 'Team Overview' : 'Modules'}
             </button>
@@ -598,7 +598,7 @@ export default function Induction() {
               <button key={cat} onClick={() => setFilterCategory(cat)}
                 className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
                   filterCategory === cat
-                    ? 'bg-emerald-600 text-white'
+                    ? 'bg-ec-em-dark text-white'
                     : 'bg-ec-card border border-ec-div text-ec-t3 hover:text-ec-t1'
                 }`}>
                 {cat}

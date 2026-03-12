@@ -95,8 +95,8 @@ export default function CDRegister() {
       {/* Amber Banner */}
       {bannerVisible && (
         <div className="flex items-start gap-3 px-4 py-3 rounded-xl mb-5 border"
-          style={{ backgroundColor: '#fffbeb', borderColor: '#f59e0b', color: '#92400e' }}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0 mt-0.5">
+          style={{ backgroundColor: 'var(--ec-warn-bg)', borderColor: 'var(--ec-warn)', color: 'var(--ec-warn-dark)' }}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--ec-warn)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0 mt-0.5">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
             <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -107,7 +107,7 @@ export default function CDRegister() {
           </div>
           <button onClick={dismissBanner}
             className="bg-transparent border-none cursor-pointer text-lg leading-none p-0 shrink-0"
-            style={{ color: '#92400e' }} aria-label="Dismiss banner">
+            style={{ color: 'var(--ec-warn-dark)' }} aria-label="Dismiss banner">
             ✕
           </button>
         </div>
@@ -144,7 +144,7 @@ export default function CDRegister() {
             placeholder="Search drugs..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 rounded-lg border border-ec-border bg-ec-card text-sm text-ec-t1 placeholder:text-ec-t3 outline-none focus:ring-2 focus:ring-emerald-500/30 transition"
+            className="w-full pl-9 pr-3 py-2 rounded-lg border border-ec-border bg-ec-card text-sm text-ec-t1 placeholder:text-ec-t3 outline-none focus:ring-2 focus:ring-ec-em/30 transition"
           />
         </div>
 
@@ -154,7 +154,7 @@ export default function CDRegister() {
             <button key={tab} onClick={() => setActiveTab(tab)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium border-none cursor-pointer transition-all
                 ${activeTab === tab
-                  ? 'bg-emerald-600 text-white shadow-sm'
+                  ? 'bg-ec-em-dark text-white shadow-sm'
                   : 'bg-ec-card text-ec-t2 hover:bg-ec-card-hover border border-ec-border'
                 }`}
             >
@@ -169,7 +169,7 @@ export default function CDRegister() {
             Print Register
           </button>
           <button onClick={() => setShowModal(true)}
-            className="px-3 py-2 rounded-lg text-xs font-semibold bg-emerald-600 text-white border-none cursor-pointer hover:bg-emerald-700 transition shadow-sm">
+            className="px-3 py-2 rounded-lg text-xs font-semibold bg-ec-em-dark text-white border-none cursor-pointer hover:bg-ec-em-dark transition shadow-sm">
             + Add Entry
           </button>
         </div>
@@ -212,7 +212,7 @@ export default function CDRegister() {
                     <td className="px-4 py-3">
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                         entry.direction === 'In'
-                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                          ? 'bg-ec-em-faint text-ec-em'
                           : 'bg-ec-warn/10 text-ec-warn'
                       }`}>
                         {entry.direction}
@@ -300,7 +300,7 @@ export default function CDRegister() {
                 Cancel
               </button>
               <button onClick={handleModalSubmit}
-                className="px-4 py-2 rounded-lg text-sm font-semibold bg-emerald-600 text-white border-none cursor-pointer hover:bg-emerald-700 transition shadow-sm">
+                className="px-4 py-2 rounded-lg text-sm font-semibold bg-ec-em-dark text-white border-none cursor-pointer hover:bg-ec-em-dark transition shadow-sm">
                 Save Entry
               </button>
             </div>

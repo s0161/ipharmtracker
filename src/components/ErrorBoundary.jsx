@@ -31,8 +31,8 @@ export default class ErrorBoundary extends Component {
           <svg viewBox="0 0 40 40" width="48" height="48" style={{ margin: '0 auto 16px' }}>
             <defs>
               <linearGradient id="err-grad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#10b981" />
-                <stop offset="100%" stopColor="#059669" />
+                <stop offset="0%" stopColor="var(--ec-em)" />
+                <stop offset="100%" stopColor="var(--ec-em-dark)" />
               </linearGradient>
             </defs>
             <rect rx="12" width="40" height="40" fill="url(#err-grad)" />
@@ -49,7 +49,7 @@ export default class ErrorBoundary extends Component {
               onClick={() => window.location.reload()}
               style={{
                 padding: '10px 20px', borderRadius: 8, border: 'none',
-                backgroundColor: '#10b981', color: 'white', fontWeight: 600,
+                backgroundColor: 'var(--ec-em)', color: 'white', fontWeight: 600,
                 fontSize: 14, cursor: 'pointer',
               }}
             >

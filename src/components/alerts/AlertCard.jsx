@@ -107,11 +107,11 @@ export default function AlertCard({ alert, onViewDetails, onResolve, onSnooze, o
             onChange={e => setResolveNote(e.target.value)}
             placeholder="Resolution note (optional)..."
             rows={2}
-            className="w-full px-2.5 py-1.5 rounded-lg border border-ec-border bg-ec-card text-xs text-ec-t1 placeholder:text-ec-t3 outline-none focus:ring-2 focus:ring-emerald-500/30 resize-none"
+            className="w-full px-2.5 py-1.5 rounded-lg border border-ec-border bg-ec-card text-xs text-ec-t1 placeholder:text-ec-t3 outline-none focus:ring-2 focus:ring-ec-em/30 resize-none"
           />
           <div className="flex gap-2">
             <button onClick={handleResolve}
-              className="flex-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-emerald-600 text-white border-none cursor-pointer hover:bg-emerald-700 transition">
+              className="flex-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-ec-em-dark text-white border-none cursor-pointer hover:bg-ec-em-dark transition">
               Confirm Resolve
             </button>
             <button onClick={() => setShowResolve(false)}
@@ -148,7 +148,7 @@ export default function AlertCard({ alert, onViewDetails, onResolve, onSnooze, o
           {isActive && (
             <>
               <button onClick={() => setShowResolve(true)}
-                className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-emerald-600 text-white border-none cursor-pointer hover:bg-emerald-700 transition">
+                className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-ec-em-dark text-white border-none cursor-pointer hover:bg-ec-em-dark transition">
                 Resolve
               </button>
               <button onClick={() => setShowSnooze(true)}

@@ -77,9 +77,9 @@ function clearRpSign() {
 
 // ── Section config ──
 const SECTIONS = [
-  { key: 'daily', title: 'Daily Checks', items: DAILY_ITEMS, accent: '#059669', icon: '\uD83D\uDCCB' },
-  { key: 'weekly', title: 'Weekly Checks', items: WEEKLY_ITEMS, accent: '#0d9488', icon: '\uD83D\uDCC5' },
-  { key: 'fortnightly', title: 'Fortnightly Checks', items: FORTNIGHTLY_ITEMS, accent: '#3b82f6', icon: '\uD83D\uDDD3' },
+  { key: 'daily', title: 'Daily Checks', items: DAILY_ITEMS, accent: 'var(--ec-em)', icon: '\uD83D\uDCCB' },
+  { key: 'weekly', title: 'Weekly Checks', items: WEEKLY_ITEMS, accent: 'var(--ec-cat-teal)', icon: '\uD83D\uDCC5' },
+  { key: 'fortnightly', title: 'Fortnightly Checks', items: FORTNIGHTLY_ITEMS, accent: 'var(--ec-info)', icon: '\uD83D\uDDD3' },
 ]
 
 export default function RPLog() {
@@ -219,13 +219,13 @@ export default function RPLog() {
   const sorted = [...logs].sort((a, b) => (b.date || '').localeCompare(a.date || ''))
   const recentLogs = sorted.slice(0, 7)
 
-  const pctColor = pctComplete < 50 ? '#ef4444' : pctComplete < 80 ? '#f59e0b' : '#059669'
+  const pctColor = pctComplete < 50 ? 'var(--ec-crit)' : pctComplete < 80 ? 'var(--ec-warn)' : 'var(--ec-em)'
 
   const statusPill = totalChecked === ALL_ITEMS.length
-    ? { label: '\u2713 Completed', bg: '#f0fdf4', color: '#059669', border: '#6ee7b7' }
+    ? { label: '\u2713 Completed', bg: 'var(--ec-em-bg)', color: 'var(--ec-em)', border: 'var(--ec-em-border)' }
     : totalChecked > 0
-    ? { label: 'In Progress', bg: '#fffbeb', color: '#d97706', border: '#fde68a' }
-    : { label: 'Not Started', bg: '#fef2f2', color: '#dc2626', border: '#fecaca' }
+    ? { label: 'In Progress', bg: 'var(--ec-warn-bg)', color: 'var(--ec-warn)', border: 'var(--ec-warn-border)' }
+    : { label: 'Not Started', bg: 'var(--ec-crit-bg)', color: 'var(--ec-crit)', border: 'var(--ec-crit-border)' }
 
   const handleCsvDownload = () => {
     const headers = ['Date', 'RP Name', 'Completed', 'Total Items', 'Notes']
@@ -286,7 +286,7 @@ export default function RPLog() {
         <div className="flex-1 min-w-0">
 
           {/* RP Details Card */}
-          <div className="rounded-xl p-4 mb-6" style={{ background: '#f0faf6', border: '1px solid #c6e8da' }}>
+          <div className="rounded-xl p-4 mb-6" style={{ background: 'var(--ec-em-bg)', border: '1px solid var(--ec-em-border)' }}>
             <div className="flex items-center gap-2 mb-3">
               <span className="text-base">⚕</span>
               <span className="text-[13px] font-bold text-ec-t1 tracking-wide">Today's RP</span>
@@ -299,14 +299,14 @@ export default function RPLog() {
                   value={selectedDate}
                   onChange={(e) => loadEntry(e.target.value)}
                   className="w-full rounded-lg px-3 py-2 text-xs outline-none transition-all"
-                  style={{ ...mono, background: 'white', border: '1px solid #c6e8da', color: 'var(--text-primary)' }}
+                  style={{ ...mono, background: 'var(--ec-card)', border: '1px solid var(--ec-em-border)', color: 'var(--ec-t1)' }}
                 />
               </div>
               <div className="flex-1">
                 <label className="block text-[10px] font-semibold text-ec-t2 mb-1 uppercase tracking-wider">Responsible Pharmacist</label>
                 <div
                   className="w-full rounded-lg px-3 py-2 text-xs"
-                  style={{ ...sans, background: 'white', border: '1px solid #c6e8da', color: 'var(--text-primary)', minHeight: 34, display: 'flex', alignItems: 'center' }}
+                  style={{ ...sans, background: 'var(--ec-card)', border: '1px solid var(--ec-em-border)', color: 'var(--ec-t1)', minHeight: 34, display: 'flex', alignItems: 'center' }}
                 >
                   {rpName}
                 </div>
@@ -326,7 +326,7 @@ export default function RPLog() {
                   {pctComplete}%
                 </span>
               </div>
-              <div className="h-2 rounded-full overflow-hidden" style={{ background: '#e2e8f0' }}>
+              <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--ec-border)' }}>
                 <div
                   className="h-full rounded-full transition-all duration-500 ease-out"
                   style={{ background: pctColor, width: `${pctComplete}%` }}
@@ -351,9 +351,9 @@ export default function RPLog() {
                     className="text-[11px] font-bold px-2.5 py-0.5 rounded-full"
                     style={{
                       ...mono,
-                      background: allDone ? '#f0fdf4' : '#f1f5f9',
-                      color: allDone ? '#059669' : '#64748b',
-                      border: `1px solid ${allDone ? '#6ee7b7' : '#e2e8f0'}`,
+                      background: allDone ? 'var(--ec-em-bg)' : 'var(--ec-t5)',
+                      color: allDone ? 'var(--ec-em)' : 'var(--ec-t2)',
+                      border: `1px solid ${allDone ? 'var(--ec-em-border)' : 'var(--ec-border)'}`,
                     }}
                   >
                     {done}/{section.items.length}
@@ -370,16 +370,16 @@ export default function RPLog() {
                         onClick={() => toggleItem(item)}
                         className="flex items-center gap-3 px-4 py-3.5 rounded-lg cursor-pointer transition-all duration-150 rp-check-row"
                         style={{
-                          background: checked ? '#f0faf6' : 'var(--bg-card)',
-                          border: `1px solid ${checked ? '#a7f3d0' : '#e8f5f0'}`,
+                          background: checked ? 'var(--ec-em-bg)' : 'var(--ec-card)',
+                          border: `1px solid ${checked ? 'var(--ec-em-border)' : 'var(--ec-div)'}`,
                         }}
                       >
                         {/* Circular checkbox */}
                         <div
                           className="w-[18px] h-[18px] rounded-full shrink-0 flex items-center justify-center transition-all duration-200"
                           style={{
-                            border: checked ? 'none' : '2px solid #d1d5db',
-                            background: checked ? '#059669' : 'transparent',
+                            border: checked ? 'none' : '2px solid var(--ec-t4)',
+                            background: checked ? 'var(--ec-em)' : 'transparent',
                             transitionTimingFunction: 'cubic-bezier(0.34,1.56,0.64,1)',
                             transform: checked ? 'scale(1)' : 'scale(1)',
                           }}
@@ -390,7 +390,7 @@ export default function RPLog() {
                           className="text-[14px] font-normal transition-all duration-200"
                           style={{
                             ...sans,
-                            color: checked ? '#6ee7b7' : 'var(--text-primary)',
+                            color: checked ? 'var(--ec-em-border)' : 'var(--ec-t1)',
                             textDecoration: checked ? 'line-through' : 'none',
                           }}
                         >
@@ -406,7 +406,7 @@ export default function RPLog() {
 
           {/* Notes Card */}
           <div className="mb-6">
-            <div className="flex items-center gap-2.5 mb-3 pl-3" style={{ borderLeft: '3px solid #64748b' }}>
+            <div className="flex items-center gap-2.5 mb-3 pl-3" style={{ borderLeft: '3px solid var(--ec-t2)' }}>
               <span className="text-sm">{'\uD83D\uDCDD'}</span>
               <span className="text-[13px] font-semibold text-ec-t1 tracking-[0.06em] uppercase" style={sans}>Notes</span>
             </div>
@@ -418,9 +418,9 @@ export default function RPLog() {
               style={{
                 ...sans,
                 minHeight: 80,
-                background: 'var(--bg-card)',
-                border: '1px solid #e8f5f0',
-                color: 'var(--text-primary)',
+                background: 'var(--ec-card)',
+                border: '1px solid var(--ec-div)',
+                color: 'var(--ec-t1)',
                 boxSizing: 'border-box',
               }}
             />
@@ -431,8 +431,8 @@ export default function RPLog() {
         <div className="w-[280px] shrink-0 rp-sidebar">
 
           {/* RP Presence Card */}
-          <div className="rounded-xl border overflow-hidden mb-5" style={{ borderColor: '#e8f5f0', background: 'var(--bg-card)' }}>
-            <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: '1px solid #e8f5f0' }}>
+          <div className="rounded-xl border overflow-hidden mb-5" style={{ borderColor: 'var(--ec-div)', background: 'var(--ec-card)' }}>
+            <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: '1px solid var(--ec-div)' }}>
               <span className="text-sm">{'\uD83D\uDD50'}</span>
               <span className="text-[13px] font-bold text-ec-t1">RP Presence</span>
             </div>
@@ -440,20 +440,20 @@ export default function RPLog() {
               {rpSign?.signedIn ? (
                 <div>
                   <div className="flex items-center gap-2.5 mb-2.5">
-                    <div className="w-2 h-2 rounded-full shrink-0" style={{ background: '#059669', boxShadow: '0 0 0 3px #a7f3d0', animation: 'ecPulse 2s ease-in-out infinite' }} />
-                    <span className="text-[13px] font-medium" style={{ ...sans, color: '#166534' }}>
+                    <div className="w-2 h-2 rounded-full shrink-0" style={{ background: 'var(--ec-em)', boxShadow: '0 0 0 3px var(--ec-em-border)', animation: 'ecPulse 2s ease-in-out infinite' }} />
+                    <span className="text-[13px] font-medium" style={{ ...sans, color: 'var(--ec-em-dark)' }}>
                       Signed in — {rpSign.rpName || rpName}
                     </span>
                   </div>
                   <div className="text-[10px] text-ec-t3 mb-1.5" style={mono}>
                     Signed in at {rpSign.time}
                   </div>
-                  <div className="text-xs font-semibold mb-3" style={{ ...sans, color: '#059669' }}>
+                  <div className="text-xs font-semibold mb-3" style={{ ...sans, color: 'var(--ec-em)' }}>
                     On duty: {elapsed}
                   </div>
 
                   {elapsedMin > 90 && (
-                    <div className="rounded-lg px-3 py-2 mb-3 text-[11px] leading-relaxed" style={{ background: '#fffbeb', border: '1px solid #fde68a', color: '#92400e' }}>
+                    <div className="rounded-lg px-3 py-2 mb-3 text-[11px] leading-relaxed" style={{ background: 'var(--ec-warn-bg)', border: '1px solid var(--ec-warn-border)', color: 'var(--ec-warn-dark)' }}>
                       {'\u26A0'} RP has been on duty for over 90 minutes — log any absence periods
                     </div>
                   )}
@@ -461,7 +461,7 @@ export default function RPLog() {
                   <button
                     onClick={handleSignOut}
                     className="w-full py-2.5 rounded-lg border-none text-[13px] font-bold cursor-pointer transition-colors"
-                    style={{ ...sans, background: '#dc2626', color: 'white' }}
+                    style={{ ...sans, background: 'var(--ec-crit)', color: 'white' }}
                   >
                     Sign Out
                   </button>
@@ -469,8 +469,8 @@ export default function RPLog() {
               ) : (
                 <div>
                   <div className="flex items-center gap-2.5 mb-2">
-                    <div className="w-2 h-2 rounded-full shrink-0" style={{ background: '#ef4444', boxShadow: '0 0 0 3px #fee2e2', animation: 'ecPulse 2s ease-in-out infinite' }} />
-                    <span className="text-[13px] font-medium" style={{ ...sans, color: '#991b1b' }}>
+                    <div className="w-2 h-2 rounded-full shrink-0" style={{ background: 'var(--ec-crit)', boxShadow: '0 0 0 3px var(--ec-crit-bg)', animation: 'ecPulse 2s ease-in-out infinite' }} />
+                    <span className="text-[13px] font-medium" style={{ ...sans, color: 'var(--ec-crit-dark)' }}>
                       No RP signed in
                     </span>
                   </div>
@@ -480,7 +480,7 @@ export default function RPLog() {
                   <button
                     onClick={handleSignIn}
                     className="w-full py-2.5 rounded-lg border-none text-[13px] font-bold cursor-pointer flex items-center justify-center gap-2 transition-colors hover:opacity-90"
-                    style={{ ...sans, background: '#059669', color: 'white' }}
+                    style={{ ...sans, background: 'var(--ec-em)', color: 'white' }}
                   >
                     Sign In as RP <span className="text-base">{'\u2192'}</span>
                   </button>
@@ -490,8 +490,8 @@ export default function RPLog() {
           </div>
 
           {/* Recent Checklists Card */}
-          <div className="rounded-xl border overflow-hidden" style={{ borderColor: '#e8f5f0', background: 'var(--bg-card)' }}>
-            <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: '1px solid #e8f5f0' }}>
+          <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'var(--ec-div)', background: 'var(--ec-card)' }}>
+            <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: '1px solid var(--ec-div)' }}>
               <span className="text-sm">{'\uD83D\uDDC2'}</span>
               <span className="text-[13px] font-bold text-ec-t1">Recent Checklists</span>
             </div>
@@ -506,7 +506,7 @@ export default function RPLog() {
                     <thead>
                       <tr>
                         {['Date', 'RP', 'Done', 'Notes'].map(h => (
-                          <th key={h} className="text-left text-[9px] font-semibold text-ec-t3 uppercase tracking-wider px-1.5 py-1.5" style={{ borderBottom: '1px solid #e8f5f0' }}>
+                          <th key={h} className="text-left text-[9px] font-semibold text-ec-t3 uppercase tracking-wider px-1.5 py-1.5" style={{ borderBottom: '1px solid var(--ec-div)' }}>
                             {h}
                           </th>
                         ))}
@@ -519,10 +519,10 @@ export default function RPLog() {
                         const pct = Math.round((completed / ALL_ITEMS.length) * 100)
                         const isToday = log.date === today
                         const pillColor = pct === 100
-                          ? { bg: '#f0fdf4', color: '#059669', border: '#6ee7b7' }
+                          ? { bg: 'var(--ec-em-bg)', color: 'var(--ec-em)', border: 'var(--ec-em-border)' }
                           : pct > 0
-                          ? { bg: '#fffbeb', color: '#d97706', border: '#fde68a' }
-                          : { bg: '#fef2f2', color: '#dc2626', border: '#fecaca' }
+                          ? { bg: 'var(--ec-warn-bg)', color: 'var(--ec-warn)', border: 'var(--ec-warn-border)' }
+                          : { bg: 'var(--ec-crit-bg)', color: 'var(--ec-crit)', border: 'var(--ec-crit-border)' }
 
                         return (
                           <tr
@@ -530,17 +530,17 @@ export default function RPLog() {
                             onClick={() => loadEntry(log.date)}
                             className="cursor-pointer transition-colors hover:bg-ec-card"
                             style={{
-                              background: i % 2 === 1 ? '#f9fffe' : 'transparent',
+                              background: i % 2 === 1 ? 'var(--ec-card-hover)' : 'transparent',
                               fontWeight: isToday ? 600 : 400,
                             }}
                           >
-                            <td className="py-2 px-1.5 text-[11px] text-ec-t1" style={{ ...mono, borderBottom: '1px solid #f0fdf4' }}>
+                            <td className="py-2 px-1.5 text-[11px] text-ec-t1" style={{ ...mono, borderBottom: '1px solid var(--ec-em-bg)' }}>
                               {formatDate(log.date)}
                             </td>
-                            <td className="py-2 px-1.5 text-[11px] text-ec-t2 max-w-[60px] overflow-hidden text-ellipsis whitespace-nowrap" style={{ ...sans, borderBottom: '1px solid #f0fdf4' }}>
+                            <td className="py-2 px-1.5 text-[11px] text-ec-t2 max-w-[60px] overflow-hidden text-ellipsis whitespace-nowrap" style={{ ...sans, borderBottom: '1px solid var(--ec-em-bg)' }}>
                               {(log.rpName || '').split(' ')[0]}
                             </td>
-                            <td className="py-2 px-1.5" style={{ borderBottom: '1px solid #f0fdf4' }}>
+                            <td className="py-2 px-1.5" style={{ borderBottom: '1px solid var(--ec-em-bg)' }}>
                               <span
                                 className="inline-block text-[10px] font-semibold px-1.5 py-px rounded-full"
                                 style={{ ...mono, background: pillColor.bg, color: pillColor.color, border: `1px solid ${pillColor.border}` }}
@@ -548,7 +548,7 @@ export default function RPLog() {
                                 {completed}/{ALL_ITEMS.length}
                               </span>
                             </td>
-                            <td className="py-2 px-1.5 text-[10px] text-ec-t3 max-w-[80px] overflow-hidden text-ellipsis whitespace-nowrap" style={{ ...sans, borderBottom: '1px solid #f0fdf4' }}>
+                            <td className="py-2 px-1.5 text-[10px] text-ec-t3 max-w-[80px] overflow-hidden text-ellipsis whitespace-nowrap" style={{ ...sans, borderBottom: '1px solid var(--ec-em-bg)' }}>
                               {(log.notes || '').slice(0, 30) || '\u2014'}
                             </td>
                           </tr>
@@ -566,8 +566,8 @@ export default function RPLog() {
       {/* ── Responsive ── */}
       <style>{`
         .rp-check-row:hover {
-          border-color: #10b981 !important;
-          box-shadow: 0 1px 4px rgba(16,185,129,0.1);
+          border-color: var(--ec-em) !important;
+          box-shadow: 0 1px 4px var(--ec-em-faint);
         }
         @media (max-width: 768px) {
           .rp-columns {

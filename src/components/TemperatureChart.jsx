@@ -37,7 +37,7 @@ export default function TemperatureChart({ readings, minRange = 2, maxRange = 8 
         <text x={PAD.l - 5} y={toY(maxRange) + 4} textAnchor="end" fill="rgba(16,185,129,0.5)" fontSize="10">{maxRange}°</text>
 
         {/* Temperature line */}
-        <polyline points={points.join(' ')} fill="none" stroke="#10b981" strokeWidth="2"
+        <polyline points={points.join(' ')} fill="none" stroke="var(--ec-em)" strokeWidth="2"
           strokeLinecap="round" strokeLinejoin="round" />
 
         {/* Data point dots */}
@@ -45,8 +45,8 @@ export default function TemperatureChart({ readings, minRange = 2, maxRange = 8 
           const inRange = r.temperature >= minRange && r.temperature <= maxRange
           return (
             <circle key={i} cx={toX(i)} cy={toY(r.temperature)} r="3.5"
-              fill={inRange ? '#10b981' : '#ef4444'}
-              stroke={inRange ? '#059669' : '#dc2626'} strokeWidth="1.5" />
+              fill={inRange ? 'var(--ec-em)' : 'var(--ec-crit)'}
+              stroke={inRange ? 'var(--ec-em-dark)' : 'var(--ec-crit)'} strokeWidth="1.5" />
           )
         })}
 

@@ -111,7 +111,7 @@ export default function AppraisalDetailPanel({
             <p className="text-sm text-ec-warn m-0 mb-2">This appraisal is awaiting your acknowledgement.</p>
             <button
               onClick={() => onAcknowledge(appraisal.id)}
-              className="px-4 py-1.5 bg-emerald-600 text-white text-sm font-medium rounded-lg border-none cursor-pointer hover:bg-emerald-700"
+              className="px-4 py-1.5 bg-ec-em-dark text-white text-sm font-medium rounded-lg border-none cursor-pointer hover:bg-ec-em-dark"
             >
               Acknowledge Appraisal
             </button>
@@ -125,7 +125,7 @@ export default function AppraisalDetailPanel({
               key={t.key}
               onClick={() => setTab(t.key)}
               className={`px-3 py-2.5 text-sm font-medium border-none cursor-pointer bg-transparent transition-colors whitespace-nowrap
-                ${tab === t.key ? 'text-ec-em border-b-2 border-emerald-600' : 'text-ec-t3 hover:text-ec-t1'}`}
+                ${tab === t.key ? 'text-ec-em border-b-2 border-ec-em' : 'text-ec-t3 hover:text-ec-t1'}`}
               style={tab === t.key ? { borderBottom: '2px solid var(--ec-em)' } : {}}
             >
               {t.label}
@@ -187,7 +187,7 @@ export default function AppraisalDetailPanel({
                     <button
                       onClick={handleSaveComment}
                       disabled={savingComment}
-                      className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-medium rounded-lg border-none cursor-pointer hover:bg-emerald-700 disabled:opacity-50"
+                      className="px-3 py-1.5 bg-ec-em-dark text-white text-xs font-medium rounded-lg border-none cursor-pointer hover:bg-ec-em-dark disabled:opacity-50"
                     >
                       {savingComment ? 'Saving...' : 'Save Comment'}
                     </button>
@@ -295,7 +295,7 @@ export default function AppraisalDetailPanel({
                       onChange={e => setNewGoal(g => ({ ...g, targetDate: e.target.value }))}
                       className="flex-1 p-2 text-sm border border-ec-div rounded bg-ec-card text-ec-t1"
                     />
-                    <button onClick={handleAddGoal} className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-medium rounded border-none cursor-pointer hover:bg-emerald-700">
+                    <button onClick={handleAddGoal} className="px-3 py-1.5 bg-ec-em-dark text-white text-xs font-medium rounded border-none cursor-pointer hover:bg-ec-em-dark">
                       Add
                     </button>
                   </div>
@@ -318,10 +318,10 @@ export default function AppraisalDetailPanel({
                           type="checkbox"
                           checked={a.completed}
                           onChange={e => onUpdateAction(a.id, { completed: e.target.checked })}
-                          className="mt-0.5 accent-emerald-600 print:hidden"
+                          className="mt-0.5 accent-ec-em print:hidden"
                         />
                       ) : (
-                        <div className={`w-4 h-4 rounded border mt-0.5 flex items-center justify-center text-xs ${a.completed ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-ec-div'}`}>
+                        <div className={`w-4 h-4 rounded border mt-0.5 flex items-center justify-center text-xs ${a.completed ? 'bg-ec-em-dark border-ec-em text-white' : 'border-ec-div'}`}>
                           {a.completed && '✓'}
                         </div>
                       )}
@@ -366,7 +366,7 @@ export default function AppraisalDetailPanel({
                       onChange={e => setNewAction(a => ({ ...a, dueDate: e.target.value }))}
                       className="flex-1 p-2 text-sm border border-ec-div rounded bg-ec-card text-ec-t1"
                     />
-                    <button onClick={handleAddAction} className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-medium rounded border-none cursor-pointer hover:bg-emerald-700">
+                    <button onClick={handleAddAction} className="px-3 py-1.5 bg-ec-em-dark text-white text-xs font-medium rounded border-none cursor-pointer hover:bg-ec-em-dark">
                       Add
                     </button>
                   </div>
@@ -396,7 +396,7 @@ export default function AppraisalDetailPanel({
                             <p className="text-xs text-ec-t3 italic m-0">No responses yet.</p>
                           ) : (
                             responses.map((r, i) => (
-                              <p key={i} className="text-xs text-ec-t2 m-0 mb-1 pl-3 border-l-2 border-emerald-200">
+                              <p key={i} className="text-xs text-ec-t2 m-0 mb-1 pl-3 border-l-2 border-ec-em-border">
                                 {r.response}
                               </p>
                             ))
@@ -432,7 +432,7 @@ export default function AppraisalDetailPanel({
           </button>
           <button
             onClick={onClose}
-            className="px-4 py-1.5 text-xs font-medium text-white bg-emerald-600 rounded-lg border-none cursor-pointer hover:bg-emerald-700"
+            className="px-4 py-1.5 text-xs font-medium text-white bg-ec-em-dark rounded-lg border-none cursor-pointer hover:bg-ec-em-dark"
           >
             Close
           </button>

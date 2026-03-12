@@ -165,7 +165,7 @@ export default function NewAppraisalForm({
                 </select>
               </div>
               <label className="flex items-center gap-2 text-sm text-ec-t2 cursor-pointer">
-                <input type="checkbox" checked={isConfidential} onChange={e => setIsConfidential(e.target.checked)} className="accent-emerald-600" />
+                <input type="checkbox" checked={isConfidential} onChange={e => setIsConfidential(e.target.checked)} className="accent-ec-em" />
                 Mark as confidential (superintendent only)
               </label>
               {carryOverGoals.length > 0 && (
@@ -274,7 +274,7 @@ export default function NewAppraisalForm({
               ))}
               <button
                 onClick={() => setGoals([...goals, { goalText: '', targetDate: '', status: 'Not Started', isCarryOver: false }])}
-                className="w-full p-2 text-sm text-ec-em bg-transparent border border-dashed border-emerald-300 rounded-lg cursor-pointer hover:bg-emerald-50"
+                className="w-full p-2 text-sm text-ec-em bg-transparent border border-dashed border-ec-em-border rounded-lg cursor-pointer hover:bg-ec-em-faint"
               >
                 + Add Goal
               </button>
@@ -329,7 +329,7 @@ export default function NewAppraisalForm({
               ))}
               <button
                 onClick={() => setActions([...actions, { actionText: '', owner: staffName, dueDate: '' }])}
-                className="w-full p-2 text-sm text-ec-em bg-transparent border border-dashed border-emerald-300 rounded-lg cursor-pointer hover:bg-emerald-50"
+                className="w-full p-2 text-sm text-ec-em bg-transparent border border-dashed border-ec-em-border rounded-lg cursor-pointer hover:bg-ec-em-faint"
               >
                 + Add Action
               </button>
@@ -366,7 +366,7 @@ export default function NewAppraisalForm({
                           if (e.target.checked) setPeerFeedbackNames([...peerFeedbackNames, s])
                           else setPeerFeedbackNames(peerFeedbackNames.filter(n => n !== s))
                         }}
-                        className="accent-emerald-600"
+                        className="accent-ec-em"
                       />
                       {s}
                     </label>
@@ -398,7 +398,7 @@ export default function NewAppraisalForm({
                 <button
                   onClick={() => handleSave('Completed')}
                   disabled={saving}
-                  className="px-4 py-1.5 text-sm font-medium text-white bg-emerald-600 rounded-lg border-none cursor-pointer hover:bg-emerald-700 disabled:opacity-50"
+                  className="px-4 py-1.5 text-sm font-medium text-white bg-ec-em-dark rounded-lg border-none cursor-pointer hover:bg-ec-em-dark disabled:opacity-50"
                 >
                   {saving ? 'Saving...' : 'Complete'}
                 </button>
@@ -407,7 +407,7 @@ export default function NewAppraisalForm({
               <button
                 onClick={handleNext}
                 disabled={!canProceed()}
-                className="px-4 py-1.5 text-sm font-medium text-white bg-emerald-600 rounded-lg border-none cursor-pointer hover:bg-emerald-700 disabled:opacity-50"
+                className="px-4 py-1.5 text-sm font-medium text-white bg-ec-em-dark rounded-lg border-none cursor-pointer hover:bg-ec-em-dark disabled:opacity-50"
               >
                 Next
               </button>

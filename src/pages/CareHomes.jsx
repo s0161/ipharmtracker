@@ -10,7 +10,7 @@ function ComingSoonTab({ title, description }) {
   return (
     <div className="relative overflow-hidden rounded-xl border border-ec-div bg-ec-card p-8">
       <div className="absolute top-4 right-4">
-        <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+        <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full bg-ec-em-faint text-ec-em border border-ec-em/20">
           Coming Soon
         </span>
       </div>
@@ -69,7 +69,7 @@ function OverviewPanel({ home, contacts, flags }) {
               <span className="text-ec-t3">Days</span>
               <div className="flex gap-1.5">
                 {deliveryDays.length > 0 ? deliveryDays.map(d => (
-                  <span key={d} className="px-2 py-0.5 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-600">{d}</span>
+                  <span key={d} className="px-2 py-0.5 text-xs font-medium rounded-full bg-ec-em-faint text-ec-em">{d}</span>
                 )) : <span className="text-ec-t3">—</span>}
               </div>
             </div>
@@ -79,7 +79,7 @@ function OverviewPanel({ home, contacts, flags }) {
           {/* Status badges */}
           <div className="mt-5 pt-4 border-t border-ec-div flex flex-wrap gap-2">
             {lastDeliveryFlag && (
-              <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600">{lastDeliveryFlag.flagLabel || lastDeliveryFlag.flag_label}</span>
+              <span className="text-xs px-2.5 py-1 rounded-full bg-ec-em-faint text-ec-em">{lastDeliveryFlag.flagLabel || lastDeliveryFlag.flag_label}</span>
             )}
             {lastAuditFlag && (
               <span className="text-xs px-2.5 py-1 rounded-full bg-ec-info/10 text-ec-info">{lastAuditFlag.flagLabel || lastAuditFlag.flag_label}</span>
@@ -114,7 +114,7 @@ function OverviewPanel({ home, contacts, flags }) {
                     <td className="py-2.5 text-ec-t1 font-medium">
                       {c.name}
                       {(c.isPrimary || c.is_primary) && (
-                        <span className="ml-2 text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600">PRIMARY</span>
+                        <span className="ml-2 text-[9px] font-bold px-1.5 py-0.5 rounded bg-ec-em-faint text-ec-em">PRIMARY</span>
                       )}
                     </td>
                     <td className="py-2.5 text-ec-t2 font-mono text-xs">{c.phone || '—'}</td>
@@ -131,7 +131,7 @@ function OverviewPanel({ home, contacts, flags }) {
       <div className="flex flex-wrap gap-2">
         {['Log Delivery', 'Request Collection', 'View MAR', 'Contact Home'].map(label => (
           <button key={label}
-            className="px-4 py-2 text-xs font-semibold rounded-lg border border-ec-div bg-ec-card text-ec-t2 cursor-pointer hover:bg-ec-bg hover:text-ec-t1 hover:border-emerald-500/30 transition-all">
+            className="px-4 py-2 text-xs font-semibold rounded-lg border border-ec-div bg-ec-card text-ec-t2 cursor-pointer hover:bg-ec-bg hover:text-ec-t1 hover:border-ec-em/30 transition-all">
             {label}
           </button>
         ))}
@@ -156,7 +156,7 @@ function DetailPanel({ home, contacts, flags }) {
             onClick={() => setActiveTab(tab)}
             className={`px-4 py-2 text-xs font-semibold rounded-t-lg border-none cursor-pointer transition-all whitespace-nowrap
               ${activeTab === tab
-                ? 'bg-ec-card text-emerald-600 border-b-2 border-emerald-500 shadow-sm'
+                ? 'bg-ec-card text-ec-em border-b-2 border-ec-em shadow-sm'
                 : 'bg-transparent text-ec-t3 hover:text-ec-t1'}`}
           >
             {tab}
@@ -233,7 +233,7 @@ export default function CareHomes() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="w-8 h-8 border-[3px] border-emerald-200 border-t-emerald-600 rounded-full animate-spin" />
+        <div className="w-8 h-8 border-[3px] border-ec-em-border border-t-ec-em rounded-full animate-spin" />
       </div>
     )
   }
@@ -262,8 +262,8 @@ export default function CareHomes() {
               onClick={() => setSelectedIdx(idx)}
               className={`relative text-left p-3 rounded-xl border cursor-pointer transition-all
                 ${isActive
-                  ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-500/20 scale-[1.02]'
-                  : 'bg-ec-card border-ec-div hover:shadow-md hover:border-emerald-500/30'}`}
+                  ? 'bg-ec-em-dark border-ec-em text-white shadow-lg shadow-ec-em/20 scale-[1.02]'
+                  : 'bg-ec-card border-ec-div hover:shadow-md hover:border-ec-em/30'}`}
             >
               {/* Alert dot */}
               {hasAlert && !isActive && (
@@ -275,10 +275,10 @@ export default function CareHomes() {
               <div className={`text-sm font-semibold truncate ${isActive ? 'text-white' : 'text-ec-t1'}`}>
                 {home.name}
               </div>
-              <div className={`text-xs mt-1 ${isActive ? 'text-emerald-100' : 'text-ec-t3'}`}>
+              <div className={`text-xs mt-1 ${isActive ? 'text-white/80' : 'text-ec-t3'}`}>
                 {resCount} residents
               </div>
-              <div className={`text-[10px] mt-1.5 truncate ${isActive ? 'text-emerald-200' : 'text-ec-t3'}`}>
+              <div className={`text-[10px] mt-1.5 truncate ${isActive ? 'text-white/60' : 'text-ec-t3'}`}>
                 {home.tagline || (home._isSeed ? '' : (home.address || '').split(',')[0])}
               </div>
             </button>

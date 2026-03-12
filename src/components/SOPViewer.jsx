@@ -18,7 +18,7 @@ const CATEGORY_STYLES = {
 }
 
 const STATUS_STYLES = {
-  Current: 'bg-ec-em/10 text-ec-em dark:text-emerald-400',
+  Current: 'bg-ec-em/10 text-ec-em',
   'Due Review': 'bg-ec-warn/10 text-ec-warn dark:text-amber-400',
   Overdue: 'bg-ec-crit/10 text-ec-crit',
 }
@@ -31,7 +31,7 @@ const RISK_STYLES = {
 }
 
 const FREQ_STYLES = {
-  Daily: 'bg-ec-em/10 text-ec-em dark:text-emerald-400',
+  Daily: 'bg-ec-em/10 text-ec-em',
   Weekly: 'bg-ec-info/10 text-ec-info dark:text-blue-400',
   Monthly: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
   'As Required': 'bg-ec-bg text-ec-t3',
@@ -195,7 +195,7 @@ export default function SOPViewer({ sop, acks = [], onClose, onAcknowledge, onFl
                 className="h-full rounded-full transition-all"
                 style={{
                   width: `${ackPct}%`,
-                  backgroundColor: ackPct === 100 ? '#059669' : ackPct >= 70 ? '#10b981' : '#f59e0b',
+                  backgroundColor: ackPct === 100 ? 'var(--ec-em-dark)' : ackPct >= 70 ? 'var(--ec-em)' : 'var(--ec-warn)',
                 }}
               />
             </div>
@@ -227,7 +227,7 @@ export default function SOPViewer({ sop, acks = [], onClose, onAcknowledge, onFl
             <SectionHeader icon={ICONS.people}>Applies To</SectionHeader>
             <div className="flex flex-wrap gap-1.5">
               {(sop.roles || []).includes('all') ? (
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-ec-em/10 text-ec-em dark:text-emerald-400">
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-ec-em/10 text-ec-em">
                   All Staff
                 </span>
               ) : (
@@ -316,7 +316,7 @@ export default function SOPViewer({ sop, acks = [], onClose, onAcknowledge, onFl
                       <span className="text-sm font-medium text-ec-t1">{item.risk}</span>
                     </div>
                     <div className="flex items-start gap-2 ml-0.5">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-ec-em dark:text-emerald-400 bg-ec-em/10 px-2 py-0.5 rounded-md shrink-0">Mitigation</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-ec-em bg-ec-em/10 px-2 py-0.5 rounded-md shrink-0">Mitigation</span>
                       <span className="text-sm text-ec-t2 leading-relaxed">{item.mitigation}</span>
                     </div>
                   </div>
@@ -383,7 +383,7 @@ export default function SOPViewer({ sop, acks = [], onClose, onAcknowledge, onFl
 
             {acknowledged.length > 0 && (
               <div className="mb-3">
-                <div className="text-[10px] font-bold text-ec-em dark:text-emerald-400 uppercase tracking-wider mb-1.5">
+                <div className="text-[10px] font-bold text-ec-em uppercase tracking-wider mb-1.5">
                   Acknowledged ({acknowledged.length})
                 </div>
                 <div className="space-y-1">
@@ -391,7 +391,7 @@ export default function SOPViewer({ sop, acks = [], onClose, onAcknowledge, onFl
                     const ack = acks.find(a => a.name === s.name)
                     return (
                       <div key={s.name} className="flex items-center gap-2.5 py-1.5 px-3 rounded-lg bg-ec-em/[0.04]">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-emerald-500 shrink-0">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-ec-em shrink-0">
                           <polyline points="20 6 9 17 4 12" />
                         </svg>
                         <span className="text-sm text-ec-t1 font-medium">{s.name}</span>
@@ -538,7 +538,7 @@ export default function SOPViewer({ sop, acks = [], onClose, onAcknowledge, onFl
         >
           <button
             onClick={onAcknowledge}
-            className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold bg-emerald-600 text-white border-none cursor-pointer hover:bg-emerald-700 transition shadow-sm"
+            className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold bg-ec-em-dark text-white border-none cursor-pointer hover:bg-ec-em-dark transition shadow-sm"
           >
             Acknowledge SOP
           </button>

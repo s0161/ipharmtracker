@@ -59,7 +59,7 @@ export default function StickyKeys({ keys, onKeyPress, showFridge, fridgeVal, on
           >
             {st?.d ? (
               <>
-                <div className="ec-checkpop"><Check s={14} c="#10b981" /></div>
+                <div className="ec-checkpop"><Check s={14} c="var(--ec-em)" /></div>
                 <span className="text-[10px] text-ec-em font-semibold tabular-nums">
                   {st.t}{isFr && st.v ? ` · ${st.v}°C` : ''}
                 </span>
