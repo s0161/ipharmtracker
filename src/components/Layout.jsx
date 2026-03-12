@@ -151,7 +151,7 @@ export default function Layout({ children }) {
 
   return (
     <div
-      className="min-h-screen bg-ec-bg font-sans"
+      className="min-h-screen font-sans"
     >
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
@@ -180,6 +180,18 @@ export default function Layout({ children }) {
         )}
 
         <div className={isDashboard ? '' : 'px-4 lg:px-9 py-6 pb-20 lg:pb-6'}>
+          {!isDashboard && (
+            <div
+              className="rounded-xl mb-6 px-6 py-5"
+              style={{
+                background: 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(99,91,255,0.05) 100%)',
+                border: '1px solid rgba(16,185,129,0.15)',
+              }}
+            >
+              <h1 className="text-lg font-bold text-ec-t1 leading-tight">{title}</h1>
+              <p className="text-xs text-ec-t3 mt-0.5">Manage and track your {title.toLowerCase()}</p>
+            </div>
+          )}
           {children}
         </div>
       </main>

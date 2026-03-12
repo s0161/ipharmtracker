@@ -163,8 +163,9 @@ function TaskRow({ task, onToggle }) {
 function ComplianceCard({ item, expanded, onToggle }) {
   return (
     <div onClick={onToggle} style={{
-      background: "var(--ec-card)", borderRadius: 10, padding: "10px 12px",
-      border: "1px solid var(--ec-div)", cursor: "pointer",
+      background: "linear-gradient(145deg, var(--surface) 0%, #f8fffe 100%)",
+      borderRadius: 10, padding: "10px 12px",
+      border: "1.5px solid rgba(16,185,129,0.2)", cursor: "pointer",
       boxShadow: expanded ? "0 2px 10px rgba(0,0,0,0.06)" : "none",
       transition: "all 0.2s", position: "relative", overflow: "hidden",
     }}>
@@ -560,7 +561,7 @@ export default function Dashboard() {
   // ── Loading ──
   if (loading) {
     return (
-      <div style={{ fontFamily: "'Inter', sans-serif", background: "var(--ec-bg)", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ fontFamily: "'Inter', sans-serif", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ textAlign: "center", color: "var(--ec-z6)" }}>
           <div style={{ marginBottom: 8 }}><SvgChart size={32} /></div>
           <div style={{ fontSize: 14, fontWeight: 600 }}>Loading Dashboard...</div>
@@ -572,42 +573,52 @@ export default function Dashboard() {
   const firstName = user?.name?.split(" ")[0] || "there";
 
   return (
-    <div style={{ fontFamily: "'Inter', sans-serif", background: "var(--ec-bg)", minHeight: "100vh" }}>
-
-      {/* Topbar — clean white, matches all other pages */}
-      <div style={{
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "11px 22px",
-        background: "var(--surface)",
-        borderBottom: "1px solid var(--border)",
-        position: "sticky", top: 0, zIndex: 10,
-      }}>
-        <div>
-          <div style={{ fontSize: 17, fontWeight: 700, color: "var(--text)", letterSpacing: "-0.02em" }}>{getGreeting()}, {firstName}</div>
-          <div style={{ fontSize: 11, color: "var(--text-3)" }}>{dateStr} · {timeStr}</div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          {[
-            { label: "Overall", val: `${overallPct}%`, bg: "var(--em-light)", color: "var(--em)", borderColor: "transparent" },
-            { label: "Overdue", val: String(overdueCount), bg: overdueCount > 0 ? "var(--red-light)" : "var(--surface)", color: overdueCount > 0 ? "var(--red)" : "var(--text)", borderColor: "var(--border)" },
-            { label: "Due Today", val: String(dueTodayCount), bg: dueTodayCount > 0 ? "var(--amber-light)" : "var(--surface)", color: dueTodayCount > 0 ? "var(--amber)" : "var(--text)", borderColor: "var(--border)" },
-          ].map(k => (
-            <div key={k.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "4px 12px", borderRadius: 20, background: k.bg, border: `1.5px solid ${k.borderColor}` }}>
-              <span style={{ fontSize: 14, fontWeight: 800, color: k.color, lineHeight: 1, fontFamily: "'DM Mono', 'SF Mono', monospace" }}>{k.val}</span>
-              <span style={{ fontSize: 9, color: "var(--text-3)", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>{k.label}</span>
-            </div>
-          ))}
-          <div style={{ position: "relative", cursor: "pointer", padding: "5px 8px" }}>
-            <SvgBell size={17} color="var(--text-3)" />
-            {unreadCount > 0 && (
-              <div style={{ position: "absolute", top: 1, right: 3, width: 15, height: 15, borderRadius: "50%", background: "var(--red)", fontSize: 8, fontWeight: 700, color: "white", display: "flex", alignItems: "center", justifyContent: "center" }}>{unreadCount}</div>
-            )}
-          </div>
-          <div style={{ padding: "4px 9px", borderRadius: 7, background: "var(--surface)", color: "var(--text)", fontSize: 11, fontWeight: 700, border: "1.5px solid var(--border)" }}>{pharmacyConfig.gphcNumber || "—"}</div>
-        </div>
-      </div>
+    <div style={{ fontFamily: "'Inter', sans-serif", minHeight: "100vh" }}>
 
       <div style={{ padding: "14px 20px", maxWidth: 1100, margin: "0 auto" }}>
+
+        {/* Hero Banner — dark gradient */}
+        <div style={{
+          background: "linear-gradient(135deg, #0a2540 0%, #0f3d2b 45%, #1a1a4e 100%)",
+          borderRadius: 14, padding: "28px 32px", marginBottom: 24,
+          position: "relative", overflow: "hidden",
+          boxShadow: "0 8px 32px rgba(10,37,64,0.25)",
+        }}>
+          {/* Glow blobs */}
+          <div style={{ position: "absolute", top: -60, right: -60, width: 280, height: 280, background: "radial-gradient(circle, rgba(16,185,129,0.3) 0%, transparent 60%)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", bottom: -40, left: "30%", width: 200, height: 200, background: "radial-gradient(circle, rgba(99,91,255,0.2) 0%, transparent 60%)", pointerEvents: "none" }} />
+
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative", zIndex: 1, flexWrap: "wrap", gap: 16 }}>
+            <div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: "white", letterSpacing: "-0.02em" }}>{getGreeting()}, {firstName}</div>
+              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", fontFamily: "'DM Mono', 'SF Mono', monospace" }}>{dateStr} · {timeStr}</div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+              {[
+                { label: "Overall", val: `${overallPct}%`, bg: "rgba(255,255,255,0.1)", border: "rgba(255,255,255,0.2)" },
+                { label: "Overdue", val: String(overdueCount), bg: overdueCount > 0 ? "rgba(239,68,68,0.25)" : "rgba(255,255,255,0.1)", border: overdueCount > 0 ? "rgba(239,68,68,0.4)" : "rgba(255,255,255,0.2)" },
+                { label: "Due Today", val: String(dueTodayCount), bg: dueTodayCount > 0 ? "rgba(245,158,11,0.25)" : "rgba(255,255,255,0.1)", border: dueTodayCount > 0 ? "rgba(245,158,11,0.4)" : "rgba(255,255,255,0.2)" },
+              ].map(k => (
+                <div key={k.label} style={{
+                  display: "flex", flexDirection: "column", alignItems: "center",
+                  padding: "5px 14px", borderRadius: 20,
+                  background: k.bg, border: `1px solid ${k.border}`,
+                  backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)",
+                }}>
+                  <span style={{ fontSize: 16, fontWeight: 800, color: "white", lineHeight: 1, fontFamily: "'DM Mono', 'SF Mono', monospace" }}>{k.val}</span>
+                  <span style={{ fontSize: 9, color: "rgba(255,255,255,0.6)", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>{k.label}</span>
+                </div>
+              ))}
+              <div style={{ position: "relative", cursor: "pointer", padding: "5px 8px" }}>
+                <SvgBell size={17} color="rgba(255,255,255,0.7)" />
+                {unreadCount > 0 && (
+                  <div style={{ position: "absolute", top: 1, right: 3, width: 15, height: 15, borderRadius: "50%", background: "var(--red)", fontSize: 8, fontWeight: 700, color: "white", display: "flex", alignItems: "center", justifyContent: "center" }}>{unreadCount}</div>
+                )}
+              </div>
+              <div style={{ padding: "4px 9px", borderRadius: 7, background: "rgba(255,255,255,0.1)", color: "white", fontSize: 11, fontWeight: 700, border: "1px solid rgba(255,255,255,0.2)" }}>{pharmacyConfig.gphcNumber || "—"}</div>
+            </div>
+          </div>
+        </div>
 
         {/* ── RP Banner ── */}
         <div style={{
@@ -632,7 +643,7 @@ export default function Dashboard() {
           {rpSigned && (
             <span style={{
               padding: "6px 14px", borderRadius: 8,
-              background: "var(--ec-em)", color: "white",
+              background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", color: "white", boxShadow: "0 2px 8px rgba(16,185,129,0.3)",
               fontSize: 12, fontWeight: 700,
             }}>
               <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><SvgCheck size={10} color="white" /> Signed In</span>
@@ -685,7 +696,7 @@ export default function Dashboard() {
               style={{ flex: 1, padding: "7px 12px", borderRadius: 8, fontSize: 12, border: "1px solid var(--ec-div)", outline: "none", fontFamily: "'Inter', sans-serif", background: "var(--ec-card)" }}
             />
             <button onClick={addTodo}
-              style={{ padding: "7px 14px", borderRadius: 8, border: "none", cursor: "pointer", background: "var(--ec-em)", color: "white", fontSize: 12, fontWeight: 600, fontFamily: "'Inter', sans-serif" }}>
+              style={{ padding: "7px 14px", borderRadius: 8, border: "none", cursor: "pointer", background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", color: "white", boxShadow: "0 2px 8px rgba(16,185,129,0.3)", fontSize: 12, fontWeight: 600, fontFamily: "'Inter', sans-serif" }}>
               + Add
             </button>
           </div>
@@ -766,7 +777,7 @@ export default function Dashboard() {
             {/* ── CD Balance Check ── */}
             <div style={{ ...card, overflow: "hidden" }}>
               <CardHeader
-                variant="teal"
+                variant="crit"
                 icon={<SvgPill size={14} />} title="CD Balance Check"
                 right={
                   cdCheckStatus.isDone
@@ -797,7 +808,7 @@ export default function Dashboard() {
                   </div>
                   <button
                     onClick={handleCDCheck}
-                    style={{ fontSize: 11, fontWeight: 600, padding: "5px 14px", borderRadius: 8, border: "none", background: "var(--ec-em)", color: "white", cursor: "pointer" }}
+                    style={{ fontSize: 11, fontWeight: 600, padding: "5px 14px", borderRadius: 8, border: "none", background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", color: "white", boxShadow: "0 2px 8px rgba(16,185,129,0.3)", cursor: "pointer" }}
                   >
                     Mark Complete
                   </button>

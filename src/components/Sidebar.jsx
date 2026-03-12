@@ -108,31 +108,29 @@ export default function Sidebar({ open, onClose }) {
           transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
           lg:translate-x-0 ${open ? 'translate-x-0 shadow-[8px_0_32px_rgba(10,37,64,0.08)]' : '-translate-x-full'}`}
       >
-        {/* Emerald gradient edge — subtle accent on white sidebar */}
+        {/* Brand — gradient logo area */}
         <div
-          className="absolute left-0 top-0 w-[2px] h-1/3 pointer-events-none"
-          style={{ background: 'linear-gradient(to bottom, var(--em) 0%, rgba(16,185,129,0.2) 60%, transparent 100%)' }}
-        />
-
-        {/* Brand */}
-        <div className="flex items-center gap-2.5 px-4 py-5 border-b border-ec-div">
+          className="flex items-center gap-2.5 px-5 py-5"
+          style={{ background: 'linear-gradient(135deg, #0f2d1e 0%, #1a3a4a 100%)' }}
+        >
           <div
             className="w-[30px] h-[30px] rounded-lg flex items-center justify-center text-[9px] font-extrabold text-white tracking-tighter"
             style={{
-              background: 'linear-gradient(135deg, var(--ec-em), var(--ec-em-dark))',
-              boxShadow: '0 2px 8px rgba(5,150,105,0.25)',
+              background: 'linear-gradient(135deg, #10b981, #059669)',
+              boxShadow: '0 2px 8px rgba(16,185,129,0.4)',
             }}
           >
             {brandInitials}
           </div>
           <div>
-            <div className="text-[13px] font-bold text-ec-t1 leading-tight">{brandParts.slice(0, -1).join(' ') || brandName}</div>
-            <div className="text-[9px] font-semibold text-ec-t3 tracking-[1.5px] uppercase">{brandParts.length > 1 ? brandParts[brandParts.length - 1] : ''}</div>
+            <div className="text-[13px] font-bold text-white leading-tight">{brandParts.slice(0, -1).join(' ') || brandName}</div>
+            <div className="text-[9px] font-semibold tracking-[1.5px] uppercase" style={{ color: 'rgba(255,255,255,0.55)' }}>{brandParts.length > 1 ? brandParts[brandParts.length - 1] : ''}</div>
           </div>
           {/* Mobile close */}
           <button
             onClick={onClose}
-            className="ml-auto bg-transparent border-none text-ec-t3 cursor-pointer text-lg p-1 lg:hidden"
+            className="ml-auto bg-transparent border-none cursor-pointer text-lg p-1 lg:hidden"
+            style={{ color: 'rgba(255,255,255,0.6)' }}
           >
             ✕
           </button>
@@ -157,17 +155,33 @@ export default function Sidebar({ open, onClose }) {
                     end={item.to === '/'}
                     onClick={onClose}
                     className={({ isActive }) =>
-                      `flex items-center gap-2 w-[calc(100%-16px)] mx-2 my-px px-3 py-2 rounded-[7px]
+                      `flex items-center gap-2 w-full my-px py-2
                        border-none cursor-pointer text-[13px] text-left no-underline
                        transition-all duration-150 ease-in-out
                        ${isActive
-                        ? 'font-semibold shadow-sm'
-                        : 'font-normal hover:bg-ec-card-hover'
+                        ? 'font-semibold'
+                        : 'font-normal'
                       }`
                     }
+                    onMouseEnter={e => {
+                      if (!e.currentTarget.classList.contains('font-semibold')) {
+                        e.currentTarget.style.background = 'rgba(16,185,129,0.05)';
+                      }
+                    }}
+                    onMouseLeave={e => {
+                      if (!e.currentTarget.classList.contains('font-semibold')) {
+                        e.currentTarget.style.background = 'transparent';
+                      }
+                    }}
                     style={({ isActive }) => ({
-                      backgroundColor: isActive ? 'var(--em-glow)' : 'transparent',
-                      color: isActive ? 'var(--em)' : undefined,
+                      background: isActive
+                        ? 'linear-gradient(90deg, rgba(16,185,129,0.12) 0%, rgba(16,185,129,0.04) 100%)'
+                        : 'transparent',
+                      color: isActive ? '#10b981' : undefined,
+                      borderLeft: isActive ? '3px solid #10b981' : '3px solid transparent',
+                      borderRadius: isActive ? '0 7px 7px 0' : '7px',
+                      paddingLeft: isActive ? '17px' : '20px',
+                      paddingRight: '12px',
                     })}
                   >
                     {({ isActive }) => (

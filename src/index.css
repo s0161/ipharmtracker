@@ -18,7 +18,7 @@
 }
 :focus:not(:focus-visible) { outline: none; }
 
-/* Emerald Command animation utility classes */
+/* Emerald Command animation & gradient utility classes */
 @layer utilities {
   .ec-ring-anim { animation: ecRingFill 1s cubic-bezier(0.4,0,0.2,1) forwards; }
   .ec-fadeup { animation: ecFadeUp 0.6s cubic-bezier(0.16,1,0.3,1) both; }
@@ -29,6 +29,19 @@
   .ec-flash { animation: ecFlash 0.8s ease-out forwards; }
   .ec-slidedown { animation: ecSlideDown 0.2s ease-out; }
   .ec-bellshake { animation: ecBellShake 0.5s ease-in-out; }
+
+  /* Gradient stat cards */
+  .ec-card-green { background: linear-gradient(145deg, var(--surface) 0%, #f0fdf8 100%); border-top: 3px solid #10b981; }
+  .ec-card-amber { background: linear-gradient(145deg, var(--surface) 0%, #fffbeb 100%); border-top: 3px solid #f59e0b; }
+  .ec-card-purple { background: linear-gradient(145deg, var(--surface) 0%, #f5f3ff 100%); border-top: 3px solid #635bff; }
+  .ec-card-blue { background: linear-gradient(145deg, var(--surface) 0%, #eff6ff 100%); border-top: 3px solid #0073e6; }
+  .ec-card-red { background: linear-gradient(145deg, var(--surface) 0%, #fef2f2 100%); border-top: 3px solid #ef4444; }
+
+  [data-theme="dark"] .ec-card-green { background: linear-gradient(145deg, #111916 0%, #132016 100%); }
+  [data-theme="dark"] .ec-card-amber { background: linear-gradient(145deg, #111916 0%, #1c1a0f 100%); }
+  [data-theme="dark"] .ec-card-purple { background: linear-gradient(145deg, #111916 0%, #13111f 100%); }
+  [data-theme="dark"] .ec-card-blue { background: linear-gradient(145deg, #111916 0%, #0f1520 100%); }
+  [data-theme="dark"] .ec-card-red { background: linear-gradient(145deg, #111916 0%, #1a1010 100%); }
 }
 
 /* ═══════════════════════════════════════════════
@@ -318,12 +331,12 @@
   border-color: var(--ec-crit-border);
 }
 
-/* ── Scrollbar — Stripe-style thin ─────────── */
-::-webkit-scrollbar { width: 6px; height: 6px; }
+/* ── Scrollbar — gradient emerald ─────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--ec-t4); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--ec-t3); }
-* { scrollbar-width: thin; scrollbar-color: var(--ec-t4) transparent; }
+::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #10b981, #059669); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #059669, #047857); }
+* { scrollbar-width: thin; scrollbar-color: #10b981 transparent; }
 
 /* ── Page load animation ──────────────────── */
 .fade-up {
@@ -355,11 +368,24 @@ html {
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: var(--text);
-  background: var(--bg);
+  background-color: #f0faf6;
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(16,185,129,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 0%, rgba(99,91,255,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(0,115,230,0.05) 0%, transparent 50%);
+  background-attachment: fixed;
   line-height: 1.6;
   overflow-x: hidden;
   overscroll-behavior-x: none;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+}
+
+[data-theme="dark"] body {
+  background-color: #0a0f0d;
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(16,185,129,0.07) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 0%, rgba(99,91,255,0.07) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(0,115,230,0.05) 0%, transparent 50%);
 }
 
 a {
