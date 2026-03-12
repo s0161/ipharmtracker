@@ -105,7 +105,7 @@ export default function Appraisals() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-3 border-emerald-200 border-t-emerald-600 rounded-full animate-spin" />
+        <div className="w-8 h-8 border-3 border-ec-em-border border-t-ec-em rounded-full animate-spin" />
       </div>
     )
   }
@@ -120,7 +120,7 @@ export default function Appraisals() {
         {isElevated && (
           <button
             onClick={() => setShowNewForm(true)}
-            className="px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg border-none cursor-pointer hover:bg-emerald-700 shadow-sm"
+            className="px-4 py-2 bg-ec-em-dark text-white text-sm font-semibold rounded-lg border-none cursor-pointer hover:bg-ec-em-dark shadow-sm"
           >
             + New Appraisal
           </button>
@@ -414,7 +414,7 @@ function ManagerView({
           ))}
         </select>
         <label className="flex items-center gap-1.5 text-sm text-ec-t2 cursor-pointer">
-          <input type="checkbox" checked={filterOverdue} onChange={e => setFilterOverdue(e.target.checked)} className="accent-emerald-600" />
+          <input type="checkbox" checked={filterOverdue} onChange={e => setFilterOverdue(e.target.checked)} className="accent-ec-em" />
           Overdue only
         </label>
       </div>

@@ -46,7 +46,7 @@ export default function MARIssuesTab({ home, issues, patients, isElevated, user,
         <h3 className="text-sm font-semibold text-ec-t1">MAR Issues</h3>
         {isElevated && (
           <button onClick={() => setAdding(!adding)}
-            className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-lg border-none cursor-pointer hover:bg-emerald-700 shadow-sm">
+            className="px-3 py-1.5 bg-ec-em-dark text-white text-xs font-semibold rounded-lg border-none cursor-pointer hover:bg-ec-em-dark shadow-sm">
             Report Issue
           </button>
         )}
@@ -58,21 +58,21 @@ export default function MARIssuesTab({ home, issues, patients, isElevated, user,
             <div>
               <label className="block text-xs font-medium text-ec-t2 mb-1">Issue Type</label>
               <select value={form.issueType} onChange={e => setForm(f => ({ ...f, issueType: e.target.value }))}
-                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
+                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-ec-em/30">
                 {MAR_ISSUE_TYPES.map(t => <option key={t}>{t}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-ec-t2 mb-1">Severity</label>
               <select value={form.severity} onChange={e => setForm(f => ({ ...f, severity: e.target.value }))}
-                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
+                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-ec-em/30">
                 {MAR_SEVERITIES.map(s => <option key={s}>{s}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-ec-t2 mb-1">Patient</label>
               <select value={form.patientId} onChange={e => setForm(f => ({ ...f, patientId: e.target.value }))}
-                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
+                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-ec-em/30">
                 <option value="">— None —</option>
                 {(patients || []).map(p => (
                   <option key={p.id} value={p.id}>{p.patientName || p.patient_name}</option>
@@ -83,10 +83,10 @@ export default function MARIssuesTab({ home, issues, patients, isElevated, user,
           <div>
             <label className="block text-xs font-medium text-ec-t2 mb-1">Description *</label>
             <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3} required
-              className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 resize-none" />
+              className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-ec-em/30 resize-none" />
           </div>
           <div className="flex gap-2">
-            <button type="submit" className="px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg border-none cursor-pointer hover:bg-emerald-700 shadow-sm">Report</button>
+            <button type="submit" className="px-4 py-2 bg-ec-em-dark text-white text-sm font-semibold rounded-lg border-none cursor-pointer hover:bg-ec-em-dark shadow-sm">Report</button>
             <button type="button" onClick={() => setAdding(false)} className="px-4 py-2 text-sm text-ec-t2 border border-ec-div rounded-lg bg-ec-card cursor-pointer hover:bg-ec-bg">Cancel</button>
           </div>
         </form>
@@ -124,7 +124,7 @@ export default function MARIssuesTab({ home, issues, patients, isElevated, user,
                   <span className="text-xs text-ec-t3">Reported by {issue.reportedBy || issue.reported_by || 'Unknown'}</span>
 
                   {issue.status === 'Resolved' ? (
-                    <span className="text-xs text-emerald-600">
+                    <span className="text-xs text-ec-em">
                       Resolved by {issue.resolvedBy || issue.resolved_by}
                       {(issue.resolutionNote || issue.resolution_note) && ` — ${issue.resolutionNote || issue.resolution_note}`}
                     </span>
@@ -137,7 +137,7 @@ export default function MARIssuesTab({ home, issues, patients, isElevated, user,
                         </button>
                       )}
                       <button onClick={() => setResolvingId(isResolving ? null : issue.id)}
-                        className="text-xs text-emerald-600 hover:text-emerald-700 cursor-pointer bg-transparent border-none font-medium">
+                        className="text-xs text-ec-em hover:text-ec-em cursor-pointer bg-transparent border-none font-medium">
                         Resolve
                       </button>
                     </div>
@@ -148,9 +148,9 @@ export default function MARIssuesTab({ home, issues, patients, isElevated, user,
                   <div className="mt-2 pt-2 border-t border-ec-div flex gap-2">
                     <input value={resolutionNote} onChange={e => setResolutionNote(e.target.value)}
                       placeholder="Resolution note..."
-                      className="flex-1 px-3 py-1.5 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-emerald-500/30" />
+                      className="flex-1 px-3 py-1.5 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-ec-em/30" />
                     <button onClick={() => handleResolve(issue)}
-                      className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-lg border-none cursor-pointer hover:bg-emerald-700">
+                      className="px-3 py-1.5 bg-ec-em-dark text-white text-xs font-semibold rounded-lg border-none cursor-pointer hover:bg-ec-em-dark">
                       Confirm
                     </button>
                   </div>

@@ -6,7 +6,7 @@ import { PRIORITY_ORDER, CATEGORY_LABELS, CATEGORY_ORDER } from '../../utils/tas
 const inputStyle = {
   width: '100%', padding: '8px 12px', borderRadius: 8, fontSize: 13,
   border: '1px solid var(--ec-em-border)', outline: 'none', fontFamily: "'Inter', sans-serif",
-  background: 'white', boxSizing: 'border-box',
+  background: 'var(--ec-card)', boxSizing: 'border-box',
 }
 
 export default function AssignModal({ open, onClose, staff, templates, onAssign }) {
@@ -152,7 +152,7 @@ export default function AssignModal({ open, onClose, staff, templates, onAssign 
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
         <button onClick={() => { reset(); onClose() }} style={{
           padding: '8px 18px', borderRadius: 8, fontSize: 13, fontWeight: 600,
-          border: '1px solid var(--ec-em-border)', background: 'white', color: 'var(--ec-t2)',
+          border: '1.5px solid var(--ec-border)', background: 'var(--ec-card)', color: 'var(--ec-t2)',
           cursor: 'pointer', fontFamily: "'Inter', sans-serif",
         }}>Cancel</button>
         <button onClick={handleSubmit} disabled={!canSubmit} style={{

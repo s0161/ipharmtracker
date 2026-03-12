@@ -31,7 +31,7 @@ export default function HandoverNotesTab({ home, notes, isElevated, user, onAddN
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-ec-t1">Handover Notes</h3>
         <button onClick={() => setAdding(!adding)}
-          className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-lg border-none cursor-pointer hover:bg-emerald-700 shadow-sm">
+          className="px-3 py-1.5 bg-ec-em-dark text-white text-xs font-semibold rounded-lg border-none cursor-pointer hover:bg-ec-em-dark shadow-sm">
           Add Note
         </button>
       </div>
@@ -42,14 +42,14 @@ export default function HandoverNotesTab({ home, notes, isElevated, user, onAddN
             <div>
               <label className="block text-xs font-medium text-ec-t2 mb-1">Type</label>
               <select value={form.noteType} onChange={e => setForm(f => ({ ...f, noteType: e.target.value }))}
-                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
+                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-ec-em/30">
                 {NOTE_TYPES.map(t => <option key={t}>{t}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-ec-t2 mb-1">Priority</label>
               <select value={form.priority} onChange={e => setForm(f => ({ ...f, priority: e.target.value }))}
-                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
+                className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-ec-em/30">
                 {NOTE_PRIORITIES.map(p => <option key={p}>{p}</option>)}
               </select>
             </div>
@@ -57,10 +57,10 @@ export default function HandoverNotesTab({ home, notes, isElevated, user, onAddN
           <div>
             <label className="block text-xs font-medium text-ec-t2 mb-1">Content *</label>
             <textarea value={form.content} onChange={e => setForm(f => ({ ...f, content: e.target.value }))} rows={3} required
-              className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 resize-none" />
+              className="w-full px-3 py-2 text-sm border border-ec-div rounded-lg bg-ec-card text-ec-t1 focus:outline-none focus:ring-2 focus:ring-ec-em/30 resize-none" />
           </div>
           <div className="flex gap-2">
-            <button type="submit" className="px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg border-none cursor-pointer hover:bg-emerald-700 shadow-sm">Save</button>
+            <button type="submit" className="px-4 py-2 bg-ec-em-dark text-white text-sm font-semibold rounded-lg border-none cursor-pointer hover:bg-ec-em-dark shadow-sm">Save</button>
             <button type="button" onClick={() => setAdding(false)} className="px-4 py-2 text-sm text-ec-t2 border border-ec-div rounded-lg bg-ec-card cursor-pointer hover:bg-ec-bg">Cancel</button>
           </div>
         </form>
@@ -91,10 +91,10 @@ export default function HandoverNotesTab({ home, notes, isElevated, user, onAddN
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-ec-t3">by {n.createdBy || n.created_by || 'Unknown'}</span>
                   {isAcked ? (
-                    <span className="text-xs text-emerald-600">Acknowledged by {n.acknowledgedBy || n.acknowledged_by}</span>
+                    <span className="text-xs text-ec-em">Acknowledged by {n.acknowledgedBy || n.acknowledged_by}</span>
                   ) : (
                     <button onClick={() => handleAck(n)}
-                      className="text-xs text-emerald-600 hover:text-emerald-700 cursor-pointer bg-transparent border-none font-medium">
+                      className="text-xs text-ec-em hover:text-ec-em cursor-pointer bg-transparent border-none font-medium">
                       Acknowledge
                     </button>
                   )}

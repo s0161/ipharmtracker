@@ -71,7 +71,7 @@ export default function AlertCard({ alert, acks, flags, isAckedByMe, onViewDetai
           </span>
         )}
         {isAckedByMe && (
-          <span className="text-[10px] font-medium text-emerald-500 ml-auto">You reviewed</span>
+          <span className="text-[10px] font-medium text-ec-em ml-auto">You reviewed</span>
         )}
       </div>
 
@@ -81,7 +81,7 @@ export default function AlertCard({ alert, acks, flags, isAckedByMe, onViewDetai
           <select
             value={actionTaken}
             onChange={e => setActionTaken(e.target.value)}
-            className="w-full px-2.5 py-1.5 rounded-lg border border-ec-border bg-ec-card text-xs text-ec-t1 outline-none focus:ring-2 focus:ring-emerald-500/30"
+            className="w-full px-2.5 py-1.5 rounded-lg border border-ec-border bg-ec-card text-xs text-ec-t1 outline-none focus:ring-2 focus:ring-ec-em/30"
           >
             {ACTION_TYPES.map(a => <option key={a} value={a}>{a}</option>)}
           </select>
@@ -90,12 +90,12 @@ export default function AlertCard({ alert, acks, flags, isAckedByMe, onViewDetai
             value={note}
             onChange={e => setNote(e.target.value)}
             placeholder="Optional note..."
-            className="w-full px-2.5 py-1.5 rounded-lg border border-ec-border bg-ec-card text-xs text-ec-t1 placeholder:text-ec-t3 outline-none focus:ring-2 focus:ring-emerald-500/30"
+            className="w-full px-2.5 py-1.5 rounded-lg border border-ec-border bg-ec-card text-xs text-ec-t1 placeholder:text-ec-t3 outline-none focus:ring-2 focus:ring-ec-em/30"
             onKeyDown={e => { if (e.key === 'Enter') handleQuickAck() }}
           />
           <div className="flex gap-2">
             <button onClick={handleQuickAck}
-              className="flex-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-emerald-600 text-white border-none cursor-pointer hover:bg-emerald-700 transition">
+              className="flex-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-ec-em-dark text-white border-none cursor-pointer hover:bg-ec-em-dark transition">
               Submit
             </button>
             <button onClick={() => setShowQuickAck(false)}
@@ -111,7 +111,7 @@ export default function AlertCard({ alert, acks, flags, isAckedByMe, onViewDetai
             View Details
           </button>
           <button onClick={() => setShowQuickAck(true)}
-            className="flex-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-emerald-600 text-white border-none cursor-pointer hover:bg-emerald-700 transition">
+            className="flex-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-ec-em-dark text-white border-none cursor-pointer hover:bg-ec-em-dark transition">
             Acknowledge
           </button>
         </div>

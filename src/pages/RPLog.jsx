@@ -299,14 +299,14 @@ export default function RPLog() {
                   value={selectedDate}
                   onChange={(e) => loadEntry(e.target.value)}
                   className="w-full rounded-lg px-3 py-2 text-xs outline-none transition-all"
-                  style={{ ...mono, background: 'white', border: '1px solid var(--ec-em-border)', color: 'var(--text-primary)' }}
+                  style={{ ...mono, background: 'var(--ec-card)', border: '1px solid var(--ec-em-border)', color: 'var(--ec-t1)' }}
                 />
               </div>
               <div className="flex-1">
                 <label className="block text-[10px] font-semibold text-ec-t2 mb-1 uppercase tracking-wider">Responsible Pharmacist</label>
                 <div
                   className="w-full rounded-lg px-3 py-2 text-xs"
-                  style={{ ...sans, background: 'white', border: '1px solid var(--ec-em-border)', color: 'var(--text-primary)', minHeight: 34, display: 'flex', alignItems: 'center' }}
+                  style={{ ...sans, background: 'var(--ec-card)', border: '1px solid var(--ec-em-border)', color: 'var(--ec-t1)', minHeight: 34, display: 'flex', alignItems: 'center' }}
                 >
                   {rpName}
                 </div>
@@ -370,7 +370,7 @@ export default function RPLog() {
                         onClick={() => toggleItem(item)}
                         className="flex items-center gap-3 px-4 py-3.5 rounded-lg cursor-pointer transition-all duration-150 rp-check-row"
                         style={{
-                          background: checked ? 'var(--ec-em-bg)' : 'var(--bg-card)',
+                          background: checked ? 'var(--ec-em-bg)' : 'var(--ec-card)',
                           border: `1px solid ${checked ? 'var(--ec-em-border)' : 'var(--ec-div)'}`,
                         }}
                       >
@@ -390,7 +390,7 @@ export default function RPLog() {
                           className="text-[14px] font-normal transition-all duration-200"
                           style={{
                             ...sans,
-                            color: checked ? 'var(--ec-em-border)' : 'var(--text-primary)',
+                            color: checked ? 'var(--ec-em-border)' : 'var(--ec-t1)',
                             textDecoration: checked ? 'line-through' : 'none',
                           }}
                         >
@@ -418,9 +418,9 @@ export default function RPLog() {
               style={{
                 ...sans,
                 minHeight: 80,
-                background: 'var(--bg-card)',
+                background: 'var(--ec-card)',
                 border: '1px solid var(--ec-div)',
-                color: 'var(--text-primary)',
+                color: 'var(--ec-t1)',
                 boxSizing: 'border-box',
               }}
             />
@@ -431,7 +431,7 @@ export default function RPLog() {
         <div className="w-[280px] shrink-0 rp-sidebar">
 
           {/* RP Presence Card */}
-          <div className="rounded-xl border overflow-hidden mb-5" style={{ borderColor: 'var(--ec-div)', background: 'var(--bg-card)' }}>
+          <div className="rounded-xl border overflow-hidden mb-5" style={{ borderColor: 'var(--ec-div)', background: 'var(--ec-card)' }}>
             <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: '1px solid var(--ec-div)' }}>
               <span className="text-sm">{'\uD83D\uDD50'}</span>
               <span className="text-[13px] font-bold text-ec-t1">RP Presence</span>
@@ -490,7 +490,7 @@ export default function RPLog() {
           </div>
 
           {/* Recent Checklists Card */}
-          <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'var(--ec-div)', background: 'var(--bg-card)' }}>
+          <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'var(--ec-div)', background: 'var(--ec-card)' }}>
             <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: '1px solid var(--ec-div)' }}>
               <span className="text-sm">{'\uD83D\uDDC2'}</span>
               <span className="text-[13px] font-bold text-ec-t1">Recent Checklists</span>

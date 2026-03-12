@@ -25,7 +25,7 @@ const CATEGORY_STYLES = {
 }
 
 const STATUS_STYLES = {
-  Current: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+  Current: 'bg-ec-em-faint text-ec-em',
   'Due Review': 'bg-ec-warn/10 text-ec-warn',
   Overdue: 'bg-ec-crit/10 text-ec-crit',
 }
@@ -222,7 +222,7 @@ export default function SOPLibrary() {
             placeholder="Search SOPs..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 rounded-lg border border-ec-border bg-ec-card text-sm text-ec-t1 placeholder:text-ec-t3 outline-none focus:ring-2 focus:ring-emerald-500/30 transition"
+            className="w-full pl-9 pr-3 py-2 rounded-lg border border-ec-border bg-ec-card text-sm text-ec-t1 placeholder:text-ec-t3 outline-none focus:ring-2 focus:ring-ec-em/30 transition"
           />
         </div>
 
@@ -232,7 +232,7 @@ export default function SOPLibrary() {
             <button key={tab} onClick={() => setActiveTab(tab)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium border-none cursor-pointer transition-all
                 ${activeTab === tab
-                  ? 'bg-emerald-600 text-white shadow-sm'
+                  ? 'bg-ec-em-dark text-white shadow-sm'
                   : 'bg-ec-card text-ec-t2 hover:bg-ec-card-hover border border-ec-border'
                 }`}
             >
@@ -243,7 +243,7 @@ export default function SOPLibrary() {
 
         <div className="sm:ml-auto">
           <button onClick={() => showToast('SOP upload coming soon!', 'info')}
-            className="px-3 py-2 rounded-lg text-xs font-semibold bg-emerald-600 text-white border-none cursor-pointer hover:bg-emerald-700 transition shadow-sm">
+            className="px-3 py-2 rounded-lg text-xs font-semibold bg-ec-em-dark text-white border-none cursor-pointer hover:bg-ec-em-dark transition shadow-sm">
             + Add SOP
           </button>
         </div>
@@ -255,7 +255,7 @@ export default function SOPLibrary() {
           <button key={role} onClick={() => setActiveRole(role)}
             className={`px-2.5 py-1 rounded-full text-[11px] font-medium border cursor-pointer transition-all
               ${activeRole === role
-                ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                ? 'bg-ec-em-dark text-white border-ec-em shadow-sm'
                 : 'bg-ec-card text-ec-t3 border-ec-border hover:text-ec-t2 hover:border-ec-t3/30'
               }`}
           >
@@ -325,7 +325,7 @@ export default function SOPLibrary() {
                 <div className="flex items-center gap-2 mb-3">
                   <div className="flex-1 h-1.5 rounded-full bg-ec-border overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-emerald-500 transition-all"
+                      className="h-full rounded-full bg-ec-em transition-all"
                       style={{ width: `${Math.min(ackPct, 100)}%` }}
                     />
                   </div>
@@ -342,7 +342,7 @@ export default function SOPLibrary() {
                   </button>
                   <button
                     onClick={() => handleAcknowledge(sop.id)}
-                    className="flex-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-emerald-600 text-white border-none cursor-pointer hover:bg-emerald-700 transition"
+                    className="flex-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-ec-em-dark text-white border-none cursor-pointer hover:bg-ec-em-dark transition"
                   >
                     Acknowledge
                   </button>

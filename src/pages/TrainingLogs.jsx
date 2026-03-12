@@ -140,7 +140,7 @@ function SectionHeader({ accent, icon, title, right }) {
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
         <span style={{ fontSize: 14 }}>{icon}</span>
-        <span style={{ ...sans, fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{title}</span>
+        <span style={{ ...sans, fontSize: 13, fontWeight: 700, color: 'var(--ec-t1)' }}>{title}</span>
       </div>
       {right && <div>{right}</div>}
     </div>

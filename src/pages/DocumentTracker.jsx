@@ -20,7 +20,7 @@ import Avatar from '../components/Avatar'
 
 const DM = "'Inter', sans-serif"
 const MONO = "'DM Mono', monospace"
-const CARD = { background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-card)', boxShadow: 'var(--shadow-card)' }
+const CARD = { background: 'var(--ec-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--ec-border)', boxShadow: 'var(--shadow-card)' }
 
 // ─── Category groupings ───
 const CATEGORY_GROUPS = [
@@ -194,9 +194,9 @@ export default function DocumentTracker() {
   const Pill = ({ active, label, onClick }) => (
     <button onClick={onClick} style={{
       padding: '4px 14px', borderRadius: 20, fontSize: 11, fontWeight: 600, fontFamily: DM,
-      border: active ? '1.5px solid var(--ec-em)' : '1px solid var(--border-card)',
+      border: active ? '1.5px solid var(--ec-em)' : '1px solid var(--ec-border)',
       background: active ? 'var(--ec-em)' : 'transparent',
-      color: active ? '#fff' : 'var(--text-secondary)',
+      color: active ? '#fff' : 'var(--ec-t2)',
       cursor: 'pointer', transition: 'all 0.15s',
     }}>{label}</button>
   )
@@ -271,13 +271,13 @@ export default function DocumentTracker() {
   // ─── Input style ───
   const inputStyle = {
     width: '100%', padding: '8px 12px', borderRadius: 8, fontSize: 13, fontFamily: DM,
-    background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)',
+    background: 'var(--ec-card)', border: '1px solid var(--ec-border)', color: 'var(--ec-t1)',
     outline: 'none',
   }
   const errorInputStyle = { ...inputStyle, borderColor: 'var(--ec-crit)' }
-  const labelStyle = { fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 4, display: 'block' }
+  const labelStyle = { fontSize: 11, fontWeight: 600, color: 'var(--ec-t3)', marginBottom: 4, display: 'block' }
 
-  if (loading) return <div style={{ padding: 24 }}><div style={{ ...CARD, height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontFamily: DM, fontSize: 13 }}>Loading renewals…</div></div>
+  if (loading) return <div style={{ padding: 24 }}><div style={{ ...CARD, height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ec-t3)', fontFamily: DM, fontSize: 13 }}>Loading renewals…</div></div>
 
   return (
     <div style={{ fontFamily: DM }}>
@@ -285,13 +285,13 @@ export default function DocumentTracker() {
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
           <div>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', margin: 0, lineHeight: 1.2 }}>Renewals</h1>
-            <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '4px 0 0' }}>Track documents, registrations and renewals. Status updates automatically.</p>
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--ec-t1)', margin: 0, lineHeight: 1.2 }}>Renewals</h1>
+            <p style={{ fontSize: 12, color: 'var(--ec-t3)', margin: '4px 0 0' }}>Track documents, registrations and renewals. Status updates automatically.</p>
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <button onClick={handleCsvDownload} style={{
               padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 500, fontFamily: DM,
-              background: 'var(--bg-card)', border: '1px solid var(--border-card)', color: 'var(--text-secondary)',
+              background: 'var(--ec-card)', border: '1px solid var(--ec-border)', color: 'var(--ec-t2)',
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
             }}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
@@ -315,8 +315,8 @@ export default function DocumentTracker() {
           { label: 'Valid', value: stats.valid, color: stats.valid > 0 ? 'var(--ec-em)' : undefined, accent: 'var(--ec-em)' },
         ].map((s, i) => (
           <div key={i} style={{ flex: 1, textAlign: 'center', padding: '2px 12px', borderLeft: `3px solid ${s.accent}` }}>
-            <div style={{ fontFamily: MONO, fontSize: 16, fontWeight: 800, color: s.color || 'var(--text-primary)' }}>{s.value}</div>
-            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 1 }}>{s.label}</div>
+            <div style={{ fontFamily: MONO, fontSize: 16, fontWeight: 800, color: s.color || 'var(--ec-t1)' }}>{s.value}</div>
+            <div style={{ fontSize: 10, color: 'var(--ec-t3)', marginTop: 1 }}>{s.label}</div>
           </div>
         ))}
       </div>
@@ -349,7 +349,7 @@ export default function DocumentTracker() {
                   </span>
                 ))}
                 {docReminders.length > 6 && (
-                  <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>+{docReminders.length - 6} more</span>
+                  <span style={{ fontSize: 10, color: 'var(--ec-t3)' }}>+{docReminders.length - 6} more</span>
                 )}
               </div>
             </div>
@@ -379,21 +379,21 @@ export default function DocumentTracker() {
               onChange={(e) => setCategorySearch(e.target.value)}
               style={{
                 fontFamily: DM, width: '100%', maxWidth: 400,
-                background: 'var(--input-bg, var(--bg-card))', border: '1px solid var(--border-card)',
+                background: 'var(--input-bg, var(--ec-card))', border: '1px solid var(--ec-border)',
                 borderRadius: 8, padding: '8px 12px', fontSize: 12,
-                color: 'var(--text-primary)', outline: 'none', boxSizing: 'border-box',
+                color: 'var(--ec-t1)', outline: 'none', boxSizing: 'border-box',
               }}
             />
           </div>
           {groupedDocs.length === 0 ? (
-            <div style={{ ...CARD, textAlign: 'center', padding: 40, color: 'var(--text-muted)', fontSize: 13 }}>
+            <div style={{ ...CARD, textAlign: 'center', padding: 40, color: 'var(--ec-t3)', fontSize: 13 }}>
               No documents tracked yet. Click "＋ Add Document" to get started.
             </div>
           ) : groupedDocs.map(group => (
             <div key={group.key} style={{ marginBottom: 20 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>{group.label}</span>
-                <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 8px', borderRadius: 10, background: 'var(--border-card)', color: 'var(--text-secondary)' }}>{group.docs.length}</span>
+                <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ec-t3)' }}>{group.label}</span>
+                <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 8px', borderRadius: 10, background: 'var(--ec-border)', color: 'var(--ec-t2)' }}>{group.docs.length}</span>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 10 }}>
                 {group.docs.map(doc => {
@@ -420,7 +420,7 @@ export default function DocumentTracker() {
 
                       {/* Row 1: Name + status pill */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.3, flex: 1, marginRight: 8 }}>{doc.documentName}</div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--ec-t1)', lineHeight: 1.3, flex: 1, marginRight: 8 }}>{doc.documentName}</div>
                         <span style={{
                           fontSize: 9, fontWeight: 700, fontFamily: MONO,
                           padding: '2px 8px', borderRadius: 10, flexShrink: 0,
@@ -432,23 +432,23 @@ export default function DocumentTracker() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                         <span style={{
                           fontSize: 9, fontWeight: 600, padding: '1px 7px', borderRadius: 8,
-                          background: 'var(--border-card)', color: 'var(--text-secondary)',
+                          background: 'var(--ec-border)', color: 'var(--ec-t2)',
                         }}>{doc.category}</span>
                         {doc.owner && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                             <Avatar name={doc.owner} size={20} />
-                            <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{doc.owner}</span>
+                            <span style={{ fontSize: 10, color: 'var(--ec-t3)' }}>{doc.owner}</span>
                           </div>
                         )}
                       </div>
 
                       {/* Row 3: Dates */}
-                      <div style={{ fontSize: 10, fontFamily: MONO, color: 'var(--text-muted)', marginBottom: 8 }}>
+                      <div style={{ fontSize: 10, fontFamily: MONO, color: 'var(--ec-t3)', marginBottom: 8 }}>
                         {doc.issueDate ? formatDate(doc.issueDate) : '—'} → {doc.expiryDate ? formatDate(doc.expiryDate) : '—'}
                       </div>
 
                       {/* Progress bar */}
-                      <div style={{ height: 4, background: 'var(--border-card)', borderRadius: 2, marginBottom: 4, overflow: 'hidden' }}>
+                      <div style={{ height: 4, background: 'var(--ec-border)', borderRadius: 2, marginBottom: 4, overflow: 'hidden' }}>
                         <div style={{
                           height: '100%', borderRadius: 2, width: `${Math.min(lifetime, 100)}%`,
                           background: status.barColor, transition: 'width 0.3s',
@@ -460,14 +460,14 @@ export default function DocumentTracker() {
 
                       {/* Notes */}
                       {doc.notes && (
-                        <div style={{ fontSize: 10, color: 'var(--text-muted)', fontStyle: 'italic', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: 6 }}>{doc.notes}</div>
+                        <div style={{ fontSize: 10, color: 'var(--ec-t3)', fontStyle: 'italic', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: 6 }}>{doc.notes}</div>
                       )}
 
                       {/* Actions */}
                       <div style={{ display: 'flex', gap: 6 }}>
                         <button onClick={() => openEdit(doc)} style={{
                           fontSize: 11, fontWeight: 500, fontFamily: DM, padding: '3px 10px', borderRadius: 6,
-                          background: 'transparent', border: '1px solid var(--border-card)', color: 'var(--text-secondary)',
+                          background: 'transparent', border: '1px solid var(--ec-border)', color: 'var(--ec-t2)',
                           cursor: 'pointer', transition: 'all 0.15s',
                         }}>Edit</button>
                         <button onClick={() => handleDelete(doc.id)} style={{
@@ -491,16 +491,16 @@ export default function DocumentTracker() {
           <div style={{ display: 'flex', gap: 0, minWidth: 12 * 140 }}>
             {timelineData.map((month, i) => (
               <div key={i} style={{
-                flex: '0 0 140px', borderRight: '1px solid var(--border-card)', padding: '8px 10px',
+                flex: '0 0 140px', borderRight: '1px solid var(--ec-border)', padding: '8px 10px',
                 opacity: month.isPast ? 0.5 : 1,
               }}>
                 <div style={{
                   fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
-                  color: 'var(--text-muted)', marginBottom: 8, textAlign: 'center',
+                  color: 'var(--ec-t3)', marginBottom: 8, textAlign: 'center',
                 }}>{month.label}</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   {month.docs.length === 0 && (
-                    <div style={{ fontSize: 9, color: 'var(--text-muted)', textAlign: 'center', padding: '8px 0' }}>—</div>
+                    <div style={{ fontSize: 9, color: 'var(--ec-t3)', textAlign: 'center', padding: '8px 0' }}>—</div>
                   )}
                   {month.docs.map(doc => {
                     const status = getDocStatus(doc.expiryDate)
@@ -531,20 +531,20 @@ export default function DocumentTracker() {
           {/* Month navigation */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <button onClick={() => { if (calMonth === 0) { setCalMonth(11); setCalYear(calYear - 1) } else setCalMonth(calMonth - 1) }} style={{
-              background: 'none', border: '1px solid var(--border-card)', borderRadius: 6, padding: '4px 10px',
-              fontSize: 12, cursor: 'pointer', color: 'var(--text-secondary)',
+              background: 'none', border: '1px solid var(--ec-border)', borderRadius: 6, padding: '4px 10px',
+              fontSize: 12, cursor: 'pointer', color: 'var(--ec-t2)',
             }}>←</button>
-            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{calMonthLabel}</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--ec-t1)' }}>{calMonthLabel}</span>
             <button onClick={() => { if (calMonth === 11) { setCalMonth(0); setCalYear(calYear + 1) } else setCalMonth(calMonth + 1) }} style={{
-              background: 'none', border: '1px solid var(--border-card)', borderRadius: 6, padding: '4px 10px',
-              fontSize: 12, cursor: 'pointer', color: 'var(--text-secondary)',
+              background: 'none', border: '1px solid var(--ec-border)', borderRadius: 6, padding: '4px 10px',
+              fontSize: 12, cursor: 'pointer', color: 'var(--ec-t2)',
             }}>→</button>
           </div>
 
           {/* Day headers */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2, marginBottom: 4 }}>
             {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => (
-              <div key={d} style={{ textAlign: 'center', fontSize: 9, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', padding: '4px 0' }}>{d}</div>
+              <div key={d} style={{ textAlign: 'center', fontSize: 9, fontWeight: 700, color: 'var(--ec-t3)', textTransform: 'uppercase', padding: '4px 0' }}>{d}</div>
             ))}
           </div>
 
@@ -568,7 +568,7 @@ export default function DocumentTracker() {
                 }}
                 title={hasDocs ? day.docs.map(d => d.documentName).join(', ') : ''}
                 >
-                  <div style={{ fontSize: 11, fontWeight: day.isToday ? 700 : 400, color: day.isToday ? 'var(--ec-em)' : 'var(--text-primary)' }}>{day.day}</div>
+                  <div style={{ fontSize: 11, fontWeight: day.isToday ? 700 : 400, color: day.isToday ? 'var(--ec-em)' : 'var(--ec-t1)' }}>{day.day}</div>
                   {hasDocs && (
                     <div style={{ display: 'flex', justifyContent: 'center', gap: 2, marginTop: 2 }}>
                       {day.docs.slice(0, 3).map((doc, j) => {
@@ -592,7 +592,7 @@ export default function DocumentTracker() {
             ].map(l => (
               <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <div style={{ width: 6, height: 6, borderRadius: '50%', background: l.color }} />
-                <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{l.label}</span>
+                <span style={{ fontSize: 9, color: 'var(--ec-t3)' }}>{l.label}</span>
               </div>
             ))}
           </div>
@@ -677,10 +677,10 @@ export default function DocumentTracker() {
             />
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, paddingTop: 14, borderTop: '1px solid var(--border-card)' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, paddingTop: 14, borderTop: '1px solid var(--ec-border)' }}>
             <button type="button" onClick={() => setModalOpen(false)} style={{
               padding: '6px 16px', borderRadius: 8, fontSize: 12, fontWeight: 500, fontFamily: DM,
-              background: 'var(--bg-card)', border: '1px solid var(--border-card)', color: 'var(--text-secondary)',
+              background: 'var(--ec-card)', border: '1px solid var(--ec-border)', color: 'var(--ec-t2)',
               cursor: 'pointer',
             }}>Cancel</button>
             <button type="submit" style={{

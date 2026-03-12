@@ -42,14 +42,14 @@ export default function KanbanCard({ card, onOpenCompletion, expandedRpCard, set
         )}
         {(isCleaning || isTemp) && isDone && (
           <span className="kanban-tick-done">
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2.5" width="18" height="18">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--ec-em)" strokeWidth="2.5" width="18" height="18">
               <path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
             </svg>
           </span>
         )}
         {isRp && (
           <button className="kanban-tick-btn" onClick={() => setExpandedRpCard(isExpanded ? null : card.id)}>
-            <svg viewBox="0 0 24 24" fill="none" stroke={isDone ? 'var(--success)' : 'currentColor'} strokeWidth="2" width="18" height="18">
+            <svg viewBox="0 0 24 24" fill="none" stroke={isDone ? 'var(--ec-em)' : 'currentColor'} strokeWidth="2" width="18" height="18">
               {isDone ? (
                 <><path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></>
               ) : (
@@ -108,7 +108,7 @@ export default function KanbanCard({ card, onOpenCompletion, expandedRpCard, set
         <div className="kanban-card-progress">
           <div className="kanban-card-progress-fill" style={{
             width: `${(card.doneCount / card.total) * 100}%`,
-            background: isDone ? 'var(--success)' : card.doneCount === 0 ? 'var(--border)' : 'var(--warning)',
+            background: isDone ? 'var(--ec-em)' : card.doneCount === 0 ? 'var(--border)' : 'var(--ec-warn)',
           }} />
         </div>
       )}

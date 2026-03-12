@@ -125,7 +125,7 @@ export default function AlertCentre() {
         <button
           onClick={handleRefresh}
           disabled={refreshing}
-          className="px-4 py-2 rounded-lg text-xs font-semibold bg-emerald-600 text-white border-none cursor-pointer hover:bg-emerald-700 transition shadow-sm disabled:opacity-50"
+          className="px-4 py-2 rounded-lg text-xs font-semibold bg-ec-em-dark text-white border-none cursor-pointer hover:bg-ec-em-dark transition shadow-sm disabled:opacity-50"
         >
           {refreshing ? (
             <span className="inline-flex items-center gap-1.5">
@@ -154,10 +154,10 @@ export default function AlertCentre() {
               key={tab}
               onClick={() => setStatusTab(tab)}
               className={`relative px-4 py-2.5 text-xs font-medium whitespace-nowrap border-none cursor-pointer transition-colors bg-transparent
-                ${active ? 'text-emerald-600' : 'text-ec-t3 hover:text-ec-t1'}`}
+                ${active ? 'text-ec-em' : 'text-ec-t3 hover:text-ec-t1'}`}
             >
               {tab}
-              {active && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-600 rounded-t-full" />}
+              {active && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-ec-em-dark rounded-t-full" />}
             </button>
           )
         })}
@@ -168,7 +168,7 @@ export default function AlertCentre() {
         <select
           value={sourceFilter}
           onChange={e => setSourceFilter(e.target.value)}
-          className="px-2.5 py-1.5 rounded-lg border border-ec-border bg-ec-card text-xs text-ec-t1 outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
+          className="px-2.5 py-1.5 rounded-lg border border-ec-border bg-ec-card text-xs text-ec-t1 outline-none focus:ring-2 focus:ring-ec-em/30 cursor-pointer"
         >
           {SOURCE_FILTERS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
         </select>
@@ -176,7 +176,7 @@ export default function AlertCentre() {
         <select
           value={sortIdx}
           onChange={e => setSortIdx(Number(e.target.value))}
-          className="px-2.5 py-1.5 rounded-lg border border-ec-border bg-ec-card text-xs text-ec-t1 outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
+          className="px-2.5 py-1.5 rounded-lg border border-ec-border bg-ec-card text-xs text-ec-t1 outline-none focus:ring-2 focus:ring-ec-em/30 cursor-pointer"
         >
           {SORT_OPTIONS.map((o, i) => <option key={o.label} value={i}>Sort: {o.label}</option>)}
         </select>

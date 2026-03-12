@@ -92,7 +92,7 @@ function ModuleCard({ module, isCompleted, completedDate, score, onClick }) {
         )}
       </div>
       <div className="text-[11px] font-mono text-ec-t3 mb-1">{module.code}</div>
-      <h3 className="text-sm font-semibold text-ec-t1 mb-1 group-hover:text-ec-em dark:group-hover:text-emerald-400 transition-colors">
+      <h3 className="text-sm font-semibold text-ec-t1 mb-1 group-hover:text-ec-em transition-colors">
         {module.title}
       </h3>
       <p className="text-xs text-ec-t3 line-clamp-2 mb-3">{module.description}</p>
@@ -275,7 +275,7 @@ function ModuleViewer({ module, isCompleted, onClose, onComplete }) {
                         onClick={() => setQuizAnswers(prev => ({ ...prev, [qi]: oi }))}
                         className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all border ${
                           quizAnswers[qi] === oi
-                            ? 'border-emerald-500 bg-ec-em/10 text-ec-em  font-medium'
+                            ? 'border-ec-em bg-ec-em/10 text-ec-em  font-medium'
                             : 'border-ec-div hover:border-ec-t3 text-ec-t2'
                         }`}
                       >

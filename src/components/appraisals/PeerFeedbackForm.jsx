@@ -13,7 +13,7 @@ export default function PeerFeedbackForm({ request, onSubmit }) {
   }
 
   return (
-    <div className="p-4 bg-ec-card border border-emerald-200 rounded-lg">
+    <div className="p-4 bg-ec-card border border-ec-em-border rounded-lg">
       <h4 className="text-sm font-semibold text-ec-t1 m-0 mb-3">Peer Feedback Request</h4>
       <p className="text-xs text-ec-t3 mb-3">Your responses will be shared anonymously with the appraiser.</p>
       <div className="space-y-3">
@@ -37,7 +37,7 @@ export default function PeerFeedbackForm({ request, onSubmit }) {
       <button
         onClick={handleSubmit}
         disabled={submitting || answers.some(a => !a.trim())}
-        className="mt-3 px-4 py-1.5 bg-emerald-600 text-white text-sm font-medium rounded-lg border-none cursor-pointer hover:bg-emerald-700 disabled:opacity-50"
+        className="mt-3 px-4 py-1.5 bg-ec-em-dark text-white text-sm font-medium rounded-lg border-none cursor-pointer hover:bg-ec-em-dark disabled:opacity-50"
       >
         {submitting ? 'Submitting...' : 'Submit Feedback'}
       </button>

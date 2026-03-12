@@ -55,7 +55,7 @@ export default function CompletionFlow({ task, open, onClose, onConfirm }) {
           style={{
             width: '100%', padding: '8px 12px', borderRadius: 8, fontSize: 13,
             border: '1px solid var(--ec-em-border)', outline: 'none', fontFamily: "'Inter', sans-serif",
-            background: 'white', boxSizing: 'border-box', resize: 'vertical',
+            background: 'var(--ec-card)', boxSizing: 'border-box', resize: 'vertical',
           }}
         />
       </div>
@@ -63,7 +63,7 @@ export default function CompletionFlow({ task, open, onClose, onConfirm }) {
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
         <button onClick={onClose} style={{
           padding: '8px 18px', borderRadius: 8, fontSize: 13, fontWeight: 600,
-          border: '1px solid var(--ec-em-border)', background: 'white', color: 'var(--ec-t2)',
+          border: '1px solid var(--ec-em-border)', background: 'var(--ec-card)', color: 'var(--ec-t2)',
           cursor: 'pointer', fontFamily: "'Inter', sans-serif",
         }}>Cancel</button>
         <button onClick={handleConfirm} style={{

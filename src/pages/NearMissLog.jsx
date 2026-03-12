@@ -134,7 +134,7 @@ const inputErrorClass =
   'w-full bg-ec-card border-2 border-ec-crit rounded-lg px-3 py-2.5 text-sm text-ec-t1 focus:outline-none focus:border-ec-crit focus:ring-2 focus:ring-red-500/20 transition-all placeholder:text-ec-t3 font-sans'
 
 const selectClass =
-  'bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 font-sans focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all'
+  'bg-ec-card border border-ec-border rounded-lg px-3 py-2 text-sm text-ec-t1 font-sans focus:outline-none focus:border-ec-em focus:ring-2 focus:ring-ec-em/20 transition-all'
 
 // ─── Helpers ──────────────────────────────────────────────────────
 
@@ -921,7 +921,7 @@ export default function NearMissLog() {
           </svg>
           <input
             type="text"
-            className="w-full bg-ec-card border border-ec-border rounded-lg pl-9 pr-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all font-sans"
+            className="w-full bg-ec-card border border-ec-border rounded-lg pl-9 pr-3 py-2 text-sm text-ec-t1 focus:outline-none focus:border-ec-em focus:ring-2 focus:ring-ec-em/20 transition-all font-sans"
             placeholder="Search..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1) }}

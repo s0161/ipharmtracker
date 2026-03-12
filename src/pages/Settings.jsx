@@ -18,7 +18,7 @@ import Avatar from '../components/Avatar'
 
 const DM = "'Inter', sans-serif"
 const MONO = "'DM Mono', monospace"
-const CARD = { background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-card)', boxShadow: 'var(--shadow-card)' }
+const CARD = { background: 'var(--ec-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--ec-border)', boxShadow: 'var(--shadow-card)' }
 
 const TABS = [
   { id: 'staff', label: '👥 Staff' },
@@ -43,19 +43,19 @@ const DEFAULT_NOTIFICATION_PREFS = {
 // ─── Shared input style ───
 const inputStyle = {
   width: '100%', padding: '8px 12px', borderRadius: 8, fontSize: 12, fontFamily: DM,
-  background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)',
+  background: 'var(--ec-card)', border: '1px solid var(--ec-border)', color: 'var(--ec-t1)',
   outline: 'none',
 }
-const labelStyle = { fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 4, display: 'block' }
+const labelStyle = { fontSize: 11, fontWeight: 600, color: 'var(--ec-t3)', marginBottom: 4, display: 'block' }
 
 // ─── Pill tab ───
 function Pill({ active, label, onClick }) {
   return (
     <button onClick={onClick} style={{
       padding: '4px 14px', borderRadius: 20, fontSize: 11, fontWeight: 600, fontFamily: DM,
-      border: active ? '1.5px solid var(--ec-em)' : '1px solid var(--border-card)',
+      border: active ? '1.5px solid var(--ec-em)' : '1px solid var(--ec-border)',
       background: active ? 'var(--ec-em)' : 'transparent',
-      color: active ? '#fff' : 'var(--text-secondary)',
+      color: active ? '#fff' : 'var(--ec-t2)',
       cursor: 'pointer', transition: 'all 0.15s',
     }}>{label}</button>
   )
@@ -362,7 +362,7 @@ export default function Settings() {
     const base = { fontSize: 11, fontWeight: 500, fontFamily: DM, padding: '3px 10px', borderRadius: 6, cursor: 'pointer', transition: 'all 0.15s', ...extra }
     if (variant === 'danger') return <button onClick={onClick} style={{ ...base, background: 'transparent', border: '1px solid var(--ec-crit-border)', color: 'var(--ec-crit)' }}>{children}</button>
     if (variant === 'primary') return <button onClick={onClick} style={{ ...base, background: 'var(--ec-em)', border: 'none', color: '#fff' }}>{children}</button>
-    return <button onClick={onClick} style={{ ...base, background: 'transparent', border: '1px solid var(--border-card)', color: 'var(--text-secondary)' }}>{children}</button>
+    return <button onClick={onClick} style={{ ...base, background: 'transparent', border: '1px solid var(--ec-border)', color: 'var(--ec-t2)' }}>{children}</button>
   }
 
   // ─── Action card for Data tab ───
@@ -370,8 +370,8 @@ export default function Settings() {
     <div style={{ ...CARD, display: 'flex', alignItems: 'center', gap: 14, marginBottom: 8 }}>
       <span style={{ fontSize: 20, flexShrink: 0 }}>{icon}</span>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>{title}</div>
-        <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{description}</div>
+        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ec-t1)', marginBottom: 2 }}>{title}</div>
+        <div style={{ fontSize: 11, color: 'var(--ec-t3)' }}>{description}</div>
       </div>
       <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>{children}</div>
     </div>
@@ -381,8 +381,8 @@ export default function Settings() {
     <div style={{ fontFamily: DM }}>
       {/* ─── PAGE HEADER ─── */}
       <div style={{ marginBottom: 16 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', margin: 0, lineHeight: 1.2 }}>Settings</h1>
-        <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '4px 0 0' }}>Configure your pharmacy, staff, and compliance preferences.</p>
+        <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--ec-t1)', margin: 0, lineHeight: 1.2 }}>Settings</h1>
+        <p style={{ fontSize: 12, color: 'var(--ec-t3)', margin: '4px 0 0' }}>Configure your pharmacy, staff, and compliance preferences.</p>
       </div>
 
       {/* ─── TABS ─── */}
@@ -403,21 +403,21 @@ export default function Settings() {
               <DashCardHeader variant="em" icon="👥" title="Staff Members" right={<span style={{ fontSize: 11, fontFamily: MONO }}>{staffMembers.length} members</span>} />
 
               {staffMembers.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-muted)', fontSize: 13 }}>No staff added yet.</div>
+                <div style={{ textAlign: 'center', padding: 30, color: 'var(--ec-t3)', fontSize: 13 }}>No staff added yet.</div>
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 10 }}>
                   {staffMembers.map(s => {
                     const pinRevealed = revealPin[s.id]
                     return (
                       <div key={s.id} style={{
-                        background: 'var(--bg-card)', borderRadius: 12, padding: 14,
-                        border: '1px solid var(--border-card)', position: 'relative',
+                        background: 'var(--ec-card)', borderRadius: 12, padding: 14,
+                        border: '1px solid var(--ec-border)', position: 'relative',
                       }}>
                         {/* Avatar + name centered */}
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 8 }}>
                           <Avatar name={s.name} size={40} />
-                          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginTop: 6, textAlign: 'center' }}>{s.name}</div>
-                          <div style={{ fontSize: 10, fontFamily: MONO, color: 'var(--text-muted)', marginTop: 1 }}>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--ec-t1)', marginTop: 6, textAlign: 'center' }}>{s.name}</div>
+                          <div style={{ fontSize: 10, fontFamily: MONO, color: 'var(--ec-t3)', marginTop: 1 }}>
                             {s.name ? s.name.split(' ').map(w => w[0]).join('').toUpperCase() : '?'}
                           </div>
                           <div style={{ marginTop: 4 }}><RolePill role={s.role || STAFF_ROLES[s.name] || 'staff'} /></div>
@@ -425,7 +425,7 @@ export default function Settings() {
 
                         {/* Role dropdown */}
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 8 }}>
-                          <label style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600 }}>Role:</label>
+                          <label style={{ fontSize: 10, color: 'var(--ec-t3)', fontWeight: 600 }}>Role:</label>
                           <select
                             value={s.role || STAFF_ROLES[s.name] || 'staff'}
                             onChange={e => {
@@ -461,12 +461,12 @@ export default function Settings() {
                             </div>
                           ) : (
                             <>
-                              <span style={{ fontSize: 11, fontFamily: MONO, color: 'var(--text-muted)' }}>
+                              <span style={{ fontSize: 11, fontFamily: MONO, color: 'var(--ec-t3)' }}>
                                 PIN: {s.pin ? (pinRevealed ? s.pin : '••••') : 'Not set'}
                               </span>
                               {s.pin && (
                                 <button onClick={() => setRevealPin(prev => ({ ...prev, [s.id]: !prev[s.id] }))} style={{
-                                  background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, padding: 0, color: 'var(--text-muted)',
+                                  background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, padding: 0, color: 'var(--ec-t3)',
                                 }}>👁</button>
                               )}
                               <SmBtn onClick={() => setEditPin({ id: s.id, pin: s.pin || '' })}>{s.pin ? 'Change' : 'Set PIN'}</SmBtn>
@@ -478,7 +478,7 @@ export default function Settings() {
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <Toggle checked={!!s.isManager} onChange={() => toggleManager(s.id)} size="small" />
-                            <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>Manager</span>
+                            <span style={{ fontSize: 10, color: 'var(--ec-t3)' }}>Manager</span>
                           </div>
                           <SmBtn variant="danger" onClick={() => handleRemoveStaff(s.id)}>Remove</SmBtn>
                         </div>
@@ -518,7 +518,7 @@ export default function Settings() {
               <DashCardHeader variant="blue" icon="📚" title="Training Topics" right={<span style={{ fontSize: 11, fontFamily: MONO }}>{trainingTopics.length}</span>} />
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
                 {trainingTopics.length === 0 && (
-                  <span style={{ fontSize: 12, color: 'var(--text-muted)', fontStyle: 'italic' }}>No topics added yet.</span>
+                  <span style={{ fontSize: 12, color: 'var(--ec-t3)', fontStyle: 'italic' }}>No topics added yet.</span>
                 )}
                 {trainingTopics.map(topic => (
                   <span key={topic} style={{
@@ -595,7 +595,7 @@ export default function Settings() {
                 ].map(([label, value]) => (
                   <div key={label}>
                     <span style={labelStyle}>{label}</span>
-                    <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{value || '—'}</span>
+                    <span style={{ fontSize: 12, color: 'var(--ec-t1)' }}>{value || '—'}</span>
                   </div>
                 ))}
               </div>
@@ -619,13 +619,13 @@ export default function Settings() {
                   }}>
                     <span style={{
                       fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em',
-                      color: 'var(--text-muted)',
+                      color: 'var(--ec-t3)',
                     }}>{group.label}</span>
                     <span style={{
                       fontSize: 9, fontWeight: 700, padding: '1px 8px', borderRadius: 10,
-                      background: 'var(--border-card)', color: 'var(--text-secondary)',
+                      background: 'var(--ec-border)', color: 'var(--ec-t2)',
                     }}>{group.tasks.length}</span>
-                    <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--text-muted)', transition: 'transform 0.2s', transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0)' }}>▼</span>
+                    <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--ec-t3)', transition: 'transform 0.2s', transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0)' }}>▼</span>
                   </button>
 
                   {!isCollapsed && (
@@ -634,24 +634,24 @@ export default function Settings() {
                         <div key={task.name} style={{
                           display: 'flex', alignItems: 'center', gap: 10,
                           padding: '8px 12px', borderRadius: 8, marginBottom: 4,
-                          background: 'var(--bg-card)', border: '1px solid var(--border-card)',
+                          background: 'var(--ec-card)', border: '1px solid var(--ec-border)',
                         }}>
-                          <span style={{ color: 'var(--text-muted)', cursor: 'grab', fontSize: 14, flexShrink: 0, userSelect: 'none' }}>⠿</span>
-                          <span style={{ flex: 1, fontSize: 12, fontWeight: 500, color: 'var(--text-primary)' }}>{task.name}</span>
+                          <span style={{ color: 'var(--ec-t3)', cursor: 'grab', fontSize: 14, flexShrink: 0, userSelect: 'none' }}>⠿</span>
+                          <span style={{ flex: 1, fontSize: 12, fontWeight: 500, color: 'var(--ec-t1)' }}>{task.name}</span>
                           <select
                             value={task.frequency}
                             onChange={e => handleFreqChange(task.name, e.target.value)}
                             style={{
                               fontSize: 11, padding: '3px 8px', borderRadius: 6, fontFamily: DM,
-                              background: 'var(--input-bg)', border: '1px solid var(--border-card)',
-                              color: 'var(--text-primary)', cursor: 'pointer',
+                              background: 'var(--ec-card)', border: '1px solid var(--ec-border)',
+                              color: 'var(--ec-t1)', cursor: 'pointer',
                             }}
                           >
                             {FREQUENCIES.map(f => <option key={f} value={f}>{FREQ_LABELS[f] || f}</option>)}
                           </select>
                           <button onClick={() => handleRemoveTask(task.name)} style={{
                             background: 'none', border: 'none', cursor: 'pointer',
-                            color: 'var(--text-muted)', fontSize: 16, padding: 0, lineHeight: 1,
+                            color: 'var(--ec-t3)', fontSize: 16, padding: 0, lineHeight: 1,
                           }}>×</button>
                         </div>
                       ))}
@@ -681,19 +681,19 @@ export default function Settings() {
             {/* RP Rotation */}
             <div style={{ ...CARD, marginBottom: 14, overflow: 'hidden' }}>
               <DashCardHeader variant="em" icon="⚕" title="RP Rotation" />
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>
+              <div style={{ fontSize: 12, color: 'var(--ec-t3)', marginBottom: 10 }}>
                 Configure which pharmacists are responsible for RP duties and their assigned days.
               </div>
               {staffMembers.filter(s => s.isManager || s.name === 'Amjid Shakoor').map(s => (
                 <div key={s.id} style={{
                   display: 'flex', alignItems: 'center', gap: 10,
                   padding: '8px 12px', borderRadius: 8, marginBottom: 4,
-                  background: 'var(--bg-card)', border: '1px solid var(--border-card)',
+                  background: 'var(--ec-card)', border: '1px solid var(--ec-border)',
                 }}>
                   <Avatar name={s.name} size={28} />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{s.name}</div>
-                    <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>Responsible Pharmacist</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ec-t1)' }}>{s.name}</div>
+                    <div style={{ fontSize: 10, color: 'var(--ec-t3)' }}>Responsible Pharmacist</div>
                   </div>
                   <div style={{ display: 'flex', gap: 3 }}>
                     {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
@@ -707,7 +707,7 @@ export default function Settings() {
                 </div>
               ))}
               {staffMembers.filter(s => s.isManager || s.name === 'Amjid Shakoor').length === 0 && (
-                <div style={{ fontSize: 12, color: 'var(--text-muted)', fontStyle: 'italic', padding: 12 }}>
+                <div style={{ fontSize: 12, color: 'var(--ec-t3)', fontStyle: 'italic', padding: 12 }}>
                   No managers configured. Mark staff as "Manager" in the Staff tab to set up RP rotation.
                 </div>
               )}
@@ -716,7 +716,7 @@ export default function Settings() {
             {/* Default Shift Tasks */}
             <div style={{ ...CARD, overflow: 'hidden' }}>
               <DashCardHeader variant="teal" icon="📋" title="Default Shift Tasks" />
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>
+              <div style={{ fontSize: 12, color: 'var(--ec-t3)', marginBottom: 10 }}>
                 These tasks appear on the Dashboard shift checklist. Configure the default task set for daily operations.
               </div>
               {[
@@ -730,16 +730,16 @@ export default function Settings() {
                 ]},
               ].map(group => (
                 <div key={group.section} style={{ marginBottom: 12 }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: 6 }}>{group.section}</div>
+                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ec-t3)', marginBottom: 6 }}>{group.section}</div>
                   {group.tasks.map(task => (
                     <div key={task.name} style={{
                       display: 'flex', alignItems: 'center', gap: 10,
                       padding: '8px 12px', borderRadius: 8, marginBottom: 4,
-                      background: 'var(--bg-card)', border: '1px solid var(--border-card)',
+                      background: 'var(--ec-card)', border: '1px solid var(--ec-border)',
                     }}>
-                      <span style={{ flex: 1, fontSize: 12, fontWeight: 500, color: 'var(--text-primary)' }}>{task.name}</span>
+                      <span style={{ flex: 1, fontSize: 12, fontWeight: 500, color: 'var(--ec-t1)' }}>{task.name}</span>
                       {task.time && (
-                        <span style={{ fontSize: 10, fontFamily: MONO, color: 'var(--text-muted)', padding: '2px 6px', borderRadius: 4, background: 'var(--border-card)' }}>⏱ {task.time}</span>
+                        <span style={{ fontSize: 10, fontFamily: MONO, color: 'var(--ec-t3)', padding: '2px 6px', borderRadius: 4, background: 'var(--ec-border)' }}>⏱ {task.time}</span>
                       )}
                       <span style={{
                         fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 10,
@@ -761,7 +761,7 @@ export default function Settings() {
             <DashCardHeader variant="purple" icon="📝" title="Task Templates" right={<span style={{ fontSize: 11, fontFamily: MONO }}>{taskTemplates.length} templates</span>} />
 
             {taskTemplates.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-muted)', fontSize: 13 }}>No task templates found. Re-seed to restore defaults.</div>
+              <div style={{ textAlign: 'center', padding: 30, color: 'var(--ec-t3)', fontSize: 13 }}>No task templates found. Re-seed to restore defaults.</div>
             ) : (
               <div>
                 {['opening', 'clinical', 'dispensary', 'stock', 'compliance', 'closing', 'admin'].map(cat => {
@@ -770,13 +770,13 @@ export default function Settings() {
                   const catLabels = { opening: 'Opening', clinical: 'Clinical', dispensary: 'Dispensary', stock: 'Stock', compliance: 'Compliance', closing: 'Closing', admin: 'Admin & H&S' }
                   return (
                     <div key={cat} style={{ marginBottom: 12 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 0 4px' }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ec-t3)', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 0 4px' }}>
                         {catLabels[cat] || cat} ({catTemplates.length})
                       </div>
                       {catTemplates.map(t => (
                         <div key={t.id} style={{
                           display: 'flex', alignItems: 'center', gap: 10, padding: '8px 4px',
-                          borderBottom: '1px solid var(--border-card)',
+                          borderBottom: '1px solid var(--ec-border)',
                         }}>
                           <Toggle
                             checked={t.isActive !== false}
@@ -791,11 +791,11 @@ export default function Settings() {
                           />
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{
-                              fontSize: 12, fontWeight: 600, color: t.isActive !== false ? 'var(--text-primary)' : 'var(--text-muted)',
+                              fontSize: 12, fontWeight: 600, color: t.isActive !== false ? 'var(--ec-t1)' : 'var(--ec-t3)',
                               textDecoration: t.isActive === false ? 'line-through' : 'none',
                             }}>{t.name}</div>
                             {t.description && (
-                              <div style={{ fontSize: 10, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.description}</div>
+                              <div style={{ fontSize: 10, color: 'var(--ec-t3)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.description}</div>
                             )}
                           </div>
                           <span style={{
@@ -812,7 +812,7 @@ export default function Settings() {
                                { background: 'var(--ec-card-hover)', color: 'var(--ec-t2)', border: '1px solid var(--ec-t5)' }),
                           }}>{t.priority}</span>
                           {t.applicableRoles && (
-                            <span style={{ fontSize: 9, color: 'var(--text-muted)' }} title={t.applicableRoles.join(', ')}>
+                            <span style={{ fontSize: 9, color: 'var(--ec-t3)' }} title={t.applicableRoles.join(', ')}>
                               {t.applicableRoles.length} roles
                             </span>
                           )}
@@ -830,7 +830,7 @@ export default function Settings() {
         {activeTab === 'notifications' && (
           <div style={{ ...CARD, overflow: 'hidden' }}>
             <DashCardHeader variant="warn" icon="🔔" title="Notification Preferences" />
-            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 12 }}>
+            <div style={{ fontSize: 12, color: 'var(--ec-t3)', marginBottom: 12 }}>
               Control which alerts appear in the sidebar and dashboard.
             </div>
             {[
@@ -849,16 +849,16 @@ export default function Settings() {
               ]},
             ].map(group => (
               <div key={group.section} style={{ marginBottom: 14 }}>
-                <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: 8 }}>{group.section}</div>
+                <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ec-t3)', marginBottom: 8 }}>{group.section}</div>
                 {group.items.map(({ key, label, desc }) => (
                   <div key={key} style={{
                     display: 'flex', alignItems: 'center', gap: 12,
                     padding: '10px 12px', borderRadius: 8, marginBottom: 4,
-                    background: 'var(--bg-card)', border: '1px solid var(--border-card)',
+                    background: 'var(--ec-card)', border: '1px solid var(--ec-border)',
                   }}>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{label}</div>
-                      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>{desc}</div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ec-t1)' }}>{label}</div>
+                      <div style={{ fontSize: 11, color: 'var(--ec-t3)', marginTop: 1 }}>{desc}</div>
                     </div>
                     <Toggle checked={!!notifPrefs[key]} onChange={() => {
                       const updated = { ...notifPrefs, [key]: !notifPrefs[key] }
@@ -881,13 +881,13 @@ export default function Settings() {
               <DashCardHeader variant="muted" icon="📊" title="Data & Reports" />
 
               {/* Backend status */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, padding: '6px 10px', borderRadius: 8, background: 'var(--bg-card)', border: '1px solid var(--border-card)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, padding: '6px 10px', borderRadius: 8, background: 'var(--ec-card)', border: '1px solid var(--ec-border)' }}>
                 <div style={{
                   width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
                   background: backendStatus.checking ? 'var(--ec-t2)' : backendStatus.ok ? 'var(--ec-em)' : 'var(--ec-crit)',
                   boxShadow: backendStatus.ok ? '0 0 0 3px rgba(5,150,105,0.15)' : 'none',
                 }} />
-                <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
+                <span style={{ fontSize: 12, color: 'var(--ec-t2)' }}>
                   {backendStatus.checking ? 'Checking backend…' : backendStatus.ok ? 'Backend connected' : `Backend not connected — ${backendStatus.error}`}
                 </span>
               </div>
@@ -913,7 +913,7 @@ export default function Settings() {
                 <div style={{ fontSize: 12, color: importMsg.type === 'success' ? 'var(--ec-em)' : 'var(--ec-crit)', marginTop: 8 }}>{importMsg.text}</div>
               )}
 
-              <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--border-card)' }}>
+              <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--ec-border)' }}>
                 <ActionCard icon="🚪" title="Log Out" description="Sign out and return to the login screen">
                   <SmBtn onClick={() => { logoutUser(); logout(); window.location.reload() }}>Log Out</SmBtn>
                 </ActionCard>
@@ -923,7 +923,7 @@ export default function Settings() {
             {/* Weekly Report Card */}
             <div style={{ ...CARD, marginBottom: 14, overflow: 'hidden' }}>
               <DashCardHeader variant="blue" icon="📋" title="Weekly Compliance Report" />
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>
+              <div style={{ fontSize: 12, color: 'var(--ec-t3)', marginBottom: 10 }}>
                 Generate a CSV summary of this week's compliance scores, incidents, expiring documents, and overdue training.
               </div>
               <button onClick={handleWeeklyReport} style={{
@@ -939,31 +939,31 @@ export default function Settings() {
             {/* Audit Trail Card */}
             <div style={{ ...CARD, overflow: 'hidden' }}>
               <DashCardHeader variant="muted" icon="📝" title="Audit Trail" />
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>
+              <div style={{ fontSize: 12, color: 'var(--ec-t3)', marginBottom: 10 }}>
                 View a log of all actions performed in the system.
               </div>
               <SmBtn onClick={() => setShowAudit(!showAudit)}>{showAudit ? 'Hide Audit Trail' : 'Show Audit Trail'}</SmBtn>
               {showAudit && (
-                <div style={{ marginTop: 10, maxHeight: 300, overflowY: 'auto', borderRadius: 8, border: '1px solid var(--border-card)' }}>
+                <div style={{ marginTop: 10, maxHeight: 300, overflowY: 'auto', borderRadius: 8, border: '1px solid var(--ec-border)' }}>
                   {auditLogs.length === 0 ? (
-                    <div style={{ fontSize: 12, color: 'var(--text-muted)', padding: 16, textAlign: 'center' }}>No audit entries yet.</div>
+                    <div style={{ fontSize: 12, color: 'var(--ec-t3)', padding: 16, textAlign: 'center' }}>No audit entries yet.</div>
                   ) : (
                     <table style={{ width: '100%', fontSize: 11, borderCollapse: 'collapse', fontFamily: DM }}>
                       <thead>
                         <tr>
                           {['Timestamp', 'Action', 'Item', 'User', 'Page'].map(h => (
-                            <th key={h} style={{ textAlign: 'left', fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', padding: '8px 10px', borderBottom: '1px solid var(--border-card)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
+                            <th key={h} style={{ textAlign: 'left', fontSize: 10, fontWeight: 700, color: 'var(--ec-t3)', padding: '8px 10px', borderBottom: '1px solid var(--ec-border)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
                           ))}
                         </tr>
                       </thead>
                       <tbody>
                         {[...auditLogs].sort((a, b) => new Date(b.timestamp || b.createdAt) - new Date(a.timestamp || a.createdAt)).slice(0, 50).map(log => (
                           <tr key={log.id}>
-                            <td style={{ padding: '6px 10px', borderBottom: '1px solid var(--border-card)', color: 'var(--text-secondary)', fontFamily: MONO, fontSize: 10 }}>{new Date(log.timestamp || log.createdAt).toLocaleString('en-GB')}</td>
-                            <td style={{ padding: '6px 10px', borderBottom: '1px solid var(--border-card)', color: 'var(--text-primary)' }}>{log.action}</td>
-                            <td style={{ padding: '6px 10px', borderBottom: '1px solid var(--border-card)', color: 'var(--text-primary)' }}>{log.itemName}</td>
-                            <td style={{ padding: '6px 10px', borderBottom: '1px solid var(--border-card)', color: 'var(--text-secondary)' }}>{log.userName || '—'}</td>
-                            <td style={{ padding: '6px 10px', borderBottom: '1px solid var(--border-card)', color: 'var(--text-secondary)' }}>{log.page || '—'}</td>
+                            <td style={{ padding: '6px 10px', borderBottom: '1px solid var(--ec-border)', color: 'var(--ec-t2)', fontFamily: MONO, fontSize: 10 }}>{new Date(log.timestamp || log.createdAt).toLocaleString('en-GB')}</td>
+                            <td style={{ padding: '6px 10px', borderBottom: '1px solid var(--ec-border)', color: 'var(--ec-t1)' }}>{log.action}</td>
+                            <td style={{ padding: '6px 10px', borderBottom: '1px solid var(--ec-border)', color: 'var(--ec-t1)' }}>{log.itemName}</td>
+                            <td style={{ padding: '6px 10px', borderBottom: '1px solid var(--ec-border)', color: 'var(--ec-t2)' }}>{log.userName || '—'}</td>
+                            <td style={{ padding: '6px 10px', borderBottom: '1px solid var(--ec-border)', color: 'var(--ec-t2)' }}>{log.page || '—'}</td>
                           </tr>
                         ))}
                       </tbody>

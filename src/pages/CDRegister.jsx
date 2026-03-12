@@ -144,7 +144,7 @@ export default function CDRegister() {
             placeholder="Search drugs..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 rounded-lg border border-ec-border bg-ec-card text-sm text-ec-t1 placeholder:text-ec-t3 outline-none focus:ring-2 focus:ring-emerald-500/30 transition"
+            className="w-full pl-9 pr-3 py-2 rounded-lg border border-ec-border bg-ec-card text-sm text-ec-t1 placeholder:text-ec-t3 outline-none focus:ring-2 focus:ring-ec-em/30 transition"
           />
         </div>
 
@@ -154,7 +154,7 @@ export default function CDRegister() {
             <button key={tab} onClick={() => setActiveTab(tab)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium border-none cursor-pointer transition-all
                 ${activeTab === tab
-                  ? 'bg-emerald-600 text-white shadow-sm'
+                  ? 'bg-ec-em-dark text-white shadow-sm'
                   : 'bg-ec-card text-ec-t2 hover:bg-ec-card-hover border border-ec-border'
                 }`}
             >
@@ -169,7 +169,7 @@ export default function CDRegister() {
             Print Register
           </button>
           <button onClick={() => setShowModal(true)}
-            className="px-3 py-2 rounded-lg text-xs font-semibold bg-emerald-600 text-white border-none cursor-pointer hover:bg-emerald-700 transition shadow-sm">
+            className="px-3 py-2 rounded-lg text-xs font-semibold bg-ec-em-dark text-white border-none cursor-pointer hover:bg-ec-em-dark transition shadow-sm">
             + Add Entry
           </button>
         </div>
@@ -212,7 +212,7 @@ export default function CDRegister() {
                     <td className="px-4 py-3">
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                         entry.direction === 'In'
-                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                          ? 'bg-ec-em-faint text-ec-em'
                           : 'bg-ec-warn/10 text-ec-warn'
                       }`}>
                         {entry.direction}
@@ -300,7 +300,7 @@ export default function CDRegister() {
                 Cancel
               </button>
               <button onClick={handleModalSubmit}
-                className="px-4 py-2 rounded-lg text-sm font-semibold bg-emerald-600 text-white border-none cursor-pointer hover:bg-emerald-700 transition shadow-sm">
+                className="px-4 py-2 rounded-lg text-sm font-semibold bg-ec-em-dark text-white border-none cursor-pointer hover:bg-ec-em-dark transition shadow-sm">
                 Save Entry
               </button>
             </div>

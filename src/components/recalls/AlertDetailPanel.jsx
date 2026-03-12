@@ -161,7 +161,7 @@ export default function AlertDetailPanel({ alert, acks, flags, user, onClose, on
               <select
                 value={actionTaken}
                 onChange={e => setActionTaken(e.target.value)}
-                className="w-full px-2.5 py-1.5 rounded-lg border border-ec-border bg-ec-card text-xs text-ec-t1 outline-none focus:ring-2 focus:ring-emerald-500/30"
+                className="w-full px-2.5 py-1.5 rounded-lg border border-ec-border bg-ec-card text-xs text-ec-t1 outline-none focus:ring-2 focus:ring-ec-em/30"
               >
                 {ACTION_TYPES.map(a => <option key={a} value={a}>{a}</option>)}
               </select>
@@ -170,10 +170,10 @@ export default function AlertDetailPanel({ alert, acks, flags, user, onClose, on
                 onChange={e => setAckNotes(e.target.value)}
                 placeholder="Optional notes..."
                 rows={2}
-                className="w-full px-2.5 py-1.5 rounded-lg border border-ec-border bg-ec-card text-xs text-ec-t1 placeholder:text-ec-t3 outline-none focus:ring-2 focus:ring-emerald-500/30 resize-none"
+                className="w-full px-2.5 py-1.5 rounded-lg border border-ec-border bg-ec-card text-xs text-ec-t1 placeholder:text-ec-t3 outline-none focus:ring-2 focus:ring-ec-em/30 resize-none"
               />
               <button onClick={handleAck}
-                className="px-4 py-2 rounded-lg text-xs font-semibold bg-emerald-600 text-white border-none cursor-pointer hover:bg-emerald-700 transition shadow-sm">
+                className="px-4 py-2 rounded-lg text-xs font-semibold bg-ec-em-dark text-white border-none cursor-pointer hover:bg-ec-em-dark transition shadow-sm">
                 Submit Acknowledgement
               </button>
             </div>
@@ -200,7 +200,7 @@ export default function AlertDetailPanel({ alert, acks, flags, user, onClose, on
                     {canManage && (
                       <button
                         onClick={() => onResolveFlag(f.id)}
-                        className="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-emerald-600 text-white border-none cursor-pointer hover:bg-emerald-700 transition shrink-0"
+                        className="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-ec-em-dark text-white border-none cursor-pointer hover:bg-ec-em-dark transition shrink-0"
                       >
                         Resolve
                       </button>
@@ -218,7 +218,7 @@ export default function AlertDetailPanel({ alert, acks, flags, user, onClose, on
                 <div className="text-[10px] font-bold text-ec-t3 uppercase tracking-wider mb-2">Resolved</div>
                 {flags.filter(f => f.resolved).map(f => (
                   <div key={f.id} className="flex items-center gap-2 py-1.5 px-3 rounded-lg bg-ec-em/[0.04] mb-1">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 text-emerald-500 shrink-0">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 text-ec-em shrink-0">
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
                     <span className="text-xs text-ec-t2">{f.flaggedBy} — {f.reason || 'No reason'}</span>

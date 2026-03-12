@@ -112,7 +112,7 @@
 
   /* ── ec-* token aliases (consumed by Tailwind & inline styles) ── */
   --ec-bg: #f6f9fc;
-  --ec-sidebar: #0a2540;
+  --ec-sidebar: var(--surface);
   --ec-card: #ffffff;
   --ec-card-solid: #ffffff;
   --ec-card-hover: #f8fafc;
@@ -164,18 +164,8 @@
   --ec-cat-slate: #64748b;   --ec-cat-slate-bg: rgba(100,116,139,0.08); --ec-cat-slate-border: rgba(100,116,139,0.2);
 }
 
-/* ── Sidebar scoping (always navy regardless of theme) ── */
-.ec-sidebar-dark {
-  --ec-t1: #f1f5f9;
-  --ec-t2: rgba(255,255,255,0.65);
-  --ec-t3: rgba(255,255,255,0.45);
-  --ec-t4: rgba(255,255,255,0.3);
-  --ec-z6: rgba(255,255,255,0.55);
-  --ec-card: rgba(255,255,255,0.06);
-  --ec-card-hover: rgba(255,255,255,0.10);
-  --ec-div: rgba(255,255,255,0.08);
-  --ec-border: rgba(255,255,255,0.08);
-}
+/* ── Sidebar scoping ── */
+/* Sidebar now uses default ec-* tokens (white in light, dark surface in dark) */
 
 /* ── Emerald Stripe — Dark (toggle) ── */
 [data-theme="dark"] {
@@ -244,7 +234,7 @@
 
   /* ── ec-* token aliases — dark ── */
   --ec-bg: #0a0f0d;
-  --ec-sidebar: #070b09;
+  --ec-sidebar: var(--surface);
   --ec-card: #111916;
   --ec-card-solid: #111916;
   --ec-card-hover: #172118;
@@ -373,7 +363,7 @@ body {
 }
 
 a {
-  color: var(--primary);
+  color: var(--em);
   text-decoration: none;
 }
 a:hover {

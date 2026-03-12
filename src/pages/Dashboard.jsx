@@ -141,7 +141,7 @@ function TaskRow({ task, onToggle }) {
       <div style={{
         width: 17, height: 17, borderRadius: 5, flexShrink: 0,
         border: task.done ? "none" : "2px solid var(--ec-t4)",
-        background: task.done ? "var(--ec-em)" : "white",
+        background: task.done ? "var(--ec-em)" : "var(--surface)",
         display: "flex", alignItems: "center", justifyContent: "center",
       }}>
         {task.done && <SvgCheck size={10} color="white" />}
@@ -553,8 +553,8 @@ export default function Dashboard() {
   }
 
   const card = {
-    background: "var(--ec-card)", borderRadius: 12, padding: "14px 16px",
-    border: "1px solid var(--ec-div)", boxShadow: "0 1px 4px rgba(5,150,105,0.06)",
+    background: "var(--surface)", borderRadius: "var(--radius-lg)", padding: "14px 16px",
+    border: "1.5px solid var(--border)", boxShadow: "var(--shadow-sm)",
   };
 
   // ── Loading ──
@@ -574,35 +574,36 @@ export default function Dashboard() {
   return (
     <div style={{ fontFamily: "'Inter', sans-serif", background: "var(--ec-bg)", minHeight: "100vh" }}>
 
-      {/* Topbar */}
+      {/* Topbar — clean white, matches all other pages */}
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "11px 22px",
-        background: "var(--ec-grad-hero)",
+        background: "var(--surface)",
+        borderBottom: "1px solid var(--border)",
         position: "sticky", top: 0, zIndex: 10,
       }}>
         <div>
-          <div style={{ fontSize: 17, fontWeight: 700, color: "white", letterSpacing: "-0.02em" }}>{getGreeting()}, {firstName}</div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.55)" }}>{dateStr} · {timeStr}</div>
+          <div style={{ fontSize: 17, fontWeight: 700, color: "var(--text)", letterSpacing: "-0.02em" }}>{getGreeting()}, {firstName}</div>
+          <div style={{ fontSize: 11, color: "var(--text-3)" }}>{dateStr} · {timeStr}</div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           {[
-            { label: "Overall", val: `${overallPct}%`, bg: "rgba(255,255,255,0.18)" },
-            { label: "Overdue", val: String(overdueCount), bg: overdueCount > 0 ? "var(--ec-crit)" : "rgba(255,255,255,0.18)" },
-            { label: "Due Today", val: String(dueTodayCount), bg: dueTodayCount > 0 ? "var(--ec-warn)" : "rgba(255,255,255,0.18)" },
+            { label: "Overall", val: `${overallPct}%`, bg: "var(--em-light)", color: "var(--em)", borderColor: "transparent" },
+            { label: "Overdue", val: String(overdueCount), bg: overdueCount > 0 ? "var(--red-light)" : "var(--surface)", color: overdueCount > 0 ? "var(--red)" : "var(--text)", borderColor: "var(--border)" },
+            { label: "Due Today", val: String(dueTodayCount), bg: dueTodayCount > 0 ? "var(--amber-light)" : "var(--surface)", color: dueTodayCount > 0 ? "var(--amber)" : "var(--text)", borderColor: "var(--border)" },
           ].map(k => (
-            <div key={k.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "5px 12px", borderRadius: 9, background: k.bg }}>
-              <span style={{ fontSize: 18, fontWeight: 800, color: "white", lineHeight: 1, fontFamily: "'DM Mono', 'SF Mono', monospace" }}>{k.val}</span>
-              <span style={{ fontSize: 9, color: "rgba(255,255,255,0.7)", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>{k.label}</span>
+            <div key={k.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "4px 12px", borderRadius: 20, background: k.bg, border: `1.5px solid ${k.borderColor}` }}>
+              <span style={{ fontSize: 14, fontWeight: 800, color: k.color, lineHeight: 1, fontFamily: "'DM Mono', 'SF Mono', monospace" }}>{k.val}</span>
+              <span style={{ fontSize: 9, color: "var(--text-3)", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>{k.label}</span>
             </div>
           ))}
           <div style={{ position: "relative", cursor: "pointer", padding: "5px 8px" }}>
-            <SvgBell size={17} color="white" />
+            <SvgBell size={17} color="var(--text-3)" />
             {unreadCount > 0 && (
-              <div style={{ position: "absolute", top: 1, right: 3, width: 15, height: 15, borderRadius: "50%", background: "var(--ec-crit)", fontSize: 8, fontWeight: 700, color: "white", display: "flex", alignItems: "center", justifyContent: "center" }}>{unreadCount}</div>
+              <div style={{ position: "absolute", top: 1, right: 3, width: 15, height: 15, borderRadius: "50%", background: "var(--red)", fontSize: 8, fontWeight: 700, color: "white", display: "flex", alignItems: "center", justifyContent: "center" }}>{unreadCount}</div>
             )}
           </div>
-          <div style={{ padding: "4px 9px", borderRadius: 7, background: "rgba(255,255,255,0.18)", color: "white", fontSize: 11, fontWeight: 700, border: "1px solid rgba(255,255,255,0.3)" }}>{pharmacyConfig.gphcNumber || "—"}</div>
+          <div style={{ padding: "4px 9px", borderRadius: 7, background: "var(--surface)", color: "var(--text)", fontSize: 11, fontWeight: 700, border: "1.5px solid var(--border)" }}>{pharmacyConfig.gphcNumber || "—"}</div>
         </div>
       </div>
 
@@ -671,10 +672,10 @@ export default function Dashboard() {
         {/* ── To Do ── */}
         <div style={{ ...card, marginBottom: 12, overflow: "hidden" }}>
           <CardHeader
-            variant="warn"
+            variant="purple"
             icon={<SvgCheckSquare size={14} />} title="To Do"
             right={actionItems.filter(t => !t.done).length > 0
-              ? <span style={{ fontSize: 10, fontFamily: "'DM Mono', 'SF Mono', monospace", background: "rgba(255,255,255,0.2)", padding: "1px 7px", borderRadius: 20 }}>{actionItems.filter(t => !t.done).length} remaining</span>
+              ? <span style={{ fontSize: 10, fontFamily: "'DM Mono', 'SF Mono', monospace", background: "var(--amber-light)", color: "var(--amber)", padding: "1px 7px", borderRadius: 20, fontWeight: 600 }}>{actionItems.filter(t => !t.done).length} remaining</span>
               : null}
           />
           <div style={{ display: "flex", gap: 6, marginBottom: actionItems.length ? 8 : 0 }}>
@@ -715,10 +716,10 @@ export default function Dashboard() {
                 icon={<SvgClipboard size={14} />} title="Shift Checklist"
                 right={
                   <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                    <div style={{ width: 80, height: 4, background: "rgba(255,255,255,0.25)", borderRadius: 99, overflow: "hidden" }}>
-                      <div style={{ width: `${shiftPct}%`, height: "100%", background: shiftPct === 100 ? "var(--ec-em)" : "white", borderRadius: 99, transition: "width 0.4s" }} />
+                    <div style={{ width: 80, height: 4, background: "var(--border)", borderRadius: 99, overflow: "hidden" }}>
+                      <div style={{ width: `${shiftPct}%`, height: "100%", background: "var(--em)", borderRadius: 99, transition: "width 0.4s" }} />
                     </div>
-                    <span style={{ fontSize: 11, fontFamily: "'DM Mono', 'SF Mono', monospace" }}>{shiftDone}/{shiftTotal}</span>
+                    <span style={{ fontSize: 11, fontFamily: "'DM Mono', 'SF Mono', monospace", color: "var(--text-2)" }}>{shiftDone}/{shiftTotal}</span>
                   </div>
                 }
               />
@@ -911,7 +912,7 @@ export default function Dashboard() {
               <CardHeader
                 variant="em"
                 icon={<SvgHospital size={14} />} title="Compliance Health"
-                right={<span style={{ fontSize: 13, fontWeight: 800, fontFamily: "'DM Mono', 'SF Mono', monospace" }}>{overallPct}% <span style={{ fontSize: 9, fontWeight: 400, opacity: 0.7 }}>overall</span></span>}
+                right={<span style={{ fontSize: 13, fontWeight: 800, fontFamily: "'DM Mono', 'SF Mono', monospace", color: "var(--em)" }}>{overallPct}% <span style={{ fontSize: 9, fontWeight: 400, color: "var(--text-3)" }}>overall</span></span>}
               />
               <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                 {complianceHealth.map(item => (
@@ -929,7 +930,7 @@ export default function Dashboard() {
 
             {/* Expiring Soon */}
             <div style={{ ...card, overflow: "hidden" }}>
-              <CardHeader variant="em" icon={<SvgCalendar size={14} />} title="Expiring Soon" />
+              <CardHeader variant="warn" icon={<SvgCalendar size={14} />} title="Expiring Soon" />
               {expiringDocs.length === 0
                 ? <div style={{ fontSize: 11, color: "var(--ec-t3)", textAlign: "center", padding: "8px 0", fontStyle: "italic" }}>No documents expiring within 90 days</div>
                 : <>
@@ -977,7 +978,7 @@ export default function Dashboard() {
             right={canAssign ? (
               <button
                 onClick={() => setStFormOpen(o => !o)}
-                style={{ fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.4)", background: "rgba(255,255,255,0.15)", color: "white", cursor: "pointer", fontFamily: "'Inter', sans-serif" }}
+                style={{ fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 6, border: "1.5px solid var(--border)", background: "var(--surface)", color: "var(--text-2)", cursor: "pointer", fontFamily: "'Inter', sans-serif" }}
               >
                 {stFormOpen ? "Cancel" : "+ Assign"}
               </button>

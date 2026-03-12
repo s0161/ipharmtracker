@@ -68,7 +68,7 @@ function SectionHeader({ accent, icon, title, right }) {
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
         <span style={{ fontSize: 14 }}>{icon}</span>
-        <span style={{ ...sans, fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{title}</span>
+        <span style={{ ...sans, fontSize: 13, fontWeight: 700, color: 'var(--ec-t1)' }}>{title}</span>
       </div>
       {right && <div>{right}</div>}
     </div>
@@ -83,7 +83,7 @@ const SvgCheck = ({ size = 10, color = 'white' }) => (
 // ── Mini SVG chart ──
 function TempChart({ data }) {
   if (!data || data.length < 2) {
-    return <p style={{ ...sans, fontSize: 12, color: 'var(--text-muted)', fontStyle: 'italic', textAlign: 'center', padding: '24px 0' }}>Not enough data to display chart yet.</p>
+    return <p style={{ ...sans, fontSize: 12, color: 'var(--ec-t3)', fontStyle: 'italic', textAlign: 'center', padding: '24px 0' }}>Not enough data to display chart yet.</p>
   }
 
   const W = 520, H = 200, PAD = { t: 16, r: 16, b: 32, l: 36 }
@@ -153,7 +153,7 @@ function ChartLegend() {
       {items.map(it => (
         <div key={it.label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
           <svg width="20" height="4"><line x1="0" y1="2" x2="20" y2="2" stroke={it.color} strokeWidth="2" strokeDasharray={it.dash ? '4 2' : 'none'} /></svg>
-          <span style={{ ...sans, fontSize: 10, color: 'var(--text-secondary)' }}>{it.label}</span>
+          <span style={{ ...sans, fontSize: 10, color: 'var(--ec-t2)' }}>{it.label}</span>
         </div>
       ))}
     </div>
@@ -214,8 +214,8 @@ function SafeHandlingSection() {
 
   return (
     <div style={{
-      background: 'var(--bg-card)', borderRadius: 12,
-      border: '1px solid var(--border-card)', boxShadow: 'var(--shadow-card)',
+      background: 'var(--ec-card)', borderRadius: 12,
+      border: '1px solid var(--ec-border)', boxShadow: 'var(--shadow-card)',
       marginBottom: 12, overflow: 'hidden',
     }}>
       <button
@@ -227,7 +227,7 @@ function SafeHandlingSection() {
         }}
       >
         <span style={{ fontSize: 14 }}>📋</span>
-        <span style={{ ...sans, fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', flex: 1 }}>
+        <span style={{ ...sans, fontSize: 13, fontWeight: 700, color: 'var(--ec-t1)', flex: 1 }}>
           Safe Handling & Cold Chain
         </span>
         <svg width={12} height={12} viewBox="0 0 12 12" fill="none"
@@ -238,7 +238,7 @@ function SafeHandlingSection() {
       </button>
 
       {open && (
-        <div style={{ padding: '0 14px 14px', borderTop: '1px solid var(--border-card)' }}>
+        <div style={{ padding: '0 14px 14px', borderTop: '1px solid var(--ec-border)' }}>
           {guidelines.map(section => (
             <div key={section.title} style={{ marginTop: 12 }}>
               <div style={{ ...sans, fontSize: 11, fontWeight: 700, color: 'var(--ec-em)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>
@@ -246,7 +246,7 @@ function SafeHandlingSection() {
               </div>
               <ul style={{ margin: 0, paddingLeft: 16 }}>
                 {section.items.map((item, i) => (
-                  <li key={i} style={{ ...sans, fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 2 }}>
+                  <li key={i} style={{ ...sans, fontSize: 11, color: 'var(--ec-t2)', lineHeight: 1.6, marginBottom: 2 }}>
                     {item}
                   </li>
                 ))}
@@ -261,8 +261,8 @@ function SafeHandlingSection() {
 
 // ── Card wrapper ──
 const card = {
-  background: 'var(--bg-card)', borderRadius: 12,
-  padding: '14px 16px', border: '1px solid var(--border-card)',
+  background: 'var(--ec-card)', borderRadius: 12,
+  padding: '14px 16px', border: '1px solid var(--ec-border)',
   boxShadow: 'var(--shadow-card)', marginBottom: 12,
 }
 
@@ -506,7 +506,7 @@ export default function TemperatureLog() {
     const ok = value === '' || inRange(value)
     return (
       <div>
-        <label style={{ ...sans, display: 'block', fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4, fontWeight: 600 }}>{label}</label>
+        <label style={{ ...sans, display: 'block', fontSize: 10, color: 'var(--ec-t3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4, fontWeight: 600 }}>{label}</label>
         <input
           type="number" step="0.1" value={value}
           onChange={(e) => setValue(e.target.value)}
@@ -514,9 +514,9 @@ export default function TemperatureLog() {
           style={{
             ...mono, width: 80, padding: '8px 10px', borderRadius: 8,
             fontSize: 14, fontWeight: 700, textAlign: 'center',
-            border: `1px solid ${ok ? 'var(--input-border)' : 'var(--ec-crit-border)'}`,
-            background: ok ? 'var(--input-bg)' : 'var(--ec-crit-bg)',
-            color: ok ? 'var(--text-primary)' : 'var(--ec-crit)',
+            border: `1px solid ${ok ? 'var(--ec-border)' : 'var(--ec-crit-border)'}`,
+            background: ok ? 'var(--ec-card)' : 'var(--ec-crit-bg)',
+            color: ok ? 'var(--ec-t1)' : 'var(--ec-crit)',
             outline: 'none', boxSizing: 'border-box', transition: 'border 0.15s, background 0.15s',
           }}
         />
@@ -529,7 +529,7 @@ export default function TemperatureLog() {
     const ok = inRange(v)
     return (
       <div style={{ textAlign: 'center' }}>
-        <div style={{ ...sans, fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4, fontWeight: 600 }}>{label}</div>
+        <div style={{ ...sans, fontSize: 10, color: 'var(--ec-t3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4, fontWeight: 600 }}>{label}</div>
         <div style={{ ...mono, fontSize: 18, fontWeight: 700, color: ok ? 'var(--ec-em)' : 'var(--ec-crit)' }}>
           {isNaN(v) ? '—' : `${v.toFixed(1)}°C`}
         </div>
@@ -541,14 +541,14 @@ export default function TemperatureLog() {
     <div style={{ ...sans }}>
       {/* ── Page Header ── */}
       <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 6 }}>Dashboard / Temperature Log</div>
+        <div style={{ fontSize: 12, color: 'var(--ec-t3)', marginBottom: 6 }}>Dashboard / Temperature Log</div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 4 }}>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Temperature Log</h1>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--ec-t1)', margin: 0 }}>Temperature Log</h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <button onClick={handleCsvExport} style={{
               ...sans, display: 'inline-flex', alignItems: 'center', gap: 5,
-              border: '1px solid var(--border-card)', background: 'var(--bg-card)',
-              color: 'var(--text-secondary)', borderRadius: 8, padding: '6px 14px',
+              border: '1px solid var(--ec-border)', background: 'var(--ec-card)',
+              color: 'var(--ec-t2)', borderRadius: 8, padding: '6px 14px',
               fontSize: 12, cursor: 'pointer', fontWeight: 500,
             }}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13">
@@ -558,7 +558,7 @@ export default function TemperatureLog() {
             </button>
           </div>
         </div>
-        <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: 0 }}>
+        <p style={{ fontSize: 12, color: 'var(--ec-t3)', margin: 0 }}>
           Daily fridge temperature monitoring — GPhC compliance requirement. Safe range: {RANGE_MIN}°C – {RANGE_MAX}°C
         </p>
       </div>
@@ -585,9 +585,9 @@ export default function TemperatureLog() {
       <div style={{
         display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16,
         padding: '8px 12px', borderRadius: 10,
-        background: 'var(--bg-card)', border: '1px solid var(--border-card)',
+        background: 'var(--ec-card)', border: '1px solid var(--ec-border)',
       }}>
-        <span style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', marginRight: 4 }}>FRIDGE:</span>
+        <span style={{ ...sans, fontSize: 11, fontWeight: 600, color: 'var(--ec-t3)', marginRight: 4 }}>FRIDGE:</span>
         {FRIDGES.map(f => (
           <button
             key={f.id}
@@ -596,14 +596,14 @@ export default function TemperatureLog() {
               ...sans, padding: '5px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600,
               border: 'none', cursor: 'pointer', transition: 'all 0.15s',
               background: selectedFridge === f.id ? 'var(--ec-em)' : 'transparent',
-              color: selectedFridge === f.id ? 'white' : 'var(--text-secondary)',
+              color: selectedFridge === f.id ? 'white' : 'var(--ec-t2)',
               boxShadow: selectedFridge === f.id ? '0 2px 8px rgba(5,150,105,0.3)' : 'none',
             }}
           >
             {f.name}
           </button>
         ))}
-        <span style={{ ...sans, fontSize: 10, color: 'var(--text-muted)', marginLeft: 'auto' }}>
+        <span style={{ ...sans, fontSize: 10, color: 'var(--ec-t3)', marginLeft: 'auto' }}>
           {currentFridge.location}
         </span>
       </div>
@@ -622,7 +622,7 @@ export default function TemperatureLog() {
                   ...sans, fontSize: 10, fontWeight: 600, padding: '2px 10px', borderRadius: 20,
                   background: statusPill.bg, color: statusPill.color, border: `1px solid ${statusPill.border}`,
                 }}>{statusPill.label}</span>
-                <span style={{ ...mono, fontSize: 11, color: 'var(--text-muted)' }}>{today}</span>
+                <span style={{ ...mono, fontSize: 11, color: 'var(--ec-t3)' }}>{today}</span>
               </div>
             } />
 
@@ -636,7 +636,7 @@ export default function TemperatureLog() {
                   border: notChecked ? '1px solid var(--ec-t5)' : '1px solid transparent',
                 }}>
                   <AnimatedCheck checked={notChecked} onChange={() => setNotChecked(!notChecked)} />
-                  <span style={{ ...sans, fontSize: 12, fontWeight: 600, color: notChecked ? 'var(--ec-t2)' : 'var(--text-secondary)' }}>
+                  <span style={{ ...sans, fontSize: 12, fontWeight: 600, color: notChecked ? 'var(--ec-t2)' : 'var(--ec-t2)' }}>
                     Not checked today
                   </span>
                 </div>
@@ -644,7 +644,7 @@ export default function TemperatureLog() {
                 {notChecked ? (
                   /* Not Checked reason */
                   <div style={{ marginBottom: 12 }}>
-                    <label style={{ ...sans, display: 'block', fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6, fontWeight: 600 }}>Reason</label>
+                    <label style={{ ...sans, display: 'block', fontSize: 10, color: 'var(--ec-t3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6, fontWeight: 600 }}>Reason</label>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                       {NOT_CHECKED_REASONS.map(reason => (
                         <button
@@ -654,9 +654,9 @@ export default function TemperatureLog() {
                           style={{
                             ...sans, padding: '5px 12px', borderRadius: 20, fontSize: 11, fontWeight: 600,
                             cursor: 'pointer', transition: 'all 0.15s',
-                            border: notCheckedReason === reason ? '1px solid var(--ec-em)' : '1px solid var(--border-card)',
+                            border: notCheckedReason === reason ? '1px solid var(--ec-em)' : '1px solid var(--ec-border)',
                             background: notCheckedReason === reason ? 'var(--ec-em-bg)' : 'transparent',
-                            color: notCheckedReason === reason ? 'var(--ec-em)' : 'var(--text-secondary)',
+                            color: notCheckedReason === reason ? 'var(--ec-em)' : 'var(--ec-t2)',
                           }}
                         >
                           {reason}
@@ -689,33 +689,33 @@ export default function TemperatureLog() {
                           placeholder="e.g. Fridge door left open, engineer called..."
                           style={{
                             ...sans, width: '100%', fontSize: 12,
-                            background: 'var(--input-bg)', border: '1px solid var(--input-border)',
-                            borderRadius: 8, padding: '8px 12px', color: 'var(--text-primary)',
+                            background: 'var(--ec-card)', border: '1px solid var(--ec-border)',
+                            borderRadius: 8, padding: '8px 12px', color: 'var(--ec-t1)',
                             resize: 'vertical', outline: 'none', boxSizing: 'border-box',
                           }}
                         />
 
                         {/* Action checkboxes */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
-                          <div style={{ ...sans, fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Actions Taken</div>
+                          <div style={{ ...sans, fontSize: 10, fontWeight: 600, color: 'var(--ec-t3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Actions Taken</div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <AnimatedCheck checked={stockQuarantined} onChange={() => setStockQuarantined(!stockQuarantined)} />
-                            <span style={{ ...sans, fontSize: 12, color: 'var(--text-primary)' }}>Stock quarantined</span>
+                            <span style={{ ...sans, fontSize: 12, color: 'var(--ec-t1)' }}>Stock quarantined</span>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <AnimatedCheck checked={stockDestroyed} onChange={() => setStockDestroyed(!stockDestroyed)} />
-                            <span style={{ ...sans, fontSize: 12, color: 'var(--text-primary)' }}>Stock destroyed / disposed of</span>
+                            <span style={{ ...sans, fontSize: 12, color: 'var(--ec-t1)' }}>Stock destroyed / disposed of</span>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{ ...sans, fontSize: 12, color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>Reported to:</span>
+                            <span style={{ ...sans, fontSize: 12, color: 'var(--ec-t2)', whiteSpace: 'nowrap' }}>Reported to:</span>
                             <input
                               type="text" value={reportedTo}
                               onChange={(e) => setReportedTo(e.target.value)}
                               placeholder="e.g. Amjid Shakoor (RP)"
                               style={{
                                 ...sans, flex: 1, padding: '5px 10px', borderRadius: 6,
-                                fontSize: 12, border: '1px solid var(--input-border)',
-                                background: 'var(--input-bg)', color: 'var(--text-primary)',
+                                fontSize: 12, border: '1px solid var(--ec-border)',
+                                background: 'var(--ec-card)', color: 'var(--ec-t1)',
                                 outline: 'none', boxSizing: 'border-box',
                               }}
                             />
@@ -729,7 +729,7 @@ export default function TemperatureLog() {
                 {/* Logged by */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                   <Avatar name={user?.name} size={22} />
-                  <span style={{ ...sans, fontSize: 12, color: 'var(--text-secondary)' }}>
+                  <span style={{ ...sans, fontSize: 12, color: 'var(--ec-t2)' }}>
                     Logging as {user?.name || 'Unknown'} ({userInitials})
                   </span>
                 </div>
@@ -742,9 +742,9 @@ export default function TemperatureLog() {
                   }}>{submitting ? 'Saving…' : notChecked ? 'Record Not Checked' : 'Save Reading'}</button>
                   {editing && (
                     <button type="button" onClick={resetForm} style={{
-                      ...sans, padding: '9px 16px', background: 'var(--bg-card)',
-                      border: '1px solid var(--border-card)', borderRadius: 8,
-                      fontSize: 12, color: 'var(--text-secondary)', cursor: 'pointer',
+                      ...sans, padding: '9px 16px', background: 'var(--ec-card)',
+                      border: '1px solid var(--ec-border)', borderRadius: 8,
+                      fontSize: 12, color: 'var(--ec-t2)', cursor: 'pointer',
                     }}>Cancel</button>
                   )}
                 </div>
@@ -801,14 +801,14 @@ export default function TemperatureLog() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <Avatar name={todayEntry.loggedBy} size={18} />
-                    <span style={{ ...sans, fontSize: 11, color: 'var(--text-muted)' }}>
+                    <span style={{ ...sans, fontSize: 11, color: 'var(--ec-t3)' }}>
                       Logged by {todayEntry.loggedBy || userInitials}
                     </span>
                   </div>
                   <button onClick={() => setEditing(true)} style={{
                     ...sans, padding: '4px 12px', borderRadius: 6, fontSize: 11,
-                    fontWeight: 600, background: 'var(--bg-card)',
-                    border: '1px solid var(--border-card)', color: 'var(--text-secondary)',
+                    fontWeight: 600, background: 'var(--ec-card)',
+                    border: '1px solid var(--ec-border)', color: 'var(--ec-t2)',
                     cursor: 'pointer',
                   }}>Edit</button>
                 </div>
@@ -820,7 +820,7 @@ export default function TemperatureLog() {
           <div style={{
             display: 'flex', gap: 8, marginBottom: 12,
             padding: '10px 14px', borderRadius: 10,
-            background: 'var(--bg-card)', border: '1px solid var(--border-card)',
+            background: 'var(--ec-card)', border: '1px solid var(--ec-border)',
           }}>
             {[
               { label: 'Days This Month', val: monthlyStats.totalDays, color: 'var(--ec-t2)', bg: 'var(--ec-card-hover)', border: 'var(--ec-t5)' },
@@ -841,7 +841,7 @@ export default function TemperatureLog() {
           {/* ── History Table ── */}
           <div style={card}>
             <SectionHeader accent="var(--ec-em-dark)" icon="📋" title="History" right={
-              <span style={{ ...sans, fontSize: 11, color: 'var(--text-muted)' }}>Last 30 days</span>
+              <span style={{ ...sans, fontSize: 11, color: 'var(--ec-t3)' }}>Last 30 days</span>
             } />
 
             {/* History filters */}
@@ -851,8 +851,8 @@ export default function TemperatureLog() {
                 onChange={e => setHistoryFilter(p => ({ ...p, status: e.target.value }))}
                 style={{
                   ...sans, fontSize: 11, padding: '4px 8px', borderRadius: 6,
-                  border: '1px solid var(--border-card)', background: 'var(--bg-card)',
-                  color: 'var(--text-secondary)', outline: 'none', cursor: 'pointer',
+                  border: '1px solid var(--ec-border)', background: 'var(--ec-card)',
+                  color: 'var(--ec-t2)', outline: 'none', cursor: 'pointer',
                 }}
               >
                 <option value="all">All Statuses</option>
@@ -866,8 +866,8 @@ export default function TemperatureLog() {
                   onChange={e => setHistoryFilter(p => ({ ...p, fridge: e.target.value }))}
                   style={{
                     ...sans, fontSize: 11, padding: '4px 8px', borderRadius: 6,
-                    border: '1px solid var(--border-card)', background: 'var(--bg-card)',
-                    color: 'var(--text-secondary)', outline: 'none', cursor: 'pointer',
+                    border: '1px solid var(--ec-border)', background: 'var(--ec-card)',
+                    color: 'var(--ec-t2)', outline: 'none', cursor: 'pointer',
                   }}
                 >
                   <option value="all">All Fridges</option>
@@ -881,8 +881,8 @@ export default function TemperatureLog() {
                 <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="var(--ec-t4)" strokeWidth="1.5" style={{ margin: '0 auto 8px', display: 'block' }}>
                   <path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z" />
                 </svg>
-                <div style={{ ...sans, fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>No readings match this filter.</div>
-                <div style={{ ...sans, fontSize: 11, color: 'var(--text-muted)' }}>Try adjusting filters or log today's reading.</div>
+                <div style={{ ...sans, fontSize: 13, fontWeight: 600, color: 'var(--ec-t1)', marginBottom: 4 }}>No readings match this filter.</div>
+                <div style={{ ...sans, fontSize: 11, color: 'var(--ec-t3)' }}>Try adjusting filters or log today's reading.</div>
               </div>
             ) : (
               <div style={{ overflowX: 'auto' }}>
@@ -891,9 +891,9 @@ export default function TemperatureLog() {
                     <tr>
                       {['Date', 'Min', 'Max', 'Current', 'By', 'Status'].map(h => (
                         <th key={h} style={{
-                          ...sans, fontSize: 9, fontWeight: 600, color: 'var(--text-muted)',
+                          ...sans, fontSize: 9, fontWeight: 600, color: 'var(--ec-t3)',
                           textAlign: 'left', padding: '6px 8px',
-                          borderBottom: '1px solid var(--border-card)',
+                          borderBottom: '1px solid var(--ec-border)',
                           textTransform: 'uppercase', letterSpacing: 0.5,
                         }}>{h}</th>
                       ))}
@@ -907,14 +907,14 @@ export default function TemperatureLog() {
                       const isExpanded = expandedRow === log.id
 
                       const tempCell = (val) => {
-                        if (isNC) return <td style={{ ...mono, fontSize: 12, padding: '6px 8px', color: 'var(--ec-t3)', borderBottom: '1px solid var(--border-card)' }}>—</td>
+                        if (isNC) return <td style={{ ...mono, fontSize: 12, padding: '6px 8px', color: 'var(--ec-t3)', borderBottom: '1px solid var(--ec-border)' }}>—</td>
                         const v = parseFloat(val)
                         const ok = inRange(v)
                         return (
                           <td style={{
                             ...mono, fontSize: 12, fontWeight: 600, padding: '6px 8px',
                             color: ok ? 'var(--ec-em)' : 'var(--ec-crit)',
-                            borderBottom: '1px solid var(--border-card)',
+                            borderBottom: '1px solid var(--ec-border)',
                           }}>{isNaN(v) ? '—' : v.toFixed(1)}</td>
                         )
                       }
@@ -930,7 +930,7 @@ export default function TemperatureLog() {
                             borderLeft: isExcursion ? '3px solid var(--ec-warn)' : isNC ? '3px solid var(--ec-t3)' : '3px solid transparent',
                           }}
                         >
-                          <td style={{ ...mono, fontSize: 11, padding: '6px 8px', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-card)', whiteSpace: 'nowrap' }}>
+                          <td style={{ ...mono, fontSize: 11, padding: '6px 8px', color: 'var(--ec-t1)', borderBottom: '1px solid var(--ec-border)', whiteSpace: 'nowrap' }}>
                             {formatDate(log.date)}
                             {isToday && <span style={{
                               ...sans, marginLeft: 4, fontSize: 9, fontWeight: 600,
@@ -941,10 +941,10 @@ export default function TemperatureLog() {
                           {tempCell(log.tempMin)}
                           {tempCell(log.tempMax)}
                           {tempCell(log.tempCurrent)}
-                          <td style={{ padding: '6px 8px', borderBottom: '1px solid var(--border-card)' }}>
+                          <td style={{ padding: '6px 8px', borderBottom: '1px solid var(--ec-border)' }}>
                             <Avatar name={log.loggedBy} size={20} />
                           </td>
-                          <td style={{ padding: '6px 8px', borderBottom: '1px solid var(--border-card)' }}>
+                          <td style={{ padding: '6px 8px', borderBottom: '1px solid var(--ec-border)' }}>
                             {isNC ? (
                               <span style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 20, background: 'var(--ec-t5)', color: 'var(--ec-t2)', border: '1px solid var(--ec-t5)' }}>
                                 ⏭️ Not checked
@@ -972,9 +972,9 @@ export default function TemperatureLog() {
                   if (!reason) return null
                   return (
                     <div style={{
-                      ...sans, fontSize: 11, color: 'var(--text-muted)', fontStyle: 'italic',
+                      ...sans, fontSize: 11, color: 'var(--ec-t3)', fontStyle: 'italic',
                       padding: '8px 12px', background: 'var(--bg-card-hover, var(--ec-card-hover))',
-                      borderBottom: '1px solid var(--border-card)', borderLeft: '3px solid var(--ec-warn)',
+                      borderBottom: '1px solid var(--ec-border)', borderLeft: '3px solid var(--ec-warn)',
                     }}>
                       <strong style={{ fontWeight: 600, fontStyle: 'normal' }}>
                         {log.notChecked ? 'Reason:' : 'Excursion reason:'}
@@ -1009,9 +1009,9 @@ export default function TemperatureLog() {
                     key={d} onClick={() => setChartDays(d)}
                     style={{
                       ...sans, fontSize: 10, fontWeight: 600, padding: '3px 10px',
-                      borderRadius: 10, border: '1px solid var(--border-card)', cursor: 'pointer',
+                      borderRadius: 10, border: '1px solid var(--ec-border)', cursor: 'pointer',
                       background: chartDays === d ? 'var(--ec-em)' : 'transparent',
-                      color: chartDays === d ? 'white' : 'var(--text-secondary)',
+                      color: chartDays === d ? 'white' : 'var(--ec-t2)',
                     }}
                   >{d}d</button>
                 ))}
@@ -1082,8 +1082,8 @@ export default function TemperatureLog() {
                 { label: 'Temp Range', val: currentFridge.tempRange },
               ].map(row => (
                 <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ ...sans, fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{row.label}</span>
-                  <span style={{ ...sans, fontSize: 12, fontWeight: 500, color: 'var(--text-primary)' }}>{row.val}</span>
+                  <span style={{ ...sans, fontSize: 10, fontWeight: 600, color: 'var(--ec-t3)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{row.label}</span>
+                  <span style={{ ...sans, fontSize: 12, fontWeight: 500, color: 'var(--ec-t1)' }}>{row.val}</span>
                 </div>
               ))}
             </div>
@@ -1095,8 +1095,8 @@ export default function TemperatureLog() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <Avatar name={user?.name} size={32} />
               <div>
-                <div style={{ ...sans, fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{user?.name || 'Unknown'}</div>
-                <div style={{ ...sans, fontSize: 10, color: 'var(--text-muted)', textTransform: 'capitalize' }}>{user?.role || 'Staff'}</div>
+                <div style={{ ...sans, fontSize: 13, fontWeight: 600, color: 'var(--ec-t1)' }}>{user?.name || 'Unknown'}</div>
+                <div style={{ ...sans, fontSize: 10, color: 'var(--ec-t3)', textTransform: 'capitalize' }}>{user?.role || 'Staff'}</div>
               </div>
             </div>
           </div>

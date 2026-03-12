@@ -157,9 +157,9 @@ export default function Layout({ children }) {
 
       <main className="lg:ml-[220px]">
         <CriticalBanner count={alertStats?.critical || 0} />
-        {/* Header — hidden on Dashboard (it has its own) */}
+        {/* Header — consistent across all pages */}
         {!isDashboard && (
-          <header className="sticky top-0 z-30 flex items-center gap-3 px-4 lg:px-9 py-3 border-b border-ec-div bg-ec-bg/80 backdrop-blur-md">
+          <header className="sticky top-0 z-30 flex items-center gap-3 px-4 lg:px-9 py-3 border-b border-ec-div bg-[var(--surface)]/80 backdrop-blur-md">
             <button
               className="lg:hidden bg-transparent border-none text-ec-t3 cursor-pointer p-1 flex flex-col gap-[3.5px]"
               onClick={() => setSidebarOpen(true)}

@@ -190,8 +190,8 @@ function TaskRow({ task, onToggle }) {
 function ComplianceCard({ item, expanded, onToggle }) {
   return (
     <div onClick={onToggle} style={{
-      background: "white", borderRadius: 10, padding: "10px 12px",
-      border: "1px solid var(--ec-em-border)", cursor: "pointer",
+      background: "var(--surface)", borderRadius: 10, padding: "10px 12px",
+      border: "1px solid var(--border)", cursor: "pointer",
       boxShadow: expanded ? "0 2px 10px rgba(0,0,0,0.06)" : "none",
       transition: "all 0.2s", position: "relative", overflow: "hidden",
     }}>
@@ -272,8 +272,8 @@ export default function ComplianceDashboard() {
   };
 
   const card = {
-    background: "white", borderRadius: 12, padding: "14px 16px",
-    border: "1px solid var(--ec-em-border)", boxShadow: "0 1px 4px rgba(5,150,105,0.06)",
+    background: "var(--surface)", borderRadius: "var(--radius-lg)", padding: "14px 16px",
+    border: "1.5px solid var(--border)", boxShadow: "var(--shadow-sm)",
   };
 
   return (
