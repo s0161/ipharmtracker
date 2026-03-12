@@ -83,7 +83,7 @@ export default function CDRegister() {
       <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-ec-t1 m-0">CD Register</h1>
+            <h1 className="text-2xl font-bold m-0 page-heading">CD Register</h1>
             <span className="bg-ec-warn/10 text-ec-warn text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">
               Preview
             </span>

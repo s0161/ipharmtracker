@@ -1037,7 +1037,7 @@ export default function CleaningRota() {
       {/* ── Page Header ── */}
       <div style={{ marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-          <h1 style={{ ...sans, fontSize: 22, fontWeight: 700, color: 'var(--ec-t1)', margin: 0 }}>Cleaning Rota</h1>
+          <h1 className="page-heading" style={{ ...sans, fontSize: 22, fontWeight: 700, margin: 0 }}>Cleaning Rota</h1>
           <div style={{ display: 'flex', gap: 6 }}>
             <button onClick={handleExportCsv} style={{ ...sans, fontSize: 12, fontWeight: 500, padding: '6px 12px', borderRadius: 8, background: 'var(--ec-card-hover)', color: 'var(--ec-t1)', border: 'none', cursor: 'pointer' }}>↓ CSV</button>
             <button onClick={() => setShowAddTask(true)} style={{ ...sans, fontSize: 12, fontWeight: 600, padding: '6px 14px', borderRadius: 8, background: 'var(--ec-em)', color: '#fff', border: 'none', cursor: 'pointer' }}>+ Add Task</button>

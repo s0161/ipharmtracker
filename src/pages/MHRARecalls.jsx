@@ -135,7 +135,7 @@ export default function MHRARecalls() {
       <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-ec-t1 m-0">MHRA Recalls</h1>
+            <h1 className="text-2xl font-bold m-0 page-heading">MHRA Recalls</h1>
           </div>
           <p className="text-sm text-ec-t3 mt-1 mb-0">
             Drug &amp; device alerts from GOV.UK — acknowledge, flag &amp; track compliance

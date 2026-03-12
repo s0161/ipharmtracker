@@ -563,7 +563,7 @@ export default function TrainingLogs() {
       <div style={{ marginBottom: 20 }}>
         <div style={{ fontSize: 11, color: 'var(--ec-t3)', marginBottom: 6 }}>Dashboard / Training</div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 4 }}>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--ec-t1)', margin: 0 }}>Training &amp; Competency</h1>
+          <h1 className="page-heading" style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Training &amp; Competency</h1>
           <span style={{ ...mono, fontSize: 13, color: 'var(--ec-t3)' }}>{dateFormatted}</span>
         </div>
         <p style={{ fontSize: 11, color: 'var(--ec-t3)', margin: '0 0 10px' }}>

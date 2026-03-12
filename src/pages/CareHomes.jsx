@@ -242,7 +242,7 @@ export default function CareHomes() {
     <div className="max-w-6xl mx-auto">
       {/* Page header */}
       <div className="mb-6">
-        <h1 className="text-xl font-bold text-ec-t1">Care Homes</h1>
+        <h1 className="text-xl font-bold page-heading">Care Homes</h1>
         <p className="text-sm text-ec-t3 mt-1">FED07 iPharmacy Direct — {homes.length} registered care homes</p>
       </div>
 

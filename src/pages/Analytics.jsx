@@ -514,7 +514,7 @@ export default function Analytics() {
       <div className="space-y-6">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-xl font-extrabold text-ec-t1">Analytics</h1>
+            <h1 className="text-xl font-extrabold page-heading">Analytics</h1>
             <p className="text-sm text-ec-t3 mt-0.5">Loading compliance data...</p>
           </div>
         </div>
@@ -528,7 +528,7 @@ export default function Analytics() {
       {/* ──── 1. HEADER ──── */}
       <div className="flex items-start justify-between gap-4 ec-fadeup">
         <div>
-          <h1 className="text-xl font-extrabold text-ec-t1">Analytics</h1>
+          <h1 className="text-xl font-extrabold page-heading">Analytics</h1>
           <p className="text-sm text-ec-t3 mt-0.5">30-Day Compliance Overview</p>
         </div>
         <button

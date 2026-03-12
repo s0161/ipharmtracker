@@ -108,7 +108,7 @@ export default function MyTasks() {
         {/* Header strip */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
           <div className="flex-1">
-            <h1 className="text-xl sm:text-2xl font-bold text-ec-t1 m-0">{getGreeting()}, {firstName}</h1>
+            <h1 className="text-xl sm:text-2xl font-bold m-0 page-heading">{getGreeting()}, {firstName}</h1>
             <p className="text-[13px] text-ec-t3 m-0 mt-0.5">{dateStr}</p>
           </div>
 

@@ -526,7 +526,7 @@ export default function Induction() {
     <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-6 ec-fadeup">
       {/* Header */}
       <div className="flex items-center gap-3 mb-1">
-        <h1 className="text-2xl font-bold text-ec-t1 m-0">Staff Induction</h1>
+        <h1 className="text-2xl font-bold m-0 page-heading">Staff Induction</h1>
       </div>
       <p className="text-sm text-ec-t3 mt-1 mb-6">Complete all mandatory modules to finish your induction</p>
 
