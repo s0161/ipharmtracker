@@ -540,10 +540,13 @@ export default function TemperatureLog() {
   return (
     <div style={{ ...sans }}>
       {/* ── Page Header ── */}
-      <div style={{ marginBottom: 20 }}>
+      <div className="page-header-panel" style={{ marginBottom: 20, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '20px 24px', boxShadow: '0 1px 3px rgba(10,37,64,0.06)' }}>
         <div style={{ fontSize: 12, color: 'var(--ec-t3)', marginBottom: 6 }}>Dashboard / Temperature Log</div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 4 }}>
-          <h1 className="page-heading" style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>Temperature Log</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 4, height: 32, borderRadius: 4, background: 'linear-gradient(180deg, #0073e6 0%, #0284c7 100%)', flexShrink: 0 }} />
+            <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0, color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Temperature Log</h1>
+          </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <button onClick={handleCsvExport} style={{
               ...sans, display: 'inline-flex', alignItems: 'center', gap: 5,

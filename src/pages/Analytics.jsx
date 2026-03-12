@@ -512,10 +512,13 @@ export default function Analytics() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="flex items-start justify-between gap-4">
+        <div className="page-header-panel flex items-start justify-between gap-4" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '20px 24px', boxShadow: '0 1px 3px rgba(10,37,64,0.06)' }}>
           <div>
-            <h1 className="text-xl font-extrabold page-heading">Analytics</h1>
-            <p className="text-sm text-ec-t3 mt-0.5">Loading compliance data...</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+              <div style={{ width: 4, height: 32, borderRadius: 4, background: 'linear-gradient(180deg, #0073e6 0%, #0284c7 100%)', flexShrink: 0 }} />
+              <h1 className="text-xl font-extrabold" style={{ color: 'var(--text)', letterSpacing: '-0.02em' }}>Analytics</h1>
+            </div>
+            <p className="text-sm text-ec-t3 mt-0" style={{ marginLeft: 14 }}>Loading compliance data...</p>
           </div>
         </div>
         <SkeletonLoader variant="cards" />
@@ -526,10 +529,13 @@ export default function Analytics() {
   return (
     <div className="space-y-6">
       {/* ──── 1. HEADER ──── */}
-      <div className="flex items-start justify-between gap-4 ec-fadeup">
+      <div className="page-header-panel flex items-start justify-between gap-4 ec-fadeup" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '20px 24px', boxShadow: '0 1px 3px rgba(10,37,64,0.06)' }}>
         <div>
-          <h1 className="text-xl font-extrabold page-heading">Analytics</h1>
-          <p className="text-sm text-ec-t3 mt-0.5">30-Day Compliance Overview</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+            <div style={{ width: 4, height: 32, borderRadius: 4, background: 'linear-gradient(180deg, #0073e6 0%, #0284c7 100%)', flexShrink: 0 }} />
+            <h1 className="text-xl font-extrabold" style={{ color: 'var(--text)', letterSpacing: '-0.02em' }}>Analytics</h1>
+          </div>
+          <p className="text-sm text-ec-t3 mt-0" style={{ marginLeft: 14 }}>30-Day Compliance Overview</p>
         </div>
         <button
           onClick={handleExportCsv}

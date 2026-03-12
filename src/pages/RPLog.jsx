@@ -244,10 +244,13 @@ export default function RPLog() {
   return (
     <div style={sans} className="rp-log-page">
       {/* ── Page Header ── */}
-      <div className="mb-6">
+      <div className="page-header-panel mb-6" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '20px 24px', boxShadow: '0 1px 3px rgba(10,37,64,0.06)' }}>
         <div className="text-xs text-ec-t3 mb-2">Dashboard / RP Log</div>
         <div className="flex items-center justify-between flex-wrap gap-2 mb-1">
-          <h1 className="text-xl font-bold m-0 page-heading">RP Log</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 4, height: 32, borderRadius: 4, background: 'linear-gradient(180deg, #10b981 0%, #059669 100%)', flexShrink: 0 }} />
+            <h1 className="text-xl font-bold m-0" style={{ color: 'var(--text)', letterSpacing: '-0.02em' }}>RP Log</h1>
+          </div>
           <span style={mono} className="text-[13px] text-ec-t3">{todayFormatted}</span>
         </div>
         <p className="text-xs text-ec-t3 m-0 mb-3">

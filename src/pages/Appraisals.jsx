@@ -112,10 +112,13 @@ export default function Appraisals() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+      <div className="page-header-panel flex items-center justify-between mb-6" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '20px 24px', boxShadow: '0 1px 3px rgba(10,37,64,0.06)' }}>
         <div>
-          <h1 className="text-xl font-bold m-0 page-heading">Staff Appraisals</h1>
-          <p className="text-sm text-ec-t3 m-0 mt-1">GPhC compliance — annual performance reviews</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+            <div style={{ width: 4, height: 32, borderRadius: 4, background: 'linear-gradient(180deg, #f59e0b 0%, #d97706 100%)', flexShrink: 0 }} />
+            <h1 className="text-xl font-bold m-0" style={{ color: 'var(--text)', letterSpacing: '-0.02em' }}>Staff Appraisals</h1>
+          </div>
+          <p className="text-sm text-ec-t3 m-0" style={{ marginLeft: 14 }}>GPhC compliance — annual performance reviews</p>
         </div>
         {isElevated && (
           <button
