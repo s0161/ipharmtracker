@@ -88,23 +88,31 @@ function useTaskCommon({ task, today, onStatusChange, onComplete, savingId, canM
   return { isDone, pri, cat, due, isSaving, taskCanModify, justChecked, handleCheck }
 }
 
+const PRIORITY_BORDER = {
+  urgent: '3px solid #ef4444',
+  high:   '3px solid #f59e0b',
+  normal: '3px solid #0073e6',
+  low:    '3px solid #8898aa',
+}
+
 /** Tile (card) view — used by default */
 export function TaskTile({ task, today, onStatusChange, onComplete, savingId, canModify, urgency }) {
   const { isDone, pri, cat, due, isSaving, justChecked, handleCheck } =
     useTaskCommon({ task, today, onStatusChange, onComplete, savingId, canModify })
 
-  const topAccent = urgency === 'overdue' ? 'var(--ec-crit)'
-    : urgency === 'dueToday' ? 'var(--ec-warn)'
-    : urgency === 'completed' ? 'var(--ec-em)'
-    : 'var(--ec-div)'
+  const priorityKey = (task.priority || 'normal').toLowerCase()
+  const leftBorder = PRIORITY_BORDER[priorityKey] || '3px solid #e3e8ef'
+  const isUrgent = priorityKey === 'urgent'
 
   return (
     <div
       className={`bg-ec-card rounded-xl border border-ec-div relative overflow-hidden transition-all duration-200 hover:shadow-md ${isDone ? 'opacity-55' : ''}`}
-      style={{ boxShadow: '0 1px 4px rgba(5,150,105,0.06)' }}
+      style={{
+        boxShadow: '0 1px 4px rgba(5,150,105,0.06)',
+        borderLeft: leftBorder,
+        ...(isUrgent && !isDone ? { background: 'linear-gradient(135deg, #fff8f8 0%, #ffffff 100%)' } : {}),
+      }}
     >
-      {/* Top accent bar */}
-      <div className="h-[3px] w-full" style={{ backgroundColor: topAccent }} />
 
       <div className="px-3.5 pt-3 pb-3">
         {/* Row 1: badges */}

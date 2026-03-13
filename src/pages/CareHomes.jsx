@@ -241,10 +241,10 @@ export default function CareHomes() {
   return (
     <div className="max-w-6xl mx-auto">
       {/* Page header */}
-      <div className="page-header-panel mb-6" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '20px 24px', boxShadow: '0 1px 3px rgba(10,37,64,0.06)' }}>
+      <div className="page-header-panel mb-6" style={{ background: 'linear-gradient(135deg, #f8fbff 0%, #eff6ff 100%)', border: '1.5px solid rgba(0,115,230,0.2)', borderRadius: 12, padding: '20px 24px', boxShadow: '0 1px 3px rgba(10,37,64,0.08), 0 4px 12px rgba(10,37,64,0.04)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-          <div style={{ width: 4, height: 32, borderRadius: 4, background: 'linear-gradient(180deg, #0073e6 0%, #0284c7 100%)', flexShrink: 0 }} />
-          <h1 className="text-xl font-bold m-0" style={{ color: 'var(--text)', letterSpacing: '-0.02em' }}>Care Homes</h1>
+          <div style={{ width: 4, height: 40, borderRadius: 4, background: 'linear-gradient(180deg, #0073e6 0%, #0284c7 100%)', flexShrink: 0 }} />
+          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Care Homes</h1>
         </div>
         <p className="text-sm text-ec-t3 mt-0" style={{ marginLeft: 14 }}>FED07 iPharmacy Direct — {homes.length} registered care homes</p>
       </div>

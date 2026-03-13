@@ -1035,11 +1035,11 @@ export default function CleaningRota() {
       {ConfirmDialog}
 
       {/* ── Page Header ── */}
-      <div className="page-header-panel" style={{ marginBottom: 16, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '20px 24px', boxShadow: '0 1px 3px rgba(10,37,64,0.06)' }}>
+      <div className="page-header-panel" style={{ marginBottom: 16, background: 'linear-gradient(135deg, #f8fffd 0%, #f0fdfa 100%)', border: '1.5px solid rgba(13,148,136,0.2)', borderRadius: 12, padding: '20px 24px', boxShadow: '0 1px 3px rgba(10,37,64,0.08), 0 4px 12px rgba(10,37,64,0.04)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 4, height: 32, borderRadius: 4, background: 'linear-gradient(180deg, #0d9488 0%, #0f766e 100%)', flexShrink: 0 }} />
-            <h1 style={{ ...sans, fontSize: 22, fontWeight: 800, margin: 0, color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Cleaning Rota</h1>
+            <div style={{ width: 4, height: 40, borderRadius: 4, background: 'linear-gradient(180deg, #0d9488 0%, #0f766e 100%)', flexShrink: 0 }} />
+            <h1 style={{ ...sans, fontSize: 24, fontWeight: 800, margin: 0, color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Cleaning Rota</h1>
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
             <button onClick={handleExportCsv} style={{ ...sans, fontSize: 12, fontWeight: 500, padding: '6px 12px', borderRadius: 8, background: 'var(--ec-card-hover)', color: 'var(--ec-t1)', border: 'none', cursor: 'pointer' }}>↓ CSV</button>

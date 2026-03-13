@@ -560,12 +560,12 @@ export default function TrainingLogs() {
   return (
     <div style={{ ...sans, padding: '24px 28px', maxWidth: 1400 }}>
       {/* ═══ HEADER ═══ */}
-      <div className="page-header-panel" style={{ marginBottom: 20, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '20px 24px', boxShadow: '0 1px 3px rgba(10,37,64,0.06)' }}>
+      <div className="page-header-panel" style={{ marginBottom: 20, background: 'linear-gradient(135deg, #faf9ff 0%, #f5f3ff 100%)', border: '1.5px solid rgba(99,91,255,0.2)', borderRadius: 12, padding: '20px 24px', boxShadow: '0 1px 3px rgba(10,37,64,0.08), 0 4px 12px rgba(10,37,64,0.04)' }}>
         <div style={{ fontSize: 11, color: 'var(--ec-t3)', marginBottom: 6 }}>Dashboard / Training</div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 4 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 4, height: 32, borderRadius: 4, background: 'linear-gradient(180deg, #635bff 0%, #4f46e5 100%)', flexShrink: 0 }} />
-            <h1 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Training &amp; Competency</h1>
+            <div style={{ width: 4, height: 40, borderRadius: 4, background: 'linear-gradient(180deg, #635bff 0%, #4f46e5 100%)', flexShrink: 0 }} />
+            <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Training &amp; Competency</h1>
           </div>
           <span style={{ ...mono, fontSize: 13, color: 'var(--ec-t3)' }}>{dateFormatted}</span>
         </div>

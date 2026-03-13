@@ -380,10 +380,10 @@ export default function Settings() {
   return (
     <div style={{ fontFamily: DM }}>
       {/* ─── PAGE HEADER ─── */}
-      <div className="page-header-panel" style={{ marginBottom: 16, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '20px 24px', boxShadow: '0 1px 3px rgba(10,37,64,0.06)' }}>
+      <div className="page-header-panel" style={{ marginBottom: 16, background: 'linear-gradient(135deg, #f9fafb 0%, #f1f5f9 100%)', border: '1.5px solid rgba(100,116,139,0.2)', borderRadius: 12, padding: '20px 24px', boxShadow: '0 1px 3px rgba(10,37,64,0.08), 0 4px 12px rgba(10,37,64,0.04)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-          <div style={{ width: 4, height: 32, borderRadius: 4, background: 'linear-gradient(180deg, #64748b 0%, #475569 100%)', flexShrink: 0 }} />
-          <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0, color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Settings</h1>
+          <div style={{ width: 4, height: 40, borderRadius: 4, background: 'linear-gradient(180deg, #64748b 0%, #475569 100%)', flexShrink: 0 }} />
+          <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Settings</h1>
         </div>
         <p style={{ fontSize: 12, color: 'var(--ec-t3)', margin: '4px 0 0', marginLeft: 14 }}>Configure your pharmacy, staff, and compliance preferences.</p>
       </div>
