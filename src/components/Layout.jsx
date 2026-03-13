@@ -6,33 +6,6 @@ import Onboarding from './Onboarding'
 import IncidentQuickAdd from './IncidentQuickAdd'
 import CriticalBanner from './alerts/CriticalBanner'
 import { useAlertsData } from '../hooks/useAlertsData'
-// Per-page heading accent bar colors: [accent, accentDark]: [accent, accentDark]
-const headingAccents = {
-  '/rp-log':            ['#10b981', '#059669'],
-  '/temperature':       ['#0073e6', '#0284c7'],
-  '/training':          ['#635bff', '#818cf8'],
-  '/staff-training':    ['#635bff', '#818cf8'],
-  '/my-tasks':          ['#10b981', '#059669'],
-  '/incidents':         ['#ef4444', '#f97316'],
-  '/near-misses':       ['#ef4444', '#f97316'],
-  '/cleaning':          ['#0d9488', '#10b981'],
-  '/documents':         ['#f59e0b', '#d97706'],
-  '/alerts':            ['#ef4444', '#dc2626'],
-  '/cd-register':       ['#635bff', '#4f46e5'],
-  '/care-homes':        ['#0073e6', '#0284c7'],
-  '/staff-directory':   ['#0d9488', '#10b981'],
-  '/safeguarding':      ['#ef4444', '#dc2626'],
-  '/analytics':         ['#0073e6', '#0284c7'],
-  '/compliance-report': ['#10b981', '#059669'],
-  '/settings':          ['#64748b', '#475569'],
-  '/audit-log':         ['#64748b', '#475569'],
-  '/sop-library':       ['#635bff', '#4f46e5'],
-  '/induction':         ['#635bff', '#818cf8'],
-  '/appraisals':        ['#f59e0b', '#d97706'],
-  '/mhra-recalls':      ['#ef4444', '#dc2626'],
-}
-const defaultAccent = ['#10b981', '#059669']
-
 const titles = {
   '/': 'Dashboard',
   '/my-tasks': 'My Tasks',
@@ -53,6 +26,7 @@ const titles = {
   '/sop-library': 'SOP Library',
   '/alerts': 'Alert Centre',
   '/care-homes': 'Care Homes',
+  '/patient-queries': 'Patient Queries',
 }
 
 const SHORTCUTS = {
@@ -91,6 +65,7 @@ const morePages = [
   { to: '/alerts', label: 'Alert Centre', icon: 'alert' },
   { to: '/my-tasks', label: 'My Tasks', icon: 'check-square' },
   { to: '/documents', label: 'Renewals', icon: 'file' },
+  { to: '/patient-queries', label: 'Patient Queries', icon: 'clipboard' },
   { to: '/staff-training', label: 'Staff Training', icon: 'book' },
   { to: '/safeguarding', label: 'Safeguarding', icon: 'shield' },
   { to: '/training', label: 'Training Logs', icon: 'clipboard' },
@@ -146,9 +121,6 @@ export default function Layout({ children }) {
   const title = titles[location.pathname] || 'iPharmacy Direct'
   const isDashboard = location.pathname === '/'
   const { stats: alertStats } = useAlertsData()
-
-  // Heading accent per page
-  const [accent, accentDark] = headingAccents[location.pathname] || defaultAccent
 
   // Close More menu on route change
   useEffect(() => { setMoreOpen(false) }, [location.pathname])
@@ -209,25 +181,6 @@ export default function Layout({ children }) {
         )}
 
         <div className={isDashboard ? '' : 'px-4 lg:px-9 py-6 pb-20 lg:pb-6'}>
-          {!isDashboard && (
-            <div
-              className="page-header-panel rounded-xl mb-6 px-6 py-5"
-              style={{
-                background: 'var(--surface)',
-                border: '1px solid var(--border)',
-                boxShadow: '0 1px 3px rgba(10,37,64,0.06)',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{
-                  width: 4, height: 32, borderRadius: 4, flexShrink: 0,
-                  background: `linear-gradient(180deg, ${accent} 0%, ${accentDark} 100%)`,
-                }} />
-                <h1 className="text-lg font-bold leading-tight" style={{ margin: 0, color: 'var(--text)', letterSpacing: '-0.02em' }}>{title}</h1>
-              </div>
-              <p className="text-xs text-ec-t3 mt-1.5" style={{ marginLeft: 14 }}>Manage and track your {title.toLowerCase()}</p>
-            </div>
-          )}
           {children}
         </div>
       </main>

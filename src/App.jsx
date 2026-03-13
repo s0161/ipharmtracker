@@ -25,6 +25,7 @@ import Appraisals from './pages/Appraisals'
 import MHRARecalls from './pages/MHRARecalls'
 import AlertCentre from './pages/AlertCentre'
 import CareHomes from './pages/CareHomes'
+import PatientQueries from './pages/PatientQueries'
 import Login, { isAuthenticated } from './pages/Login'
 import PinSelect from './pages/PinSelect'
 import { UserProvider, useUser } from './contexts/UserContext'
@@ -66,6 +67,7 @@ function AuthedApp() {
             <Route path="/mhra-recalls" element={<RouteErrorBoundary><MHRARecalls /></RouteErrorBoundary>} />
             <Route path="/alerts" element={<RouteErrorBoundary><AlertCentre /></RouteErrorBoundary>} />
             <Route path="/care-homes" element={<RouteErrorBoundary><CareHomes /></RouteErrorBoundary>} />
+            <Route path="/patient-queries" element={<RouteErrorBoundary><PatientQueries /></RouteErrorBoundary>} />
           </Routes>
         </Layout>
       } />

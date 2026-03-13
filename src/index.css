@@ -45,8 +45,8 @@
 
   /* Page header panel — dark mode override */
   [data-theme="dark"] .page-header-panel {
-    background: #111916 !important;
-    border-color: #1e2e28 !important;
+    background: linear-gradient(135deg, #111916 0%, #132016 100%) !important;
+    border-color: rgba(16,185,129,0.2) !important;
   }
   [data-theme="dark"] .page-header-panel h1 {
     color: #e8f5f0 !important;

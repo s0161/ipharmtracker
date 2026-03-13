@@ -112,11 +112,11 @@ export default function Appraisals() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="page-header-panel flex items-center justify-between mb-6" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '20px 24px', boxShadow: '0 1px 3px rgba(10,37,64,0.06)' }}>
+      <div className="page-header-panel flex items-center justify-between mb-6" style={{ background: 'linear-gradient(135deg, #fffdf5 0%, #fffbeb 100%)', border: '1.5px solid rgba(245,158,11,0.2)', borderRadius: 12, padding: '20px 24px', boxShadow: '0 1px 3px rgba(10,37,64,0.08), 0 4px 12px rgba(10,37,64,0.04)' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-            <div style={{ width: 4, height: 32, borderRadius: 4, background: 'linear-gradient(180deg, #f59e0b 0%, #d97706 100%)', flexShrink: 0 }} />
-            <h1 className="text-xl font-bold m-0" style={{ color: 'var(--text)', letterSpacing: '-0.02em' }}>Staff Appraisals</h1>
+            <div style={{ width: 4, height: 40, borderRadius: 4, background: 'linear-gradient(180deg, #f59e0b 0%, #d97706 100%)', flexShrink: 0 }} />
+            <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Staff Appraisals</h1>
           </div>
           <p className="text-sm text-ec-t3 m-0" style={{ marginLeft: 14 }}>GPhC compliance — annual performance reviews</p>
         </div>

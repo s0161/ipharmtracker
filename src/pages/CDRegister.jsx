@@ -80,11 +80,11 @@ export default function CDRegister() {
   return (
     <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-6 ec-fadeup">
       {/* Header */}
-      <div className="page-header-panel flex flex-wrap items-start justify-between gap-3 mb-5" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '20px 24px', boxShadow: '0 1px 3px rgba(10,37,64,0.06)' }}>
+      <div className="page-header-panel flex flex-wrap items-start justify-between gap-3 mb-5" style={{ background: 'linear-gradient(135deg, #faf9ff 0%, #f5f3ff 100%)', border: '1.5px solid rgba(99,91,255,0.2)', borderRadius: 12, padding: '20px 24px', boxShadow: '0 1px 3px rgba(10,37,64,0.08), 0 4px 12px rgba(10,37,64,0.04)' }}>
         <div>
           <div className="flex items-center gap-3">
-            <div style={{ width: 4, height: 32, borderRadius: 4, background: 'linear-gradient(180deg, #635bff 0%, #4f46e5 100%)', flexShrink: 0 }} />
-            <h1 className="text-2xl font-bold m-0" style={{ color: 'var(--text)', letterSpacing: '-0.02em' }}>CD Register</h1>
+            <div style={{ width: 4, height: 40, borderRadius: 4, background: 'linear-gradient(180deg, #635bff 0%, #4f46e5 100%)', flexShrink: 0 }} />
+            <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>CD Register</h1>
             <span className="bg-ec-warn/10 text-ec-warn text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">
               Preview
             </span>

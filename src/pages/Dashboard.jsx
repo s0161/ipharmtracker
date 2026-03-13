@@ -681,6 +681,15 @@ export default function Dashboard() {
                 My Tasks
               </button>
               <button
+                onClick={() => navigate("/patient-queries")}
+                style={{ display: "flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: "8px 14px", color: "white", fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "all 0.15s", backdropFilter: "blur(4px)", fontFamily: "'Inter', sans-serif" }}
+                onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.15)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; }}
+              >
+                <span style={{ fontSize: 15 }}>💊</span>
+                Patient Queries
+              </button>
+              <button
                 onClick={() => navigate("/training")}
                 style={{ display: "flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: "8px 14px", color: "white", fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "all 0.15s", backdropFilter: "blur(4px)", fontFamily: "'Inter', sans-serif" }}
                 onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.15)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; }}
