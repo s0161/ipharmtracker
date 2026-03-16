@@ -62,6 +62,7 @@ const sections = [
     label: 'COMPLIANCE',
     items: [
       { to: '/calendar', label: 'Compliance Calendar', icon: 'calendar' },
+      { to: '/gphc-report', label: 'GPhC Report', icon: 'report' },
       { to: '/alerts', label: 'Alerts', icon: 'bell' },
       { to: '/safeguarding', label: 'Safeguarding', icon: 'shield' },
       { to: '/staff-training', label: 'Staff Training', icon: 'users', shortcut: 'S' },
