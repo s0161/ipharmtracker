@@ -19,6 +19,7 @@ import {
   getStaffColor,
 } from "../utils/rotationManager";
 import DashCardHeader from "../components/DashCardHeader";
+import GPhCScorecard from "../components/dashboard/GPhCScorecard";
 import Avatar from "../components/Avatar";
 import PriorityBadge from "../components/PriorityBadge";
 import CategoryTag from "../components/CategoryTag";
@@ -1001,6 +1002,9 @@ export default function Dashboard() {
                 Last GPhC inspection: <strong style={{ color: "var(--ec-t2)" }}>14 months ago</strong>
               </div>
             </div>
+
+            {/* GPhC Readiness */}
+            <GPhCScorecard />
 
             {/* Expiring Soon */}
             <div style={{ ...card, overflow: "hidden" }}>
