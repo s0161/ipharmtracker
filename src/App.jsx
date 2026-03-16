@@ -27,6 +27,7 @@ import AlertCentre from './pages/AlertCentre'
 import CareHomes from './pages/CareHomes'
 import PatientQueries from './pages/PatientQueries'
 import CalendarPage from './pages/CalendarPage'
+import HandoverPage from './pages/HandoverPage'
 import Login, { isAuthenticated } from './pages/Login'
 import PinSelect from './pages/PinSelect'
 import { UserProvider, useUser } from './contexts/UserContext'
@@ -53,6 +54,7 @@ function AuthedApp() {
             <Route path="/documents" element={<RouteErrorBoundary><Renewals /></RouteErrorBoundary>} />
             <Route path="/staff-training" element={<RouteErrorBoundary><StaffTraining /></RouteErrorBoundary>} />
             <Route path="/temperature" element={<RouteErrorBoundary><TemperatureLog /></RouteErrorBoundary>} />
+            <Route path="/handover" element={<RouteErrorBoundary><HandoverPage /></RouteErrorBoundary>} />
             <Route path="/incidents" element={<RouteErrorBoundary><Incidents /></RouteErrorBoundary>} />
             <Route path="/near-misses" element={<RouteErrorBoundary><NearMissLog /></RouteErrorBoundary>} />
             <Route path="/safeguarding" element={<RouteErrorBoundary><Safeguarding /></RouteErrorBoundary>} />

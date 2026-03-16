@@ -44,6 +44,7 @@ const sections = [
       { to: '/my-tasks', label: 'My Tasks', icon: 'check', shortcut: 'M' },
       { to: '/rp-log', label: 'RP Log', icon: 'clip', shortcut: 'R' },
       { to: '/temperature', label: 'Temp Log', icon: 'therm' },
+      { to: '/handover', label: 'Shift Handover', icon: 'clip' },
     ],
   },
   {

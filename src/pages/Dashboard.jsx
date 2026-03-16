@@ -20,6 +20,7 @@ import {
 } from "../utils/rotationManager";
 import DashCardHeader from "../components/DashCardHeader";
 import GPhCScorecard from "../components/dashboard/GPhCScorecard";
+import HandoverWidget from "../components/dashboard/HandoverWidget";
 import MiniCalendar from "../components/dashboard/MiniCalendar";
 import { useGPhCScores } from "../hooks/useGPhCScores";
 import Avatar from "../components/Avatar";
@@ -707,6 +708,15 @@ export default function Dashboard() {
                 My Tasks
               </button>
               <button
+                onClick={() => navigate("/handover")}
+                style={{ display: "flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: "8px 14px", color: "white", fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "all 0.15s", backdropFilter: "blur(4px)", fontFamily: "'Inter', sans-serif" }}
+                onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.15)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; }}
+              >
+                <span style={{ fontSize: 15 }}>📋</span>
+                Handover
+              </button>
+              <button
                 onClick={() => navigate("/patient-queries")}
                 style={{ display: "flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: "8px 14px", color: "white", fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "all 0.15s", backdropFilter: "blur(4px)", fontFamily: "'Inter', sans-serif" }}
                 onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.15)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; }}
@@ -1017,6 +1027,9 @@ export default function Dashboard() {
 
             {/* GPhC Readiness */}
             <GPhCScorecard />
+
+            {/* Today's Handover */}
+            <HandoverWidget />
 
             {/* Compliance Health */}
             <div style={{ ...card, overflow: "hidden" }}>
