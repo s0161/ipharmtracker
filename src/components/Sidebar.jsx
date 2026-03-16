@@ -31,6 +31,7 @@ function NI({ name, color }) {
     grad: <><path d="M14 8l-6-3L2 8l6 3z" {...p} /><path d="M4 9.5v3c0 .8 1.8 2 4 2s4-1.2 4-2v-3" {...p} /><path d="M14 8v4" {...p} /></>,
     star: <polygon points="8 1 10 6 15 6.5 11.5 10 12.5 15 8 12.5 3.5 15 4.5 10 1 6.5 6 6" {...p} />,
     bell: <><path d="M8 14c-2.8 0-4.5-1-5-2 0-.6.3-1 .8-1h8.4c.5 0 .8.4.8 1-.5 1-2.2 2-5 2z" {...p} /><path d="M5 11V7a3 3 0 016 0v4" {...p} /><path d="M7 14v.5a1 1 0 002 0V14" {...p} /></>,
+    calendar: <><rect x="2" y="3" width="12" height="11" rx="1" {...p} /><path d="M5 1v3M11 1v3M2 7h12" {...p} /></>,
   }
   return <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">{m[name]}</svg>
 }
@@ -59,6 +60,7 @@ const sections = [
   {
     label: 'COMPLIANCE',
     items: [
+      { to: '/calendar', label: 'Compliance Calendar', icon: 'calendar' },
       { to: '/alerts', label: 'Alerts', icon: 'bell' },
       { to: '/safeguarding', label: 'Safeguarding', icon: 'shield' },
       { to: '/staff-training', label: 'Staff Training', icon: 'users', shortcut: 'S' },

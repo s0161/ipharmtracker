@@ -26,6 +26,7 @@ import MHRARecalls from './pages/MHRARecalls'
 import AlertCentre from './pages/AlertCentre'
 import CareHomes from './pages/CareHomes'
 import PatientQueries from './pages/PatientQueries'
+import CalendarPage from './pages/CalendarPage'
 import Login, { isAuthenticated } from './pages/Login'
 import PinSelect from './pages/PinSelect'
 import { UserProvider, useUser } from './contexts/UserContext'
@@ -68,6 +69,7 @@ function AuthedApp() {
             <Route path="/alerts" element={<RouteErrorBoundary><AlertCentre /></RouteErrorBoundary>} />
             <Route path="/care-homes" element={<RouteErrorBoundary><CareHomes /></RouteErrorBoundary>} />
             <Route path="/patient-queries" element={<RouteErrorBoundary><PatientQueries /></RouteErrorBoundary>} />
+            <Route path="/calendar" element={<RouteErrorBoundary><CalendarPage /></RouteErrorBoundary>} />
           </Routes>
         </Layout>
       } />
