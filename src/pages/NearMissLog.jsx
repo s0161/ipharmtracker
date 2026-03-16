@@ -7,6 +7,7 @@ import { useToast } from '../components/Toast'
 import { useUser } from '../contexts/UserContext'
 import { useConfirm } from '../components/ConfirmDialog'
 import PageActions from '../components/PageActions'
+import IncidentsTrends from '../components/incidents/IncidentsTrends'
 import SkeletonLoader from '../components/SkeletonLoader'
 
 // ─── Design Tokens ────────────────────────────────────────────────
@@ -896,6 +897,9 @@ export default function NearMissLog() {
           Record Near Miss
         </button>
       </div>
+
+      {/* Trends & Analysis */}
+      <IncidentsTrends entries={entries} />
 
       {/* Reporting Guide */}
       <GuidancePanel />
