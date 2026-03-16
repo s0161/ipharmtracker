@@ -20,6 +20,8 @@ import {
 } from "../utils/rotationManager";
 import DashCardHeader from "../components/DashCardHeader";
 import GPhCScorecard from "../components/dashboard/GPhCScorecard";
+import MiniCalendar from "../components/dashboard/MiniCalendar";
+import { useGPhCScores } from "../hooks/useGPhCScores";
 import Avatar from "../components/Avatar";
 import PriorityBadge from "../components/PriorityBadge";
 import CategoryTag from "../components/CategoryTag";
@@ -196,6 +198,23 @@ function ComplianceCard({ item, expanded, onToggle }) {
   );
 }
 
+function KpiCard({ accent, value, label, pct }) {
+  return (
+    <div style={{
+      background: 'var(--surface)', border: '0.5px solid var(--border)',
+      borderTop: `3px solid ${accent}`, borderRadius: 10, padding: '12px 14px',
+    }}>
+      <div style={{ fontSize: 22, fontWeight: 800, color: accent, fontFamily: "'DM Mono', 'SF Mono', monospace" }}>{value}</div>
+      <div style={{ fontSize: 10, color: 'var(--ec-t3)', marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 600 }}>{label}</div>
+      {pct !== null && (
+        <div style={{ height: 3, background: 'var(--border)', borderRadius: 2, marginTop: 8, overflow: 'hidden' }}>
+          <div style={{ width: `${Math.min(pct, 100)}%`, height: '100%', background: accent, borderRadius: 2 }} />
+        </div>
+      )}
+    </div>
+  );
+}
+
 // STAFF_ASSIGNEES now derived dynamically inside Dashboard from staff_members DB table
 
 // ── Dashboard ──────────────────────────────────────────────────────────────
@@ -215,6 +234,12 @@ export default function Dashboard() {
   const [actionItems, setActionItems, todosLoading] = useSupabase("action_items", []);
   const [staffTasks, setStaffTasks, stLoading] = useSupabase("staff_tasks", []);
   const [staffMembers] = useSupabase("staff_members", [], { valueField: "name" });
+  const [patientQueries] = useSupabase("patient_queries", []);
+  const { overall: gphcOverall } = useGPhCScores();
+  const gphcScore = gphcOverall?.score ?? 0;
+  const openQueryCount = patientQueries.filter(q =>
+    ["open", "in_progress", "awaiting_response"].includes(q.status)
+  ).length;
 
   // ── Derive STAFF_ASSIGNEES dynamically from DB ──
   const staffAssignees = useMemo(() => {
@@ -744,45 +769,53 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* ── To Do ── */}
-        <div style={{ ...card, marginBottom: 12, overflow: "hidden" }}>
-          <CardHeader
-            variant="purple"
-            icon={<SvgCheckSquare size={14} />} title="To Do"
-            right={actionItems.filter(t => !t.done).length > 0
-              ? <span style={{ fontSize: 10, fontFamily: "'DM Mono', 'SF Mono', monospace", background: "var(--amber-light)", color: "var(--amber)", padding: "1px 7px", borderRadius: 20, fontWeight: 600 }}>{actionItems.filter(t => !t.done).length} remaining</span>
-              : null}
-          />
-          <div style={{ display: "flex", gap: 6, marginBottom: actionItems.length ? 8 : 0 }}>
-            <input value={todoInput} onChange={e => setTodoInput(e.target.value)}
-              onKeyDown={e => { if (e.key === "Enter") addTodo(); }}
-              placeholder="Add an action item and press Enter…"
-              style={{ flex: 1, padding: "7px 12px", borderRadius: 8, fontSize: 12, border: "1px solid var(--ec-div)", outline: "none", fontFamily: "'Inter', sans-serif", background: "var(--ec-card)" }}
-            />
-            <button onClick={addTodo}
-              style={{ padding: "7px 14px", borderRadius: 8, border: "none", cursor: "pointer", background: "var(--ec-btn-primary)", color: "white", boxShadow: "0 2px 8px rgba(16,185,129,0.3)", fontSize: 12, fontWeight: 600, fontFamily: "'Inter', sans-serif" }}>
-              + Add
-            </button>
-          </div>
-          {actionItems.length === 0
-            ? <div style={{ fontSize: 11, color: "var(--ec-t3)", textAlign: "center", padding: "8px 0", fontStyle: "italic" }}>Nothing here yet — add an action item above</div>
-            : actionItems.map(todo => (
-              <div key={todo.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", borderRadius: 8, marginBottom: 4, background: todo.done ? "var(--ec-em-bg)" : "var(--ec-card)", border: `1px solid ${todo.done ? "var(--ec-em-border)" : "var(--ec-t5)"}` }}>
-                <div onClick={() => toggleTodo(todo.id)} style={{ width: 17, height: 17, borderRadius: 5, flexShrink: 0, cursor: "pointer", border: todo.done ? "none" : "2px solid var(--ec-t4)", background: todo.done ? "var(--ec-em)" : "var(--ec-card)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  {todo.done && <SvgCheck size={10} color="white" />}
-                </div>
-                <span style={{ flex: 1, fontSize: 12, color: todo.done ? "var(--ec-em-border)" : "var(--ec-t1)", textDecoration: todo.done ? "line-through" : "none" }}>{todo.title}</span>
-                <button onClick={() => deleteTodo(todo.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ec-t4)", fontSize: 15 }}>×</button>
-              </div>
-            ))
-          }
+        {/* ── KPI Bar ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 14 }}>
+          <KpiCard accent="#10b981" value={`${shiftDone}/${shiftTotal}`} label="Shift tasks done" pct={shiftPct} />
+          <KpiCard accent="#ef4444" value={overdueCount} label="Overdue items" pct={overdueCount > 0 ? 100 : 0} />
+          <KpiCard accent="#635bff" value={`${gphcScore}%`} label="GPhC readiness" pct={gphcScore} />
+          <KpiCard accent="#f59e0b" value={openQueryCount} label="Open queries" pct={null} />
         </div>
 
         {/* ── Two-col grid ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 292px", gap: 12, alignItems: "start" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 12, alignItems: "start" }}>
 
           {/* LEFT */}
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+
+            {/* ── To Do ── */}
+            <div style={{ ...card, overflow: "hidden" }}>
+              <CardHeader
+                variant="purple"
+                icon={<SvgCheckSquare size={14} />} title="To Do"
+                right={actionItems.filter(t => !t.done).length > 0
+                  ? <span style={{ fontSize: 10, fontFamily: "'DM Mono', 'SF Mono', monospace", background: "var(--amber-light)", color: "var(--amber)", padding: "1px 7px", borderRadius: 20, fontWeight: 600 }}>{actionItems.filter(t => !t.done).length} remaining</span>
+                  : null}
+              />
+              <div style={{ display: "flex", gap: 6, marginBottom: actionItems.length ? 8 : 0 }}>
+                <input value={todoInput} onChange={e => setTodoInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter") addTodo(); }}
+                  placeholder="Add an action item and press Enter…"
+                  style={{ flex: 1, padding: "7px 12px", borderRadius: 8, fontSize: 12, border: "1px solid var(--ec-div)", outline: "none", fontFamily: "'Inter', sans-serif", background: "var(--ec-card)" }}
+                />
+                <button onClick={addTodo}
+                  style={{ padding: "7px 14px", borderRadius: 8, border: "none", cursor: "pointer", background: "var(--ec-btn-primary)", color: "white", boxShadow: "0 2px 8px rgba(16,185,129,0.3)", fontSize: 12, fontWeight: 600, fontFamily: "'Inter', sans-serif" }}>
+                  + Add
+                </button>
+              </div>
+              {actionItems.length === 0
+                ? <div style={{ fontSize: 11, color: "var(--ec-t3)", textAlign: "center", padding: "8px 0", fontStyle: "italic" }}>Nothing here yet — add an action item above</div>
+                : actionItems.map(todo => (
+                  <div key={todo.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", borderRadius: 8, marginBottom: 4, background: todo.done ? "var(--ec-em-bg)" : "var(--ec-card)", border: `1px solid ${todo.done ? "var(--ec-em-border)" : "var(--ec-t5)"}` }}>
+                    <div onClick={() => toggleTodo(todo.id)} style={{ width: 17, height: 17, borderRadius: 5, flexShrink: 0, cursor: "pointer", border: todo.done ? "none" : "2px solid var(--ec-t4)", background: todo.done ? "var(--ec-em)" : "var(--ec-card)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      {todo.done && <SvgCheck size={10} color="white" />}
+                    </div>
+                    <span style={{ flex: 1, fontSize: 12, color: todo.done ? "var(--ec-em-border)" : "var(--ec-t1)", textDecoration: todo.done ? "line-through" : "none" }}>{todo.title}</span>
+                    <button onClick={() => deleteTodo(todo.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ec-t4)", fontSize: 15 }}>×</button>
+                  </div>
+                ))
+              }
+            </div>
 
             {/* ── Shift Checklist ── */}
             <div style={{ ...card, overflow: "hidden" }}>
@@ -982,6 +1015,9 @@ export default function Dashboard() {
           {/* RIGHT */}
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
 
+            {/* GPhC Readiness */}
+            <GPhCScorecard />
+
             {/* Compliance Health */}
             <div style={{ ...card, overflow: "hidden" }}>
               <CardHeader
@@ -1003,8 +1039,8 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* GPhC Readiness */}
-            <GPhCScorecard />
+            {/* Mini Calendar */}
+            <MiniCalendar />
 
             {/* Expiring Soon */}
             <div style={{ ...card, overflow: "hidden" }}>
