@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useGPhCScores, getScoreColor } from "../../hooks/useGPhCScores";
-import DashCardHeader from "../DashCardHeader";
 
 const MONO = "'DM Mono', 'SF Mono', monospace";
 
@@ -36,8 +35,17 @@ export default function GPhCScorecard() {
   if (loading) {
     return (
       <div style={card}>
-        <DashCardHeader variant="em" icon={<SvgShield size={14} />} title="GPhC Readiness"
-          right={<span style={{ fontFamily: MONO, fontSize: 12, color: "var(--ec-t3)" }}>…</span>} />
+        <div style={{
+          margin: "-14px -16px 12px", padding: "9px 16px",
+          background: "linear-gradient(135deg, #064e3b 0%, #0f766e 50%, #065f46 100%)",
+          borderBottom: "1px solid var(--border)",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 7, color: "#fff", fontSize: 13, fontWeight: 700 }}>
+            <SvgShield size={14} color="#6ee7b7" /> GPhC Readiness
+          </div>
+          <span style={{ fontFamily: MONO, fontSize: 12, color: "rgba(255,255,255,0.6)" }}>…</span>
+        </div>
         <div style={{ fontSize: 11, color: "var(--ec-t3)", textAlign: "center", padding: "12px 0", fontStyle: "italic" }}>
           Loading scores…
         </div>
@@ -49,8 +57,17 @@ export default function GPhCScorecard() {
 
   return (
     <div style={card}>
-      <DashCardHeader variant="em" icon={<SvgShield size={14} />} title="GPhC Readiness"
-        right={<span style={{ fontFamily: MONO, fontSize: 13, fontWeight: 700, color: ratingColor }}>{overall.score}%</span>} />
+      <div style={{
+        margin: "-14px -16px 12px", padding: "9px 16px",
+        background: "linear-gradient(135deg, #064e3b 0%, #0f766e 50%, #065f46 100%)",
+        borderBottom: "1px solid var(--border)",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 7, color: "#fff", fontSize: 13, fontWeight: 700 }}>
+          <SvgShield size={14} color="#6ee7b7" /> GPhC Readiness
+        </div>
+        <span style={{ fontFamily: MONO, fontSize: 13, fontWeight: 700, color: "#6ee7b7" }}>{overall.score}%</span>
+      </div>
 
       {/* Overall rating pill */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
