@@ -369,20 +369,56 @@ export default function Incidents() {
     (a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date)
   )
 
+  const headerPanel = (
+    <div style={{
+      background: 'linear-gradient(135deg, #fff8f8 0%, #fef2f2 100%)',
+      border: '1.5px solid rgba(239,68,68,0.2)',
+      borderRadius: 16,
+      padding: '20px 24px',
+      marginBottom: 20,
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, height: 4,
+        background: 'linear-gradient(180deg, #ef4444 0%, #dc2626 100%)',
+      }} />
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        flexWrap: 'wrap', gap: 12,
+      }}>
+        <div>
+          <h1 style={{
+            fontSize: 20, fontWeight: 800, color: 'var(--ec-t1)',
+            margin: 0, fontFamily: "'Inter', sans-serif",
+          }}>
+            Incidents
+          </h1>
+          <p style={{
+            fontSize: 12, color: 'var(--ec-t3)', margin: '4px 0 0',
+            fontFamily: "'Inter', sans-serif",
+          }}>
+            Record and track pharmacy incidents, complaints, and near misses
+          </p>
+        </div>
+        <button
+          className="px-4 py-2 text-white font-semibold rounded-lg text-sm border-none cursor-pointer flex items-center gap-1.5 font-sans"
+          style={{
+            background: 'linear-gradient(180deg, #ef4444 0%, #dc2626 100%)',
+            boxShadow: '0 2px 8px rgba(239,68,68,0.3)',
+          }}
+          onClick={openAdd}
+        >
+          + Add Incident
+        </button>
+      </div>
+    </div>
+  )
+
   if (incidents.length === 0) {
     return (
       <div>
-        <p className="text-sm text-ec-t3 mb-2">
-          Record and track pharmacy incidents, complaints, and near misses.
-        </p>
-        <div className="flex items-center gap-2 flex-wrap mb-4">
-          <button
-            className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors flex items-center gap-1.5 font-sans"
-            onClick={openAdd}
-          >
-            + Add Incident
-          </button>
-        </div>
+        {headerPanel}
         <EmptyState
           icon={<svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>}
           title="No incidents recorded"
@@ -402,9 +438,7 @@ export default function Incidents() {
 
   return (
     <div>
-      <p className="text-sm text-ec-t3 mb-2">
-        Record and track pharmacy incidents, complaints, and near misses.
-      </p>
+      {headerPanel}
 
       {/* ── Summary Stat Cards ── */}
       <div
@@ -470,12 +504,6 @@ export default function Incidents() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <button
-          className="px-4 py-2 bg-ec-em text-white font-semibold rounded-lg text-sm border-none cursor-pointer hover:bg-ec-em-dark transition-colors flex items-center gap-1.5 font-sans"
-          onClick={openAdd}
-        >
-          + Add Incident
-        </button>
       </div>
 
       {sorted.length === 0 ? (

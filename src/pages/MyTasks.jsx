@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from 'react'
 import { useUser } from '../contexts/UserContext'
 import { useTaskData } from '../hooks/useTaskData'
+import { useToast } from '../components/Toast'
 import { getTasksByUrgency, isTaskOverdue, isElevatedRole } from '../utils/taskEngine'
 import ProgressRing from '../components/dashboard/ProgressRing'
 import FilterBar from '../components/mytasks/FilterBar'
@@ -28,6 +29,7 @@ function getGreeting() {
 
 export default function MyTasks() {
   const { user } = useUser()
+  const toast = useToast()
   const {
     tasks, myTasks, allTasks, templates, staff,
     loading, savingId, today, isElevated, role,
@@ -203,7 +205,14 @@ export default function MyTasks() {
         task={completingTask}
         open={!!completingTask}
         onClose={() => setCompletingTask(null)}
-        onConfirm={completeTask}
+        onConfirm={(...args) => {
+          try {
+            completeTask(...args)
+            toast('Task marked complete', 'success')
+          } catch {
+            toast('Failed to complete task', 'error')
+          }
+        }}
       />
     </div>
   )

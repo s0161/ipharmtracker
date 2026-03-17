@@ -46,10 +46,43 @@
   /* Page header panel — dark mode override */
   [data-theme="dark"] .page-header-panel {
     background: linear-gradient(135deg, #111916 0%, #132016 100%) !important;
-    border-color: rgba(16,185,129,0.2) !important;
+    border-color: var(--ec-div) !important;
   }
   [data-theme="dark"] .page-header-panel h1 {
     color: #e8f5f0 !important;
+  }
+
+  /* Dark override — form inputs, selects, textareas */
+  [data-theme="dark"] input,
+  [data-theme="dark"] select,
+  [data-theme="dark"] textarea {
+    background: var(--input-bg) !important;
+    color: var(--ec-t1) !important;
+    border-color: var(--ec-div) !important;
+  }
+  [data-theme="dark"] input::placeholder,
+  [data-theme="dark"] textarea::placeholder {
+    color: var(--ec-t4) !important;
+  }
+
+  /* Dark override — tables */
+  [data-theme="dark"] table th {
+    background: var(--surface-raised) !important;
+    color: var(--ec-t3) !important;
+    border-color: var(--border) !important;
+  }
+  [data-theme="dark"] table td {
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+  }
+  [data-theme="dark"] table tr:hover td {
+    background: var(--surface-raised) !important;
+  }
+
+  /* Dark override — nav hover states */
+  [data-theme="dark"] nav a:hover,
+  [data-theme="dark"] nav button:hover {
+    background: rgba(16,185,129,0.08) !important;
   }
 }
 
@@ -4192,6 +4225,11 @@ select.input {
     opacity: 1;
     transform: translateX(0);
   }
+}
+
+@keyframes toastSlideIn {
+  from { transform: translateX(calc(100% + 24px)); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
 }
 
 @media (max-width: 768px) {

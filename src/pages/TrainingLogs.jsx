@@ -584,13 +584,13 @@ export default function TrainingLogs() {
           <div style={{ flex: 1 }} />
           <button
             onClick={handleExportMatrix}
-            style={{ ...sans, fontSize: 11, fontWeight: 500, padding: '5px 12px', borderRadius: 7, border: '1px solid var(--ec-div)', background: '#fff', color: 'var(--ec-t2)', cursor: 'pointer' }}
+            style={{ ...sans, fontSize: 11, fontWeight: 500, padding: '5px 12px', borderRadius: 7, border: '1px solid var(--ec-div)', background: 'var(--ec-card)', color: 'var(--ec-t2)', cursor: 'pointer' }}
           >
             Export CSV
           </button>
           <button
             onClick={() => window.print()}
-            style={{ ...sans, fontSize: 11, fontWeight: 500, padding: '5px 12px', borderRadius: 7, border: '1px solid var(--ec-div)', background: '#fff', color: 'var(--ec-t2)', cursor: 'pointer' }}
+            style={{ ...sans, fontSize: 11, fontWeight: 500, padding: '5px 12px', borderRadius: 7, border: '1px solid var(--ec-div)', background: 'var(--ec-card)', color: 'var(--ec-t2)', cursor: 'pointer' }}
           >
             Print
           </button>
@@ -847,7 +847,7 @@ export default function TrainingLogs() {
                           {record ? (
                             <button
                               onClick={() => openEdit(record)}
-                              style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 6, border: '1px solid var(--ec-div)', background: '#fff', color: 'var(--ec-t2)', cursor: 'pointer' }}
+                              style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 6, border: '1px solid var(--ec-div)', background: 'var(--ec-card)', color: 'var(--ec-t2)', cursor: 'pointer' }}
                             >
                               {elevated ? 'Edit' : 'View'}
                             </button>
@@ -920,7 +920,7 @@ export default function TrainingLogs() {
                       {elevated && (
                         <button
                           onClick={() => record ? openEdit(record) : openAdd(staff.name, item.name)}
-                          style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '5px 12px', borderRadius: 7, border: '1px solid var(--ec-div)', background: '#fff', color: 'var(--ec-em)', cursor: 'pointer' }}
+                          style={{ ...sans, fontSize: 10, fontWeight: 600, padding: '5px 12px', borderRadius: 7, border: '1px solid var(--ec-div)', background: 'var(--ec-card)', color: 'var(--ec-em)', cursor: 'pointer' }}
                         >
                           Update Record
                         </button>
@@ -1137,7 +1137,7 @@ export default function TrainingLogs() {
           <div style={{ display: 'flex', gap: 8 }}>
             <button
               onClick={() => setModalOpen(false)}
-              style={{ ...sans, fontSize: 12, fontWeight: 500, padding: '7px 16px', borderRadius: 8, border: '1px solid var(--ec-div)', background: '#fff', color: 'var(--ec-t2)', cursor: 'pointer' }}
+              style={{ ...sans, fontSize: 12, fontWeight: 500, padding: '7px 16px', borderRadius: 8, border: '1px solid var(--ec-div)', background: 'var(--ec-card)', color: 'var(--ec-t2)', cursor: 'pointer' }}
             >
               Cancel
             </button>
@@ -1186,6 +1186,6 @@ function inputStyle(error) {
     fontFamily: "'Inter', sans-serif", fontSize: 12, width: '100%',
     padding: '7px 8px', borderRadius: 6, outline: 'none', cursor: 'pointer',
     border: `1px solid ${error ? 'var(--ec-crit)' : 'var(--ec-div)'}`,
-    background: '#fff', color: 'var(--ec-t1)',
+    background: 'var(--ec-card)', color: 'var(--ec-t1)',
   }
 }

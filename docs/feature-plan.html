@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iPharmTracker — Feature Plan</title>
+<style>
+  :root {
+    --em: #059669;
+    --em-light: #d1fae5;
+    --em-dark: #047857;
+    --bg: #f0faf4;
+    --card: #ffffff;
+    --border: #d1fae5;
+    --t1: #1e293b;
+    --t2: #64748b;
+    --t3: #94a3b8;
+    --warn: #f59e0b;
+    --crit: #dc2626;
+    --blue: #3b82f6;
+    --purple: #8b5cf6;
+    --teal: #14b8a6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--t1);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .hero {
+    background: linear-gradient(135deg, #059669 0%, #047857 50%, #065f46 100%);
+    color: white;
+    padding: 3rem 2rem 2.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 60%);
+    animation: float 20s ease-in-out infinite;
+  }
+  @keyframes float { 0%,100% { transform: translate(0,0); } 50% { transform: translate(30px,-20px); } }
+  .hero h1 { font-size: 2.2rem; font-weight: 700; letter-spacing: -0.5px; position: relative; }
+  .hero .subtitle { opacity: 0.85; margin-top: 0.5rem; font-size: 1.05rem; position: relative; }
+  .hero .meta { display: flex; gap: 2rem; justify-content: center; margin-top: 1.5rem; font-size: 0.85rem; opacity: 0.75; position: relative; }
+
+  /* Nav tabs */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    background: white;
+    border-bottom: 2px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 1rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--t2);
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover { color: var(--em); background: var(--em-light); }
+  .tab-btn.active { color: var(--em); border-bottom-color: var(--em); }
+
+  /* Content */
+  .container { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Stats row */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-align: center;
+  }
+  .stat-card .number { font-size: 2rem; font-weight: 700; color: var(--em); }
+  .stat-card .label { font-size: 0.8rem; color: var(--t2); margin-top: 0.25rem; }
+
+  /* Feature cards */
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--t1);
+    margin: 2rem 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section-title .icon { font-size: 1.3rem; }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .feature-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .feature-card:hover {
+    box-shadow: 0 4px 16px rgba(5,150,105,0.12);
+    transform: translateY(-2px);
+  }
+  .feature-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+  }
+  .feature-card h3 { font-size: 0.95rem; font-weight: 600; }
+  .feature-card p { font-size: 0.82rem; color: var(--t2); line-height: 1.5; }
+  .feature-card .detail { display: none; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border); }
+  .feature-card.expanded .detail { display: block; }
+  .detail-item { font-size: 0.8rem; color: var(--t2); padding: 0.2rem 0; padding-left: 1rem; position: relative; }
+  .detail-item::before { content: '→'; position: absolute; left: 0; color: var(--em); }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 0.15rem 0.55rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+  .badge-live { background: var(--em-light); color: var(--em-dark); }
+  .badge-planned { background: #ede9fe; color: var(--purple); }
+  .badge-idea { background: #e0f2fe; color: var(--blue); }
+  .badge-core { background: #fef3c7; color: #92400e; }
+
+  /* Roadmap */
+  .roadmap-phase {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+  .phase-header {
+    padding: 1rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .phase-header:hover { background: var(--em-light); }
+  .phase-header h3 { font-size: 1rem; font-weight: 600; }
+  .phase-tag {
+    padding: 0.2rem 0.7rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .phase-tag.now { background: var(--em); color: white; }
+  .phase-tag.next { background: var(--warn); color: white; }
+  .phase-tag.later { background: var(--t3); color: white; }
+  .phase-body { padding: 0 1.25rem 1.25rem; display: none; }
+  .roadmap-phase.open .phase-body { display: block; }
+  .roadmap-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+  .roadmap-item:last-child { border-bottom: none; }
+  .roadmap-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+  .roadmap-dot.done { background: var(--em); }
+  .roadmap-dot.in-progress { background: var(--warn); box-shadow: 0 0 0 3px rgba(245,158,11,0.2); }
+  .roadmap-dot.planned { background: var(--t3); }
+  .roadmap-item h4 { font-size: 0.9rem; font-weight: 600; }
+  .roadmap-item p { font-size: 0.8rem; color: var(--t2); }
+
+  /* Tech stack */
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  .stack-item {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+  }
+  .stack-item h4 { font-size: 0.85rem; font-weight: 600; color: var(--em); margin-bottom: 0.25rem; }
+  .stack-item p { font-size: 0.8rem; color: var(--t2); }
+
+  /* Architecture diagram */
+  .arch-diagram {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+  }
+  .arch-row {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .arch-box {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    min-width: 100px;
+  }
+  .arch-box.ui { background: var(--em-light); color: var(--em-dark); }
+  .arch-box.logic { background: #ede9fe; color: var(--purple); }
+  .arch-box.data { background: #e0f2fe; color: var(--blue); }
+  .arch-box.infra { background: #fef3c7; color: #92400e; }
+  .arch-arrow {
+    text-align: center;
+    color: var(--t3);
+    font-size: 0.8rem;
+    margin: 0.3rem 0;
+  }
+
+  /* Filter chips */
+  .filters {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .filter-chip {
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: white;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 500;
+  }
+  .filter-chip:hover, .filter-chip.active {
+    background: var(--em);
+    color: white;
+    border-color: var(--em);
+  }
+
+  /* Progress bars */
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  .progress-label { font-size: 0.8rem; color: var(--t2); min-width: 120px; }
+  .progress-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--em-light);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--em);
+    transition: width 1s ease;
+  }
+  .progress-pct { font-size: 0.8rem; font-weight: 600; color: var(--em); min-width: 40px; text-align: right; }
+
+  /* Compliance pillars */
+  .pillar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .pillar-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-align: center;
+  }
+  .pillar-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+  .pillar-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .pillar-pages { font-size: 0.75rem; color: var(--t2); }
+
+  /* Print styles */
+  @media print {
+    .tab-bar { display: none; }
+    .tab-content { display: block !important; page-break-inside: avoid; }
+    .hero { padding: 1.5rem; }
+    .feature-card .detail { display: block !important; }
+    .phase-body { display: block !important; }
+    body { background: white; }
+  }
+  /* Mobile */
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 1.6rem; }
+    .hero .meta { flex-direction: column; gap: 0.25rem; }
+    .tab-btn { font-size: 0.78rem; padding: 0.75rem 0.5rem; }
+    .container { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>iPharmTracker</h1>
+  <div class="subtitle">Pharmacy Compliance & Task Management System</div>
+  <div class="meta">
+    <span>Version 1.0</span>
+    <span>March 2026</span>
+    <span>React + Supabase + Tailwind</span>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+  <button class="tab-btn" onclick="showTab('features')">Features</button>
+  <button class="tab-btn" onclick="showTab('roadmap')">Roadmap</button>
+  <button class="tab-btn" onclick="showTab('tech')">Tech Stack</button>
+</div>
+
+<!-- OVERVIEW TAB -->
+<div id="tab-overview" class="tab-content active">
+  <div class="container">
+
+    <div class="stats">
+      <div class="stat-card"><div class="number">22</div><div class="label">Pages</div></div>
+      <div class="stat-card"><div class="number">65+</div><div class="label">Components</div></div>
+      <div class="stat-card"><div class="number">15+</div><div class="label">Custom Hooks</div></div>
+      <div class="stat-card"><div class="number">12</div><div class="label">DB Tables</div></div>
+      <div class="stat-card"><div class="number">9</div><div class="label">Staff Roles</div></div>
+    </div>
+
+    <div class="section-title"><span class="icon">🏗</span> System Architecture</div>
+    <div class="arch-diagram">
+      <div class="arch-row">
+        <div class="arch-box ui">Dashboard</div>
+        <div class="arch-box ui">My Tasks</div>
+        <div class="arch-box ui">Compliance</div>
+        <div class="arch-box ui">Training</div>
+        <div class="arch-box ui">Cleaning</div>
+        <div class="arch-box ui">MHRA</div>
+      </div>
+      <div class="arch-arrow">↓ React Components + Tailwind CSS ↓</div>
+      <div class="arch-row">
+        <div class="arch-box logic">UserContext</div>
+        <div class="arch-box logic">useSupabase Hook</div>
+        <div class="arch-box logic">Task Engine</div>
+        <div class="arch-box logic">Rotation Manager</div>
+      </div>
+      <div class="arch-arrow">↓ REST API ↓</div>
+      <div class="arch-row">
+        <div class="arch-box data">Supabase (PostgreSQL)</div>
+        <div class="arch-box data">LocalStorage Cache</div>
+        <div class="arch-box data">GOV.UK API</div>
+      </div>
+      <div class="arch-arrow">↓ Hosting ↓</div>
+      <div class="arch-row">
+        <div class="arch-box infra">Vercel (Frontend)</div>
+        <div class="arch-box infra">Supabase Cloud (DB)</div>
+      </div>
+    </div>
+
+    <div class="section-title"><span class="icon">🎯</span> Four Compliance Pillars</div>
+    <p style="font-size:0.85rem;color:var(--t2);margin-bottom:1rem;">The app tracks compliance across four core pillars, each scored and visualised on the Dashboard.</p>
+    <div class="pillar-grid">
+      <div class="pillar-card">
+        <div class="pillar-icon">📄</div>
+        <div class="pillar-title">Documents</div>
+        <div class="pillar-pages">Certificates, licences, insurance — with RAG expiry tracking</div>
+      </div>
+      <div class="pillar-card">
+        <div class="pillar-icon">🎓</div>
+        <div class="pillar-title">Training</div>
+        <div class="pillar-pages">19+ curriculum items, competency tracking, renewal alerts</div>
+      </div>
+      <div class="pillar-card">
+        <div class="pillar-icon">🧹</div>
+        <div class="pillar-title">Cleaning</div>
+        <div class="pillar-pages">Rota with daily/weekly/monthly tasks, staff rotation, progress</div>
+      </div>
+      <div class="pillar-card">
+        <div class="pillar-icon">🛡</div>
+        <div class="pillar-title">Safeguarding</div>
+        <div class="pillar-pages">Concerns, referrals, emergency contacts, signposting</div>
+      </div>
+    </div>
+
+    <div class="section-title"><span class="icon">👥</span> Role-Based Access</div>
+    <div class="arch-diagram" style="padding:1rem">
+      <p style="font-size:0.82rem;color:var(--t2);margin-bottom:0.75rem;">9 configurable roles control what each staff member sees and can do:</p>
+      <div class="arch-row">
+        <div class="arch-box" style="background:#fef3c7;color:#92400e;">Superintendent</div>
+        <div class="arch-box" style="background:#fef3c7;color:#92400e;">Manager</div>
+        <div class="arch-box" style="background:#fef3c7;color:#92400e;">Pharmacist</div>
+      </div>
+      <p style="font-size:0.72rem;color:var(--t3);text-align:center;margin:0.4rem 0;">↑ Elevated — full visibility, team overview, can assign tasks ↑</p>
+      <div class="arch-row" style="margin-top:0.5rem;">
+        <div class="arch-box" style="background:#e0f2fe;color:#1e40af;">Technician</div>
+        <div class="arch-box" style="background:#e0f2fe;color:#1e40af;">Dispenser</div>
+        <div class="arch-box" style="background:#e0f2fe;color:#1e40af;">ACA</div>
+        <div class="arch-box" style="background:#e0f2fe;color:#1e40af;">Stock Asst.</div>
+        <div class="arch-box" style="background:#e0f2fe;color:#1e40af;">Driver</div>
+        <div class="arch-box" style="background:#e0f2fe;color:#1e40af;">Staff</div>
+      </div>
+      <p style="font-size:0.72rem;color:var(--t3);text-align:center;margin-top:0.4rem;">↑ Standard — see own tasks, limited admin access ↑</p>
+    </div>
+
+    <div class="section-title"><span class="icon">📊</span> Build Progress</div>
+    <div class="arch-diagram" style="padding:1.25rem">
+      <div class="progress-row"><span class="progress-label">Core Pages</span><div class="progress-bar"><div class="progress-fill" style="width:95%"></div></div><span class="progress-pct">95%</span></div>
+      <div class="progress-row"><span class="progress-label">Dashboard</span><div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div><span class="progress-pct">90%</span></div>
+      <div class="progress-row"><span class="progress-label">Task System</span><div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div><span class="progress-pct">90%</span></div>
+      <div class="progress-row"><span class="progress-label">Compliance</span><div class="progress-bar"><div class="progress-fill" style="width:85%"></div></div><span class="progress-pct">85%</span></div>
+      <div class="progress-row"><span class="progress-label">MHRA Integration</span><div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div><span class="progress-pct">80%</span></div>
+      <div class="progress-row"><span class="progress-label">Reporting / PDF</span><div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div><span class="progress-pct">60%</span></div>
+      <div class="progress-row"><span class="progress-label">Mobile Polish</span><div class="progress-bar"><div class="progress-fill" style="width:50%"></div></div><span class="progress-pct">50%</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FEATURES TAB -->
+<div id="tab-features" class="tab-content">
+  <div class="container">
+
+    <div class="filters">
+      <button class="filter-chip active" onclick="filterFeatures('all', this)">All</button>
+      <button class="filter-chip" onclick="filterFeatures('core', this)">Core</button>
+      <button class="filter-chip" onclick="filterFeatures('compliance', this)">Compliance</button>
+      <button class="filter-chip" onclick="filterFeatures('staff', this)">Staff</button>
+      <button class="filter-chip" onclick="filterFeatures('operational', this)">Operational</button>
+      <button class="filter-chip" onclick="filterFeatures('regulatory', this)">Regulatory</button>
+    </div>
+
+    <!-- Command Centre -->
+    <div class="section-title"><span class="icon">🖥</span> Command Centre</div>
+    <div class="feature-grid">
+
+      <div class="feature-card" data-cat="core" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>Emerald Command Dashboard</h3><span class="badge badge-live">Live</span></div>
+        <p>Central hub with real-time compliance overview, tasks, and daily progress.</p>
+        <div class="detail">
+          <div class="detail-item">Compliance Health tiles with drill-down to failing items</div>
+          <div class="detail-item">30-day compliance heatmap (GitHub-style)</div>
+          <div class="detail-item">RP Timeline showing pharmacist coverage through the day</div>
+          <div class="detail-item">Daily progress bar with colour-coded thresholds</div>
+          <div class="detail-item">Task schedule accordions (Today / This Week / Later)</div>
+          <div class="detail-item">Quick to-do list and floating action button</div>
+          <div class="detail-item">Confetti animation on milestones</div>
+        </div>
+      </div>
+
+      <div class="feature-card" data-cat="core" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>My Tasks</h3><span class="badge badge-live">Live</span></div>
+        <p>Personal and team task management with multiple views and smart filtering.</p>
+        <div class="detail">
+          <div class="detail-item">Template-driven task generation from 30+ templates</div>
+          <div class="detail-item">Dual view: tile grid + Kanban board</div>
+          <div class="detail-item">Filter by category, status (mine/overdue/today)</div>
+          <div class="detail-item">Multi-step completion flow with evidence capture</div>
+          <div class="detail-item">Task assignment modal for elevated roles</div>
+          <div class="detail-item">Team Overview panel (managers see all staff)</div>
+          <div class="detail-item">Role-specific task insights panel</div>
+        </div>
+      </div>
+
+      <div class="feature-card" data-cat="core" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>Global Search</h3><span class="badge badge-live">Live</span></div>
+        <p>App-wide search across all data types and pages.</p>
+        <div class="detail">
+          <div class="detail-item">Search across tasks, documents, staff, SOPs</div>
+          <div class="detail-item">Keyboard shortcut access</div>
+        </div>
+      </div>
+
+      <div class="feature-card" data-cat="core" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>Notification System</h3><span class="badge badge-live">Live</span></div>
+        <p>Bell icon with alerts for expiring documents, overdue tasks, and compliance issues.</p>
+        <div class="detail">
+          <div class="detail-item">Alert banner for critical items on dashboard</div>
+          <div class="detail-item">Notification bell in header</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Compliance & Governance -->
+    <div class="section-title"><span class="icon">✅</span> Compliance & Governance</div>
+    <div class="feature-grid">
+
+      <div class="feature-card" data-cat="compliance" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>Compliance Report</h3><span class="badge badge-live">Live</span></div>
+        <p>Scored report across all four pillars with detailed status tables.</p>
+        <div class="detail">
+          <div class="detail-item">Score cards: Documents, Training, Cleaning, Safeguarding</div>
+          <div class="detail-item">Traffic light (RAG) status indicators</div>
+          <div class="detail-item">PDF generation for GPhC inspector visits</div>
+        </div>
+      </div>
+
+      <div class="feature-card" data-cat="compliance" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>Analytics</h3><span class="badge badge-live">Live</span></div>
+        <p>30-day trend charts showing compliance score history across all categories.</p>
+        <div class="detail">
+          <div class="detail-item">Score history trending over time</div>
+          <div class="detail-item">Per-pillar trend visualisation</div>
+        </div>
+      </div>
+
+      <div class="feature-card" data-cat="compliance" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>Document Tracker</h3><span class="badge badge-live">Live</span></div>
+        <p>Track certificates, licences, and insurance with expiry alerts.</p>
+        <div class="detail">
+          <div class="detail-item">RAG status (Red/Amber/Green) based on expiry dates</div>
+          <div class="detail-item">Category grouping with issue/expiry date management</div>
+          <div class="detail-item">Automatic reminder generation</div>
+        </div>
+      </div>
+
+      <div class="feature-card" data-cat="compliance" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>Audit Log</h3><span class="badge badge-live">Live</span></div>
+        <p>Complete history of all user actions across the system.</p>
+        <div class="detail">
+          <div class="detail-item">Filter by action type, user, and date range</div>
+          <div class="detail-item">Pagination and sorting</div>
+          <div class="detail-item">Automatic logging on all data modifications</div>
+        </div>
+      </div>
+
+      <div class="feature-card" data-cat="compliance" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>Incident Reporting</h3><span class="badge badge-live">Live</span></div>
+        <p>Log and track incidents with severity levels and action plans.</p>
+        <div class="detail">
+          <div class="detail-item">Type and severity classification</div>
+          <div class="detail-item">Status workflow tracking</div>
+          <div class="detail-item">Action taken logging with audit trail</div>
+          <div class="detail-item">CSV export</div>
+        </div>
+      </div>
+
+      <div class="feature-card" data-cat="compliance" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>Near Miss Log</h3><span class="badge badge-live">Live</span></div>
+        <p>Categorised near-miss reporting with improvement tracking.</p>
+        <div class="detail">
+          <div class="detail-item">7 near-miss categories</div>
+          <div class="detail-item">Severity levels and status workflow</div>
+          <div class="detail-item">Improvement steps per category</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Regulatory -->
+    <div class="section-title"><span class="icon">⚖️</span> Regulatory</div>
+    <div class="feature-grid">
+
+      <div class="feature-card" data-cat="regulatory" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>RP Log</h3><span class="badge badge-live">Live</span></div>
+        <p>Responsible Pharmacist presence logging with configurable check intervals.</p>
+        <div class="detail">
+          <div class="detail-item">Daily, weekly, and fortnightly RP checks</div>
+          <div class="detail-item">Sign-in/sign-out system</div>
+          <div class="detail-item">CSV export for compliance records</div>
+        </div>
+      </div>
+
+      <div class="feature-card" data-cat="regulatory" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>MHRA Recalls</h3><span class="badge badge-live">Live</span></div>
+        <p>Live GOV.UK drug alerts with acknowledgement tracking and inspection reports.</p>
+        <div class="detail">
+          <div class="detail-item">Live API feed from GOV.UK</div>
+          <div class="detail-item">Category tabs with classification filtering</div>
+          <div class="detail-item">Date range filters</div>
+          <div class="detail-item">Staff acknowledgement tracking per alert</div>
+          <div class="detail-item">Flag system for priority items</div>
+          <div class="detail-item">Inspection report generation</div>
+        </div>
+      </div>
+
+      <div class="feature-card" data-cat="regulatory" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>CD Register</h3><span class="badge badge-live">Live</span></div>
+        <p>Controlled Drugs register with schedule filtering and balance tracking.</p>
+        <div class="detail">
+          <div class="detail-item">Schedule 2-5 filtering</div>
+          <div class="detail-item">Drug entry logging (In/Out direction)</div>
+          <div class="detail-item">Running balance calculation</div>
+          <div class="detail-item">Witness signature logging</div>
+        </div>
+      </div>
+
+      <div class="feature-card" data-cat="regulatory" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>SOP Library</h3><span class="badge badge-live">Live</span></div>
+        <p>70+ Standard Operating Procedures organised by category with review tracking.</p>
+        <div class="detail">
+          <div class="detail-item">13 SOP categories</div>
+          <div class="detail-item">Status tracking (current / due review / overdue)</div>
+          <div class="detail-item">Risk level badges</div>
+          <div class="detail-item">Role-based filtering</div>
+          <div class="detail-item">Full SOP viewer with rich formatting</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Staff & Training -->
+    <div class="section-title"><span class="icon">👥</span> Staff & Training</div>
+    <div class="feature-grid">
+
+      <div class="feature-card" data-cat="staff" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>Training Logs</h3><span class="badge badge-live">Live</span></div>
+        <p>Staff training matrix with 19+ required curriculum items and competency tracking.</p>
+        <div class="detail">
+          <div class="detail-item">Required curriculum tracking per role</div>
+          <div class="detail-item">Expiry alerts for certificate renewals</div>
+          <div class="detail-item">Evidence requirements</div>
+          <div class="detail-item">Role-based training paths</div>
+        </div>
+      </div>
+
+      <div class="feature-card" data-cat="staff" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>Staff Training Modules</h3><span class="badge badge-live">Live</span></div>
+        <p>30 training modules across 5 categories with per-staff progress.</p>
+        <div class="detail">
+          <div class="detail-item">Categories: GPhC, Dispensing, Health & Safety, Safeguarding, Operational</div>
+          <div class="detail-item">Status tracking per staff member per module</div>
+        </div>
+      </div>
+
+      <div class="feature-card" data-cat="staff" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>Induction</h3><span class="badge badge-live">Live</span></div>
+        <p>New staff onboarding with 40+ modules and progress scoring.</p>
+        <div class="detail">
+          <div class="detail-item">40+ induction modules across categories</div>
+          <div class="detail-item">Progress tracking with completion scoring</div>
+          <div class="detail-item">Role-specific module sets</div>
+        </div>
+      </div>
+
+      <div class="feature-card" data-cat="staff" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>Appraisals</h3><span class="badge badge-live">Live</span></div>
+        <p>Staff appraisals with wizard form, goal setting, and peer feedback.</p>
+        <div class="detail">
+          <div class="detail-item">Wizard-style appraisal creation form</div>
+          <div class="detail-item">Goal setting with carry-over between periods</div>
+          <div class="detail-item">5-star competency rating scales</div>
+          <div class="detail-item">Action plans and peer feedback requests</div>
+          <div class="detail-item">Status tracking (pending / due / completed)</div>
+        </div>
+      </div>
+
+      <div class="feature-card" data-cat="staff" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>Safeguarding</h3><span class="badge badge-live">Live</span></div>
+        <p>Multi-tab safeguarding system for concerns, referrals, and emergency contacts.</p>
+        <div class="detail">
+          <div class="detail-item">Concerns logging (5 categories)</div>
+          <div class="detail-item">Referral tracking with consent management</div>
+          <div class="detail-item">Emergency contacts (6 categories)</div>
+          <div class="detail-item">Signposting resources</div>
+          <div class="detail-item">Training records</div>
+        </div>
+      </div>
+
+      <div class="feature-card" data-cat="staff" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>PIN Login System</h3><span class="badge badge-live">Live</span></div>
+        <p>Staff selection grid with 4-digit PIN authentication and role badges.</p>
+        <div class="detail">
+          <div class="detail-item">Visual staff picker grid</div>
+          <div class="detail-item">Numpad PIN entry</div>
+          <div class="detail-item">Role badge display per staff member</div>
+          <div class="detail-item">Manager toggle and role assignment in Settings</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Operational -->
+    <div class="section-title"><span class="icon">⚙️</span> Operational</div>
+    <div class="feature-grid">
+
+      <div class="feature-card" data-cat="operational" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>Cleaning Rota</h3><span class="badge badge-live">Live</span></div>
+        <p>3-view cleaning schedule with automatic staff rotation.</p>
+        <div class="detail">
+          <div class="detail-item">Today / Week / Staff view modes</div>
+          <div class="detail-item">Outstanding and completed grouping</div>
+          <div class="detail-item">Frequency labels (daily, weekly, fortnightly, monthly)</div>
+          <div class="detail-item">7-person automatic staff rotation</div>
+          <div class="detail-item">Progress bars per period</div>
+        </div>
+      </div>
+
+      <div class="feature-card" data-cat="operational" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>Temperature Log</h3><span class="badge badge-live">Live</span></div>
+        <p>Fridge temperature monitoring with excursion tracking.</p>
+        <div class="detail">
+          <div class="detail-item">2-8°C valid range monitoring</div>
+          <div class="detail-item">Excursion tracking with reason and quarantine flags</div>
+          <div class="detail-item">Multiple fridge support</div>
+          <div class="detail-item">Daily and weekly summary views</div>
+          <div class="detail-item">Temperature trend chart</div>
+        </div>
+      </div>
+
+      <div class="feature-card" data-cat="operational" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>Settings & Configuration</h3><span class="badge badge-live">Live</span></div>
+        <p>7-tab settings panel for staff, pharmacy config, and data management.</p>
+        <div class="detail">
+          <div class="detail-item">Staff management (PIN, role, manager toggle)</div>
+          <div class="detail-item">Pharmacy configuration</div>
+          <div class="detail-item">Cleaning task defaults</div>
+          <div class="detail-item">RP settings</div>
+          <div class="detail-item">Task template editor</div>
+          <div class="detail-item">Notification preferences</div>
+          <div class="detail-item">Data export/import/clear</div>
+        </div>
+      </div>
+
+      <div class="feature-card" data-cat="operational" onclick="this.classList.toggle('expanded')">
+        <div class="card-header"><h3>Onboarding Tours</h3><span class="badge badge-live">Live</span></div>
+        <p>Interactive feature walkthroughs for new users.</p>
+        <div class="detail">
+          <div class="detail-item">Guided first-use tours</div>
+          <div class="detail-item">Feature discovery prompts</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- ROADMAP TAB -->
+<div id="tab-roadmap" class="tab-content">
+  <div class="container">
+
+    <p style="font-size:0.9rem;color:var(--t2);margin-bottom:1.5rem;">
+      Click each phase to expand. Items marked with a yellow dot are actively in progress.
+    </p>
+
+    <!-- Phase 1 -->
+    <div class="roadmap-phase open">
+      <div class="phase-header" onclick="this.parentElement.classList.toggle('open')">
+        <h3>Phase 1 — Polish & Reporting (March 2026)</h3>
+        <span class="phase-tag now">In Progress</span>
+      </div>
+      <div class="phase-body">
+        <div class="roadmap-item">
+          <div class="roadmap-dot done"></div>
+          <div><h4>Dashboard Overhaul</h4><p>Compliance heatmap, RP timeline, daily progress bar, drill-down health tiles, task accordion improvements. ~400 lines new code.</p></div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-dot in-progress"></div>
+          <div><h4>PDF Compliance Report</h4><p>One-click PDF generation for GPhC inspectors — pharmacy header, scored sections, document table, training matrix, cleaning summary, RP coverage, incident log. Uses jspdf + jspdf-autotable.</p></div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-dot done"></div>
+          <div><h4>MHRA Recalls — Category Tabs & Bug Fixes</h4><p>Category tab filtering, classification/type detection improvements, live GOV.UK alert integration.</p></div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-dot done"></div>
+          <div><h4>Staff Appraisals</h4><p>Wizard form, goal setting, rating scales, peer feedback, action plans.</p></div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-dot in-progress"></div>
+          <div><h4>Mobile Responsiveness Pass</h4><p>Ensure all pages work well on tablet and mobile devices. Swipe interactions, responsive grids.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="roadmap-phase">
+      <div class="phase-header" onclick="this.parentElement.classList.toggle('open')">
+        <h3>Phase 2 — Enhanced Workflows (Q2 2026)</h3>
+        <span class="phase-tag next">Next</span>
+      </div>
+      <div class="phase-body">
+        <div class="roadmap-item">
+          <div class="roadmap-dot planned"></div>
+          <div><h4>Staff Directory</h4><p>Full team profiles with contact details, role info, qualifications, and availability. Currently a placeholder page.</p></div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-dot planned"></div>
+          <div><h4>Email / Push Notifications</h4><p>Automated alerts for expiring documents, overdue tasks, and compliance score drops. Configurable per user.</p></div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-dot planned"></div>
+          <div><h4>Advanced Analytics Dashboard</h4><p>Deeper trend analysis, staff performance metrics, compliance forecasting, and exportable charts.</p></div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-dot planned"></div>
+          <div><h4>Document Upload & Storage</h4><p>Attach scanned certificates and evidence directly to document and training records via Supabase Storage.</p></div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-dot planned"></div>
+          <div><h4>Multi-Branch Support</h4><p>Support for pharmacy groups managing multiple branches from one account.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 3 -->
+    <div class="roadmap-phase">
+      <div class="phase-header" onclick="this.parentElement.classList.toggle('open')">
+        <h3>Phase 3 — Integrations & Scale (Q3–Q4 2026)</h3>
+        <span class="phase-tag later">Future</span>
+      </div>
+      <div class="phase-body">
+        <div class="roadmap-item">
+          <div class="roadmap-dot planned"></div>
+          <div><h4>Proper User Authentication</h4><p>Replace shared password + PIN with Supabase Auth (email/password or SSO). Row-level security on all tables.</p></div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-dot planned"></div>
+          <div><h4>Audit-Ready Export Pack</h4><p>One-click download of all compliance evidence as a structured ZIP — PDFs, training records, RP logs, incident reports — ready for GPhC inspection.</p></div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-dot planned"></div>
+          <div><h4>PMR System Integration</h4><p>Connect to pharmacy PMR systems for automatic prescription volume data and dispensing error tracking.</p></div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-dot planned"></div>
+          <div><h4>AI-Assisted Compliance</h4><p>Smart suggestions for task priorities, risk scoring, and predicted compliance gaps based on historical data.</p></div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-dot planned"></div>
+          <div><h4>Offline Mode</h4><p>Service worker + IndexedDB for full offline functionality with background sync when reconnected.</p></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TECH STACK TAB -->
+<div id="tab-tech" class="tab-content">
+  <div class="container">
+
+    <div class="section-title"><span class="icon">🧰</span> Technology Stack</div>
+    <div class="stack-grid">
+      <div class="stack-item"><h4>React 18</h4><p>Component-based UI with hooks, context, and memoisation</p></div>
+      <div class="stack-item"><h4>Vite 5</h4><p>Fast dev server and optimised production builds</p></div>
+      <div class="stack-item"><h4>Tailwind CSS v3</h4><p>Utility-first styling with custom Emerald Mint theme</p></div>
+      <div class="stack-item"><h4>Supabase</h4><p>PostgreSQL database, REST API, real-time subscriptions</p></div>
+      <div class="stack-item"><h4>Vercel</h4><p>Frontend hosting with automatic deployments from Git</p></div>
+      <div class="stack-item"><h4>HashRouter</h4><p>Client-side routing compatible with static hosting</p></div>
+    </div>
+
+    <div class="section-title"><span class="icon">🔧</span> Key Patterns</div>
+    <div class="stack-grid">
+      <div class="stack-item"><h4>useSupabase Hook</h4><p>Custom hook for auto-syncing React state to Supabase with camelCase/snake_case conversion</p></div>
+      <div class="stack-item"><h4>Task Engine</h4><p>Template-driven task generation with role filtering and category grouping</p></div>
+      <div class="stack-item"><h4>Rotation Manager</h4><p>Deterministic daily staff rotation for cleaning and task assignment</p></div>
+      <div class="stack-item"><h4>Compliance Scoring</h4><p>Real-time score calculation across 4 pillars with trend history</p></div>
+      <div class="stack-item"><h4>Seed System</h4><p>Versioned demo data (v29) with automatic orphaned key cleanup</p></div>
+      <div class="stack-item"><h4>Audit Logging</h4><p>Automatic action tracking on all data modifications via logAudit()</p></div>
+    </div>
+
+    <div class="section-title"><span class="icon">🗄</span> Database Tables (Supabase)</div>
+    <div class="stack-grid">
+      <div class="stack-item"><h4>staff_members</h4><p>Name, PIN, role, is_manager flag</p></div>
+      <div class="stack-item"><h4>task_templates</h4><p>Template-driven task definitions with category & priority</p></div>
+      <div class="stack-item"><h4>staff_tasks</h4><p>Task instances linked to templates with completion tracking</p></div>
+      <div class="stack-item"><h4>documents</h4><p>Certificates, licences with issue/expiry dates</p></div>
+      <div class="stack-item"><h4>staff_training</h4><p>Training records per staff member per module</p></div>
+      <div class="stack-item"><h4>cleaning_tasks / entries</h4><p>Task definitions and completion records</p></div>
+      <div class="stack-item"><h4>temperature_logs</h4><p>Fridge readings with excursion flags</p></div>
+      <div class="stack-item"><h4>incidents</h4><p>Incident reports with severity and status</p></div>
+      <div class="stack-item"><h4>rp_log</h4><p>Responsible Pharmacist sign-in/out records</p></div>
+      <div class="stack-item"><h4>safeguarding_records</h4><p>Concerns, referrals, and emergency contacts</p></div>
+      <div class="stack-item"><h4>audit_log</h4><p>Full action history across the system</p></div>
+      <div class="stack-item"><h4>training_topics</h4><p>Training curriculum definitions</p></div>
+    </div>
+
+  </div>
+</div>
+
+<div style="text-align:center; padding:2rem; color:var(--t3); font-size:0.8rem;">
+  iPharmTracker Feature Plan — Generated March 2026
+</div>
+
+<script>
+  function showTab(id) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  function filterFeatures(cat, btn) {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.feature-card').forEach(card => {
+      if (cat === 'all' || card.dataset.cat === cat) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  // Animate progress bars on scroll
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.querySelectorAll('.progress-fill').forEach(bar => {
+          bar.style.width = bar.style.width;
+        });
+      }
+    });
+  });
+  document.querySelectorAll('.progress-bar').forEach(b => observer.observe(b));
+</script>
+
+</body>
+</html>

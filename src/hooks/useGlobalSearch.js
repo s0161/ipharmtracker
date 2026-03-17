@@ -1,55 +1,168 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 
-const TABLES = {
-  documents: { fields: ['documentName', 'category', 'owner'], label: 'Renewals', route: '/documents' },
-  staff_members: { fields: ['name'], label: 'Staff', route: '/settings' },
-  cleaning_entries: { fields: ['taskName', 'staffMember'], label: 'Cleaning', route: '/cleaning' },
-  training_logs: { fields: ['staffName', 'topic', 'trainerName'], label: 'Training', route: '/training' },
-  staff_training: { fields: ['staffName', 'trainingItem', 'role'], label: 'Staff Training', route: '/staff-training' },
+const PHARMACY_ID = 'FED07'
+
+const TABLE_CONFIG = [
+  {
+    table: 'staff_members',
+    select: 'id, name, role',
+    filter: (q) => ({ column: 'name', value: `%${q}%` }),
+    hasPharmacyId: true,
+    map: (row) => ({
+      id: `staff-${row.id}`,
+      title: row.name,
+      subtitle: row.role || '',
+      category: 'Staff',
+      emoji: '👤',
+      route: '/staff-directory',
+    }),
+  },
+  {
+    table: 'patient_queries',
+    select: 'id, patient_name, subject, query_type, status',
+    filter: (q) => ({ or: `patient_name.ilike.%${q}%,subject.ilike.%${q}%` }),
+    hasPharmacyId: true,
+    map: (row) => ({
+      id: `pq-${row.id}`,
+      title: row.patient_name || row.subject || 'Query',
+      subtitle: [row.query_type, row.status].filter(Boolean).join(' · '),
+      category: 'Patient Queries',
+      emoji: '💊',
+      route: '/patient-queries',
+    }),
+  },
+  {
+    table: 'incidents',
+    select: 'id, type, description, severity, status',
+    filter: (q) => ({ or: `description.ilike.%${q}%,type.ilike.%${q}%` }),
+    hasPharmacyId: false,
+    map: (row) => ({
+      id: `inc-${row.id}`,
+      title: row.type || 'Incident',
+      subtitle: [row.severity, row.description?.slice(0, 60)].filter(Boolean).join(' — '),
+      category: 'Incidents',
+      emoji: '⚠️',
+      route: '/incidents',
+    }),
+  },
+  {
+    table: 'staff_tasks',
+    select: 'id, title, priority, status',
+    filter: (q) => ({ column: 'title', value: `%${q}%` }),
+    hasPharmacyId: false,
+    map: (row) => ({
+      id: `task-${row.id}`,
+      title: row.title || 'Task',
+      subtitle: [row.priority, row.status].filter(Boolean).join(' · '),
+      category: 'Tasks',
+      emoji: '✔️',
+      route: '/my-tasks',
+    }),
+  },
+  {
+    table: 'training_logs',
+    select: 'id, topic, staff_name, outcome',
+    filter: (q) => ({ or: `topic.ilike.%${q}%,staff_name.ilike.%${q}%` }),
+    hasPharmacyId: false,
+    map: (row) => ({
+      id: `train-${row.id}`,
+      title: row.topic || 'Training',
+      subtitle: [row.staff_name, row.outcome].filter(Boolean).join(' · '),
+      category: 'Training',
+      emoji: '🎓',
+      route: '/training',
+    }),
+  },
+  {
+    table: 'documents',
+    select: 'id, document_name, category, owner',
+    filter: (q) => ({ column: 'document_name', value: `%${q}%` }),
+    hasPharmacyId: false,
+    map: (row) => ({
+      id: `doc-${row.id}`,
+      title: row.document_name || 'Document',
+      subtitle: [row.category, row.owner].filter(Boolean).join(' · '),
+      category: 'Documents',
+      emoji: '📄',
+      route: '/documents',
+    }),
+  },
+]
+
+async function queryTable(config, query, signal) {
+  const { table, select, filter, hasPharmacyId } = config
+  const f = filter(query)
+
+  let q = supabase.from(table).select(select)
+
+  if (hasPharmacyId) {
+    q = q.eq('pharmacy_id', PHARMACY_ID)
+  }
+
+  if (f.or) {
+    q = q.or(f.or)
+  } else {
+    q = q.ilike(f.column, f.value)
+  }
+
+  q = q.limit(3)
+
+  const { data, error } = await q.abortSignal(signal)
+  if (error) throw error
+  return (data || []).map(config.map)
 }
 
-export function useGlobalSearch() {
-  const [cache, setCache] = useState(null)
+export function useGlobalSearch(query) {
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
-  const fetchedRef = useRef(false)
+  const abortRef = useRef(null)
 
-  const fetchAll = useCallback(async () => {
-    if (fetchedRef.current) return
-    fetchedRef.current = true
-    setLoading(true)
-    const data = {}
-    for (const [table, config] of Object.entries(TABLES)) {
-      const { data: rows } = await supabase.from(table).select('*')
-      data[table] = (rows || []).map(row => ({
-        ...row,
-        _table: table,
-        _label: config.label,
-        _route: config.route,
-        _searchText: config.fields.map(f => row[f] || '').join(' ').toLowerCase(),
-      }))
-    }
-    setCache(data)
-    setLoading(false)
-  }, [])
+  useEffect(() => {
+    const trimmed = (query || '').trim()
 
-  const search = useCallback((query) => {
-    if (!cache || !query.trim()) {
+    if (trimmed.length < 2) {
       setResults([])
+      setLoading(false)
       return
     }
-    const q = query.toLowerCase().trim()
-    const matches = []
-    for (const rows of Object.values(cache)) {
-      for (const row of rows) {
-        if (row._searchText.includes(q)) {
-          matches.push(row)
+
+    setLoading(true)
+
+    const timer = setTimeout(async () => {
+      // Cancel previous request
+      if (abortRef.current) {
+        abortRef.current.abort()
+      }
+      const controller = new AbortController()
+      abortRef.current = controller
+
+      try {
+        const settled = await Promise.allSettled(
+          TABLE_CONFIG.map((cfg) => queryTable(cfg, trimmed, controller.signal))
+        )
+
+        // Don't update state if this request was aborted
+        if (controller.signal.aborted) return
+
+        const allResults = settled
+          .filter((r) => r.status === 'fulfilled')
+          .flatMap((r) => r.value)
+
+        setResults(allResults)
+      } catch {
+        // Aborted or unexpected error — ignore
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false)
         }
       }
-    }
-    setResults(matches.slice(0, 20))
-  }, [cache])
+    }, 280)
 
-  return { results, search, fetchAll, loading, cache }
+    return () => {
+      clearTimeout(timer)
+    }
+  }, [query])
+
+  return { results, loading }
 }

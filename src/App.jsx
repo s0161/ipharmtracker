@@ -28,6 +28,7 @@ import CareHomes from './pages/CareHomes'
 import PatientQueries from './pages/PatientQueries'
 import CalendarPage from './pages/CalendarPage'
 import HandoverPage from './pages/HandoverPage'
+import RotaPage from './pages/RotaPage'
 import GPhCReportPage from './pages/GPhCReportPage'
 import Login, { isAuthenticated } from './pages/Login'
 import PinSelect from './pages/PinSelect'
@@ -56,6 +57,7 @@ function AuthedApp() {
             <Route path="/staff-training" element={<RouteErrorBoundary><StaffTraining /></RouteErrorBoundary>} />
             <Route path="/temperature" element={<RouteErrorBoundary><TemperatureLog /></RouteErrorBoundary>} />
             <Route path="/handover" element={<RouteErrorBoundary><HandoverPage /></RouteErrorBoundary>} />
+            <Route path="/rota" element={<RouteErrorBoundary><RotaPage /></RouteErrorBoundary>} />
             <Route path="/gphc-report" element={<RouteErrorBoundary><GPhCReportPage /></RouteErrorBoundary>} />
             <Route path="/incidents" element={<RouteErrorBoundary><Incidents /></RouteErrorBoundary>} />
             <Route path="/near-misses" element={<RouteErrorBoundary><NearMissLog /></RouteErrorBoundary>} />

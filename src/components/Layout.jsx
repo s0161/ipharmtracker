@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate, NavLink } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import GlobalSearch from './GlobalSearch'
+import CommandPalette from './CommandPalette'
 import Onboarding from './Onboarding'
 import IncidentQuickAdd from './IncidentQuickAdd'
 import CriticalBanner from './alerts/CriticalBanner'
@@ -108,6 +109,7 @@ const SHORTCUT_LIST = [
   { key: 'C', label: 'Cleaning Rota' },
   { key: 'S', label: 'Staff Training' },
   { key: '/', label: 'Search' },
+  { key: '⌘K', label: 'Command Palette' },
   { key: '?', label: 'Show shortcuts' },
 ]
 
@@ -115,6 +117,7 @@ export default function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
   const [showShortcuts, setShowShortcuts] = useState(false)
+  const [cmdPaletteOpen, setCmdPaletteOpen] = useState(false)
   const moreRef = useRef(null)
   const location = useLocation()
   const navigate = useNavigate()
@@ -140,6 +143,11 @@ export default function Layout({ children }) {
     const handler = (e) => {
       const tag = e.target.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        setCmdPaletteOpen(prev => !prev)
+        return
+      }
       if (e.metaKey || e.ctrlKey || e.altKey) return
       if (e.key === '?') { e.preventDefault(); setShowShortcuts(v => !v); return }
       if (e.key === 'Escape' && showShortcuts) { setShowShortcuts(false); return }
@@ -176,7 +184,7 @@ export default function Layout({ children }) {
               <span className="text-ec-t1 font-medium">{title}</span>
             </nav>
             <div className="flex-1" />
-            <GlobalSearch />
+            <GlobalSearch onSearchClick={() => setCmdPaletteOpen(true)} />
           </header>
         )}
 
@@ -251,6 +259,7 @@ export default function Layout({ children }) {
 
       <IncidentQuickAdd />
       <Onboarding />
+      <CommandPalette open={cmdPaletteOpen} onClose={() => setCmdPaletteOpen(false)} />
 
       {/* Keyboard shortcut overlay */}
       {showShortcuts && (

@@ -94,7 +94,7 @@ export default function QueryDetailModal({ query, open, onClose, onUpdate, onLog
             {statusStyle.label}
           </span>
           {query.priority && (
-            <span className="text-[9px] font-bold px-1.5 py-px rounded tracking-wide uppercase" style={{ color: '#64748b', background: '#f1f5f9' }}>
+            <span className="text-[9px] font-bold px-1.5 py-px rounded tracking-wide uppercase" style={{ color: 'var(--ec-t3)', background: 'var(--ec-t5)' }}>
               {query.priority.toUpperCase()}
             </span>
           )}

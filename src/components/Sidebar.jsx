@@ -32,6 +32,7 @@ function NI({ name, color }) {
     star: <polygon points="8 1 10 6 15 6.5 11.5 10 12.5 15 8 12.5 3.5 15 4.5 10 1 6.5 6 6" {...p} />,
     bell: <><path d="M8 14c-2.8 0-4.5-1-5-2 0-.6.3-1 .8-1h8.4c.5 0 .8.4.8 1-.5 1-2.2 2-5 2z" {...p} /><path d="M5 11V7a3 3 0 016 0v4" {...p} /><path d="M7 14v.5a1 1 0 002 0V14" {...p} /></>,
     calendar: <><rect x="2" y="3" width="12" height="11" rx="1" {...p} /><path d="M5 1v3M11 1v3M2 7h12" {...p} /></>,
+    rota: <><rect x="2" y="3" width="12" height="11" rx="1" {...p} /><path d="M5 1v3M11 1v3M2 7h12" {...p} /><circle cx="6" cy="10" r="1" {...p} /><circle cx="10" cy="10" r="1" {...p} /></>,
   }
   return <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">{m[name]}</svg>
 }
@@ -45,43 +46,54 @@ const sections = [
       { to: '/rp-log', label: 'RP Log', icon: 'clip', shortcut: 'R' },
       { to: '/temperature', label: 'Temp Log', icon: 'therm' },
       { to: '/handover', label: 'Shift Handover', icon: 'clip' },
+      { to: '/rota', label: 'Staff Rota', icon: 'rota' },
     ],
   },
   {
-    label: 'RECORDS',
+    label: 'DISPENSING',
     items: [
-      { to: '/training', label: 'Training Logs', icon: 'book', shortcut: 'T' },
-      { to: '/cleaning', label: 'Cleaning Rota', icon: 'spark', shortcut: 'C' },
-      { to: '/documents', label: 'Renewals', icon: 'file' },
       { to: '/patient-queries', label: 'Patient Queries', icon: 'clip' },
-      { to: '/incidents', label: 'Incidents', icon: 'alertTri' },
+      { to: '/documents', label: 'Renewals', icon: 'file' },
       { to: '/cd-register', label: 'CD Register', icon: 'file', badge: 'soon' },
     ],
   },
   {
     label: 'COMPLIANCE',
     items: [
+      { to: '/incidents', label: 'Incidents', icon: 'alertTri' },
+      { to: '/near-misses', label: 'Near Misses', icon: 'shieldAlert' },
+      { to: '/cleaning', label: 'Cleaning Rota', icon: 'spark', shortcut: 'C' },
+      { to: '/mhra-recalls', label: 'MHRA Recalls', icon: 'shieldAlert' },
+      { to: '/alerts', label: 'Alerts', icon: 'bell' },
       { to: '/calendar', label: 'Compliance Calendar', icon: 'calendar' },
       { to: '/gphc-report', label: 'GPhC Report', icon: 'report' },
-      { to: '/alerts', label: 'Alerts', icon: 'bell' },
-      { to: '/safeguarding', label: 'Safeguarding', icon: 'shield' },
+    ],
+  },
+  {
+    label: 'STAFF',
+    items: [
+      { to: '/training', label: 'Training Logs', icon: 'book', shortcut: 'T' },
       { to: '/staff-training', label: 'Staff Training', icon: 'users', shortcut: 'S' },
-      { to: '/sop-library', label: 'SOP Library', icon: 'book', badge: 'soon' },
-      { to: '/near-misses', label: 'Near Misses', icon: 'shieldAlert' },
-      { to: '/compliance-report', label: 'Compliance Report', icon: 'report' },
-      { to: '/analytics', label: 'Analytics', icon: 'barChart' },
       { to: '/induction', label: 'Induction', icon: 'grad' },
       { to: '/appraisals', label: 'Appraisals', icon: 'star' },
-      { to: '/mhra-recalls', label: 'MHRA Recalls', icon: 'shieldAlert' },
+      { to: '/safeguarding', label: 'Safeguarding', icon: 'shield' },
+      { to: '/staff-directory', label: 'Staff Directory', icon: 'users' },
+    ],
+  },
+  {
+    label: 'REPORTS & TOOLS',
+    items: [
+      { to: '/compliance-report', label: 'Compliance Report', icon: 'report' },
+      { to: '/analytics', label: 'Analytics', icon: 'barChart' },
+      { to: '/sop-library', label: 'SOP Library', icon: 'book', badge: 'soon' },
       { to: '/care-homes', label: 'Care Homes', icon: 'users' },
+      { to: '/audit-log', label: 'Audit Log', icon: 'log' },
     ],
   },
   {
     label: 'SYSTEM',
     items: [
-      { to: '/staff-directory', label: 'Staff Directory', icon: 'users' },
       { to: '/settings', label: 'Settings', icon: 'gear' },
-      { to: '/audit-log', label: 'Audit Log', icon: 'log' },
     ],
   },
 ]
@@ -140,7 +152,10 @@ export default function Sidebar({ open, onClose }) {
         <nav className="flex-1 overflow-y-auto py-1">
           {sections.map((section) => (
             <div key={section.label}>
-              <div className="text-[11px] font-semibold text-ec-t3 tracking-[0.6px] uppercase px-4 pt-[22px] pb-1.5">
+              <div
+                className="text-[9px] font-semibold tracking-[0.08em] uppercase px-3.5 pt-3 pb-1"
+                style={{ color: 'rgba(16,185,129,0.65)' }}
+              >
                 {section.label}
               </div>
               {section.items.map((item) => {

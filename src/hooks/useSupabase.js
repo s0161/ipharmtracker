@@ -70,6 +70,7 @@ export function useSupabase(table, initialValue = [], options = {}) {
         }
         if (error) {
           console.error(`[useSupabase] Failed to fetch from "${table}":`, error.message)
+          setLocalData(initialValue)
           setLoading(false)
           return
         }

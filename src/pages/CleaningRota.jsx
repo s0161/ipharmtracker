@@ -737,10 +737,10 @@ function StaffTaskItem({ task, isDone, isOverdue, todayEntry, staffMembers, onMa
         )}
       </div>
       {confirming && (
-        <div style={{ position: 'absolute', right: 20, background: '#fff', border: '1px solid var(--ec-em-border)', borderRadius: 8, padding: 10, boxShadow: '0 2px 8px rgba(0,0,0,0.1)', zIndex: 10, minWidth: 180 }}
+        <div style={{ position: 'absolute', right: 20, background: 'var(--ec-card)', border: '1px solid var(--ec-em-border)', borderRadius: 8, padding: 10, boxShadow: '0 2px 8px rgba(0,0,0,0.1)', zIndex: 10, minWidth: 180 }}
           onClick={e => e.stopPropagation()}>
           <select value={staffSelect} onChange={e => setStaffSelect(e.target.value)}
-            style={{ ...sans, fontSize: 11, padding: '4px 6px', borderRadius: 6, border: '1px solid var(--ec-em-bg)', width: '100%', marginBottom: 6, background: '#fff' }}>
+            style={{ ...sans, fontSize: 11, padding: '4px 6px', borderRadius: 6, border: '1px solid var(--ec-em-bg)', width: '100%', marginBottom: 6, background: 'var(--ec-card)' }}>
             <option value="">Staff...</option>
             {staffMembers.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
           </select>
@@ -1173,7 +1173,7 @@ export default function CleaningRota() {
       {showAddTask && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={() => setShowAddTask(false)}>
-          <div style={{ background: '#fff', borderRadius: 12, padding: 24, maxWidth: 400, width: '90%', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}
+          <div style={{ background: 'var(--ec-card)', borderRadius: 12, padding: 24, maxWidth: 400, width: '90%', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}
             onClick={e => e.stopPropagation()}>
             <h3 style={{ ...sans, fontSize: 16, fontWeight: 700, color: 'var(--ec-t1)', margin: '0 0 16px' }}>Add Task Entry</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>

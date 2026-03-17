@@ -5,6 +5,7 @@ import { generateId, formatDate } from '../utils/helpers'
 import { downloadCsv } from '../utils/exportCsv'
 import { logAudit } from '../utils/auditLog'
 import { useUser } from '../contexts/UserContext'
+import { useToast } from '../components/Toast'
 import SkeletonLoader from '../components/SkeletonLoader'
 
 // Inter font loaded via index.html
@@ -84,6 +85,7 @@ const SECTIONS = [
 
 export default function RPLog() {
   const { user } = useUser()
+  const toast = useToast()
   const [logs, setLogs, loading] = useSupabase('rp_log', [])
   const [pharmacyConfig] = usePharmacyConfig()
   const defaultRp = pharmacyConfig.rpName || 'Amjid Shakoor'
@@ -195,6 +197,7 @@ export default function RPLog() {
       setEditingId(id)
     }
     logAudit('RP Sign In', `RP signed in at ${time}`, 'RP Log', user?.name)
+    toast('RP signed in successfully', 'success')
   }
 
   const handleSignOut = () => {
@@ -206,6 +209,7 @@ export default function RPLog() {
     logAudit('RP Sign Out', `RP signed out at ${now.toTimeString().slice(0, 5)}`, 'RP Log', user?.name)
     clearRpSign()
     setRpSignState(null)
+    toast('RP signed out', 'info')
   }
 
   if (loading) {

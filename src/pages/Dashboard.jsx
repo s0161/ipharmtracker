@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../contexts/UserContext";
+import { useToast } from "../components/Toast";
 import { useSupabase } from "../hooks/useSupabase";
 import { usePharmacyConfig } from "../hooks/usePharmacyConfig";
 import { useDocumentReminders } from "../hooks/useDocumentReminders";
@@ -21,6 +22,7 @@ import {
 import DashCardHeader from "../components/DashCardHeader";
 import GPhCScorecard from "../components/dashboard/GPhCScorecard";
 import HandoverWidget from "../components/dashboard/HandoverWidget";
+import RPCoverWidget from "../components/dashboard/RPCoverWidget";
 import MiniCalendar from "../components/dashboard/MiniCalendar";
 import { useGPhCScores } from "../hooks/useGPhCScores";
 import Avatar from "../components/Avatar";
@@ -223,6 +225,8 @@ function KpiCard({ accent, value, label, pct }) {
 export default function Dashboard() {
   const { user } = useUser();
   const navigate = useNavigate();
+  const toast = useToast();
+  const complianceWarningShown = useRef(false);
   const [pharmacyConfig, , configLoading] = usePharmacyConfig();
 
   // ── Supabase subscriptions ──
@@ -529,6 +533,24 @@ export default function Dashboard() {
     return { status, isDone, latest, recentChecks: cdEntries.slice(0, 5) };
   }, [cleaningEntries]);
 
+  // ── Compliance warning toasts (once per session) ──
+  useEffect(() => {
+    if (loading || complianceWarningShown.current) return;
+    complianceWarningShown.current = true;
+
+    if (!rpSigned && !sessionStorage.getItem('rp_warning_shown')) {
+      toast('No RP signed in today', 'warning', 5000);
+      sessionStorage.setItem('rp_warning_shown', '1');
+    }
+
+    if (cdCheckStatus.status === 'overdue' && !sessionStorage.getItem('cd_warning_shown')) {
+      setTimeout(() => {
+        toast('CD balance check is overdue', 'warning', 6000);
+        sessionStorage.setItem('cd_warning_shown', '1');
+      }, 800);
+    }
+  }, [loading, rpSigned, cdCheckStatus, toast]);
+
   const redAlerts = alerts.filter(a => a.level === "red").length;
 
   // ── Staff Tasks ──
@@ -715,6 +737,15 @@ export default function Dashboard() {
               >
                 <span style={{ fontSize: 15 }}>📋</span>
                 Handover
+              </button>
+              <button
+                onClick={() => navigate("/rota")}
+                style={{ display: "flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: "8px 14px", color: "white", fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "all 0.15s", backdropFilter: "blur(4px)", fontFamily: "'Inter', sans-serif" }}
+                onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.15)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; }}
+              >
+                <span style={{ fontSize: 15 }}>📅</span>
+                Rota
               </button>
               <button
                 onClick={() => navigate("/patient-queries")}
@@ -1030,6 +1061,9 @@ export default function Dashboard() {
 
             {/* Today's Handover */}
             <HandoverWidget />
+
+            {/* RP Cover This Week */}
+            <RPCoverWidget />
 
             {/* Compliance Health */}
             <div style={{ ...card, overflow: "hidden" }}>

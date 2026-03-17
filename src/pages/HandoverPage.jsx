@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from 'react'
 import { useHandover } from '../hooks/useHandover'
 import { useUser } from '../contexts/UserContext'
 import { useSupabase } from '../hooks/useSupabase'
+import { useToast } from '../components/Toast'
 import { getStaffInitials } from '../utils/rotationManager'
 
 // ── Blue accent palette ──
@@ -194,7 +195,7 @@ function HandoverModal({ handover, onClose }) {
         {handover.signedOff && (
           <div style={{
             padding: '12px 24px 16px', borderTop: '1px solid var(--ec-div)',
-            background: '#ecfdf5', borderRadius: '0 0 16px 16px',
+            background: 'var(--ec-em-bg)', borderRadius: '0 0 16px 16px',
           }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: '#059669' }}>
               ✓ Signed off by {handover.signedOffName || 'Unknown'}
@@ -265,6 +266,7 @@ function RecentRow({ handover, onClick }) {
 // ══════════════════════════════════════════════════════════════════════════════
 export default function HandoverPage() {
   const { user } = useUser()
+  const toast = useToast()
   const { todayHandover, recentHandovers, loading, createHandover, updateHandover } = useHandover()
   const [modalHandover, setModalHandover] = useState(null)
 
@@ -281,6 +283,7 @@ export default function HandoverPage() {
       tempLogged: tempToday,
       rpSignedIn: rpToday,
     })
+    toast('Handover started', 'success')
   }
 
   const handleToggle = (key) => {
@@ -301,6 +304,7 @@ export default function HandoverPage() {
       signedOffName: user.name,
       signedOffAt: new Date().toISOString(),
     })
+    toast('Handover signed off', 'success', 4000)
   }
 
   const handleUndoSignOff = () => {
@@ -311,6 +315,7 @@ export default function HandoverPage() {
       signedOffName: null,
       signedOffAt: null,
     })
+    toast('Sign-off undone', 'info')
   }
 
   const formattedDate = new Date().toLocaleDateString('en-GB', {
